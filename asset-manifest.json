@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/gitlab-codereview-analyzer/static/css/main.4718e228.chunk.css",
+    "main.js": "/gitlab-codereview-analyzer/static/js/main.4fd03044.chunk.js",
+    "main.js.map": "/gitlab-codereview-analyzer/static/js/main.4fd03044.chunk.js.map",
+    "runtime-main.js": "/gitlab-codereview-analyzer/static/js/runtime-main.27b9bf7b.js",
+    "runtime-main.js.map": "/gitlab-codereview-analyzer/static/js/runtime-main.27b9bf7b.js.map",
+    "static/js/2.d3b09939.chunk.js": "/gitlab-codereview-analyzer/static/js/2.d3b09939.chunk.js",
+    "static/js/2.d3b09939.chunk.js.map": "/gitlab-codereview-analyzer/static/js/2.d3b09939.chunk.js.map",
+    "static/js/3.71d6af01.chunk.js": "/gitlab-codereview-analyzer/static/js/3.71d6af01.chunk.js",
+    "static/js/3.71d6af01.chunk.js.map": "/gitlab-codereview-analyzer/static/js/3.71d6af01.chunk.js.map",
+    "index.html": "/gitlab-codereview-analyzer/index.html",
+    "static/css/main.4718e228.chunk.css.map": "/gitlab-codereview-analyzer/static/css/main.4718e228.chunk.css.map",
+    "static/js/2.d3b09939.chunk.js.LICENSE.txt": "/gitlab-codereview-analyzer/static/js/2.d3b09939.chunk.js.LICENSE.txt",
+    "static/media/gitlab.03baf535.svg": "/gitlab-codereview-analyzer/static/media/gitlab.03baf535.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.27b9bf7b.js",
+    "static/js/2.d3b09939.chunk.js",
+    "static/css/main.4718e228.chunk.css",
+    "static/js/main.4fd03044.chunk.js"
+  ]
+}
