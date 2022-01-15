@@ -4,7 +4,7 @@ import { Gitlab } from '@gitbeaker/browser';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { getFilteredComments, getUserComments, getDiscussons, UserComment, UserDiscussion } from './utils/GitLabUtils';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
-import { UserList } from "./components/UserList";
+import { UserList } from './components/UserList';
 import { CommentList } from './components/CommentList';
 import { ProjectList } from './components/ProjectList';
 import { Bar, BarSvgProps, BarDatum } from '@nivo/bar';
@@ -14,10 +14,24 @@ import {
   convertToCommentsReceived,
   convertToCommentsRecivedFromUsers,
   convertToDiscussionsLeft,
-  convertToDiscussionsReceived
+  convertToDiscussionsReceived,
 } from './utils/ChartUtils';
 import { Login } from './components/Login';
-import { AppBar, Box, Container, IconButton, Toolbar, Typography, MenuItem, Tooltip, Avatar, Menu, Button, TextField, Stack } from '@mui/material';
+import {
+  AppBar,
+  Box,
+  Container,
+  IconButton,
+  Toolbar,
+  Typography,
+  MenuItem,
+  Tooltip,
+  Avatar,
+  Menu,
+  Button,
+  TextField,
+  Stack,
+} from '@mui/material';
 import { downloadComments } from './utils/ExcelUtils';
 import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { ChartContainer } from './components/ChartContainer';
@@ -35,13 +49,13 @@ const barChartSettings = {
   labelTextColor: 'inherit:darker(1.4)',
   labelSkipWidth: 16,
   labelSkipHeight: 16,
-  layout: "horizontal",
+  layout: 'horizontal',
 } as BarSvgProps<BarDatum>;
 
 function App() {
-  const [credentials, setCredentials] = useLocalStorage<Credentials | null>("credentials", null)
-  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>("user", null);
-  const [project, setProject] = useLocalStorage<ProjectSchema | null>("project", null);
+  const [credentials, setCredentials] = useLocalStorage<Credentials | null>('credentials', null);
+  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
+  const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
   const [comments, setComments] = useState<UserComment[]>([]);
   const [discussions, setDiscussions] = useState<UserDiscussion[]>([]);
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
@@ -53,9 +67,9 @@ function App() {
   const client = useMemo(() => new Gitlab(credentials), [credentials]);
 
   useEffect(() => {
-    client.Users.current().then(current => {
+    client.Users.current().then((current) => {
       setUser(current);
-    })
+    });
   }, [client]);
 
   const handleAnalyze = () => {
@@ -64,8 +78,7 @@ function App() {
 
   const showComments = async () => {
     try {
-      if (!project)
-        return;
+      if (!project) return;
 
       const comments = await getUserComments(client, {
         projectId: project.id,
@@ -81,8 +94,7 @@ function App() {
 
   const showDiscussions = async () => {
     try {
-      if (!project)
-        return;
+      if (!project) return;
 
       const discussions = await getDiscussons(client, {
         projectId: project.id,
@@ -96,17 +108,26 @@ function App() {
     } catch (ex) {
       console.error(ex);
     }
-  }
+  };
 
-  const discussionsLeft = useMemo(() => convertToDiscussionsLeft(discussions), [discussions])
-  const discussionsReceived = useMemo(() => convertToDiscussionsReceived(discussions), [discussions])
+  const discussionsLeft = useMemo(() => convertToDiscussionsLeft(discussions), [discussions]);
+  const discussionsReceived = useMemo(() => convertToDiscussionsReceived(discussions), [discussions]);
   const commentsLeft = useMemo(() => convertToCommentsLeft(comments), [comments]);
   const commentsRecieved = useMemo(() => convertToCommentsReceived(comments), [comments]);
-  const commentsRecievedFromUsers = useMemo(() => selectedUser ? convertToCommentsRecivedFromUsers(comments, selectedUser.id) : null, [comments, selectedUser])
-  const commentsLeftToUsers = useMemo(() => selectedUser ? convertToCommentsLeftToUsers(comments, selectedUser.id) : null, [comments, selectedUser]);
-  const updateComments = useCallback((reviewerName: string | null, authorName: string | null) => {
-    setFilteredComments(getFilteredComments(comments, reviewerName, authorName));
-  }, [comments]);
+  const commentsRecievedFromUsers = useMemo(
+    () => (selectedUser ? convertToCommentsRecivedFromUsers(comments, selectedUser.id) : null),
+    [comments, selectedUser]
+  );
+  const commentsLeftToUsers = useMemo(
+    () => (selectedUser ? convertToCommentsLeftToUsers(comments, selectedUser.id) : null),
+    [comments, selectedUser]
+  );
+  const updateComments = useCallback(
+    (reviewerName: string | null, authorName: string | null) => {
+      setFilteredComments(getFilteredComments(comments, reviewerName, authorName));
+    },
+    [comments]
+  );
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
   const handleOpenUserMenu = (event: any) => {
@@ -122,17 +143,18 @@ function App() {
     setAnchorElUser(null);
   };
 
-
   if (!credentials) {
-    return <Login
-      onLoggedIn={(token, host, user) => {
-        setCredentials({
-          token,
-          host,
-        })
-        setUser(user);
-      }}
-    />
+    return (
+      <Login
+        onLoggedIn={(token, host, user) => {
+          setCredentials({
+            token,
+            host,
+          });
+          setUser(user);
+        }}
+      />
+    );
   }
 
   return (
@@ -140,12 +162,7 @@ function App() {
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ mr: 2, display: 'flex', flexGrow: 1 }}
-            >
+            <Typography variant="h6" noWrap component="div" sx={{ mr: 2, display: 'flex', flexGrow: 1 }}>
               Analyzer
             </Typography>
             <Box sx={{ flexGrow: 0 }}>
@@ -179,12 +196,9 @@ function App() {
         </Container>
       </AppBar>
       <Box style={{ display: 'flex' }}>
-        <Stack className='App-users' spacing={2}>
+        <Stack className="App-users" spacing={2}>
           <ProjectList project={project} onProjectSelected={setProject} />
-          <UserList
-            label='Author'
-            user={selectedUser}
-            onUserSelected={selectUser} />
+          <UserList label="Author" user={selectedUser} onUserSelected={selectUser} />
           <TextField
             label="Created After"
             type="date"
@@ -212,15 +226,17 @@ function App() {
             fullWidth
           />
           <Button onClick={handleAnalyze}>Analyze</Button>
-          <Button onClick={() => {
-            downloadComments(filteredComments);
-          }}>
+          <Button
+            onClick={() => {
+              downloadComments(filteredComments);
+            }}
+          >
             Download
           </Button>
         </Stack>
         <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
           <div className="charts">
-            {selectedUser && commentsLeftToUsers &&
+            {selectedUser && commentsLeftToUsers && (
               <ChartContainer title={`${selectedUser?.name} reviews following people`}>
                 <Bar
                   {...barChartSettings}
@@ -230,8 +246,8 @@ function App() {
                   }}
                 />
               </ChartContainer>
-            }
-            {selectedUser && commentsRecievedFromUsers &&
+            )}
+            {selectedUser && commentsRecievedFromUsers && (
               <ChartContainer title={`Following people review ${selectedUser?.name}`}>
                 <Bar
                   {...barChartSettings}
@@ -241,7 +257,7 @@ function App() {
                   }}
                 />
               </ChartContainer>
-            }
+            )}
             <ChartContainer title="Comments left by person">
               <Bar
                 {...barChartSettings}
