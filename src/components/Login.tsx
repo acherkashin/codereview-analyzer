@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { ReactComponent as GitLabIcon } from './gitlab.svg';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
-
+import { TooltipPrompt } from './';
 export interface LoginProps {
   onLoggedIn: (token: string, host: string, user: UserSchema) => void;
 }
@@ -53,6 +53,19 @@ export function Login({ onLoggedIn }: LoginProps) {
           value={token}
           type="password"
           onChange={(e) => setToken(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <TooltipPrompt>
+                <a
+                  href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Personal Access Token
+                </a>
+              </TooltipPrompt>
+            ),
+          }}
         />
         <Button onClick={handleLoggedIn}>Sing In</Button>
       </Stack>
