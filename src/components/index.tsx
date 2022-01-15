@@ -4,3 +4,4 @@ export { TooltipPrompt } from './TooltipPrompt';
 export { Login } from './Login';
 export { ProjectList } from './ProjectList';
 export { UserList } from './UserList';
+export { BaseChartTooltip } from './BaseChartTooltip';

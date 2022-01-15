@@ -35,6 +35,7 @@ import {
 import { downloadComments } from './utils/ExcelUtils';
 import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { ChartContainer } from './components/ChartContainer';
+import { BaseChartTooltip } from './components';
 
 export interface Credentials {
   token: string;
@@ -262,6 +263,15 @@ function App() {
               <Bar
                 {...barChartSettings}
                 {...commentsLeft}
+                tooltip={(props) => {
+                  const { indexValue, value, id } = props;
+
+                  return (
+                    <BaseChartTooltip {...props}>
+                      <strong>{indexValue}</strong> left <strong>{value}</strong> comments to <strong>{id}</strong>
+                    </BaseChartTooltip>
+                  );
+                }}
                 onClick={(e) => {
                   updateComments(e.indexValue as string, e.id as string);
                 }}
@@ -272,6 +282,15 @@ function App() {
               <Bar
                 {...barChartSettings}
                 {...commentsRecieved}
+                tooltip={(props) => {
+                  const { indexValue, value, id } = props;
+
+                  return (
+                    <BaseChartTooltip {...props}>
+                      <strong>{id}</strong> left <strong>{value}</strong> comments to <strong>{indexValue}</strong>
+                    </BaseChartTooltip>
+                  );
+                }}
                 onClick={(e) => {
                   updateComments(e.id as string, e.indexValue as string);
                 }}
@@ -281,6 +300,15 @@ function App() {
               <Bar
                 {...barChartSettings}
                 {...discussionsLeft}
+                tooltip={(props) => {
+                  const { indexValue, value, id } = props;
+
+                  return (
+                    <BaseChartTooltip {...props}>
+                      <strong>{indexValue}</strong> started <strong>{value}</strong> discussions with <strong>{id}</strong>
+                    </BaseChartTooltip>
+                  );
+                }}
                 onClick={(e) => {
                   console.log(e);
                 }}
@@ -290,6 +318,15 @@ function App() {
               <Bar
                 {...barChartSettings}
                 {...discussionsReceived}
+                tooltip={(props) => {
+                  const { indexValue, value, id } = props;
+
+                  return (
+                    <BaseChartTooltip {...props}>
+                      <strong>{indexValue}</strong> started <strong>{value}</strong> discussions with <strong>{id}</strong>
+                    </BaseChartTooltip>
+                  );
+                }}
                 onClick={(e) => {
                   console.log(e);
                 }}
