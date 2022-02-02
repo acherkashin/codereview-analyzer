@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './App.css';
 import { Gitlab } from '@gitbeaker/browser';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { getFilteredComments, getUserComments, getDiscussons, UserComment, UserDiscussion } from './utils/GitLabUtils';
+import { getFilteredComments, getUserComments, getDiscussions, UserComment, UserDiscussion } from './utils/GitLabUtils';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { UserList } from './components/UserList';
 import { CommentList } from './components/CommentList';
@@ -12,7 +12,7 @@ import {
   convertToCommentsLeft,
   convertToCommentsLeftToUsers,
   convertToCommentsReceived,
-  convertToCommentsRecivedFromUsers,
+  convertToCommentsRecivedFromUsers as convertToCommentsReceivedFromUsers,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from './utils/ChartUtils';
@@ -97,7 +97,7 @@ function App() {
     try {
       if (!project) return;
 
-      const discussions = await getDiscussons(client, {
+      const discussions = await getDiscussions(client, {
         projectId: project.id,
         createdAfter: createdAfter.toISOString(),
         createdBefore: createdBefore.toISOString(),
@@ -114,9 +114,9 @@ function App() {
   const discussionsLeft = useMemo(() => convertToDiscussionsLeft(discussions), [discussions]);
   const discussionsReceived = useMemo(() => convertToDiscussionsReceived(discussions), [discussions]);
   const commentsLeft = useMemo(() => convertToCommentsLeft(comments), [comments]);
-  const commentsRecieved = useMemo(() => convertToCommentsReceived(comments), [comments]);
-  const commentsRecievedFromUsers = useMemo(
-    () => (selectedUser ? convertToCommentsRecivedFromUsers(comments, selectedUser.id) : null),
+  const commentsReceived = useMemo(() => convertToCommentsReceived(comments), [comments]);
+  const commentsReceivedFromUsers = useMemo(
+    () => (selectedUser ? convertToCommentsReceivedFromUsers(comments, selectedUser.id) : null),
     [comments, selectedUser]
   );
   const commentsLeftToUsers = useMemo(
@@ -248,11 +248,11 @@ function App() {
                 />
               </ChartContainer>
             )}
-            {selectedUser && commentsRecievedFromUsers && (
+            {selectedUser && commentsReceivedFromUsers && (
               <ChartContainer title={`Following people review ${selectedUser?.name}`}>
                 <Bar
                   {...barChartSettings}
-                  {...commentsRecievedFromUsers}
+                  {...commentsReceivedFromUsers}
                   onClick={(e) => {
                     updateComments(e.data.reviewer as string, selectedUser.username);
                   }}
@@ -278,10 +278,10 @@ function App() {
               />
             </ChartContainer>
 
-            <ChartContainer title="Comments recieved by person">
+            <ChartContainer title="Comments started by person">
               <Bar
                 {...barChartSettings}
-                {...commentsRecieved}
+                {...commentsReceived}
                 tooltip={(props) => {
                   const { indexValue, value, id } = props;
 
@@ -296,7 +296,7 @@ function App() {
                 }}
               />
             </ChartContainer>
-            <ChartContainer title="Discussions left by person">
+            <ChartContainer title="Discussions started by person">
               <Bar
                 {...barChartSettings}
                 {...discussionsLeft}
@@ -314,7 +314,7 @@ function App() {
                 }}
               />
             </ChartContainer>
-            <ChartContainer title="Discussions received by person">
+            <ChartContainer title="Discussions started with person">
               <Bar
                 {...barChartSettings}
                 {...discussionsReceived}
@@ -323,7 +323,7 @@ function App() {
 
                   return (
                     <BaseChartTooltip {...props}>
-                      <strong>{indexValue}</strong> started <strong>{value}</strong> discussions with <strong>{id}</strong>
+                      <strong>{id}</strong> started <strong>{value}</strong> discussions with <strong>{indexValue}</strong>
                     </BaseChartTooltip>
                   );
                 }}

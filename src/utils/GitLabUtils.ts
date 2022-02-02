@@ -22,7 +22,7 @@ export async function searchProjects(client: Gitlab, searchText: string) {
   return projects;
 }
 
-export async function getDiscussons(client: Gitlab, { projectId, createdAfter, createdBefore }: UserCommentsOptions) {
+export async function getDiscussions(client: Gitlab, { projectId, createdAfter, createdBefore }: UserCommentsOptions) {
   const allMrs = await client.MergeRequests.all({
     projectId,
     createdAfter,
