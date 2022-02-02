@@ -12,7 +12,8 @@ import {
   convertToCommentsLeft,
   convertToCommentsLeftToUsers,
   convertToCommentsReceived,
-  convertToCommentsRecivedFromUsers as convertToCommentsReceivedFromUsers,
+  convertToCommentsReceivedFromUsers as convertToCommentsReceivedFromUsers,
+  convertToCommentsReceivedPieChart,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from './utils/ChartUtils';
@@ -36,6 +37,7 @@ import { downloadComments } from './utils/ExcelUtils';
 import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { ChartContainer } from './components/ChartContainer';
 import { BaseChartTooltip } from './components';
+import { Pie, PieSvgProps } from '@nivo/pie';
 
 export interface Credentials {
   token: string;
@@ -52,6 +54,16 @@ const barChartSettings = {
   labelSkipHeight: 16,
   layout: 'horizontal',
 } as BarSvgProps<BarDatum>;
+
+const pieChartSettings = {
+  width: 500,
+  height: 400,
+  margin: { left: 150 },
+  padding: 0.2,
+  labelTextColor: 'inherit:darker(1.4)',
+  labelSkipWidth: 16,
+  labelSkipHeight: 16,
+} as Omit<PieSvgProps<BarDatum>, 'data'>;
 
 function App() {
   const [credentials, setCredentials] = useLocalStorage<Credentials | null>('credentials', null);
@@ -130,6 +142,8 @@ function App() {
     [comments]
   );
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const commentsReceivedPieChart = useMemo(() => convertToCommentsReceivedPieChart(comments), [comments]);
 
   const handleOpenUserMenu = (event: any) => {
     setAnchorElUser(event.currentTarget);
@@ -237,6 +251,48 @@ function App() {
         </Stack>
         <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
           <div className="charts">
+            {selectedUser && (
+              <ChartContainer title="Pie chart (received comments)">
+                <Pie
+                  data={commentsReceivedPieChart}
+                  {...pieChartSettings}
+                  margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+                  innerRadius={0.5}
+                  padAngle={0.7}
+                  cornerRadius={3}
+                  activeOuterRadiusOffset={8}
+                  borderWidth={1}
+                  borderColor={{
+                    from: 'color',
+                    modifiers: [['darker', 0.2]],
+                  }}
+                  arcLinkLabelsSkipAngle={10}
+                  arcLinkLabelsTextColor="#333333"
+                  arcLinkLabelsThickness={2}
+                  arcLabelsSkipAngle={10}
+                  defs={[
+                    {
+                      id: 'dots',
+                      type: 'patternDots',
+                      background: 'inherit',
+                      color: 'rgba(255, 255, 255, 0.3)',
+                      size: 4,
+                      padding: 1,
+                      stagger: true,
+                    },
+                    {
+                      id: 'lines',
+                      type: 'patternLines',
+                      background: 'inherit',
+                      color: 'rgba(255, 255, 255, 0.3)',
+                      rotation: -45,
+                      lineWidth: 6,
+                      spacing: 10,
+                    },
+                  ]}
+                />
+              </ChartContainer>
+            )}
             {selectedUser && commentsLeftToUsers && (
               <ChartContainer title={`${selectedUser?.name} reviews following people`}>
                 <Bar

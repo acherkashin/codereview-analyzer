@@ -18,6 +18,17 @@ interface ReviewBarChartSettings<T = BarDatum> {
   data: T[];
 }
 
+export function convertToCommentsReceivedPieChart(comments: UserComment[]) {
+  const rawData = getAuthorReviewerFromComments(comments);
+  const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')])).map((item) => ({
+    id: item.author,
+    label: item.author,
+    value: item.total,
+  }));
+
+  return data;
+}
+
 export function convertToDiscussionsLeft(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
   const rawData = discussions
     .map(
@@ -56,10 +67,10 @@ export function convertToCommentsReceived(comments: UserComment[]): ReviewBarCha
   return convertToItemsReceived(rawData);
 }
 
-export function convertToCommentsRecivedFromUsers(comments: UserComment[], userId: number): ReviewBarChartSettings {
-  const rawData = getAuthorReviewerFromComments(
-    comments.filter((item) => item.mergeRequest.author.id === userId)
-  ).filter((item) => item.reviewer !== item.author);
+export function convertToCommentsReceivedFromUsers(comments: UserComment[], userId: number): ReviewBarChartSettings {
+  const rawData = getAuthorReviewerFromComments(comments.filter((item) => item.mergeRequest.author.id === userId)).filter(
+    (item) => item.reviewer !== item.author
+  );
 
   const data = tidy(rawData, groupBy('reviewer', [summarize({ total: n() })]), arrange([asc('total')]));
 
@@ -87,13 +98,13 @@ export function convertToCommentsLeftToUsers(comment: UserComment[], userId: num
 function getDataForUser(rawData: AuthorReviewer[], userType: 'author' | 'reviewer', userName: string): ReviewBarDatum {
   const groupByUserType = userType === 'author' ? 'reviewer' : 'author';
 
-  const commentsRecieved = tidy(
+  const commentsReceived = tidy(
     rawData,
     filter((data) => data[userType] === userName)
   );
 
   const commentsPerUser = tidy(
-    commentsRecieved,
+    commentsReceived,
     groupBy([groupByUserType], [summarize({ total: n() })]),
     filter((data) => data.total !== 0)
   );
