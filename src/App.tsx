@@ -13,7 +13,7 @@ import {
   convertToCommentsLeftPieChart,
   convertToCommentsLeftToUsers,
   convertToCommentsReceived,
-  convertToCommentsReceivedFromUsers as convertToCommentsReceivedFromUsers,
+  convertToCommentsReceivedFromUsers,
   convertToCommentsReceivedPieChart,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
