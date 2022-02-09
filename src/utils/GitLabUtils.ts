@@ -100,9 +100,16 @@ export function getNoteUrl({ mergeRequest, comment }: UserComment) {
  * @param comments comments in merge requests
  * @returns pair of "reviewer" and "author"
  */
-export function getAuthorReviewerFromComments(comments: UserComment[]) {
+export function getAuthorReviewerFromComments(comments: UserComment[]): AuthorReviewer[] {
   return comments.map<AuthorReviewer>((item) => ({
     reviewer: item.comment.author.username,
     author: item.mergeRequest.author.username as string,
+  }));
+}
+
+export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]): AuthorReviewer[] {
+  return discussions.map<AuthorReviewer>((item) => ({
+    author: item.mergeRequest.author.username as string,
+    reviewer: (item.discussion?.notes?.[0]?.author.username as string) ?? '[empty]',
   }));
 }

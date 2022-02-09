@@ -1,5 +1,11 @@
 import { BarDatum } from '@nivo/bar';
-import { AuthorReviewer, getAuthorReviewerFromComments, UserComment, UserDiscussion } from './GitLabUtils';
+import {
+  AuthorReviewer,
+  getAuthorReviewerFromComments,
+  getAuthorReviewerFromDiscussions,
+  UserComment,
+  UserDiscussion,
+} from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 
 interface ReviewBarDatum extends BarDatum {
@@ -14,30 +20,12 @@ interface ReviewBarChartSettings<T = BarDatum> {
 }
 
 export function convertToDiscussionsLeft(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = discussions
-    .map(
-      (item) =>
-        ({
-          author: item.mergeRequest.author.username as string,
-          reviewer: (item.discussion?.notes?.[0]?.author.username as string) ?? '[empty]',
-        } as AuthorReviewer)
-    )
-    .filter((item) => item.reviewer !== item.author);
-
+  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
   return convertToItemsLeft(rawData);
 }
 
 export function convertToDiscussionsReceived(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = discussions
-    .map(
-      (item) =>
-        ({
-          author: item.mergeRequest.author.username as string,
-          reviewer: (item.discussion?.notes?.[0]?.author.username as string) ?? '[empty]',
-        } as AuthorReviewer)
-    )
-    .filter((item) => item.reviewer !== item.author);
-
+  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
   return convertToItemsReceived(rawData);
 }
 
