@@ -107,29 +107,39 @@ export function convertToCommentsLeftToUsers(comment: UserComment[], userId: num
   };
 }
 
-function getDataForUser(rawData: AuthorReviewer[], userType: 'author' | 'reviewer', userName: string): ReviewBarDatum {
-  const groupByUserType = userType === 'author' ? 'reviewer' : 'author';
-
+/**
+ * Returns statistic for the user. How many comments/discussions he has received/left.
+ *
+ * @param rawData pair of "author" and "reviewer"
+ * @param userType user can be either "author" or "reviewer". So if we need get data for @param userName, when he is "author" (comments/discussions left) - we need to pass "author" string
+ * @param userName name of the user to get data for
+ * @returns statistic for the user
+ */
+function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 'reviewer', userName: string): ReviewBarDatum {
+  // get only data for specified user
   const commentsReceived = tidy(
     rawData,
     filter((data) => data[userType] === userName)
   );
 
+  const groupByUserType = userType === 'author' ? 'reviewer' : 'author';
+  // group either by "review" or "author" and summarize how many comments user left/received
+  // we will get either {reviewer: string, total: number}[] or {author: string, total: number}[]
+  // it depends on what userType we passed
   const commentsPerUser = tidy(
     commentsReceived,
     groupBy([groupByUserType], [summarize({ total: n() })]),
     filter((data) => data.total !== 0)
   );
 
-  const barDatum: ReviewBarDatum = {
-    userName,
-    total: tidy(
-      commentsPerUser,
-      summarize({
-        total: sum('total'),
-      })
-    )[0].total,
-  };
+  const commentsSum = tidy(
+    commentsPerUser,
+    summarize({
+      total: sum('total'),
+    })
+  );
+  const barDatum: ReviewBarDatum = { userName, total: commentsSum[0].total };
+
   commentsPerUser.forEach((comment) => {
     barDatum[comment[groupByUserType]] = comment.total;
   });
@@ -142,7 +152,7 @@ function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<Rev
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 
   let barData = reviewers.map((userName) => {
-    return getDataForUser(items, 'reviewer', userName);
+    return getStatisticForUser(items, 'reviewer', userName);
   });
 
   barData = tidy(barData, arrange([asc('total')]));
@@ -159,7 +169,7 @@ function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 
   let barData = authors.map((userName) => {
-    return getDataForUser(items, 'author', userName);
+    return getStatisticForUser(items, 'author', userName);
   });
 
   barData = tidy(barData, arrange([asc('total')]));
@@ -171,6 +181,11 @@ function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings
   };
 }
 
+/**
+ * Converts comments to the pair of "reviewer" and "author"
+ * @param comments comments in merge requests
+ * @returns pair of "reviewer" and "author"
+ */
 function getAuthorReviewerFromComments(comments: UserComment[]) {
   return comments.map<AuthorReviewer>((item) => ({
     reviewer: item.comment.author.username,
