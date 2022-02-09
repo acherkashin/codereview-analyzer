@@ -16,7 +16,12 @@ import {
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from './utils/ChartUtils';
-import { convertToCommentsLeftPieChart, convertToCommentsReceivedPieChart } from './utils/PieChartUtils';
+import {
+  convertToCommentsLeftPieChart,
+  convertToCommentsReceivedPieChart,
+  convertToDiscussionsReceivedPieChart,
+  convertToDiscussionsStartedPieChart,
+} from './utils/PieChartUtils';
 import { Login } from './components/Login';
 import {
   AppBar,
@@ -145,6 +150,8 @@ function App() {
 
   const commentsReceivedPieChart = useMemo(() => convertToCommentsReceivedPieChart(comments), [comments]);
   const commentsLeftByPieChart = useMemo(() => convertToCommentsLeftPieChart(comments), [comments]);
+  const discussionsReceivedPieChart = useMemo(() => convertToDiscussionsReceivedPieChart(discussions), [discussions]);
+  const discussionsStartedPieChart = useMemo(() => convertToDiscussionsStartedPieChart(discussions), [discussions]);
 
   const handleOpenUserMenu = (event: any) => {
     setAnchorElUser(event.currentTarget);
@@ -252,7 +259,91 @@ function App() {
         </Stack>
         <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
           <div className="charts">
-            {selectedUser && (
+            {discussionsReceivedPieChart && (
+              <ChartContainer title="Pie chart (received discussions)">
+                <Pie
+                  data={discussionsReceivedPieChart}
+                  {...pieChartSettings}
+                  margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+                  innerRadius={0.5}
+                  padAngle={0.7}
+                  cornerRadius={3}
+                  activeOuterRadiusOffset={8}
+                  borderWidth={1}
+                  borderColor={{
+                    from: 'color',
+                    modifiers: [['darker', 0.2]],
+                  }}
+                  arcLinkLabelsSkipAngle={10}
+                  arcLinkLabelsTextColor="#333333"
+                  arcLinkLabelsThickness={2}
+                  arcLabelsSkipAngle={10}
+                  defs={[
+                    {
+                      id: 'dots',
+                      type: 'patternDots',
+                      background: 'inherit',
+                      color: 'rgba(255, 255, 255, 0.3)',
+                      size: 4,
+                      padding: 1,
+                      stagger: true,
+                    },
+                    {
+                      id: 'lines',
+                      type: 'patternLines',
+                      background: 'inherit',
+                      color: 'rgba(255, 255, 255, 0.3)',
+                      rotation: -45,
+                      lineWidth: 6,
+                      spacing: 10,
+                    },
+                  ]}
+                />
+              </ChartContainer>
+            )}
+            {discussionsStartedPieChart && (
+              <ChartContainer title="Pie chart (started discussions)">
+                <Pie
+                  data={discussionsStartedPieChart}
+                  {...pieChartSettings}
+                  margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+                  innerRadius={0.5}
+                  padAngle={0.7}
+                  cornerRadius={3}
+                  activeOuterRadiusOffset={8}
+                  borderWidth={1}
+                  borderColor={{
+                    from: 'color',
+                    modifiers: [['darker', 0.2]],
+                  }}
+                  arcLinkLabelsSkipAngle={10}
+                  arcLinkLabelsTextColor="#333333"
+                  arcLinkLabelsThickness={2}
+                  arcLabelsSkipAngle={10}
+                  defs={[
+                    {
+                      id: 'dots',
+                      type: 'patternDots',
+                      background: 'inherit',
+                      color: 'rgba(255, 255, 255, 0.3)',
+                      size: 4,
+                      padding: 1,
+                      stagger: true,
+                    },
+                    {
+                      id: 'lines',
+                      type: 'patternLines',
+                      background: 'inherit',
+                      color: 'rgba(255, 255, 255, 0.3)',
+                      rotation: -45,
+                      lineWidth: 6,
+                      spacing: 10,
+                    },
+                  ]}
+                />
+              </ChartContainer>
+            )}
+            {commentsReceivedPieChart && (
               <ChartContainer title="Pie chart (received comments)">
                 <Pie
                   data={commentsReceivedPieChart}
@@ -294,7 +385,7 @@ function App() {
                 />
               </ChartContainer>
             )}
-            {selectedUser && (
+            {commentsLeftByPieChart && (
               <ChartContainer title="Pie chart (left comments)">
                 <Pie
                   data={commentsLeftByPieChart}
