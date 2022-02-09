@@ -10,14 +10,13 @@ import { ProjectList } from './components/ProjectList';
 import { Bar, BarSvgProps, BarDatum } from '@nivo/bar';
 import {
   convertToCommentsLeft,
-  convertToCommentsLeftPieChart,
   convertToCommentsLeftToUsers,
   convertToCommentsReceived,
   convertToCommentsReceivedFromUsers,
-  convertToCommentsReceivedPieChart,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from './utils/ChartUtils';
+import { convertToCommentsLeftPieChart, convertToCommentsReceivedPieChart } from './utils/PieChartUtils';
 import { Login } from './components/Login';
 import {
   AppBar,

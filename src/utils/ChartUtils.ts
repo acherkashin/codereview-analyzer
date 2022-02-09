@@ -1,5 +1,5 @@
 import { BarDatum } from '@nivo/bar';
-import { UserComment, UserDiscussion } from './GitLabUtils';
+import { AuthorReviewer, getAuthorReviewerFromComments, UserComment, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 
 interface ReviewBarDatum extends BarDatum {
@@ -7,38 +7,10 @@ interface ReviewBarDatum extends BarDatum {
   total: number;
 }
 
-interface AuthorReviewer {
-  reviewer: string;
-  author: string;
-}
-
 interface ReviewBarChartSettings<T = BarDatum> {
   indexBy: string;
   keys: string[];
   data: T[];
-}
-
-//TODO: move to PieChartUtils.ts
-export function convertToCommentsReceivedPieChart(comments: UserComment[]) {
-  const rawData = getAuthorReviewerFromComments(comments);
-  const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')])).map((item) => ({
-    id: item.author,
-    label: item.author,
-    value: item.total,
-  }));
-
-  return data;
-}
-
-export function convertToCommentsLeftPieChart(comments: UserComment[]) {
-  const rawData = getAuthorReviewerFromComments(comments);
-  const data = tidy(rawData, groupBy('reviewer', summarize({ total: n() })), arrange([asc('total')])).map((item) => ({
-    id: item.reviewer,
-    label: item.reviewer,
-    value: item.total,
-  }));
-
-  return data;
 }
 
 export function convertToDiscussionsLeft(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
@@ -179,16 +151,4 @@ function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings
     keys: reviewers,
     data: barData,
   };
-}
-
-/**
- * Converts comments to the pair of "reviewer" and "author"
- * @param comments comments in merge requests
- * @returns pair of "reviewer" and "author"
- */
-function getAuthorReviewerFromComments(comments: UserComment[]) {
-  return comments.map<AuthorReviewer>((item) => ({
-    reviewer: item.comment.author.username,
-    author: item.mergeRequest.author.username as string,
-  }));
 }
