@@ -241,17 +241,17 @@ function App() {
         <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
           <div className="charts">
             {discussionsReceivedPieChart && (
-              <ChartContainer title="Pie chart (received discussions)">
+              <ChartContainer title="Discussions started with person">
                 <Pie data={discussionsReceivedPieChart} {...pieChartSettings} onClick={(e) => console.log(e)} />
               </ChartContainer>
             )}
             {discussionsStartedPieChart && (
-              <ChartContainer title="Pie chart (started discussions)">
+              <ChartContainer title="Discussions started by person">
                 <Pie data={discussionsStartedPieChart} {...pieChartSettings} onClick={(e) => console.log(e)} />
               </ChartContainer>
             )}
             {commentsReceivedPieChart && (
-              <ChartContainer title="Pie chart (received comments)">
+              <ChartContainer title="Comments received by person">
                 <Pie
                   data={commentsReceivedPieChart}
                   {...pieChartSettings}
@@ -262,7 +262,7 @@ function App() {
               </ChartContainer>
             )}
             {commentsLeftByPieChart && (
-              <ChartContainer title="Pie chart (left comments)">
+              <ChartContainer title="Comments left by person">
                 <Pie
                   data={commentsLeftByPieChart}
                   {...pieChartSettings}
@@ -313,7 +313,7 @@ function App() {
               />
             </ChartContainer>
 
-            <ChartContainer title="Comments started by person">
+            <ChartContainer title="Comments received by person">
               <Bar
                 {...barChartSettings}
                 {...commentsReceived}
