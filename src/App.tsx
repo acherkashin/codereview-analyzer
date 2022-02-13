@@ -7,7 +7,7 @@ import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { UserList } from './components/UserList';
 import { CommentList } from './components/CommentList';
 import { ProjectList } from './components/ProjectList';
-import { Bar, BarSvgProps, BarDatum } from '@nivo/bar';
+import { Bar } from '@nivo/bar';
 import {
   convertToCommentsLeft,
   convertToCommentsLeftToUsers,
@@ -15,12 +15,14 @@ import {
   convertToCommentsReceivedFromUsers,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
+  barChartSettings,
 } from './utils/ChartUtils';
 import {
   convertToCommentsLeftPieChart,
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
+  pieChartSettings,
 } from './utils/PieChartUtils';
 import { Login } from './components/Login';
 import {
@@ -42,66 +44,12 @@ import { downloadComments } from './utils/ExcelUtils';
 import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { ChartContainer } from './components/ChartContainer';
 import { BaseChartTooltip } from './components';
-import { Pie, PieSvgProps } from '@nivo/pie';
+import { Pie } from '@nivo/pie';
 
 export interface Credentials {
   token: string;
   host: string;
 }
-
-const barChartSettings = {
-  width: 500,
-  height: 400,
-  margin: { left: 150 },
-  padding: 0.2,
-  labelTextColor: 'inherit:darker(1.4)',
-  labelSkipWidth: 16,
-  labelSkipHeight: 16,
-  layout: 'horizontal',
-} as BarSvgProps<BarDatum>;
-
-const pieChartSettings = {
-  width: 500,
-  height: 400,
-  padding: 0.2,
-  labelTextColor: 'inherit:darker(1.4)',
-  labelSkipWidth: 16,
-  labelSkipHeight: 16,
-  margin: { top: 40, right: 80, bottom: 80, left: 80 },
-  innerRadius: 0.5,
-  padAngle: 0.7,
-  cornerRadius: 3,
-  activeOuterRadiusOffset: 8,
-  borderWidth: 1,
-  borderColor: {
-    from: 'color',
-    modifiers: [['darker', 0.2]],
-  },
-  arcLinkLabelsSkipAngle: 10,
-  arcLinkLabelsTextColor: '#333333',
-  arcLinkLabelsThickness: 2,
-  arcLabelsSkipAngle: 10,
-  defs: [
-    {
-      id: 'dots',
-      type: 'patternDots',
-      background: 'inherit',
-      color: 'rgba(255, 255, 255, 0.3)',
-      size: 4,
-      padding: 1,
-      stagger: true,
-    },
-    {
-      id: 'lines',
-      type: 'patternLines',
-      background: 'inherit',
-      color: 'rgba(255, 255, 255, 0.3)',
-      rotation: -45,
-      lineWidth: 6,
-      spacing: 10,
-    },
-  ],
-} as Omit<PieSvgProps<BarDatum>, 'data'>;
 
 function App() {
   const [credentials, setCredentials] = useLocalStorage<Credentials | null>('credentials', null);
