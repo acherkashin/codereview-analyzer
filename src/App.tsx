@@ -7,15 +7,23 @@ import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { UserList } from './components/UserList';
 import { CommentList } from './components/CommentList';
 import { ProjectList } from './components/ProjectList';
-import { Bar, BarSvgProps, BarDatum } from '@nivo/bar';
+import { Bar } from '@nivo/bar';
 import {
   convertToCommentsLeft,
   convertToCommentsLeftToUsers,
   convertToCommentsReceived,
-  convertToCommentsRecivedFromUsers as convertToCommentsReceivedFromUsers,
+  convertToCommentsReceivedFromUsers,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
+  barChartSettings,
 } from './utils/ChartUtils';
+import {
+  convertToCommentsLeftPieChart,
+  convertToCommentsReceivedPieChart,
+  convertToDiscussionsReceivedPieChart,
+  convertToDiscussionsStartedPieChart,
+  pieChartSettings,
+} from './utils/PieChartUtils';
 import { Login } from './components/Login';
 import {
   AppBar,
@@ -36,22 +44,12 @@ import { downloadComments } from './utils/ExcelUtils';
 import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { ChartContainer } from './components/ChartContainer';
 import { BaseChartTooltip } from './components';
+import { Pie } from '@nivo/pie';
 
 export interface Credentials {
   token: string;
   host: string;
 }
-
-const barChartSettings = {
-  width: 500,
-  height: 400,
-  margin: { left: 150 },
-  padding: 0.2,
-  labelTextColor: 'inherit:darker(1.4)',
-  labelSkipWidth: 16,
-  labelSkipHeight: 16,
-  layout: 'horizontal',
-} as BarSvgProps<BarDatum>;
 
 function App() {
   const [credentials, setCredentials] = useLocalStorage<Credentials | null>('credentials', null);
@@ -130,6 +128,11 @@ function App() {
     [comments]
   );
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const commentsReceivedPieChart = useMemo(() => convertToCommentsReceivedPieChart(comments), [comments]);
+  const commentsLeftByPieChart = useMemo(() => convertToCommentsLeftPieChart(comments), [comments]);
+  const discussionsReceivedPieChart = useMemo(() => convertToDiscussionsReceivedPieChart(discussions), [discussions]);
+  const discussionsStartedPieChart = useMemo(() => convertToDiscussionsStartedPieChart(discussions), [discussions]);
 
   const handleOpenUserMenu = (event: any) => {
     setAnchorElUser(event.currentTarget);
@@ -237,6 +240,38 @@ function App() {
         </Stack>
         <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
           <div className="charts">
+            {discussionsReceivedPieChart && (
+              <ChartContainer title="Discussions started with person">
+                <Pie data={discussionsReceivedPieChart} {...pieChartSettings} onClick={(e) => console.log(e)} />
+              </ChartContainer>
+            )}
+            {discussionsStartedPieChart && (
+              <ChartContainer title="Discussions started by person">
+                <Pie data={discussionsStartedPieChart} {...pieChartSettings} onClick={(e) => console.log(e)} />
+              </ChartContainer>
+            )}
+            {commentsReceivedPieChart && (
+              <ChartContainer title="Comments received by person">
+                <Pie
+                  data={commentsReceivedPieChart}
+                  {...pieChartSettings}
+                  onClick={(e) => {
+                    updateComments(null, e.id as string);
+                  }}
+                />
+              </ChartContainer>
+            )}
+            {commentsLeftByPieChart && (
+              <ChartContainer title="Comments left by person">
+                <Pie
+                  data={commentsLeftByPieChart}
+                  {...pieChartSettings}
+                  onClick={(e) => {
+                    updateComments(e.id as string, null);
+                  }}
+                />
+              </ChartContainer>
+            )}
             {selectedUser && commentsLeftToUsers && (
               <ChartContainer title={`${selectedUser?.name} reviews following people`}>
                 <Bar
@@ -278,7 +313,7 @@ function App() {
               />
             </ChartContainer>
 
-            <ChartContainer title="Comments started by person">
+            <ChartContainer title="Comments received by person">
               <Bar
                 {...barChartSettings}
                 {...commentsReceived}

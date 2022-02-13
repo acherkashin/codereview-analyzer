@@ -11,6 +11,11 @@ export interface UserDiscussion {
   discussion: DiscussionSchema;
 }
 
+export interface AuthorReviewer {
+  reviewer: string;
+  author: string;
+}
+
 export interface UserCommentsOptions {
   projectId: number;
   createdAfter?: string;
@@ -88,4 +93,23 @@ export function getFilteredComments(comments: UserComment[], reviewerName: strin
 
 export function getNoteUrl({ mergeRequest, comment }: UserComment) {
   return `${mergeRequest.web_url}/#note_${comment.id}`;
+}
+
+/**
+ * Converts comments to the pair of "reviewer" and "author"
+ * @param comments comments in merge requests
+ * @returns pair of "reviewer" and "author"
+ */
+export function getAuthorReviewerFromComments(comments: UserComment[]): AuthorReviewer[] {
+  return comments.map<AuthorReviewer>((item) => ({
+    reviewer: item.comment.author.username,
+    author: item.mergeRequest.author.username as string,
+  }));
+}
+
+export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]): AuthorReviewer[] {
+  return discussions.map<AuthorReviewer>((item) => ({
+    author: item.mergeRequest.author.username as string,
+    reviewer: (item.discussion?.notes?.[0]?.author.username as string) ?? '[empty]',
+  }));
 }
