@@ -2409,7 +2409,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nivo/tooltip@npm:0.79.0":
+"@nivo/tooltip@npm:0.79.0, @nivo/tooltip@npm:^0.79.0":
   version: 0.79.0
   resolution: "@nivo/tooltip@npm:0.79.0"
   dependencies:
@@ -2775,7 +2775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^7.28.1":
+"@testing-library/dom@npm:^7.21.4, @testing-library/dom@npm:^7.28.1":
   version: 7.31.2
   resolution: "@testing-library/dom@npm:7.31.2"
   dependencies:
@@ -8094,11 +8094,15 @@ __metadata:
     "@emotion/react": ^11.7.0
     "@emotion/styled": ^11.6.0
     "@gitbeaker/browser": ^35.1.0
+    "@gitbeaker/core": ^35.1.0
     "@mui/icons-material": ^5.2.5
     "@mui/material": ^5.2.3
+    "@mui/system": ^5.2.3
     "@nivo/bar": ^0.79.0
     "@nivo/core": ^0.79.0
     "@nivo/pie": ^0.79.0
+    "@nivo/tooltip": ^0.79.0
+    "@testing-library/dom": ^7.21.4
     "@testing-library/jest-dom": ^5.11.4
     "@testing-library/react": ^11.1.0
     "@testing-library/user-event": ^12.1.10
@@ -8112,6 +8116,7 @@ __metadata:
     husky: ^7.0.4
     lint-staged: ^12.1.7
     prettier: ^2.5.1
+    prop-types: ^15.5.10
     react: ^17.0.2
     react-dom: ^17.0.2
     react-scripts: 4.0.3
@@ -13105,6 +13110,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prop-types@npm:^15.5.10":
+  version: 15.8.1
+  resolution: "prop-types@npm:15.8.1"
+  dependencies:
+    loose-envify: ^1.4.0
+    object-assign: ^4.1.1
+    react-is: ^16.13.1
+  checksum: c056d3f1c057cb7ff8344c645450e14f088a915d078dcda795041765047fa080d38e5d626560ccaac94a4e16e3aa15f3557c1a9a8d1174530955e992c675e459
+  languageName: node
+  linkType: hard
+
 "prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
   version: 15.7.2
   resolution: "prop-types@npm:15.7.2"
@@ -13406,7 +13422,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.7.0, react-is@npm:^16.8.1":
+"react-is@npm:^16.13.1, react-is@npm:^16.7.0, react-is@npm:^16.8.1":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
