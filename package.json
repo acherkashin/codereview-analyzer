@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "@types/zipcelx": "^1.5.0",
+    "eslint-config-react-app": "^6.0.0",
     "gh-pages": "^3.2.3",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.7",
