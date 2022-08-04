@@ -6,6 +6,7 @@ import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Login } from './components/Login';
 import { AppBar, Box, Container, IconButton, Toolbar, Typography, MenuItem, Tooltip, Avatar, Menu } from '@mui/material';
 import { CodeReviewCharts } from './pages/CodeReviewCharts';
+import { ReadyMergeRequests } from './pages/ReadyMergeRequests';
 
 export interface Credentials {
   token: string;
@@ -90,7 +91,8 @@ function App() {
           </Toolbar>
         </Container>
       </AppBar>
-      <CodeReviewCharts client={client} />
+      {/* <CodeReviewCharts client={client} /> */}
+      <ReadyMergeRequests client={client} />
     </div>
   );
 }
