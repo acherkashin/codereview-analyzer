@@ -4,9 +4,7 @@ import { Gitlab } from '@gitbeaker/browser';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { getFilteredComments, getUserComments, getDiscussions, UserComment, UserDiscussion } from './utils/GitLabUtils';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
-import { UserList } from './components/UserList';
-import { CommentList } from './components/CommentList';
-import { ProjectList } from './components/ProjectList';
+import { DiscussionList, ProjectList, UserList, CommentList } from './components';
 import { Bar } from '@nivo/bar';
 import {
   convertToCommentsLeft,
@@ -232,7 +230,12 @@ function App() {
           <Button onClick={handleAnalyze}>Analyze</Button>
           <Button
             onClick={() => {
-              downloadComments(filteredComments);
+              if (filteredComments != null && filteredComments.length !== 0) {
+                downloadComments(filteredComments);
+              }
+              if (comments != null && comments.length !== 0) {
+                downloadComments(comments);
+              }
             }}
           >
             Download
@@ -368,6 +371,7 @@ function App() {
               />
             </ChartContainer>
           </div>
+          <DiscussionList discussions={discussions} />
           <CommentList comments={filteredComments} />
           Total: {filteredComments.length}
         </div>

@@ -27,7 +27,10 @@ export async function searchProjects(client: Gitlab, searchText: string) {
   return projects;
 }
 
-export async function getDiscussions(client: Gitlab, { projectId, createdAfter, createdBefore }: UserCommentsOptions) {
+export async function getDiscussions(
+  client: Gitlab,
+  { projectId, createdAfter, createdBefore }: UserCommentsOptions
+): Promise<UserDiscussion[]> {
   const allMrs = await client.MergeRequests.all({
     projectId,
     createdAfter,
@@ -43,11 +46,11 @@ export async function getDiscussions(client: Gitlab, { projectId, createdAfter, 
     });
   });
 
-  const allComments = await Promise.allSettled(promises);
+  const allDiscussions = await Promise.allSettled(promises);
 
-  const comments = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
+  const discussions = allDiscussions.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
 
-  return comments;
+  return discussions;
 }
 
 export async function getUserComments(
@@ -110,6 +113,10 @@ export function getAuthorReviewerFromComments(comments: UserComment[]): AuthorRe
 export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]): AuthorReviewer[] {
   return discussions.map<AuthorReviewer>((item) => ({
     author: item.mergeRequest.author.username as string,
-    reviewer: (item.discussion?.notes?.[0]?.author.username as string) ?? '[empty]',
+    reviewer: getDiscussionAuthor(item.discussion) ?? '[empty]',
   }));
+}
+
+export function getDiscussionAuthor(discussion: DiscussionSchema): string {
+  return discussion?.notes?.[0]?.author.username as string;
 }
