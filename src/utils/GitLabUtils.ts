@@ -64,11 +64,15 @@ export async function getUserComments(
     perPage: 100,
   });
 
+  const comments = await getCommentsForMergeRequests(client, projectId, allMrs);
+
+  return comments.filter((item) => !item.comment.system);
+}
+
+async function getCommentsForMergeRequests(client: Gitlab, projectId: number, allMrs: MergeRequestSchema[]) {
   const mrs = allMrs.filter((item) => item.user_notes_count !== 0);
   const promises = mrs.map((mrItem) => {
-    return client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 }).then((items) => {
-      const userNotes = items.filter((item) => !item.system);
-
+    return client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 }).then((userNotes) => {
       return userNotes.map((item) => ({ mergeRequest: mrItem, comment: item } as UserComment));
     });
   });
@@ -119,4 +123,41 @@ export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]):
 
 export function getDiscussionAuthor(discussion: DiscussionSchema): string {
   return discussion?.notes?.[0]?.author.username as string;
+}
+
+interface MergeRequestWithNotes {
+  mergeRequest: MergeRequestSchema;
+  notes: MergeRequestNoteSchema[];
+}
+
+export async function getReadyMergeRequests(client: Gitlab, projectId: number): Promise<MergeRequestWithNotes[]> {
+  const mrs = await client.MergeRequests.all({
+    projectId,
+    state: 'opened',
+    wip: 'no',
+  });
+
+  const promises = mrs.map(async (mrItem) => {
+    const notes = await client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
+    return { mergeRequest: mrItem, notes };
+  });
+
+  const allComments = await Promise.allSettled(promises);
+  const comments = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
+
+  console.log(comments);
+
+  return comments;
+}
+
+//TODO: rename somehow
+export async function getReadyMergeRequestsForPage(client: Gitlab, projectId: number) {
+  const mrs = await getReadyMergeRequests(client, projectId);
+
+  //TODO: need to calculate "Now - getReadyTime()"
+}
+
+function getReadyTime(mr: MergeRequestWithNotes) {
+  const readyNote = mr.notes.find((item) => item.body === 'marked this merge request as **ready**');
+  return readyNote?.created_at ?? mr.mergeRequest.created_at;
 }
