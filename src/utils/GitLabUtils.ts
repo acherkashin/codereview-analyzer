@@ -125,7 +125,7 @@ export function getDiscussionAuthor(discussion: DiscussionSchema): string {
   return discussion?.notes?.[0]?.author.username as string;
 }
 
-interface MergeRequestWithNotes {
+export interface MergeRequestWithNotes {
   mergeRequest: MergeRequestSchema;
   notes: MergeRequestNoteSchema[];
 }
@@ -145,19 +145,66 @@ export async function getReadyMergeRequests(client: Gitlab, projectId: number): 
   const allComments = await Promise.allSettled(promises);
   const comments = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
 
-  console.log(comments);
-
   return comments;
 }
 
-//TODO: rename somehow
-export async function getReadyMergeRequestsForPage(client: Gitlab, projectId: number) {
-  const mrs = await getReadyMergeRequests(client, projectId);
+export interface MergeRequestForPage {
+  item: MergeRequestWithNotes;
+  readyTime: string;
+  readyPeriod: TimeSpan;
+}
 
-  //TODO: need to calculate "Now - getReadyTime()"
+//TODO: rename somehow
+export async function getReadyMergeRequestsForPage(client: Gitlab, projectId: number): Promise<MergeRequestForPage[]> {
+  const mrs = await getReadyMergeRequests(client, projectId);
+  console.log(mrs);
+
+  return mrs
+    .map((item) => {
+      return {
+        item,
+        readyTime: getReadyTime(item),
+        readyPeriod: timeSince(new Date(getReadyTime(item))),
+      };
+    })
+    .sort((item1, item2) => item2.readyPeriod._milliseconds - item1.readyPeriod._milliseconds);
 }
 
 function getReadyTime(mr: MergeRequestWithNotes) {
   const readyNote = mr.notes.find((item) => item.body === 'marked this merge request as **ready**');
   return readyNote?.created_at ?? mr.mergeRequest.created_at;
+}
+
+// https://stackoverflow.com/questions/14297625/work-with-a-time-span-in-javascript
+interface TimeSpan {
+  years: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  milliseconds: number;
+  _years: number;
+  _days: number;
+  _hours: number;
+  _minutes: number;
+  _seconds: number;
+  _milliseconds: number;
+}
+
+function timeSince(when: Date): TimeSpan {
+  // this ignores months
+  const obj: TimeSpan = {} as any;
+  obj._milliseconds = new Date().valueOf() - when.valueOf();
+  obj.milliseconds = obj._milliseconds % 1000;
+  obj._seconds = (obj._milliseconds - obj.milliseconds) / 1000;
+  obj.seconds = obj._seconds % 60;
+  obj._minutes = (obj._seconds - obj.seconds) / 60;
+  obj.minutes = obj._minutes % 60;
+  obj._hours = (obj._minutes - obj.minutes) / 60;
+  obj.hours = obj._hours % 24;
+  obj._days = (obj._hours - obj.hours) / 24;
+  obj.days = obj._days % 365;
+  // finally
+  obj.years = (obj._days - obj.days) / 365;
+  return obj;
 }
