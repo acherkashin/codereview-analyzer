@@ -6,3 +6,4 @@ export { ProjectList } from './ProjectList';
 export { UserList } from './UserList';
 export { BaseChartTooltip } from './BaseChartTooltip';
 export { DiscussionList } from './DiscussionList';
+export { MergeRequest } from './MergeRequest';

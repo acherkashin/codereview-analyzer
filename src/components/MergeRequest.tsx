@@ -1,4 +1,4 @@
-import { MergeRequestForPage } from './../utils/GitLabUtils';
+import { MergeRequestForPage } from '../utils/GitLabUtils';
 
 export interface MergeRequestProps extends MergeRequestForPage {}
 

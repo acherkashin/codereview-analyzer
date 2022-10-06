@@ -2,7 +2,7 @@ import { Resources } from '@gitbeaker/core';
 import { Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getReadyMergeRequestsForPage, MergeRequestForPage } from '../utils/GitLabUtils';
-import { MergeRequest } from './MergeRequest';
+import { MergeRequest } from '../components/MergeRequest';
 
 export interface ReadyMergeRequestsProps {
   client: Resources.Gitlab;
