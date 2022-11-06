@@ -13,7 +13,7 @@ export function MergeRequest({ item, readyPeriod, readyTime }: MergeRequestProps
       <div>
         In Review - Days: {readyPeriod.days}, Hours: {readyPeriod.hours}
       </div>
-      <div>Author: {item.mergeRequest.author.name}</div>
+      <div>Author: {item.mergeRequest.author.name as any}</div>
       <div>Reviewers: {item.mergeRequest.reviewers?.map((item) => item.name).join(', ')}</div>
     </li>
   );
