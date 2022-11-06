@@ -1,9 +1,9 @@
-import { MergeRequestForPage } from '../utils/GitLabUtils';
+import { MergeRequestForPage, timeSince, timeSinceString } from '../utils/GitLabUtils';
 import { UserItem, UserItemProps, UserList } from './UserList';
 
 export interface MergeRequestProps extends MergeRequestForPage {}
 
-export function MergeRequest({ item: { mergeRequest }, readyPeriod: { days, hours }, readyTime }: MergeRequestProps) {
+export function MergeRequest({ item: { mergeRequest }, readyPeriod, readyTime }: MergeRequestProps) {
   const users = mergeRequest.reviewers?.map(
     (item) =>
       ({
@@ -36,14 +36,11 @@ export function MergeRequest({ item: { mergeRequest }, readyPeriod: { days, hour
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>In Review</div>
-        <div>
-          {days} {days === 1 ? 'day' : 'days'}, {hours} {hours === 1 ? 'hour' : 'hours'}
-        </div>
+        <div>{timeSinceString(readyPeriod)}</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>Last Update</div>
-        {/* TODO: use getReadyTime */}
-        <div>{new Date(mergeRequest.updated_at).toLocaleString()}</div>
+        <div>{timeSinceString(timeSince(new Date(mergeRequest.updated_at)))}</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>Author</div>

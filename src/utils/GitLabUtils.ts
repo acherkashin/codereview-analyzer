@@ -191,7 +191,7 @@ interface TimeSpan {
   _milliseconds: number;
 }
 
-function timeSince(when: Date): TimeSpan {
+export function timeSince(when: Date): TimeSpan {
   // this ignores months
   const obj: TimeSpan = {} as any;
   obj._milliseconds = new Date().valueOf() - when.valueOf();
@@ -207,4 +207,8 @@ function timeSince(when: Date): TimeSpan {
   // finally
   obj.years = (obj._days - obj.days) / 365;
   return obj;
+}
+
+export function timeSinceString({ days, hours }: TimeSpan): string {
+  return `${days} ${days === 1 ? 'day' : 'days'}, ${hours} ${hours === 1 ? 'hour' : 'hours'}`;
 }
