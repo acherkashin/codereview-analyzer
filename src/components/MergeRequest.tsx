@@ -3,8 +3,8 @@ import { UserItem, UserItemProps, UserList } from './UserList';
 
 export interface MergeRequestProps extends MergeRequestForPage {}
 
-export function MergeRequest({ item, readyPeriod: { days, hours }, readyTime }: MergeRequestProps) {
-  const users = item.mergeRequest.reviewers?.map(
+export function MergeRequest({ item: { mergeRequest }, readyPeriod: { days, hours }, readyTime }: MergeRequestProps) {
+  const users = mergeRequest.reviewers?.map(
     (item) =>
       ({
         name: item.name as any,
@@ -23,12 +23,16 @@ export function MergeRequest({ item, readyPeriod: { days, hours }, readyTime }: 
         border: '1px solid gray',
         padding: 8,
       }}
-      key={item.mergeRequest.id}
+      key={mergeRequest.id}
     >
       <div style={{ marginBottom: 8 }}>
-        <a href={item.mergeRequest.web_url} target="_blank" rel="noreferrer">
-          {item.mergeRequest.title}
+        <a href={mergeRequest.web_url} target="_blank" rel="noreferrer">
+          {mergeRequest.title}
         </a>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
+        <div style={{ fontWeight: 'bold' }}>Target Branch</div>
+        <div>{mergeRequest.target_branch}</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>In Review</div>
@@ -37,12 +41,17 @@ export function MergeRequest({ item, readyPeriod: { days, hours }, readyTime }: 
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
+        <div style={{ fontWeight: 'bold' }}>Last Update</div>
+        {/* TODO: use getReadyTime */}
+        <div>{new Date(mergeRequest.updated_at).toLocaleString()}</div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>Author</div>
         <UserItem
           component="div"
-          name={item.mergeRequest.author.name as any}
-          avatarUrl={item.mergeRequest.author.avatar_url as any}
-          userUrl={item.mergeRequest.author.web_url as any}
+          name={mergeRequest.author.name as any}
+          avatarUrl={mergeRequest.author.avatar_url as any}
+          userUrl={mergeRequest.author.web_url as any}
         />
       </div>
 
