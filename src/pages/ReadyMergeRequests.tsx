@@ -1,15 +1,15 @@
-import { Resources } from '@gitbeaker/core';
 import { Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getReadyMergeRequestsForPage, MergeRequestForPage } from '../utils/GitLabUtils';
 import { MergeRequest } from '../components/MergeRequest';
+import { useContext } from 'react';
+import { AppContext } from './AppContext';
 
-export interface ReadyMergeRequestsProps {
-  client: Resources.Gitlab;
-}
+export interface ReadyMergeRequestsProps {}
 
-export function ReadyMergeRequests({ client }: ReadyMergeRequestsProps) {
+export function ReadyMergeRequests({}: ReadyMergeRequestsProps) {
   const [mrs, setMrs] = useState<MergeRequestForPage[]>([]);
+  const { client } = useContext(AppContext);
 
   useEffect(() => {
     getReadyMergeRequestsForPage(client, 39).then((result) => setMrs(result));

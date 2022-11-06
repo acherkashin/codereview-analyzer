@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import {
   barChartSettings,
   convertToCommentsLeft,
@@ -23,13 +23,13 @@ import { Box, Button, TextField, Stack } from '@mui/material';
 import { Pie } from '@nivo/pie';
 import { Bar } from '@nivo/bar';
 import { downloadComments } from '../utils/ExcelUtils';
-import { Resources } from '@gitbeaker/core';
+import { AppContext } from './AppContext';
 
-export interface CodeReviewChartsProps {
-  client: Resources.Gitlab;
-}
+export interface CodeReviewChartsProps {}
 
-export function CodeReviewCharts({ client }: CodeReviewChartsProps) {
+export function CodeReviewCharts({}: CodeReviewChartsProps) {
+  const { client } = useContext(AppContext);
+
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
   const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
 

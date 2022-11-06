@@ -3,12 +3,34 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { CodeReviewCharts } from './pages/CodeReviewCharts';
+import { ErrorPage } from './pages/ErrorPage';
+import { ReadyMergeRequests } from './pages/ReadyMergeRequests';
+import { createBrowserRouter, RouterProvider, Link as RouterLink } from 'react-router-dom';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: '/charts',
+        element: <CodeReviewCharts />,
+      },
+      {
+        path: '/ready-mrs',
+        element: <ReadyMergeRequests />,
+      },
+    ],
+  },
+]);
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
 
