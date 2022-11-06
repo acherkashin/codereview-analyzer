@@ -18,7 +18,7 @@ import {
 } from '../utils/PieChartUtils';
 import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserList } from '../components';
+import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserSelect } from '../components';
 import { Box, Button, TextField, Stack } from '@mui/material';
 import { Pie } from '@nivo/pie';
 import { Bar } from '@nivo/bar';
@@ -105,7 +105,7 @@ export function CodeReviewCharts({ client }: CodeReviewChartsProps) {
     <Box style={{ display: 'flex' }}>
       <Stack className="App-users" spacing={2}>
         <ProjectList project={project} onProjectSelected={setProject} />
-        <UserList label="Author" user={selectedUser} onUserSelected={selectUser} />
+        <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
         <TextField
           label="Created After"
           type="date"
