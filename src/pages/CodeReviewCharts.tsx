@@ -103,49 +103,6 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
 
   return (
     <Box style={{ display: 'flex' }}>
-      <Stack className="App-users" spacing={2}>
-        <ProjectList project={project} onProjectSelected={setProject} />
-        <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
-        <TextField
-          label="Created After"
-          type="date"
-          value={createdAfter?.toISOString().substring(0, 10)}
-          onChange={(newValue) => {
-            const newDate = new Date(newValue.target.value);
-            setCreatedAfter(newDate);
-          }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          fullWidth
-        />
-        <TextField
-          label="Created Before"
-          type="date"
-          value={createdBefore?.toISOString().substring(0, 10)}
-          onChange={(newValue) => {
-            const newDate = new Date(newValue.target.value);
-            setCreatedBefore(newDate);
-          }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          fullWidth
-        />
-        <Button onClick={handleAnalyze}>Analyze</Button>
-        <Button
-          onClick={() => {
-            if (filteredComments != null && filteredComments.length !== 0) {
-              downloadComments(filteredComments);
-            }
-            if (comments != null && comments.length !== 0) {
-              downloadComments(comments);
-            }
-          }}
-        >
-          Download
-        </Button>
-      </Stack>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <div className="charts">
           {discussionsReceivedPieChart && (
@@ -280,6 +237,49 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
         <CommentList comments={filteredComments} />
         Total: {filteredComments.length}
       </div>
+      <Stack className="App-users" spacing={2}>
+        <ProjectList project={project} onProjectSelected={setProject} />
+        <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
+        <TextField
+          label="Created After"
+          type="date"
+          value={createdAfter?.toISOString().substring(0, 10)}
+          onChange={(newValue) => {
+            const newDate = new Date(newValue.target.value);
+            setCreatedAfter(newDate);
+          }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          fullWidth
+        />
+        <TextField
+          label="Created Before"
+          type="date"
+          value={createdBefore?.toISOString().substring(0, 10)}
+          onChange={(newValue) => {
+            const newDate = new Date(newValue.target.value);
+            setCreatedBefore(newDate);
+          }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          fullWidth
+        />
+        <Button onClick={handleAnalyze}>Analyze</Button>
+        <Button
+          onClick={() => {
+            if (filteredComments != null && filteredComments.length !== 0) {
+              downloadComments(filteredComments);
+            }
+            if (comments != null && comments.length !== 0) {
+              downloadComments(comments);
+            }
+          }}
+        >
+          Download
+        </Button>
+      </Stack>
     </Box>
   );
 }

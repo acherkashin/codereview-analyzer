@@ -87,10 +87,10 @@ function App() {
                   onClose={handleCloseUserMenu}
                 >
                   {/* https://mui.com/material-ui/guides/routing/#link */}
-                  <MenuItem>
-                    <RouterLink to="/ready-mrs">Ready Mrs</RouterLink>
+                  <MenuItem component={RouterLink} {...{ to: '/ready-mrs' }} onMouseUp={handleCloseUserMenu}>
+                    Ready Merge Request
                   </MenuItem>
-                  <MenuItem LinkComponent={(props, ref) => <RouterLink ref={ref} to="/charts" {...props} role={undefined} />}>
+                  <MenuItem component={RouterLink} {...{ to: '/charts' }} onMouseUp={handleCloseUserMenu}>
                     Charts
                   </MenuItem>
                   <MenuItem onClick={handleCloseNavMenu}>
