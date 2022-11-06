@@ -8,3 +8,4 @@ export { BaseChartTooltip } from './BaseChartTooltip';
 export { DiscussionList } from './DiscussionList';
 export { MergeRequest } from './MergeRequest';
 export { UserList, UserItem } from './UserList';
+export { FullSizeProgress } from './FullSizeProgress';

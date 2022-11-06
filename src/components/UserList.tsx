@@ -32,7 +32,7 @@ export function UserItem({ name, avatarUrl, userUrl, component }: UserItemProps)
   const Component = (component ?? 'li') as any;
 
   return (
-    <Component style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+    <Component key={name} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
       <Avatar alt={`${name}'s avatar`} style={{ width: 24, height: 24, marginRight: 4 }} src={avatarUrl} />
       <a href={userUrl} target="_blank" rel="noreferrer">
         {name}

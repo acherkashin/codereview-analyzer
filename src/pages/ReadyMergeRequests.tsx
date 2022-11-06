@@ -1,29 +1,40 @@
-import { Box } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Box, CircularProgress } from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
 import { getReadyMergeRequestsForPage, MergeRequestForPage } from '../utils/GitLabUtils';
 import { MergeRequest } from '../components/MergeRequest';
 import { useContext } from 'react';
 import { AppContext } from './AppContext';
+import { useRequest } from '../hooks';
+import { FullSizeProgress } from '../components';
 
 export interface ReadyMergeRequestsProps {}
 
 export function ReadyMergeRequests({}: ReadyMergeRequestsProps) {
-  const [mrs, setMrs] = useState<MergeRequestForPage[]>([]);
   const { client } = useContext(AppContext);
+  const requestMergeRequests = useCallback(() => getReadyMergeRequestsForPage(client, 39), []);
+  const { makeRequest, response: mrs, isLoading } = useRequest(requestMergeRequests);
 
   useEffect(() => {
-    getReadyMergeRequestsForPage(client, 39).then((result) => setMrs(result));
+    makeRequest();
   }, [client]);
+
+  if (isLoading) {
+    return <FullSizeProgress />;
+  }
 
   return (
     <Box>
       <div style={{ display: 'flex', flexDirection: 'column', width: 800, margin: '0 auto' }}>
-        <div>Merge Requests: {mrs.length}</div>
-        <ul>
-          {mrs.map((item) => (
-            <MergeRequest {...item} />
-          ))}
-        </ul>
+        {mrs && (
+          <>
+            <div>Merge Requests: {mrs.length}</div>
+            <ul>
+              {mrs.map((item) => (
+                <MergeRequest key={item.item.mergeRequest.id} {...item} />
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </Box>
   );
