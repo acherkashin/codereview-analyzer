@@ -22,18 +22,21 @@ export function UserList({ users }: UserListProps) {
 }
 
 export interface UserItemProps {
+  component?: string;
   name: string;
   avatarUrl: string;
   userUrl: string;
 }
 
-export function UserItem({ name, avatarUrl, userUrl }: UserItemProps) {
+export function UserItem({ name, avatarUrl, userUrl, component }: UserItemProps) {
+  const Component = (component ?? 'li') as any;
+
   return (
-    <li style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+    <Component style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
       <Avatar alt={`${name}'s avatar`} style={{ width: 24, height: 24, marginRight: 4 }} src={avatarUrl} />
       <a href={userUrl} target="_blank" rel="noreferrer">
         {name}
       </a>
-    </li>
+    </Component>
   );
 }

@@ -16,13 +16,15 @@ export function ReadyMergeRequests({ client }: ReadyMergeRequestsProps) {
   }, [client]);
 
   return (
-    <Box style={{ display: 'flex' }}>
-      Merge Requests: {mrs.length}
-      <ul>
-        {mrs.map((item) => (
-          <MergeRequest {...item} />
-        ))}
-      </ul>
+    <Box>
+      <div style={{ display: 'flex', flexDirection: 'column', width: 800, margin: '0 auto' }}>
+        <div>Merge Requests: {mrs.length}</div>
+        <ul>
+          {mrs.map((item) => (
+            <MergeRequest {...item} />
+          ))}
+        </ul>
+      </div>
     </Box>
   );
 }

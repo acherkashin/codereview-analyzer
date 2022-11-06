@@ -1,9 +1,9 @@
 import { MergeRequestForPage } from '../utils/GitLabUtils';
-import { UserItemProps, UserList } from './UserList';
+import { UserItem, UserItemProps, UserList } from './UserList';
 
 export interface MergeRequestProps extends MergeRequestForPage {}
 
-export function MergeRequest({ item, readyPeriod, readyTime }: MergeRequestProps) {
+export function MergeRequest({ item, readyPeriod: { days, hours }, readyTime }: MergeRequestProps) {
   const users = item.mergeRequest.reviewers?.map(
     (item) =>
       ({
@@ -25,15 +25,26 @@ export function MergeRequest({ item, readyPeriod, readyTime }: MergeRequestProps
       }}
       key={item.mergeRequest.id}
     >
-      <div>
+      <div style={{ marginBottom: 8 }}>
         <a href={item.mergeRequest.web_url} target="_blank" rel="noreferrer">
           {item.mergeRequest.title}
         </a>
       </div>
-      <div>
-        In Review - Days: {readyPeriod.days}, Hours: {readyPeriod.hours}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
+        <div style={{ fontWeight: 'bold' }}>In Review</div>
+        <div>
+          {days} {days === 1 ? 'day' : 'days'}, {hours} {hours === 1 ? 'hour' : 'hours'}
+        </div>
       </div>
-      <div>Author: {item.mergeRequest.author.name as any}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
+        <div style={{ fontWeight: 'bold' }}>Author</div>
+        <UserItem
+          component="div"
+          name={item.mergeRequest.author.name as any}
+          avatarUrl={item.mergeRequest.author.avatar_url as any}
+          userUrl={item.mergeRequest.author.web_url as any}
+        />
+      </div>
 
       <UserList users={users} />
     </li>
