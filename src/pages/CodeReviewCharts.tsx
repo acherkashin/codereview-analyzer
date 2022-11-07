@@ -8,7 +8,7 @@ import {
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
-import { getFilteredComments, getUserComments, getDiscussions, UserComment, UserDiscussion } from './../utils/GitLabUtils';
+import { getFilteredComments, getUserComments, getDiscussions, UserComment } from './../utils/GitLabUtils';
 import {
   pieChartSettings,
   convertToCommentsLeftPieChart,
@@ -24,17 +24,20 @@ import { Pie } from '@nivo/pie';
 import { Bar } from '@nivo/bar';
 import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
+import { useChartsStore } from './ChartsStore';
 
 export interface CodeReviewChartsProps {}
 
-export function CodeReviewCharts({}: CodeReviewChartsProps) {
+export function CodeReviewCharts() {
   const { client } = useContext(AppContext);
+
+  const comments = useChartsStore((state) => state.comments);
+  const discussions = useChartsStore((state) => state.discussions);
+  const setComments = useChartsStore((state) => state.setComments);
+  const setDiscussions = useChartsStore((state) => state.setDiscussions);
 
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
   const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
-
-  const [comments, setComments] = useState<UserComment[]>([]);
-  const [discussions, setDiscussions] = useState<UserDiscussion[]>([]);
 
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
