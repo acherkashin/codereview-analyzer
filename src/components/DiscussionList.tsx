@@ -16,7 +16,7 @@ export function DiscussionList({ discussions }: DiscussionListProps) {
         <Accordion key={item.discussion.id}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography>Merge Request: {item.mergeRequest.title}</Typography>
-            <Typography>Author: {item.mergeRequest.author.username}</Typography>
+            <Typography>Author: {item.mergeRequest.author.username as any}</Typography>
             <Typography>Reviewer: {getDiscussionAuthor(item.discussion)}</Typography>
           </AccordionSummary>
           <AccordionDetails>
