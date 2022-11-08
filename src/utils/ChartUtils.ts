@@ -140,14 +140,3 @@ function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings
     data: barData,
   };
 }
-
-export const barChartSettings = {
-  width: 500,
-  height: 400,
-  margin: { left: 150 },
-  padding: 0.2,
-  labelTextColor: 'inherit:darker(1.4)',
-  labelSkipWidth: 16,
-  labelSkipHeight: 16,
-  layout: 'horizontal',
-} as BarSvgProps<BarDatum>;

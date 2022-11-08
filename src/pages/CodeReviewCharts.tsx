@@ -1,13 +1,9 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
-import { barChartSettings, convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
 import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
-import { pieChartSettings } from '../utils/PieChartUtils';
 import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserSelect } from '../components';
 import { Box, Button, TextField, Stack } from '@mui/material';
-import { Pie } from '@nivo/pie';
-import { Bar } from '@nivo/bar';
 import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
 import {
@@ -26,6 +22,9 @@ import { useRequest } from '../hooks';
 import LoadingButton from '@mui/lab/LoadingButton';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { BarChart } from '../components/charts/BarChart';
+import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
+import { PieChart } from '../components/charts/PieChart';
 
 export interface CodeReviewChartsProps {}
 
@@ -72,19 +71,18 @@ export function CodeReviewCharts() {
         <div className="charts">
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
-              <Pie data={discussionsReceivedPieChart} {...pieChartSettings} onClick={(e) => console.log(e)} />
+              <PieChart data={discussionsReceivedPieChart} onClick={(e) => console.log(e)} />
             </ChartContainer>
           )}
           {discussionsStartedPieChart && (
             <ChartContainer title="Discussions started by person">
-              <Pie data={discussionsStartedPieChart} {...pieChartSettings} onClick={(e) => console.log(e)} />
+              <PieChart data={discussionsStartedPieChart} onClick={(e) => console.log(e)} />
             </ChartContainer>
           )}
           {commentsReceivedPieChart && (
             <ChartContainer title="Comments received by person">
-              <Pie
+              <PieChart
                 data={commentsReceivedPieChart}
-                {...pieChartSettings}
                 onClick={(e) => {
                   updateComments(null, e.id as string);
                 }}
@@ -93,9 +91,8 @@ export function CodeReviewCharts() {
           )}
           {commentsLeftByPieChart && (
             <ChartContainer title="Comments left by person">
-              <Pie
+              <PieChart
                 data={commentsLeftByPieChart}
-                {...pieChartSettings}
                 onClick={(e) => {
                   updateComments(e.id as string, null);
                 }}
@@ -104,8 +101,7 @@ export function CodeReviewCharts() {
           )}
           {selectedUser && commentsLeftToUsers && (
             <ChartContainer title={`${selectedUser?.name} reviews following people`}>
-              <Bar
-                {...barChartSettings}
+              <BarChart
                 {...commentsLeftToUsers}
                 onClick={(e) => {
                   updateComments(selectedUser.username, e.data.author as string);
@@ -115,8 +111,7 @@ export function CodeReviewCharts() {
           )}
           {selectedUser && commentsReceivedFromUsers && (
             <ChartContainer title={`Following people review ${selectedUser?.name}`}>
-              <Bar
-                {...barChartSettings}
+              <BarChart
                 {...commentsReceivedFromUsers}
                 onClick={(e) => {
                   updateComments(e.data.reviewer as string, selectedUser.username);
@@ -125,8 +120,7 @@ export function CodeReviewCharts() {
             </ChartContainer>
           )}
           <ChartContainer title="Comments left by person">
-            <Bar
-              {...barChartSettings}
+            <BarChart
               {...commentsLeft}
               tooltip={(props) => {
                 const { indexValue, value, id } = props;
@@ -144,8 +138,7 @@ export function CodeReviewCharts() {
           </ChartContainer>
 
           <ChartContainer title="Comments received by person">
-            <Bar
-              {...barChartSettings}
+            <BarChart
               {...commentsReceived}
               tooltip={(props) => {
                 const { indexValue, value, id } = props;
@@ -162,8 +155,7 @@ export function CodeReviewCharts() {
             />
           </ChartContainer>
           <ChartContainer title="Discussions started by person">
-            <Bar
-              {...barChartSettings}
+            <BarChart
               {...discussionsLeft}
               tooltip={(props) => {
                 const { indexValue, value, id } = props;
@@ -180,8 +172,7 @@ export function CodeReviewCharts() {
             />
           </ChartContainer>
           <ChartContainer title="Discussions started with person">
-            <Bar
-              {...barChartSettings}
+            <BarChart
               {...discussionsReceived}
               tooltip={(props) => {
                 const { indexValue, value, id } = props;
@@ -241,7 +232,7 @@ export function CodeReviewCharts() {
           Analyze
         </LoadingButton>
         <Button
-          disabled={!comments}
+          disabled={comments.length === 0}
           startIcon={<FileDownloadIcon />}
           onClick={() => {
             if (filteredComments != null && filteredComments.length !== 0) {
