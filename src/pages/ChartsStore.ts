@@ -81,3 +81,7 @@ export function getCommentsLeft(state: ChartsStore) {
 export function getCommentsReceived(state: ChartsStore) {
   return convertToCommentsReceived(state.comments);
 }
+
+export function getAnalyze(state: ChartsStore) {
+  return state.analyze;
+}

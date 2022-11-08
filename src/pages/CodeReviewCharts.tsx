@@ -16,7 +16,16 @@ import { Pie } from '@nivo/pie';
 import { Bar } from '@nivo/bar';
 import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
-import { getCommentsLeft, getCommentsReceived, getDiscussionsLeft, getDiscussionsReceived, useChartsStore } from './ChartsStore';
+import {
+  getAnalyze,
+  getCommentsLeft,
+  getCommentsReceived,
+  getDiscussionsLeft,
+  getDiscussionsReceived,
+  useChartsStore,
+} from './ChartsStore';
+import { useRequest } from '../hooks';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 export interface CodeReviewChartsProps {}
 
@@ -25,7 +34,7 @@ export function CodeReviewCharts() {
 
   const comments = useChartsStore((state) => state.comments);
   const discussions = useChartsStore((state) => state.discussions);
-  const analyze = useChartsStore((state) => state.analyze);
+  const { makeRequest: analyze, isLoading } = useRequest(useChartsStore(getAnalyze));
   const discussionsLeft = useChartsStore(getDiscussionsLeft);
   const discussionsReceived = useChartsStore(getDiscussionsReceived);
   const commentsLeft = useChartsStore(getCommentsLeft);
@@ -223,13 +232,14 @@ export function CodeReviewCharts() {
           }}
           fullWidth
         />
-        <Button
+        <LoadingButton
+          loading={isLoading}
           onClick={() => {
             analyze(client, project.id, createdAfter, createdBefore);
           }}
         >
           Analyze
-        </Button>
+        </LoadingButton>
         <Button
           onClick={() => {
             if (filteredComments != null && filteredComments.length !== 0) {
