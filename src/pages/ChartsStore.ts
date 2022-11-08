@@ -7,6 +7,12 @@ import {
 } from '../utils/ChartUtils';
 import { getDiscussions, getUserComments, UserComment, UserDiscussion } from './../utils/GitLabUtils';
 import { Resources } from '@gitbeaker/core';
+import {
+  convertToCommentsLeftPieChart,
+  convertToCommentsReceivedPieChart,
+  convertToDiscussionsReceivedPieChart,
+  convertToDiscussionsStartedPieChart,
+} from '../utils/PieChartUtils';
 
 export interface ChartsStore {
   comments: UserComment[];
@@ -80,6 +86,22 @@ export function getCommentsLeft(state: ChartsStore) {
 
 export function getCommentsReceived(state: ChartsStore) {
   return convertToCommentsReceived(state.comments);
+}
+
+export function getCommentsReceivedPieChart(state: ChartsStore) {
+  return convertToCommentsReceivedPieChart(state.comments);
+}
+
+export function getCommentsLeftPieChart(state: ChartsStore) {
+  return convertToCommentsLeftPieChart(state.comments);
+}
+
+export function getDiscussionsReceivedPieChart(state: ChartsStore) {
+  return convertToDiscussionsReceivedPieChart(state.discussions);
+}
+
+export function getDiscussionsStartedPieChart(state: ChartsStore) {
+  return convertToDiscussionsStartedPieChart(state.discussions);
 }
 
 export function getAnalyze(state: ChartsStore) {

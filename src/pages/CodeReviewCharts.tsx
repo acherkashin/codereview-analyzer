@@ -1,13 +1,7 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { barChartSettings, convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
 import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
-import {
-  pieChartSettings,
-  convertToCommentsLeftPieChart,
-  convertToCommentsReceivedPieChart,
-  convertToDiscussionsReceivedPieChart,
-  convertToDiscussionsStartedPieChart,
-} from '../utils/PieChartUtils';
+import { pieChartSettings } from '../utils/PieChartUtils';
 import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserSelect } from '../components';
@@ -19,13 +13,19 @@ import { AppContext } from './AppContext';
 import {
   getAnalyze,
   getCommentsLeft,
+  getCommentsLeftPieChart,
   getCommentsReceived,
+  getCommentsReceivedPieChart,
   getDiscussionsLeft,
   getDiscussionsReceived,
+  getDiscussionsReceivedPieChart,
+  getDiscussionsStartedPieChart,
   useChartsStore,
 } from './ChartsStore';
 import { useRequest } from '../hooks';
 import LoadingButton from '@mui/lab/LoadingButton';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 export interface CodeReviewChartsProps {}
 
@@ -39,6 +39,10 @@ export function CodeReviewCharts() {
   const discussionsReceived = useChartsStore(getDiscussionsReceived);
   const commentsLeft = useChartsStore(getCommentsLeft);
   const commentsReceived = useChartsStore(getCommentsReceived);
+  const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
+  const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
+  const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
+  const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
 
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
   const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
@@ -61,11 +65,6 @@ export function CodeReviewCharts() {
     },
     [comments]
   );
-
-  const commentsReceivedPieChart = useMemo(() => convertToCommentsReceivedPieChart(comments), [comments]);
-  const commentsLeftByPieChart = useMemo(() => convertToCommentsLeftPieChart(comments), [comments]);
-  const discussionsReceivedPieChart = useMemo(() => convertToDiscussionsReceivedPieChart(discussions), [discussions]);
-  const discussionsStartedPieChart = useMemo(() => convertToDiscussionsStartedPieChart(discussions), [discussions]);
 
   return (
     <Box style={{ display: 'flex' }}>
@@ -233,6 +232,7 @@ export function CodeReviewCharts() {
           fullWidth
         />
         <LoadingButton
+          startIcon={<AnalyticsIcon />}
           loading={isLoading}
           onClick={() => {
             analyze(client, project.id, createdAfter, createdBefore);
@@ -241,6 +241,8 @@ export function CodeReviewCharts() {
           Analyze
         </LoadingButton>
         <Button
+          disabled={!comments}
+          startIcon={<FileDownloadIcon />}
           onClick={() => {
             if (filteredComments != null && filteredComments.length !== 0) {
               downloadComments(filteredComments);
