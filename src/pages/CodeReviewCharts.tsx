@@ -1,14 +1,6 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
-import {
-  barChartSettings,
-  convertToCommentsLeft,
-  convertToCommentsLeftToUsers,
-  convertToCommentsReceived,
-  convertToCommentsReceivedFromUsers,
-  convertToDiscussionsLeft,
-  convertToDiscussionsReceived,
-} from '../utils/ChartUtils';
-import { getFilteredComments, getUserComments, getDiscussions, UserComment } from './../utils/GitLabUtils';
+import { barChartSettings, convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
+import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
 import {
   pieChartSettings,
   convertToCommentsLeftPieChart,
@@ -24,7 +16,7 @@ import { Pie } from '@nivo/pie';
 import { Bar } from '@nivo/bar';
 import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
-import { useChartsStore } from './ChartsStore';
+import { getCommentsLeft, getCommentsReceived, getDiscussionsLeft, getDiscussionsReceived, useChartsStore } from './ChartsStore';
 
 export interface CodeReviewChartsProps {}
 
@@ -33,8 +25,11 @@ export function CodeReviewCharts() {
 
   const comments = useChartsStore((state) => state.comments);
   const discussions = useChartsStore((state) => state.discussions);
-  const setComments = useChartsStore((state) => state.setComments);
-  const setDiscussions = useChartsStore((state) => state.setDiscussions);
+  const analyze = useChartsStore((state) => state.analyze);
+  const discussionsLeft = useChartsStore(getDiscussionsLeft);
+  const discussionsReceived = useChartsStore(getDiscussionsReceived);
+  const commentsLeft = useChartsStore(getCommentsLeft);
+  const commentsReceived = useChartsStore(getCommentsReceived);
 
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
   const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
@@ -43,13 +38,6 @@ export function CodeReviewCharts() {
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
   const [filteredComments, setFilteredComments] = useState<UserComment[]>([]);
 
-  const handleAnalyze = () => {
-    Promise.all([showComments(), showDiscussions()]);
-  };
-  const discussionsLeft = useMemo(() => convertToDiscussionsLeft(discussions), [discussions]);
-  const discussionsReceived = useMemo(() => convertToDiscussionsReceived(discussions), [discussions]);
-  const commentsLeft = useMemo(() => convertToCommentsLeft(comments), [comments]);
-  const commentsReceived = useMemo(() => convertToCommentsReceived(comments), [comments]);
   const commentsReceivedFromUsers = useMemo(
     () => (selectedUser ? convertToCommentsReceivedFromUsers(comments, selectedUser.id) : null),
     [comments, selectedUser]
@@ -69,40 +57,6 @@ export function CodeReviewCharts() {
   const commentsLeftByPieChart = useMemo(() => convertToCommentsLeftPieChart(comments), [comments]);
   const discussionsReceivedPieChart = useMemo(() => convertToDiscussionsReceivedPieChart(discussions), [discussions]);
   const discussionsStartedPieChart = useMemo(() => convertToDiscussionsStartedPieChart(discussions), [discussions]);
-
-  const showComments = async () => {
-    try {
-      if (!project) return;
-
-      const comments = await getUserComments(client, {
-        projectId: project.id,
-        createdAfter: createdAfter.toISOString(),
-        createdBefore: createdBefore.toISOString(),
-      });
-
-      setComments(comments);
-    } catch (ex) {
-      console.error(ex);
-    }
-  };
-
-  const showDiscussions = async () => {
-    try {
-      if (!project) return;
-
-      const discussions = await getDiscussions(client, {
-        projectId: project.id,
-        createdAfter: createdAfter.toISOString(),
-        createdBefore: createdBefore.toISOString(),
-      });
-
-      setDiscussions(discussions);
-
-      console.log(discussions);
-    } catch (ex) {
-      console.error(ex);
-    }
-  };
 
   return (
     <Box style={{ display: 'flex' }}>
@@ -269,7 +223,13 @@ export function CodeReviewCharts() {
           }}
           fullWidth
         />
-        <Button onClick={handleAnalyze}>Analyze</Button>
+        <Button
+          onClick={() => {
+            analyze(client, project.id, createdAfter, createdBefore);
+          }}
+        >
+          Analyze
+        </Button>
         <Button
           onClick={() => {
             if (filteredComments != null && filteredComments.length !== 0) {
