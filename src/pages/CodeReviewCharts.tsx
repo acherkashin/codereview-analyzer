@@ -26,7 +26,9 @@ import { BarChart } from '../components/charts/BarChart';
 import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
 import { PieChart } from '../components/charts/PieChart';
 import { useOpen } from '../hooks/useOpen';
-import { ExportToExcelDialog } from '../components/dialogs/ExportToExcelDialog';
+import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
+import { downloadFile } from '../utils/FileUtils';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 export interface CodeReviewChartsProps {}
 
@@ -36,6 +38,8 @@ export function CodeReviewCharts() {
 
   const comments = useChartsStore((state) => state.comments);
   const discussions = useChartsStore((state) => state.discussions);
+  const setComments = useChartsStore((state) => state.setComments);
+  const setDiscussions = useChartsStore((state) => state.setDiscussions);
   const { makeRequest: analyze, isLoading } = useRequest(useChartsStore(getAnalyze));
   const discussionsLeft = useChartsStore(getDiscussionsLeft);
   const discussionsReceived = useChartsStore(getDiscussionsReceived);
@@ -242,9 +246,59 @@ export function CodeReviewCharts() {
           Analyze
         </LoadingButton>
         <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
-          Download
+          Download as Excel
         </Button>
-        <ExportToExcelDialog open={excelDialog.isOpen} onClose={excelDialog.close} onDownload={handleDownload} />
+        <Button
+          disabled={comments.length === 0 && discussions.length === 0}
+          startIcon={<FileDownloadIcon />}
+          onClick={() => {
+            // Need to specify Range <StartDate>-<EndDate> as a default name
+            downloadFile('newFile.json', JSON.stringify({ comments, discussions }, null, 2));
+          }}
+        >
+          Export as JSON
+        </Button>
+        {/* Create File Upload Button */}
+        <Button>
+          Import as JSON
+          <input
+            hidden
+            // accept="*.json"
+            type="file"
+            onChange={(e) => {
+              const input = e.target;
+              const file = input.files?.[0];
+
+              if (!file) {
+                return;
+              }
+
+              const reader = new FileReader();
+              reader.onload = function () {
+                const text = reader.result as string;
+                if (!text) {
+                  return;
+                }
+
+                try {
+                  const { comments, discussions } = JSON.parse(reader.result as string);
+                  setComments(comments);
+                  setDiscussions(discussions);
+                } catch (ex) {
+                  console.error(ex);
+                }
+              };
+              reader.readAsText(file);
+            }}
+          />
+        </Button>
+        <InputDialog
+          title="Export comments to excel"
+          fieldName="File Name"
+          open={excelDialog.isOpen}
+          onClose={excelDialog.close}
+          onDownload={handleDownload}
+        />
       </Stack>
     </Box>
   );
