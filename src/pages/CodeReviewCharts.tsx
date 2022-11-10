@@ -3,7 +3,18 @@ import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
 import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserSelect } from '../components';
-import { Box, Button, TextField, Stack } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
 import {
@@ -22,14 +33,17 @@ import { useRequest } from '../hooks';
 import LoadingButton from '@mui/lab/LoadingButton';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import CloseIcon from '@mui/icons-material/Close';
 import { BarChart } from '../components/charts/BarChart';
 import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
 import { PieChart } from '../components/charts/PieChart';
+import { useOpen } from '../hooks/useOpen';
 
 export interface CodeReviewChartsProps {}
 
 export function CodeReviewCharts() {
   const { client } = useContext(AppContext);
+  const excelDialog = useOpen();
 
   const comments = useChartsStore((state) => state.comments);
   const discussions = useChartsStore((state) => state.discussions);
@@ -64,6 +78,21 @@ export function CodeReviewCharts() {
     },
     [comments]
   );
+
+  const [fileName, setFileName] = useState('');
+
+  const handleDownload = () => {
+    if (filteredComments != null && filteredComments.length !== 0) {
+      downloadComments(fileName, filteredComments);
+    }
+    if (comments != null && comments.length !== 0) {
+      downloadComments(fileName, comments);
+    }
+  };
+
+  const handleAnalyze = () => {
+    analyze(client, project.id, createdAfter, createdBefore);
+  };
 
   return (
     <Box style={{ display: 'flex' }}>
@@ -222,29 +251,36 @@ export function CodeReviewCharts() {
           }}
           fullWidth
         />
-        <LoadingButton
-          startIcon={<AnalyticsIcon />}
-          loading={isLoading}
-          onClick={() => {
-            analyze(client, project.id, createdAfter, createdBefore);
-          }}
-        >
+        <LoadingButton startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
           Analyze
         </LoadingButton>
-        <Button
-          disabled={comments.length === 0}
-          startIcon={<FileDownloadIcon />}
-          onClick={() => {
-            if (filteredComments != null && filteredComments.length !== 0) {
-              downloadComments(filteredComments);
-            }
-            if (comments != null && comments.length !== 0) {
-              downloadComments(comments);
-            }
-          }}
-        >
+        <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
           Download
         </Button>
+        <Dialog open={excelDialog.isOpen} onClose={excelDialog.close}>
+          <DialogTitle style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ flex: 1 }}>
+              Export comments to excel
+            </Typography>
+            <IconButton aria-label="close" onClick={excelDialog.close}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="File Name"
+              fullWidth
+              variant="standard"
+              onChange={(e) => setFileName(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDownload}>Download</Button>
+          </DialogActions>
+        </Dialog>
       </Stack>
     </Box>
   );

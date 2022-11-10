@@ -1,7 +1,7 @@
 import zipcelx, { ZipCelXConfig, ZipCelXRow } from 'zipcelx';
 import { getNoteUrl, UserComment } from './GitLabUtils';
 
-export function downloadComments(comments: UserComment[]) {
+export function downloadComments(fileName: string, comments: UserComment[]) {
   const exportEntries = comments.map<ZipCelXRow>(({ mergeRequest, comment }) => [
     {
       value: mergeRequest.author.username as string,
@@ -26,8 +26,7 @@ export function downloadComments(comments: UserComment[]) {
   ]);
 
   const config: ZipCelXConfig = {
-    //TODO: add ability to specify file name
-    filename: 'general-ledger-Q1',
+    filename: fileName ?? `Comments - ${new Date().toLocaleString()}`,
     sheet: {
       data: [
         [
