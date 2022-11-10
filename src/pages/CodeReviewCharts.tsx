@@ -1,52 +1,55 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
-import {
-  barChartSettings,
-  convertToCommentsLeft,
-  convertToCommentsLeftToUsers,
-  convertToCommentsReceived,
-  convertToCommentsReceivedFromUsers,
-  convertToDiscussionsLeft,
-  convertToDiscussionsReceived,
-} from '../utils/ChartUtils';
-import { getFilteredComments, getUserComments, getDiscussions, UserComment, UserDiscussion } from './../utils/GitLabUtils';
-import {
-  pieChartSettings,
-  convertToCommentsLeftPieChart,
-  convertToCommentsReceivedPieChart,
-  convertToDiscussionsReceivedPieChart,
-  convertToDiscussionsStartedPieChart,
-} from '../utils/PieChartUtils';
+import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
 import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserSelect } from '../components';
 import { Box, Button, TextField, Stack } from '@mui/material';
-import { Pie } from '@nivo/pie';
-import { Bar } from '@nivo/bar';
 import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
+import {
+  getAnalyze,
+  getCommentsLeft,
+  getCommentsLeftPieChart,
+  getCommentsReceived,
+  getCommentsReceivedPieChart,
+  getDiscussionsLeft,
+  getDiscussionsReceived,
+  getDiscussionsReceivedPieChart,
+  getDiscussionsStartedPieChart,
+  useChartsStore,
+} from './ChartsStore';
+import { useRequest } from '../hooks';
+import LoadingButton from '@mui/lab/LoadingButton';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { BarChart } from '../components/charts/BarChart';
+import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
+import { PieChart } from '../components/charts/PieChart';
 
 export interface CodeReviewChartsProps {}
 
-export function CodeReviewCharts({}: CodeReviewChartsProps) {
+export function CodeReviewCharts() {
   const { client } = useContext(AppContext);
+
+  const comments = useChartsStore((state) => state.comments);
+  const discussions = useChartsStore((state) => state.discussions);
+  const { makeRequest: analyze, isLoading } = useRequest(useChartsStore(getAnalyze));
+  const discussionsLeft = useChartsStore(getDiscussionsLeft);
+  const discussionsReceived = useChartsStore(getDiscussionsReceived);
+  const commentsLeft = useChartsStore(getCommentsLeft);
+  const commentsReceived = useChartsStore(getCommentsReceived);
+  const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
+  const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
+  const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
+  const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
 
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
   const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
-
-  const [comments, setComments] = useState<UserComment[]>([]);
-  const [discussions, setDiscussions] = useState<UserDiscussion[]>([]);
 
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
   const [filteredComments, setFilteredComments] = useState<UserComment[]>([]);
 
-  const handleAnalyze = () => {
-    Promise.all([showComments(), showDiscussions()]);
-  };
-  const discussionsLeft = useMemo(() => convertToDiscussionsLeft(discussions), [discussions]);
-  const discussionsReceived = useMemo(() => convertToDiscussionsReceived(discussions), [discussions]);
-  const commentsLeft = useMemo(() => convertToCommentsLeft(comments), [comments]);
-  const commentsReceived = useMemo(() => convertToCommentsReceived(comments), [comments]);
   const commentsReceivedFromUsers = useMemo(
     () => (selectedUser ? convertToCommentsReceivedFromUsers(comments, selectedUser.id) : null),
     [comments, selectedUser]
@@ -62,64 +65,24 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
     [comments]
   );
 
-  const commentsReceivedPieChart = useMemo(() => convertToCommentsReceivedPieChart(comments), [comments]);
-  const commentsLeftByPieChart = useMemo(() => convertToCommentsLeftPieChart(comments), [comments]);
-  const discussionsReceivedPieChart = useMemo(() => convertToDiscussionsReceivedPieChart(discussions), [discussions]);
-  const discussionsStartedPieChart = useMemo(() => convertToDiscussionsStartedPieChart(discussions), [discussions]);
-
-  const showComments = async () => {
-    try {
-      if (!project) return;
-
-      const comments = await getUserComments(client, {
-        projectId: project.id,
-        createdAfter: createdAfter.toISOString(),
-        createdBefore: createdBefore.toISOString(),
-      });
-
-      setComments(comments);
-    } catch (ex) {
-      console.error(ex);
-    }
-  };
-
-  const showDiscussions = async () => {
-    try {
-      if (!project) return;
-
-      const discussions = await getDiscussions(client, {
-        projectId: project.id,
-        createdAfter: createdAfter.toISOString(),
-        createdBefore: createdBefore.toISOString(),
-      });
-
-      setDiscussions(discussions);
-
-      console.log(discussions);
-    } catch (ex) {
-      console.error(ex);
-    }
-  };
-
   return (
     <Box style={{ display: 'flex' }}>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <div className="charts">
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
-              <Pie data={discussionsReceivedPieChart} {...pieChartSettings} onClick={(e) => console.log(e)} />
+              <PieChart data={discussionsReceivedPieChart} onClick={(e) => console.log(e)} />
             </ChartContainer>
           )}
           {discussionsStartedPieChart && (
             <ChartContainer title="Discussions started by person">
-              <Pie data={discussionsStartedPieChart} {...pieChartSettings} onClick={(e) => console.log(e)} />
+              <PieChart data={discussionsStartedPieChart} onClick={(e) => console.log(e)} />
             </ChartContainer>
           )}
           {commentsReceivedPieChart && (
             <ChartContainer title="Comments received by person">
-              <Pie
+              <PieChart
                 data={commentsReceivedPieChart}
-                {...pieChartSettings}
                 onClick={(e) => {
                   updateComments(null, e.id as string);
                 }}
@@ -128,9 +91,8 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
           )}
           {commentsLeftByPieChart && (
             <ChartContainer title="Comments left by person">
-              <Pie
+              <PieChart
                 data={commentsLeftByPieChart}
-                {...pieChartSettings}
                 onClick={(e) => {
                   updateComments(e.id as string, null);
                 }}
@@ -139,8 +101,7 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
           )}
           {selectedUser && commentsLeftToUsers && (
             <ChartContainer title={`${selectedUser?.name} reviews following people`}>
-              <Bar
-                {...barChartSettings}
+              <BarChart
                 {...commentsLeftToUsers}
                 onClick={(e) => {
                   updateComments(selectedUser.username, e.data.author as string);
@@ -150,8 +111,7 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
           )}
           {selectedUser && commentsReceivedFromUsers && (
             <ChartContainer title={`Following people review ${selectedUser?.name}`}>
-              <Bar
-                {...barChartSettings}
+              <BarChart
                 {...commentsReceivedFromUsers}
                 onClick={(e) => {
                   updateComments(e.data.reviewer as string, selectedUser.username);
@@ -160,8 +120,7 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
             </ChartContainer>
           )}
           <ChartContainer title="Comments left by person">
-            <Bar
-              {...barChartSettings}
+            <BarChart
               {...commentsLeft}
               tooltip={(props) => {
                 const { indexValue, value, id } = props;
@@ -179,8 +138,7 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
           </ChartContainer>
 
           <ChartContainer title="Comments received by person">
-            <Bar
-              {...barChartSettings}
+            <BarChart
               {...commentsReceived}
               tooltip={(props) => {
                 const { indexValue, value, id } = props;
@@ -197,8 +155,7 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
             />
           </ChartContainer>
           <ChartContainer title="Discussions started by person">
-            <Bar
-              {...barChartSettings}
+            <BarChart
               {...discussionsLeft}
               tooltip={(props) => {
                 const { indexValue, value, id } = props;
@@ -215,8 +172,7 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
             />
           </ChartContainer>
           <ChartContainer title="Discussions started with person">
-            <Bar
-              {...barChartSettings}
+            <BarChart
               {...discussionsReceived}
               tooltip={(props) => {
                 const { indexValue, value, id } = props;
@@ -266,8 +222,18 @@ export function CodeReviewCharts({}: CodeReviewChartsProps) {
           }}
           fullWidth
         />
-        <Button onClick={handleAnalyze}>Analyze</Button>
+        <LoadingButton
+          startIcon={<AnalyticsIcon />}
+          loading={isLoading}
+          onClick={() => {
+            analyze(client, project.id, createdAfter, createdBefore);
+          }}
+        >
+          Analyze
+        </LoadingButton>
         <Button
+          disabled={comments.length === 0}
+          startIcon={<FileDownloadIcon />}
           onClick={() => {
             if (filteredComments != null && filteredComments.length !== 0) {
               downloadComments(filteredComments);

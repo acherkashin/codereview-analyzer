@@ -8,7 +8,8 @@
     "@emotion/styled": "^11.6.0",
     "@gitbeaker/browser": "^35.1.0",
     "@mui/icons-material": "^5.2.5",
-    "@mui/material": "^5.2.3",
+    "@mui/lab": "^5.0.0-alpha.107",
+    "@mui/material": "^5.10.13",
     "@nivo/bar": "^0.79.0",
     "@nivo/core": "^0.79.0",
     "@nivo/pie": "^0.79.0",
@@ -26,7 +27,8 @@
     "react-scripts": "5.0.1",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1",
-    "zipcelx": "^1.6.2"
+    "zipcelx": "^1.6.2",
+    "zustand": "^4.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
