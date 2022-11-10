@@ -28,7 +28,7 @@ import { PieChart } from '../components/charts/PieChart';
 import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
+import { ImportTextButton } from '../components/FileUploadButton';
 
 export interface CodeReviewChartsProps {}
 
@@ -258,40 +258,18 @@ export function CodeReviewCharts() {
         >
           Export as JSON
         </Button>
-        {/* Create File Upload Button */}
-        <Button>
-          Import as JSON
-          <input
-            hidden
-            // accept="*.json"
-            type="file"
-            onChange={(e) => {
-              const input = e.target;
-              const file = input.files?.[0];
-
-              if (!file) {
-                return;
-              }
-
-              const reader = new FileReader();
-              reader.onload = function () {
-                const text = reader.result as string;
-                if (!text) {
-                  return;
-                }
-
-                try {
-                  const { comments, discussions } = JSON.parse(reader.result as string);
-                  setComments(comments);
-                  setDiscussions(discussions);
-                } catch (ex) {
-                  console.error(ex);
-                }
-              };
-              reader.readAsText(file);
-            }}
-          />
-        </Button>
+        <ImportTextButton
+          label="Import as JSON"
+          onTextSelected={(text) => {
+            try {
+              const { comments, discussions } = JSON.parse(text as string);
+              setComments(comments);
+              setDiscussions(discussions);
+            } catch (ex) {
+              console.error(ex);
+            }
+          }}
+        />
         <InputDialog
           title="Export comments to excel"
           fieldName="File Name"
