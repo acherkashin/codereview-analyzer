@@ -1,5 +1,5 @@
 import { Box, Button, ListItem } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 export interface NavItemProps {
   href: string;
@@ -9,7 +9,9 @@ export interface NavItemProps {
 
 export function NavItem(props: NavItemProps) {
   const { href, icon, title, ...others } = props;
-  //   const active = href ? router.pathname === href : false;
+  const location = useLocation();
+
+  const active = href ? location.pathname === href : false;
 
   return (
     <ListItem
@@ -22,32 +24,31 @@ export function NavItem(props: NavItemProps) {
       }}
       {...others}
     >
-      <RouterLink to={href}>
-        <Button
-          component="a"
-          startIcon={icon}
-          disableRipple
-          sx={{
-            // backgroundColor: active && 'rgba(255,255,255, 0.08)',
-            borderRadius: 1,
-            // color: active ? 'secondary.main' : 'neutral.300',
-            // fontWeight: active && 'fontWeightBold',
-            justifyContent: 'flex-start',
-            px: 3,
-            textAlign: 'left',
-            textTransform: 'none',
-            width: '100%',
-            '& .MuiButton-startIcon': {
-              //   color: active ? 'secondary.main' : 'neutral.400',
-            },
-            '&:hover': {
-              backgroundColor: 'rgba(255,255,255, 0.08)',
-            },
-          }}
-        >
-          <Box sx={{ flexGrow: 1 }}>{title}</Box>
-        </Button>
-      </RouterLink>
+      <Button
+        component={RouterLink}
+        {...{ to: href }}
+        startIcon={icon}
+        disableRipple
+        sx={{
+          backgroundColor: active ? 'rgba(255,255,255, 0.08)' : null,
+          borderRadius: 1,
+          color: active ? 'secondary.main' : 'neutral.300',
+          fontWeight: active ? 'fontWeightBold' : null,
+          justifyContent: 'flex-start',
+          px: 3,
+          textAlign: 'left',
+          textTransform: 'none',
+          width: '100%',
+          '& .MuiButton-startIcon': {
+            color: active ? 'secondary.main' : 'neutral.400',
+          },
+          '&:hover': {
+            backgroundColor: 'rgba(255,255,255, 0.08)',
+          },
+        }}
+      >
+        <Box sx={{ flexGrow: 1 }}>{title}</Box>
+      </Button>
     </ListItem>
   );
 }
