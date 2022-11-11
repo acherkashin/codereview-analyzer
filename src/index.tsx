@@ -6,7 +6,9 @@ import reportWebVitals from './reportWebVitals';
 import { CodeReviewCharts } from './pages/CodeReviewCharts';
 import { ErrorPage } from './pages/ErrorPage';
 import { ReadyMergeRequests } from './pages/ReadyMergeRequests';
-import { createBrowserRouter, RouterProvider, Link as RouterLink } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ThemeProvider } from '@emotion/react';
+import { theme } from './theme';
 
 const router = createBrowserRouter([
   {
@@ -30,7 +32,9 @@ const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider theme={theme}>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );
 

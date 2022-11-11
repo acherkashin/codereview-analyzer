@@ -27,20 +27,25 @@ export const ChartBarIcon = createSvgIcon(
 
 const items = [
   {
-    href: '/',
+    href: '/charts',
     icon: <ChartBarIcon fontSize="small" />,
-    title: 'Dashboard',
+    title: 'Charts',
   },
   {
-    href: '/customers',
-    icon: <UsersIcon fontSize="small" />,
-    title: 'Customers',
+    href: '/ready-mrs',
+    icon: null,
+    title: 'Ready Merge Requests',
   },
-  {
-    href: '/account',
-    icon: <UserIcon fontSize="small" />,
-    title: 'Account',
-  },
+  //   {
+  //     href: '/customers',
+  //     icon: <UsersIcon fontSize="small" />,
+  //     title: 'Customers',
+  //   },
+  //   {
+  //     href: '/account',
+  //     icon: <UserIcon fontSize="small" />,
+  //     title: 'Account',
+  //   },
 ];
 
 export interface SideBarProps {}
