@@ -11,12 +11,12 @@ export interface ReadyMergeRequestsProps {}
 
 export function ReadyMergeRequests({}: ReadyMergeRequestsProps) {
   const { client } = useContext(AppContext);
-  const requestMergeRequests = useCallback(() => getReadyMergeRequestsForPage(client, 39), []);
+  const requestMergeRequests = useCallback(() => getReadyMergeRequestsForPage(client, 39), [client]);
   const { makeRequest, response: mrs, isLoading } = useRequest(requestMergeRequests);
 
   useEffect(() => {
     makeRequest();
-  }, [client]);
+  }, [client, makeRequest]);
 
   if (isLoading) {
     return <FullSizeProgress />;

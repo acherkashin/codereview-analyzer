@@ -36,9 +36,13 @@ const items = [
     icon: null,
     title: 'Ready Merge Requests',
   },
+  {
+    href: '/personal',
+    icon: <UserIcon fontSize="small" />,
+    title: 'Personal Statistic',
+  },
   //   {
   //     href: '/customers',
-  //     icon: <UsersIcon fontSize="small" />,
   //     title: 'Customers',
   //   },
   //   {
