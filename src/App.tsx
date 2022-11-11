@@ -8,6 +8,7 @@ import { AppBar, Box, Container, IconButton, Toolbar, Typography, MenuItem, Tool
 import { Link as RouterLink } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import { AppContext } from './pages/AppContext';
+import { SideBar } from './components/SideBar';
 
 export interface Credentials {
   token: string;
@@ -59,6 +60,7 @@ function App() {
     <AppContext.Provider value={contextValue}>
       <div className="App">
         <AppBar position="static">
+          <SideBar />
           <Container maxWidth="xl">
             <Toolbar disableGutters>
               <Typography variant="h6" noWrap component="div" sx={{ mr: 2, display: 'flex', flexGrow: 1 }}>
