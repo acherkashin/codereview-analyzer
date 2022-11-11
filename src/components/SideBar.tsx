@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Drawer, Typography, useMediaQuery } from '@mui/material';
+import { Box, Button, Divider, Drawer, Paper, Typography, useMediaQuery } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { createSvgIcon } from '@mui/material/utils';
 import { Link as RouterLink } from 'react-router-dom';
@@ -55,10 +55,10 @@ const items = [
 export interface SideBarProps {}
 
 export const SideBar = (props: SideBarProps) => {
-  //   const lgUp = useMediaQuery((theme) => (theme as any).breakpoints.up('lg'), {
-  //     defaultMatches: true,
-  //     noSsr: false,
-  //   });
+  // const lgUp = useMediaQuery((theme) => (theme as any).breakpoints.up('lg'), {
+  //   defaultMatches: true,
+  //   noSsr: false,
+  // });
 
   const lgUp = true;
 
@@ -146,41 +146,54 @@ export const SideBar = (props: SideBarProps) => {
     </>
   );
 
-  if (lgUp) {
-    return (
-      <Drawer
-        anchor="left"
-        open
-        PaperProps={{
-          sx: {
-            backgroundColor: 'neutral.900',
-            color: '#FFFFFF',
-            width: 280,
-          },
-        }}
-        variant="permanent"
-      >
-        {content}
-      </Drawer>
-    );
-  }
-
   return (
-    <Drawer
-      anchor="left"
-      onClose={() => {}}
-      open={false}
-      PaperProps={{
-        sx: {
-          backgroundColor: 'neutral.900',
-          color: '#FFFFFF',
-          width: 280,
-        },
+    <Paper
+      sx={{
+        backgroundColor: 'neutral.900',
+        color: '#FFFFFF',
+        width: 280,
+        borderRadius: 0,
       }}
-      sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
-      variant="temporary"
     >
       {content}
-    </Drawer>
+    </Paper>
   );
+
+  //   if (lgUp) {
+  //     return (
+  //       <Drawer
+  //         anchor="left"
+  //         open
+  //         PaperProps={{
+  //           sx: {
+  //             backgroundColor: 'neutral.900',
+  //             color: '#FFFFFF',
+  //             width: 280,
+  //           },
+  //         }}
+  //         variant="permanent"
+  //       >
+  //         {content}
+  //       </Drawer>
+  //     );
+  //   }
+
+  //   return (
+  //     <Drawer
+  //       anchor="left"
+  //       onClose={() => {}}
+  //       open={false}
+  //       PaperProps={{
+  //         sx: {
+  //           backgroundColor: 'neutral.900',
+  //           color: '#FFFFFF',
+  //           width: 280,
+  //         },
+  //       }}
+  //       sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
+  //       variant="temporary"
+  //     >
+  //       {content}
+  //     </Drawer>
+  //   );
 };
