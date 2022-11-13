@@ -1,4 +1,5 @@
-import { MergeRequestForPage, timeSince, timeSinceString } from '../utils/GitLabUtils';
+import { MergeRequestForPage } from '../utils/GitLabUtils';
+import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
 import { UserItem, UserItemProps, UserList } from './UserList';
 
 export interface MergeRequestProps extends MergeRequestForPage {}
