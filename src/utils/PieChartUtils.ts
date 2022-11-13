@@ -68,14 +68,30 @@ export function convertToDiscussionsStartedPieChart(discussions: UserDiscussion[
 }
 
 /**
- * Methods calculates who author of merge requests usually assign merge requests to review
+ * Methods calculates whom author of merge requests usually assign merge requests to review
  */
-export function convertToReviewers(mrs: MergeRequestSchema[]): PieChartDatum[] {
+export function convertWhomAuthorAssignsToReview(mrs: MergeRequestSchema[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromMergeRequests(mrs);
   const data = tidy(rawData, groupBy('reviewer', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
     (item) => ({
       id: item.reviewer,
       label: item.reviewer,
+      value: item.total,
+    })
+  );
+
+  return data;
+}
+
+/**
+ * Methods calculates who author of merge requests usually assign merge requests to review
+ */
+export function convertWhoAssignsToAuthorToReview(mrs: MergeRequestSchema[]): PieChartDatum[] {
+  const rawData = getAuthorReviewerFromMergeRequests(mrs);
+  const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
+    (item) => ({
+      id: item.author,
+      label: item.author,
       value: item.total,
     })
   );

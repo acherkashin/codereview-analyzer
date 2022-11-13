@@ -8,7 +8,7 @@ import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
 import {
   getAnalyze,
-  getAssignedToReviewPieChart,
+  getAssignedToReviewPieChart as getWhomAssignedToReviewPieChart,
   getCommentsLeft,
   getCommentsLeftPieChart,
   getCommentsReceived,
@@ -17,6 +17,7 @@ import {
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
+  getWhoAssignsToReviewPieChart,
   useChartsStore,
 } from '../stores/ChartsStore';
 import { useRequest } from '../hooks';
@@ -53,7 +54,8 @@ export function CodeReviewCharts() {
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   //TODO: refactor, how to create such selector in a right way?
-  const assignedToReviewPieChart = useChartsStore((state) => getAssignedToReviewPieChart(selectedUser?.id, state));
+  const assignedToReviewPieChart = useChartsStore((state) => getWhomAssignedToReviewPieChart(selectedUser?.id, state));
+  const whoAssignsToReviewPieChart = useChartsStore((state) => getWhoAssignsToReviewPieChart(selectedUser?.id, state));
 
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
@@ -124,6 +126,11 @@ export function CodeReviewCharts() {
           {selectedUser && assignedToReviewPieChart && (
             <ChartContainer title={`${selectedUser?.name} asks following people to review his changes`}>
               <PieChart data={assignedToReviewPieChart} />
+            </ChartContainer>
+          )}
+          {selectedUser && whoAssignsToReviewPieChart && (
+            <ChartContainer title={`Following people ask ${selectedUser?.name} to review their changes`}>
+              <PieChart data={whoAssignsToReviewPieChart} />
             </ChartContainer>
           )}
           {selectedUser && commentsLeftToUsers && (
