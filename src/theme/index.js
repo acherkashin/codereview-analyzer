@@ -152,6 +152,8 @@ export const theme = createTheme({
       disabled: 'rgba(55, 65, 81, 0.26)',
     },
     background: {
+      // It would be applied to the body if body would be inside <ThemeProvider/>
+      // So, currently it is applied in App.css
       default: '#F9FAFC',
       paper: '#FFFFFF',
     },

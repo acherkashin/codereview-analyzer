@@ -4,7 +4,7 @@ import { Gitlab } from '@gitbeaker/browser';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Login } from './components/Login';
-import { AppBar, Box, Container, IconButton, Toolbar, Typography, MenuItem, Tooltip, Avatar, Menu } from '@mui/material';
+import { AppBar, Box, Container, IconButton, Toolbar, Typography, MenuItem, Tooltip, Avatar, Menu, styled } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import { AppContext } from './pages/AppContext';
@@ -14,6 +14,11 @@ export interface Credentials {
   token: string;
   host: string;
 }
+
+const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[3],
+}));
 
 function App() {
   const [credentials, setCredentials] = useLocalStorage<Credentials | null>('credentials', null);
@@ -61,7 +66,7 @@ function App() {
       <div className="App" style={{ display: 'flex', flexDirection: 'row' }}>
         <SideBar />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <AppBar position="relative">
+          <DashboardNavbarRoot position="relative">
             <Container maxWidth="xl">
               <Toolbar disableGutters>
                 <Typography variant="h6" noWrap component="div" sx={{ mr: 2, display: 'flex', flexGrow: 1 }}>
@@ -103,10 +108,10 @@ function App() {
                 </Box>
               </Toolbar>
             </Container>
-          </AppBar>
-          <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+          </DashboardNavbarRoot>
+          <main style={{ width: '100%', height: '100%', overflow: 'auto' }}>
             <Outlet />
-          </div>
+          </main>
         </div>
       </div>
     </AppContext.Provider>
