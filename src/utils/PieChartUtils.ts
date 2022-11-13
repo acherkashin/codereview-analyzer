@@ -67,7 +67,10 @@ export function convertToDiscussionsStartedPieChart(discussions: UserDiscussion[
   return data;
 }
 
-export function convertToReviewers(mrs: MergeRequestSchema[]) {
+/**
+ * Methods calculates who author of merge requests usually assign merge requests to review
+ */
+export function convertToReviewers(mrs: MergeRequestSchema[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromMergeRequests(mrs);
   const data = tidy(rawData, groupBy('reviewer', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
     (item) => ({

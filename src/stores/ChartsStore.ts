@@ -13,6 +13,8 @@ import {
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
+  convertToReviewers as convertAssignedToReview,
+  PieChartDatum,
 } from '../utils/PieChartUtils';
 
 export interface ChartsStore {
@@ -85,4 +87,12 @@ export function getDiscussionsStartedPieChart(state: ChartsStore) {
 
 export function getAnalyze(state: ChartsStore) {
   return state.analyze;
+}
+
+export function getAssignedToReviewPieChart(author: string, state: ChartsStore): PieChartDatum[] {
+  if (!author) {
+    return [];
+  }
+
+  return convertAssignedToReview(state.mergeRequests.filter((item) => item.author.id === author));
 }

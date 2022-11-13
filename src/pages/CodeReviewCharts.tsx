@@ -8,6 +8,7 @@ import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
 import {
   getAnalyze,
+  getAssignedToReviewPieChart,
   getCommentsLeft,
   getCommentsLeftPieChart,
   getCommentsReceived,
@@ -35,6 +36,8 @@ export interface CodeReviewChartsProps {}
 export function CodeReviewCharts() {
   const { client } = useContext(AppContext);
   const excelDialog = useOpen();
+  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
+  const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
 
   const comments = useChartsStore((state) => state.comments);
   const discussions = useChartsStore((state) => state.discussions);
@@ -49,9 +52,8 @@ export function CodeReviewCharts() {
   const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
-
-  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
-  const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
+  //TODO: refactor, how to create such selector in a right way?
+  const assignedToReviewPieChart = useChartsStore((state) => getAssignedToReviewPieChart(selectedUser?.id, state));
 
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
@@ -117,6 +119,11 @@ export function CodeReviewCharts() {
                   updateComments(e.id as string, null);
                 }}
               />
+            </ChartContainer>
+          )}
+          {selectedUser && assignedToReviewPieChart && (
+            <ChartContainer title={`${selectedUser?.name} asks following people to review his changes`}>
+              <PieChart data={assignedToReviewPieChart} />
             </ChartContainer>
           )}
           {selectedUser && commentsLeftToUsers && (
