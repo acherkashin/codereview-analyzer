@@ -5,7 +5,7 @@ import {
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
-import { getDiscussions, getUserComments, UserComment, UserDiscussion } from './../utils/GitLabUtils';
+import { getDiscussions, getUserComments, UserComment, UserDiscussion } from '../utils/GitLabUtils';
 import { Resources } from '@gitbeaker/core';
 import {
   convertToCommentsLeftPieChart,
