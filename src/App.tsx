@@ -104,7 +104,9 @@ function App() {
               </Toolbar>
             </Container>
           </AppBar>
-          <Outlet />
+          <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+            <Outlet />
+          </div>
         </div>
       </div>
     </AppContext.Provider>

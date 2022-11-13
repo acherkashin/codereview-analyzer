@@ -213,7 +213,7 @@ export function CodeReviewCharts() {
         <CommentList comments={filteredComments} />
         Total: {filteredComments.length}
       </div>
-      <Stack className="App-users" spacing={2}>
+      <Stack className="App-users" spacing={2} position="sticky" top={0}>
         <ProjectList project={project} onProjectSelected={setProject} />
         <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
         <TextField
