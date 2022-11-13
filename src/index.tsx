@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { CodeReviewCharts } from './pages/CodeReviewCharts';
-import { ErrorPage } from './pages/ErrorPage';
-import { ReadyMergeRequests } from './pages/ReadyMergeRequests';
-import { createBrowserRouter, RouterProvider, Link as RouterLink } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ThemeProvider } from '@emotion/react';
+import { theme } from './theme';
+import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage } from './pages';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +22,10 @@ const router = createBrowserRouter([
         path: '/ready-mrs',
         element: <ReadyMergeRequests />,
       },
+      {
+        path: '/personal',
+        element: <PersonalStatistic />,
+      },
     ],
   },
 ]);
@@ -30,7 +34,9 @@ const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider theme={theme}>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );
 
