@@ -8,7 +8,7 @@ import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
 import {
   getAnalyze,
-  getAssignedToReviewPieChart as getWhomAssignedToReviewPieChart,
+  useAssignedToReviewPieChart as getWhomAssignedToReviewPieChart,
   getCommentsLeft,
   getCommentsLeftPieChart,
   getCommentsReceived,
@@ -17,7 +17,7 @@ import {
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
-  getWhoAssignsToAuthorToReviewPieChart,
+  useWhoAssignsToAuthorToReviewPieChart,
   useChartsStore,
 } from '../stores/ChartsStore';
 import { useRequest } from '../hooks';
@@ -53,9 +53,8 @@ export function CodeReviewCharts() {
   const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
-  //TODO: refactor, how to create such selector in a right way?
-  const assignedToReviewPieChart = useChartsStore((state) => getWhomAssignedToReviewPieChart(selectedUser?.id, state));
-  const whoAssignsToReviewPieChart = useChartsStore((state) => getWhoAssignsToAuthorToReviewPieChart(selectedUser?.id, state));
+  const assignedToReviewPieChart = getWhomAssignedToReviewPieChart(selectedUser?.id);
+  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
 
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));

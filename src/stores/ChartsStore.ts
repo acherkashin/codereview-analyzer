@@ -90,20 +90,24 @@ export function getAnalyze(state: ChartsStore) {
   return state.analyze;
 }
 
-export function getAssignedToReviewPieChart(authorId: string, state: ChartsStore): PieChartDatum[] {
-  if (!authorId) {
-    return [];
-  }
+export function useAssignedToReviewPieChart(authorId?: string): PieChartDatum[] {
+  return useChartsStore((state) => {
+    if (!authorId) {
+      return [];
+    }
 
-  const authorMrs = state.mergeRequests.filter((item) => item.author.id === authorId);
-  return convertAssignedToReview(authorMrs);
+    const authorMrs = state.mergeRequests.filter((item) => item.author.id === authorId);
+    return convertAssignedToReview(authorMrs);
+  });
 }
 
-export function getWhoAssignsToAuthorToReviewPieChart(authorId: string, state: ChartsStore): PieChartDatum[] {
-  if (!authorId) {
-    return [];
-  }
+export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieChartDatum[] {
+  return useChartsStore((state) => {
+    if (!authorId) {
+      return [];
+    }
 
-  const reviewerMrs = state.mergeRequests.filter((item) => (item.reviewers ?? []).map((item) => item.id).includes(authorId));
-  return getWhoAssignsToAuthorToReview(reviewerMrs);
+    const reviewerMrs = state.mergeRequests.filter((item) => (item.reviewers ?? []).map((item) => item.id).includes(authorId));
+    return getWhoAssignsToAuthorToReview(reviewerMrs);
+  });
 }
