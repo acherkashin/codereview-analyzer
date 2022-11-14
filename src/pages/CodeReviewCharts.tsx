@@ -133,7 +133,7 @@ export function CodeReviewCharts() {
             </ChartContainer>
           )}
           {selectedUser && commentsLeftToUsers && (
-            <ChartContainer title={`${selectedUser?.name} reviews following people`}>
+            <ChartContainer title={`${selectedUser?.name} leaves comments to following people`}>
               <BarChart
                 {...commentsLeftToUsers}
                 onClick={(e) => {
@@ -143,7 +143,7 @@ export function CodeReviewCharts() {
             </ChartContainer>
           )}
           {selectedUser && commentsReceivedFromUsers && (
-            <ChartContainer title={`Following people review ${selectedUser?.name}`}>
+            <ChartContainer title={`Following people leave comments to ${selectedUser?.name}`}>
               <BarChart
                 {...commentsReceivedFromUsers}
                 onClick={(e) => {
