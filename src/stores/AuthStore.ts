@@ -32,14 +32,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         client,
       });
     } catch (e) {
-      console.error(e);
-
       set({
         host: null,
         token: null,
         user: null,
         client: null,
       });
+
+      console.error(e);
+
+      throw e;
     }
   },
 }));
+
+export function getIsAuthenticated(store: AuthStore) {
+  return store.client != null;
+}

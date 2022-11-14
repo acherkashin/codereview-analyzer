@@ -4,9 +4,11 @@ import { useCallback, useState } from 'react';
 import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
 import { TooltipPrompt } from '../components';
 import { useAuthStore } from '../stores/AuthStore';
+import { useNavigate } from 'react-router-dom';
 export interface LoginProps {}
 
 export function Login(_: LoginProps) {
+  const navigate = useNavigate();
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
   const { signIn } = useAuthStore();
@@ -14,8 +16,15 @@ export function Login(_: LoginProps) {
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
   const handleLoggedIn = useCallback(() => {
-    signIn(token, host);
-  }, [host, signIn, token]);
+    signIn(host, token).then(
+      () => {
+        navigate('/personal');
+      },
+      (e) => {
+        //TODO: need to show validation
+      }
+    );
+  }, [host, navigate, signIn, token]);
 
   return (
     <Box style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
