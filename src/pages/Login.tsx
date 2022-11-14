@@ -1,35 +1,21 @@
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { useCallback, useState } from 'react';
-import { ReactComponent as GitLabIcon } from './gitlab.svg';
-import { Gitlab } from '@gitbeaker/browser';
-import { UserSchema } from '@gitbeaker/core/dist/types/types';
-import { TooltipPrompt } from './';
-export interface LoginProps {
-  onLoggedIn: (token: string, host: string, user: UserSchema) => void;
-}
+import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
+import { TooltipPrompt } from '../components';
+import { useAuthStore } from '../stores/AuthStore';
+export interface LoginProps {}
 
-export function Login({ onLoggedIn }: LoginProps) {
+export function Login(_: LoginProps) {
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
+  const { signIn } = useAuthStore();
 
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
   const handleLoggedIn = useCallback(() => {
-    //TODO: replace when start using react-router
-    const client = new Gitlab({
-      token,
-      host,
-    });
-
-    client.Users.current()
-      .then((user) => {
-        onLoggedIn(token, host, user);
-      })
-      .catch((ex) => {
-        console.log(ex);
-      });
-  }, [host, onLoggedIn, token]);
+    signIn(token, host);
+  }, [host, signIn, token]);
 
   return (
     <Box style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

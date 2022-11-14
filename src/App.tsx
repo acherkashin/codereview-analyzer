@@ -3,7 +3,7 @@ import './App.css';
 import { Gitlab } from '@gitbeaker/browser';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
-import { Login } from './components/Login';
+import { Login } from './pages/Login';
 import { AppBar, Box, Container, IconButton, Toolbar, Typography, MenuItem, Tooltip, Avatar, Menu, styled } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
@@ -46,20 +46,6 @@ function App() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
-  if (!credentials) {
-    return (
-      <Login
-        onLoggedIn={(token, host, user) => {
-          setCredentials({
-            token,
-            host,
-          });
-          setUser(user);
-        }}
-      />
-    );
-  }
 
   return (
     <AppContext.Provider value={contextValue}>
