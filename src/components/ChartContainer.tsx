@@ -1,14 +1,14 @@
-import { Paper } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
 
 export interface ChartContainerProps {
   title: string;
-  children: React.ReactChild;
+  children: React.ReactNode;
 }
 
 export function ChartContainer({ children, title }: ChartContainerProps) {
   return (
     <Paper variant="outlined" square component="section">
-      <h3>{title}</h3>
+      <Typography variant="subtitle1">{title}</Typography>
       {children}
     </Paper>
   );
