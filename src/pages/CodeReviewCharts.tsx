@@ -8,6 +8,7 @@ import { downloadComments } from '../utils/ExcelUtils';
 import { AppContext } from './AppContext';
 import {
   getAnalyze,
+  useAssignedToReviewPieChart as getWhomAssignedToReviewPieChart,
   getCommentsLeft,
   getCommentsLeftPieChart,
   getCommentsReceived,
@@ -16,6 +17,7 @@ import {
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
+  useWhoAssignsToAuthorToReviewPieChart,
   useChartsStore,
 } from '../stores/ChartsStore';
 import { useRequest } from '../hooks';
@@ -35,6 +37,8 @@ export interface CodeReviewChartsProps {}
 export function CodeReviewCharts() {
   const { client } = useContext(AppContext);
   const excelDialog = useOpen();
+  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
+  const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
 
   const comments = useChartsStore((state) => state.comments);
   const discussions = useChartsStore((state) => state.discussions);
@@ -49,9 +53,8 @@ export function CodeReviewCharts() {
   const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
-
-  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
-  const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
+  const assignedToReviewPieChart = getWhomAssignedToReviewPieChart(selectedUser?.id);
+  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
 
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
@@ -119,8 +122,18 @@ export function CodeReviewCharts() {
               />
             </ChartContainer>
           )}
+          {selectedUser && assignedToReviewPieChart && (
+            <ChartContainer title={`${selectedUser?.name} asks following people to review his changes`}>
+              <PieChart data={assignedToReviewPieChart} />
+            </ChartContainer>
+          )}
+          {selectedUser && whoAssignsToReviewPieChart && (
+            <ChartContainer title={`Following people ask ${selectedUser?.name} to review their changes`}>
+              <PieChart data={whoAssignsToReviewPieChart} />
+            </ChartContainer>
+          )}
           {selectedUser && commentsLeftToUsers && (
-            <ChartContainer title={`${selectedUser?.name} reviews following people`}>
+            <ChartContainer title={`${selectedUser?.name} leaves comments to following people`}>
               <BarChart
                 {...commentsLeftToUsers}
                 onClick={(e) => {
@@ -130,7 +143,7 @@ export function CodeReviewCharts() {
             </ChartContainer>
           )}
           {selectedUser && commentsReceivedFromUsers && (
-            <ChartContainer title={`Following people review ${selectedUser?.name}`}>
+            <ChartContainer title={`Following people leave comments to ${selectedUser?.name}`}>
               <BarChart
                 {...commentsReceivedFromUsers}
                 onClick={(e) => {

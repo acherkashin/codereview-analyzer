@@ -1,5 +1,6 @@
 import { Gitlab } from '@gitbeaker/core/dist/types';
 import { MergeRequestNoteSchema, MergeRequestSchema, DiscussionSchema } from '@gitbeaker/core/dist/types/types';
+import { timeSince, TimeSpan } from './TimeSpanUtils';
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;
@@ -16,7 +17,7 @@ export interface AuthorReviewer {
   author: string;
 }
 
-export interface UserCommentsOptions {
+export interface BaseRequestOptions {
   projectId: number;
   createdAfter?: string;
   createdBefore?: string;
@@ -27,19 +28,26 @@ export async function searchProjects(client: Gitlab, searchText: string) {
   return projects;
 }
 
-export async function getDiscussions(
+export async function getMergeRequestsToReview(
   client: Gitlab,
-  { projectId, createdAfter, createdBefore }: UserCommentsOptions
-): Promise<UserDiscussion[]> {
-  const allMrs = await client.MergeRequests.all({
+  { projectId, createdAfter, createdBefore, reviewer }: BaseRequestOptions & { reviewer: string }
+): Promise<MergeRequestSchema[]> {
+  return await client.MergeRequests.all({
     projectId,
     createdAfter,
     createdBefore,
     perPage: 100,
+    reviewerUsername: reviewer,
   });
+}
 
-  const mrs = allMrs.filter((item) => item.user_notes_count !== 0);
-  const promises = mrs.map((mrItem) => {
+export async function getDiscussions(
+  client: Gitlab,
+  projectId: number,
+  mergeRequests: MergeRequestSchema[]
+): Promise<UserDiscussion[]> {
+  const filteredMrs = mergeRequests.filter((item) => item.user_notes_count !== 0);
+  const promises = filteredMrs.map((mrItem) => {
     return client.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 }).then((items) => {
       const filtered = items.filter((discussion) => discussion.notes?.some((item) => !item.system));
       return filtered.map((item) => ({ mergeRequest: mrItem, discussion: item } as UserDiscussion));
@@ -53,18 +61,8 @@ export async function getDiscussions(
   return discussions;
 }
 
-export async function getUserComments(
-  client: Gitlab,
-  { projectId, createdAfter, createdBefore }: UserCommentsOptions
-): Promise<UserComment[]> {
-  const allMrs = await client.MergeRequests.all({
-    projectId,
-    createdAfter,
-    createdBefore,
-    perPage: 100,
-  });
-
-  const comments = await getCommentsForMergeRequests(client, projectId, allMrs);
+export async function getUserComments(client: Gitlab, projectId: number, mrs: MergeRequestSchema[]): Promise<UserComment[]> {
+  const comments = await getCommentsForMergeRequests(client, projectId, mrs);
 
   return comments.filter((item) => !item.comment.system);
 }
@@ -121,6 +119,15 @@ export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]):
   }));
 }
 
+export function getAuthorReviewerFromMergeRequests(mrs: MergeRequestSchema[]): AuthorReviewer[] {
+  return mrs.flatMap<AuthorReviewer>((mr) =>
+    (mr.reviewers ?? []).map<AuthorReviewer>((reviewer) => ({
+      author: mr.author.username as string,
+      reviewer: reviewer.username as string,
+    }))
+  );
+}
+
 export function getDiscussionAuthor(discussion: DiscussionSchema): string {
   return discussion?.notes?.[0]?.author.username as string;
 }
@@ -173,42 +180,4 @@ export async function getReadyMergeRequestsForPage(client: Gitlab, projectId: nu
 function getReadyTime(mr: MergeRequestWithNotes) {
   const readyNote = mr.notes.find((item) => item.body === 'marked this merge request as **ready**');
   return readyNote?.created_at ?? mr.mergeRequest.created_at;
-}
-
-// https://stackoverflow.com/questions/14297625/work-with-a-time-span-in-javascript
-interface TimeSpan {
-  years: number;
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  milliseconds: number;
-  _years: number;
-  _days: number;
-  _hours: number;
-  _minutes: number;
-  _seconds: number;
-  _milliseconds: number;
-}
-
-export function timeSince(when: Date): TimeSpan {
-  // this ignores months
-  const obj: TimeSpan = {} as any;
-  obj._milliseconds = new Date().valueOf() - when.valueOf();
-  obj.milliseconds = obj._milliseconds % 1000;
-  obj._seconds = (obj._milliseconds - obj.milliseconds) / 1000;
-  obj.seconds = obj._seconds % 60;
-  obj._minutes = (obj._seconds - obj.seconds) / 60;
-  obj.minutes = obj._minutes % 60;
-  obj._hours = (obj._minutes - obj.minutes) / 60;
-  obj.hours = obj._hours % 24;
-  obj._days = (obj._hours - obj.hours) / 24;
-  obj.days = obj._days % 365;
-  // finally
-  obj.years = (obj._days - obj.days) / 365;
-  return obj;
-}
-
-export function timeSinceString({ days, hours }: TimeSpan): string {
-  return `${days} ${days === 1 ? 'day' : 'days'}, ${hours} ${hours === 1 ? 'hour' : 'hours'}`;
 }

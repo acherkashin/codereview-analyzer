@@ -122,6 +122,7 @@ export function SideBar(_: SideBarProps) {
         color: '#FFFFFF',
         width: 280,
         borderRadius: 0,
+        flexShrink: 0,
       }}
     >
       {content}
