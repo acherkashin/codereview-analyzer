@@ -8,27 +8,32 @@ import { ThemeProvider } from '@emotion/react';
 import { theme } from './theme';
 import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage } from './pages';
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <App />,
+      errorElement: <ErrorPage />,
+      children: [
+        {
+          path: '/charts',
+          element: <CodeReviewCharts />,
+        },
+        {
+          path: '/ready-mrs',
+          element: <ReadyMergeRequests />,
+        },
+        {
+          path: '/personal',
+          element: <PersonalStatistic />,
+        },
+      ],
+    },
+  ],
   {
-    path: '/',
-    element: <App />,
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        path: '/charts',
-        element: <CodeReviewCharts />,
-      },
-      {
-        path: '/ready-mrs',
-        element: <ReadyMergeRequests />,
-      },
-      {
-        path: '/personal',
-        element: <PersonalStatistic />,
-      },
-    ],
-  },
-]);
+    basename: '/gitlab-codereview-analyzer',
+  }
+);
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
