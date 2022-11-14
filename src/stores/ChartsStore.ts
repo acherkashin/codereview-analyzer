@@ -13,8 +13,8 @@ import {
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
-  convertWhoAssignsToAuthorToReview,
-  convertWhomAuthorAssignsToReview as convertAssignedToReview,
+  getWhoAssignsToAuthorToReview,
+  getWhomAuthorAssignsToReview as convertAssignedToReview,
   PieChartDatum,
 } from '../utils/PieChartUtils';
 
@@ -90,22 +90,20 @@ export function getAnalyze(state: ChartsStore) {
   return state.analyze;
 }
 
-//TODO: need to test
 export function getAssignedToReviewPieChart(authorId: string, state: ChartsStore): PieChartDatum[] {
   if (!authorId) {
     return [];
   }
 
-  return convertAssignedToReview(state.mergeRequests.filter((item) => item.author.id === authorId));
+  const authorMrs = state.mergeRequests.filter((item) => item.author.id === authorId);
+  return convertAssignedToReview(authorMrs);
 }
 
-//TODO: need to test
-export function getWhoAssignsToReviewPieChart(authorId: string, state: ChartsStore): PieChartDatum[] {
+export function getWhoAssignsToAuthorToReviewPieChart(authorId: string, state: ChartsStore): PieChartDatum[] {
   if (!authorId) {
     return [];
   }
 
-  return convertWhoAssignsToAuthorToReview(
-    state.mergeRequests.filter((item) => (item.reviewers ?? []).map((item) => item.id).includes(authorId))
-  );
+  const reviewerMrs = state.mergeRequests.filter((item) => (item.reviewers ?? []).map((item) => item.id).includes(authorId));
+  return getWhoAssignsToAuthorToReview(reviewerMrs);
 }
