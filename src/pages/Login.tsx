@@ -1,10 +1,12 @@
-import { Button, Stack, TextField, Typography } from '@mui/material';
+import { Stack, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { useCallback, useState } from 'react';
 import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
 import { TooltipPrompt } from '../components';
 import { useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';
+import { LoadingButton } from '@mui/lab';
+
 export interface LoginProps {}
 
 export function Login(_: LoginProps) {
@@ -63,7 +65,9 @@ export function Login(_: LoginProps) {
             ),
           }}
         />
-        <Button onClick={handleLoggedIn}>Sing In</Button>
+        <LoadingButton loading={isSigningIn} onClick={handleLoggedIn}>
+          Sign In
+        </LoadingButton>
       </Stack>
     </Box>
   );

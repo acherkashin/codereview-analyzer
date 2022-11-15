@@ -9,6 +9,7 @@ export interface AuthStore {
   token: string | null;
   user: UserSchema | null;
   client: GitlabType | null;
+  isSigningIn: boolean;
   signIn: (host: string, token: string) => Promise<void>;
   signOut: () => void;
 }
@@ -18,7 +19,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   token: null,
   user: null,
   client: null,
+  isSigningIn: false,
   signIn: async (host: string, token: string) => {
+    if (get().isSigningIn) {
+      return;
+    }
+
+    set({ isSigningIn: true });
+
     const client = new Gitlab({
       token,
       host,
@@ -45,6 +53,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       console.error(e);
 
       throw e;
+    } finally {
+      set({ isSigningIn: false });
     }
   },
   signOut() {
