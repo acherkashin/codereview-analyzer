@@ -3,6 +3,7 @@ import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { clearCredentials, saveCredentials } from '../utils/CredentialUtils';
+import { isValidHttpUrl } from '../utils/UrlUtils';
 
 export interface AuthStore {
   host: string | null;
@@ -21,6 +22,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   client: null,
   isSigningIn: false,
   signIn: async (host: string, token: string) => {
+    if (!isValidHttpUrl(host)) {
+      throw Error(`Incorrect url provided: ${host}`);
+    }
+
     if (get().isSigningIn) {
       return;
     }
@@ -70,6 +75,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
 export function getIsAuthenticated(store: AuthStore) {
   return store.client != null;
+}
+
+export function getSignIn(store: AuthStore) {
+  return store.signIn;
 }
 
 export function useClient(): GitlabType {

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
+import { getIsAuthenticated, getSignIn, useAuthStore } from '../stores/AuthStore';
 import { getCredentials } from '../utils/CredentialUtils';
 
 export interface AuthGuardProps {
@@ -10,24 +10,21 @@ export interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps): JSX.Element | null {
   const isAuthenticated = useAuthStore(getIsAuthenticated);
   const navigate = useNavigate();
-  const [checked, setChecked] = useState(false);
-  const { signIn } = useAuthStore();
+  const signIn = useAuthStore(getSignIn);
 
   useEffect(() => {
     if (!isAuthenticated) {
       const credentials = getCredentials();
       if (credentials) {
-        signIn(credentials.token, credentials.host).then(() => setChecked(true));
+        signIn(credentials.host, credentials.token);
         return;
       }
       console.log('Not authenticated, redirecting');
       navigate('/login');
-    } else {
-      setChecked(true);
     }
   }, [isAuthenticated, navigate, signIn]);
 
-  if (!checked) {
+  if (!isAuthenticated) {
     return null;
   }
 

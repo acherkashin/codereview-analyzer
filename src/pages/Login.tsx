@@ -1,11 +1,12 @@
 import { Stack, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
 import { TooltipPrompt } from '../components';
-import { useAuthStore } from '../stores/AuthStore';
+import { getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
+import { getCredentials } from '../utils/CredentialUtils';
 
 export interface LoginProps {}
 
@@ -14,6 +15,7 @@ export function Login(_: LoginProps) {
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
   const { signIn, isSigningIn } = useAuthStore();
+  const isAuthenticated = useAuthStore(getIsAuthenticated);
 
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
@@ -28,6 +30,20 @@ export function Login(_: LoginProps) {
       }
     );
   }, [host, navigate, signIn, token]);
+
+  //TODO: refactor, it is duplicated with AuthGuard
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const credentials = getCredentials();
+      if (credentials) {
+        signIn(credentials.host, credentials.token);
+        navigate('/personal');
+        return;
+      }
+      console.log('Not authenticated, redirecting');
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate, signIn]);
 
   return (
     <Box style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
