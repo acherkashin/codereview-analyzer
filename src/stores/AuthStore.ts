@@ -2,6 +2,7 @@ import create from 'zustand';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
+import { clearCredentials, saveCredentials } from '../utils/CredentialUtils';
 
 export interface AuthStore {
   host: string | null;
@@ -9,6 +10,7 @@ export interface AuthStore {
   user: UserSchema | null;
   client: GitlabType | null;
   signIn: (host: string, token: string) => Promise<void>;
+  signOut: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -24,6 +26,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const user = await client.Users.current();
+      saveCredentials({ token, host });
 
       set({
         host,
@@ -44,8 +47,25 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       throw e;
     }
   },
+  signOut() {
+    set({
+      host: null,
+      token: null,
+      user: null,
+      client: null,
+    });
+    clearCredentials();
+  },
 }));
 
 export function getIsAuthenticated(store: AuthStore) {
   return store.client != null;
+}
+
+export function useClient(): GitlabType {
+  return useAuthStore(getClient)!;
+}
+
+function getClient(store: AuthStore) {
+  return store.client;
 }

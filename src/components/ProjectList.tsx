@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import { searchProjects } from '../utils/GitLabUtils';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Gitlab } from '@gitbeaker/browser';
 import { useDebounce } from '../hooks/useDebounce';
-import { Credentials } from '../App';
 import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { Autocomplete, Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField } from '@mui/material';
+import { useClient } from '../stores/AuthStore';
 
 export interface ProjectListProps {
   project: ProjectSchema;
@@ -14,8 +12,7 @@ export interface ProjectListProps {
 }
 
 export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
-  const [credentials] = useLocalStorage<Credentials | null>('credentials', null);
-  const client = useMemo(() => new Gitlab(credentials), [credentials]);
+  const client = useClient();
   const [open, setOpen] = React.useState(false);
   const [options, setOptions] = React.useState<ProjectSchema[]>([]);
   const [loading, setLoading] = useState(false);

@@ -21,6 +21,7 @@ export function Login(_: LoginProps) {
         navigate('/personal');
       },
       (e) => {
+        console.error(e);
         //TODO: need to show validation
       }
     );

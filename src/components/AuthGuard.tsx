@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
+import { getCredentials } from '../utils/CredentialUtils';
 
 export interface AuthGuardProps {
   children: React.ReactNode;
@@ -9,28 +10,22 @@ export interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps): JSX.Element | null {
   const isAuthenticated = useAuthStore(getIsAuthenticated);
   const navigate = useNavigate();
-  const ignore = useRef(false);
   const [checked, setChecked] = useState(false);
-
-  // Only do authentication check on component mount.
-  // This flow allows you to manually redirect the user after sign-out, otherwise this will be
-  // triggered and will automatically redirect to sign-in page.
+  const { signIn } = useAuthStore();
 
   useEffect(() => {
-    // Prevent from calling twice in development mode with React.StrictMode enabled
-    if (ignore.current) {
-      return;
-    }
-
-    ignore.current = true;
-
     if (!isAuthenticated) {
+      const credentials = getCredentials();
+      if (credentials) {
+        signIn(credentials.token, credentials.host).then(() => setChecked(true));
+        return;
+      }
       console.log('Not authenticated, redirecting');
       navigate('/login');
     } else {
       setChecked(true);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, signIn]);
 
   if (!checked) {
     return null;
