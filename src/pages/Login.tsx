@@ -13,7 +13,7 @@ export function Login(_: LoginProps) {
   const navigate = useNavigate();
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
-  const { signIn } = useAuthStore();
+  const { signIn, isSigningIn } = useAuthStore();
 
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
