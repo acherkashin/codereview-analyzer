@@ -1,9 +1,7 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Autocomplete, Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField } from '@mui/material';
-import { Credentials } from '../App';
-import { Gitlab } from '@gitbeaker/browser';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useClient } from '../stores/AuthStore';
 
 export interface UserListProps {
   label: string;
@@ -12,8 +10,7 @@ export interface UserListProps {
 }
 
 export function UserSelect({ user, label, onUserSelected }: UserListProps) {
-  const [credentials] = useLocalStorage<Credentials | null>('credentials', null);
-  const client = useMemo(() => new Gitlab(credentials), [credentials]);
+  const client = useClient();
   const [users, setUsers] = useState<UserSchema[]>([]);
 
   useEffect(() => {

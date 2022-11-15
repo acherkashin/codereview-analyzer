@@ -6,10 +6,14 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from './theme';
-import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage } from './pages';
+import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage, Login } from './pages';
 
 const router = createBrowserRouter(
   [
+    {
+      path: '/login',
+      element: <Login />,
+    },
     {
       path: '/',
       element: <App />,

@@ -1,4 +1,4 @@
-import { BarDatum, BarSvgProps } from '@nivo/bar';
+import { BarDatum } from '@nivo/bar';
 import {
   AuthorReviewer,
   getAuthorReviewerFromComments,

@@ -1,11 +1,10 @@
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
 import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserSelect } from '../components';
 import { Box, Button, TextField, Stack } from '@mui/material';
 import { downloadComments } from '../utils/ExcelUtils';
-import { AppContext } from './AppContext';
 import {
   getAnalyze,
   useAssignedToReviewPieChart as getWhomAssignedToReviewPieChart,
@@ -31,11 +30,12 @@ import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
 import { ImportTextButton } from '../components/FileUploadButton';
+import { useClient } from '../stores/AuthStore';
 
 export interface CodeReviewChartsProps {}
 
 export function CodeReviewCharts() {
-  const { client } = useContext(AppContext);
+  const client = useClient();
   const excelDialog = useOpen();
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
   const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);

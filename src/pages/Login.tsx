@@ -1,35 +1,49 @@
-import { Button, Stack, TextField, Typography } from '@mui/material';
+import { Stack, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { useCallback, useState } from 'react';
-import { ReactComponent as GitLabIcon } from './gitlab.svg';
-import { Gitlab } from '@gitbeaker/browser';
-import { UserSchema } from '@gitbeaker/core/dist/types/types';
-import { TooltipPrompt } from './';
-export interface LoginProps {
-  onLoggedIn: (token: string, host: string, user: UserSchema) => void;
-}
+import { useCallback, useEffect, useState } from 'react';
+import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
+import { TooltipPrompt } from '../components';
+import { getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
+import { useNavigate } from 'react-router-dom';
+import { LoadingButton } from '@mui/lab';
+import { getCredentials } from '../utils/CredentialUtils';
 
-export function Login({ onLoggedIn }: LoginProps) {
+export interface LoginProps {}
+
+export function Login(_: LoginProps) {
+  const navigate = useNavigate();
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
+  const { signIn, isSigningIn } = useAuthStore();
+  const isAuthenticated = useAuthStore(getIsAuthenticated);
 
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
   const handleLoggedIn = useCallback(() => {
-    //TODO: replace when start using react-router
-    const client = new Gitlab({
-      token,
-      host,
-    });
+    signIn(host, token).then(
+      () => {
+        navigate('/personal');
+      },
+      (e) => {
+        console.error(e);
+        //TODO: need to show validation
+      }
+    );
+  }, [host, navigate, signIn, token]);
 
-    client.Users.current()
-      .then((user) => {
-        onLoggedIn(token, host, user);
-      })
-      .catch((ex) => {
-        console.log(ex);
-      });
-  }, [host, onLoggedIn, token]);
+  //TODO: refactor, it is duplicated with AuthGuard
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const credentials = getCredentials();
+      if (credentials) {
+        signIn(credentials.host, credentials.token);
+        navigate('/personal');
+        return;
+      }
+      console.log('Not authenticated, redirecting');
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate, signIn]);
 
   return (
     <Box style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -67,7 +81,9 @@ export function Login({ onLoggedIn }: LoginProps) {
             ),
           }}
         />
-        <Button onClick={handleLoggedIn}>Sing In</Button>
+        <LoadingButton loading={isSigningIn} onClick={handleLoggedIn}>
+          Sign In
+        </LoadingButton>
       </Stack>
     </Box>
   );

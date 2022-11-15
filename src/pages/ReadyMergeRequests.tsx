@@ -1,16 +1,15 @@
-import { Box, CircularProgress } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-import { getReadyMergeRequestsForPage, MergeRequestForPage } from '../utils/GitLabUtils';
+import { Box } from '@mui/material';
+import { useCallback, useEffect } from 'react';
+import { getReadyMergeRequestsForPage } from '../utils/GitLabUtils';
 import { MergeRequest } from '../components/MergeRequest';
-import { useContext } from 'react';
-import { AppContext } from './AppContext';
 import { useRequest } from '../hooks';
 import { FullSizeProgress } from '../components';
+import { useClient } from '../stores/AuthStore';
 
 export interface ReadyMergeRequestsProps {}
 
 export function ReadyMergeRequests({}: ReadyMergeRequestsProps) {
-  const { client } = useContext(AppContext);
+  const client = useClient();
   const requestMergeRequests = useCallback(() => getReadyMergeRequestsForPage(client, 39), [client]);
   const { makeRequest, response: mrs, isLoading } = useRequest(requestMergeRequests);
 

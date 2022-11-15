@@ -1,14 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
-import { Gitlab } from '@gitbeaker/browser';
-import { useLocalStorage } from './hooks/useLocalStorage';
-import { UserSchema } from '@gitbeaker/core/dist/types/types';
-import { Login } from './components/Login';
 import { AppBar, Box, Container, IconButton, Toolbar, Typography, MenuItem, Tooltip, Avatar, Menu, styled } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
-import { AppContext } from './pages/AppContext';
 import { SideBar } from './components/SideBar';
+import { AuthGuard } from './components/AuthGuard';
+import { useAuthStore } from './stores/AuthStore';
 
 export interface Credentials {
   token: string;
@@ -21,25 +18,15 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
 }));
 
 function App() {
-  const [credentials, setCredentials] = useLocalStorage<Credentials | null>('credentials', null);
-  const [user, setUser] = useState<UserSchema | null>(null);
+  const { user, signOut } = useAuthStore();
   const [anchorElUser, setAnchorElUser] = useState(null);
-
-  const client = useMemo(() => new Gitlab(credentials), [credentials]);
-  const contextValue = useMemo(() => ({ client }), [client]);
-
-  useEffect(() => {
-    client.Users.current().then((current) => {
-      setUser(current);
-    });
-  }, [client]);
 
   const handleOpenUserMenu = (event: any) => {
     setAnchorElUser(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
-    setCredentials(null);
+    signOut();
     handleCloseUserMenu();
   };
 
@@ -47,22 +34,8 @@ function App() {
     setAnchorElUser(null);
   };
 
-  if (!credentials) {
-    return (
-      <Login
-        onLoggedIn={(token, host, user) => {
-          setCredentials({
-            token,
-            host,
-          });
-          setUser(user);
-        }}
-      />
-    );
-  }
-
   return (
-    <AppContext.Provider value={contextValue}>
+    <AuthGuard>
       <div className="App" style={{ display: 'flex', flexDirection: 'row' }}>
         <SideBar />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -114,7 +87,7 @@ function App() {
           </main>
         </div>
       </div>
-    </AppContext.Provider>
+    </AuthGuard>
   );
 }
 
