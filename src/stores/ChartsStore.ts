@@ -90,7 +90,7 @@ export function getAnalyze(state: ChartsStore) {
   return state.analyze;
 }
 
-export function useAssignedToReviewPieChart(authorId?: string): PieChartDatum[] {
+export function useWhomAssignedToReviewPieChart(authorId?: number): PieChartDatum[] {
   return useChartsStore((state) => {
     if (!authorId) {
       return [];
@@ -101,7 +101,7 @@ export function useAssignedToReviewPieChart(authorId?: string): PieChartDatum[] 
   });
 }
 
-export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieChartDatum[] {
+export function useWhoAssignsToAuthorToReviewPieChart(authorId?: number): PieChartDatum[] {
   return useChartsStore((state) => {
     if (!authorId) {
       return [];

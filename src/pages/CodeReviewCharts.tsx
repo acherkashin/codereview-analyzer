@@ -1,13 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
-import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
+import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserSelect } from '../components';
+import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList } from '../components';
 import { Box, Button, TextField, Stack } from '@mui/material';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalyze,
-  useAssignedToReviewPieChart as getWhomAssignedToReviewPieChart,
   getCommentsLeft,
   getCommentsLeftPieChart,
   getCommentsReceived,
@@ -16,7 +15,6 @@ import {
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
-  useWhoAssignsToAuthorToReviewPieChart,
   useChartsStore,
 } from '../stores/ChartsStore';
 import { useRequest } from '../hooks';
@@ -24,7 +22,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { BarChart } from '../components/charts/BarChart';
-import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
 import { PieChart } from '../components/charts/PieChart';
 import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
@@ -34,10 +31,10 @@ import { useClient } from '../stores/AuthStore';
 
 export interface CodeReviewChartsProps {}
 
-export function CodeReviewCharts() {
+export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const excelDialog = useOpen();
-  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
+  // const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
   const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
 
   const comments = useChartsStore((state) => state.comments);
@@ -53,21 +50,11 @@ export function CodeReviewCharts() {
   const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
-  const assignedToReviewPieChart = getWhomAssignedToReviewPieChart(selectedUser?.id);
-  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
 
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
   const [filteredComments, setFilteredComments] = useState<UserComment[]>([]);
 
-  const commentsReceivedFromUsers = useMemo(
-    () => (selectedUser ? convertToCommentsReceivedFromUsers(comments, selectedUser.id) : null),
-    [comments, selectedUser]
-  );
-  const commentsLeftToUsers = useMemo(
-    () => (selectedUser ? convertToCommentsLeftToUsers(comments, selectedUser.id) : null),
-    [comments, selectedUser]
-  );
   const updateComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
       setFilteredComments(getFilteredComments(comments, reviewerName, authorName));
@@ -118,36 +105,6 @@ export function CodeReviewCharts() {
                 data={commentsLeftByPieChart}
                 onClick={(e) => {
                   updateComments(e.id as string, null);
-                }}
-              />
-            </ChartContainer>
-          )}
-          {selectedUser && assignedToReviewPieChart && (
-            <ChartContainer title={`${selectedUser?.name} asks following people to review his changes`}>
-              <PieChart data={assignedToReviewPieChart} />
-            </ChartContainer>
-          )}
-          {selectedUser && whoAssignsToReviewPieChart && (
-            <ChartContainer title={`Following people ask ${selectedUser?.name} to review their changes`}>
-              <PieChart data={whoAssignsToReviewPieChart} />
-            </ChartContainer>
-          )}
-          {selectedUser && commentsLeftToUsers && (
-            <ChartContainer title={`${selectedUser?.name} leaves comments to following people`}>
-              <BarChart
-                {...commentsLeftToUsers}
-                onClick={(e) => {
-                  updateComments(selectedUser.username, e.data.author as string);
-                }}
-              />
-            </ChartContainer>
-          )}
-          {selectedUser && commentsReceivedFromUsers && (
-            <ChartContainer title={`Following people leave comments to ${selectedUser?.name}`}>
-              <BarChart
-                {...commentsReceivedFromUsers}
-                onClick={(e) => {
-                  updateComments(e.data.reviewer as string, selectedUser.username);
                 }}
               />
             </ChartContainer>
@@ -228,7 +185,7 @@ export function CodeReviewCharts() {
       </div>
       <Stack className="App-users" spacing={2} position="sticky" top={0}>
         <ProjectList project={project} onProjectSelected={setProject} />
-        <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
+        {/* <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} /> */}
         <TextField
           label="Created After"
           type="date"
