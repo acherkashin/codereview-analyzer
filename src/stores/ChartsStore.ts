@@ -60,6 +60,18 @@ export function createChartsStore() {
   }));
 }
 
+const personalPageStore = createChartsStore();
+
+export function createPersonalPageStore() {
+  return personalPageStore;
+}
+
+const chartsStore = createChartsStore();
+
+export function createCommonChartsStore() {
+  return chartsStore;
+}
+
 export function getDiscussionsLeft(state: ChartsStore) {
   return convertToDiscussionsLeft(state.discussions);
 }
