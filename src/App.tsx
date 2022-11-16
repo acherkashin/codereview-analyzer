@@ -1,11 +1,26 @@
 import { useState } from 'react';
 import './App.css';
-import { AppBar, Box, Container, IconButton, Toolbar, Typography, MenuItem, Tooltip, Avatar, Menu, styled } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import {
+  AppBar,
+  Box,
+  Container,
+  IconButton,
+  Toolbar,
+  Typography,
+  MenuItem,
+  Tooltip,
+  Avatar,
+  Menu,
+  styled,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { SideBar } from './components/SideBar';
 import { AuthGuard } from './components/AuthGuard';
-import { useAuthStore } from './stores/AuthStore';
+import { getCurrentUser, getSignOut, useAuthStore } from './stores/AuthStore';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 export interface Credentials {
   token: string;
@@ -18,7 +33,8 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
 }));
 
 function App() {
-  const { user, signOut } = useAuthStore();
+  const signOut = useAuthStore(getSignOut);
+  const userCurrent = useAuthStore(getCurrentUser);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
   const handleOpenUserMenu = (event: any) => {
@@ -32,6 +48,11 @@ function App() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleViewAccount = () => {
+    window.open(userCurrent?.web_url ?? '', '_blank');
+    handleCloseUserMenu();
   };
 
   return (
@@ -48,7 +69,7 @@ function App() {
                 <Box sx={{ flexGrow: 0 }}>
                   <Tooltip title="Open settings">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <Avatar alt={user?.name} src={user?.avatar_url} />
+                      <Avatar alt={userCurrent?.name} src={userCurrent?.avatar_url} />
                     </IconButton>
                   </Tooltip>
                   <Menu
@@ -67,15 +88,17 @@ function App() {
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                   >
-                    {/* https://mui.com/material-ui/guides/routing/#link */}
-                    <MenuItem component={RouterLink} {...{ to: '/ready-mrs' }} onMouseUp={handleCloseUserMenu}>
-                      Ready Merge Request
-                    </MenuItem>
-                    <MenuItem component={RouterLink} {...{ to: '/charts' }} onMouseUp={handleCloseUserMenu}>
-                      Charts
+                    <MenuItem onClick={handleViewAccount}>
+                      <ListItemIcon>
+                        <OpenInNewIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>View account</ListItemText>
                     </MenuItem>
                     <MenuItem onClick={handleCloseNavMenu}>
-                      <Typography textAlign="center">Logout</Typography>
+                      <ListItemIcon>
+                        <LogoutIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Logout</ListItemText>
                     </MenuItem>
                   </Menu>
                 </Box>

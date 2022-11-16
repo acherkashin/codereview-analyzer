@@ -81,6 +81,14 @@ export function getSignIn(store: AuthStore) {
   return store.signIn;
 }
 
+export function getSignOut(store: AuthStore) {
+  return store.signOut;
+}
+
+export function getCurrentUser(store: AuthStore) {
+  return store.user;
+}
+
 export function useClient(): GitlabType {
   return useAuthStore(getClient)!;
 }
