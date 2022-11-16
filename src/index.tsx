@@ -7,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from './theme';
 import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage, Login } from './pages';
+import { ChartsStoreProvider, createChartsStore } from './stores/ChartsStore';
 
 const router = createBrowserRouter(
   [
@@ -21,7 +22,11 @@ const router = createBrowserRouter(
       children: [
         {
           path: '/charts',
-          element: <CodeReviewCharts />,
+          element: (
+            <ChartsStoreProvider key="charts" createStore={createChartsStore}>
+              <CodeReviewCharts />
+            </ChartsStoreProvider>
+          ),
         },
         {
           path: '/ready-mrs',
@@ -29,7 +34,11 @@ const router = createBrowserRouter(
         },
         {
           path: '/personal',
-          element: <PersonalStatistic />,
+          element: (
+            <ChartsStoreProvider key="personal" createStore={createChartsStore}>
+              <PersonalStatistic />
+            </ChartsStoreProvider>
+          ),
         },
       ],
     },

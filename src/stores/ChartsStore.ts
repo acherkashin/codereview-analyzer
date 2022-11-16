@@ -1,4 +1,4 @@
-import create from 'zustand';
+import create, { StoreApi } from 'zustand';
 import { MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 import {
   convertToCommentsLeft,
@@ -17,6 +17,7 @@ import {
   getWhomAuthorAssignsToReview as convertAssignedToReview,
   PieChartDatum,
 } from '../utils/PieChartUtils';
+import createContext from 'zustand/context';
 
 export interface ChartsStore {
   mergeRequests: MergeRequestSchema[];
@@ -27,32 +28,37 @@ export interface ChartsStore {
   analyze: (client: Resources.Gitlab, projectId: number, createdAfter: Date, createdBefore: Date) => Promise<void>;
 }
 
-export const useChartsStore = create<ChartsStore>((set, get) => ({
-  mergeRequests: [],
-  comments: [],
-  discussions: [],
-  setComments: (newComments: UserComment[]) => set({ comments: newComments }),
-  setDiscussions: (newDiscussions: UserDiscussion[]) => set({ discussions: newDiscussions }),
-  analyze: async (client: Resources.Gitlab, projectId: number, createdAfter: Date, createdBefore: Date) => {
-    const mergeRequests = await client.MergeRequests.all({
-      projectId,
-      createdAfter: createdAfter.toISOString(),
-      createdBefore: createdBefore.toISOString(),
-      perPage: 100,
-    });
+const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
+export { ChartsStoreProvider, useChartsStore };
 
-    const [comments, discussions] = await Promise.all([
-      getUserComments(client, projectId, mergeRequests),
-      getDiscussions(client, projectId, mergeRequests),
-    ]);
+export function createChartsStore() {
+  return create<ChartsStore>((set, get) => ({
+    mergeRequests: [],
+    comments: [],
+    discussions: [],
+    setComments: (newComments: UserComment[]) => set({ comments: newComments }),
+    setDiscussions: (newDiscussions: UserDiscussion[]) => set({ discussions: newDiscussions }),
+    analyze: async (client: Resources.Gitlab, projectId: number, createdAfter: Date, createdBefore: Date) => {
+      const mergeRequests = await client.MergeRequests.all({
+        projectId,
+        createdAfter: createdAfter.toISOString(),
+        createdBefore: createdBefore.toISOString(),
+        perPage: 100,
+      });
 
-    set({
-      mergeRequests,
-      comments,
-      discussions,
-    });
-  },
-}));
+      const [comments, discussions] = await Promise.all([
+        getUserComments(client, projectId, mergeRequests),
+        getDiscussions(client, projectId, mergeRequests),
+      ]);
+
+      set({
+        mergeRequests,
+        comments,
+        discussions,
+      });
+    },
+  }));
+}
 
 export function getDiscussionsLeft(state: ChartsStore) {
   return convertToDiscussionsLeft(state.discussions);

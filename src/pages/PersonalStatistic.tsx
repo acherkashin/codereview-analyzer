@@ -1,7 +1,7 @@
 import { ChartContainer } from '../components';
 import { BarChart } from '../components/charts/BarChart';
 import { PieChart } from '../components/charts/PieChart';
-import { useChartsStore, useWhomAssignedToReviewPieChart } from '../stores/ChartsStore';
+import { useChartsStore, useWhoAssignsToAuthorToReviewPieChart, useWhomAssignedToReviewPieChart } from '../stores/ChartsStore';
 import { getCurrentUser, useAuthStore } from '../stores/AuthStore';
 import { useMemo } from 'react';
 import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
@@ -10,7 +10,7 @@ export function PersonalStatistic() {
   const comments = useChartsStore((state) => state.comments);
   const currentUser = useAuthStore(getCurrentUser);
   const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(currentUser?.id);
-  const whoAssignsToReviewPieChart = useWhomAssignedToReviewPieChart(currentUser?.id);
+  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(currentUser?.id);
   const commentsReceivedFromUsers = useMemo(
     () => (currentUser ? convertToCommentsReceivedFromUsers(comments, currentUser.id) : null),
     [comments, currentUser]
