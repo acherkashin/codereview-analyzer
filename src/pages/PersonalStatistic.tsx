@@ -1,13 +1,31 @@
-import { ChartContainer } from '../components';
-import { BarChart } from '../components/charts/BarChart';
-import { PieChart } from '../components/charts/PieChart';
-import { useChartsStore, useWhoAssignsToAuthorToReviewPieChart, useWhomAssignedToReviewPieChart } from '../stores/ChartsStore';
-import { getCurrentUser, useAuthStore } from '../stores/AuthStore';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { Stack } from '@mui/material';
+import { UserSchema } from '@gitbeaker/core/dist/types/types';
+import { ChartContainer, FilterPanel, UserSelect } from '../components';
+import { BarChart, PieChart } from '../components/charts';
+import {
+  getAnalyze,
+  useChartsStore,
+  useWhoAssignsToAuthorToReviewPieChart,
+  useWhomAssignedToReviewPieChart,
+} from '../stores/ChartsStore';
+import { getCurrentUser, useAuthStore, useClient } from '../stores/AuthStore';
 import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
+import { useLocalStorage } from '../hooks';
+import { FilterPanelState } from '../components/FilterPanel/FilterPanel';
 
 export function PersonalStatistic() {
   const comments = useChartsStore((state) => state.comments);
+  const analyze = useChartsStore(getAnalyze);
+  const client = useClient();
+
+  const handleAnalyze = useCallback(
+    ({ project, createdAfter, createdBefore }: FilterPanelState) => {
+      return analyze(client, project.id, createdAfter, createdBefore);
+    },
+    [analyze, client]
+  );
+
   const currentUser = useAuthStore(getCurrentUser);
   const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(currentUser?.id);
   const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(currentUser?.id);
@@ -19,6 +37,8 @@ export function PersonalStatistic() {
     () => (currentUser ? convertToCommentsLeftToUsers(comments, currentUser.id) : null),
     [comments, currentUser]
   );
+
+  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center' }}>
@@ -54,6 +74,11 @@ export function PersonalStatistic() {
           </ChartContainer>
         )}
       </div>
+      <Stack className="App-users" spacing={2} position="sticky" top={0}>
+        <FilterPanel onAnalyze={handleAnalyze}>
+          <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
+        </FilterPanel>
+      </Stack>
     </div>
   );
 }
