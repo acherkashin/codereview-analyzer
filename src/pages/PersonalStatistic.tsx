@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { Stack } from '@mui/material';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { ChartContainer, FilterPanel, UserSelect } from '../components';
@@ -6,16 +6,16 @@ import { BarChart, PieChart } from '../components/charts';
 import {
   getAnalyze,
   useChartsStore,
+  useCommentsLeftToUsers,
+  useCommentsReceivedFromUsers,
   useWhoAssignsToAuthorToReviewPieChart,
   useWhomAssignedToReviewPieChart,
 } from '../stores/ChartsStore';
 import { getCurrentUser, useAuthStore, useClient } from '../stores/AuthStore';
-import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
 import { useLocalStorage } from '../hooks';
 import { FilterPanelState } from '../components/FilterPanel/FilterPanel';
 
 export function PersonalStatistic() {
-  const comments = useChartsStore((state) => state.comments);
   const analyze = useChartsStore(getAnalyze);
   const client = useClient();
 
@@ -29,14 +29,8 @@ export function PersonalStatistic() {
   const currentUser = useAuthStore(getCurrentUser);
   const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(currentUser?.id);
   const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(currentUser?.id);
-  const commentsReceivedFromUsers = useMemo(
-    () => (currentUser ? convertToCommentsReceivedFromUsers(comments, currentUser.id) : null),
-    [comments, currentUser]
-  );
-  const commentsLeftToUsers = useMemo(
-    () => (currentUser ? convertToCommentsLeftToUsers(comments, currentUser.id) : null),
-    [comments, currentUser]
-  );
+  const commentsReceivedFromUsers = useCommentsReceivedFromUsers(currentUser?.id);
+  const commentsLeftToUsers = useCommentsLeftToUsers(currentUser?.id);
 
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
 

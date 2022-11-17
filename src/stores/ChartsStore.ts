@@ -2,7 +2,9 @@ import create, { StoreApi } from 'zustand';
 import { MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 import {
   convertToCommentsLeft,
+  convertToCommentsLeftToUsers,
   convertToCommentsReceived,
+  convertToCommentsReceivedFromUsers,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
@@ -121,11 +123,31 @@ export function useWhomAssignedToReviewPieChart(authorId?: number): PieChartDatu
 
 export function useWhoAssignsToAuthorToReviewPieChart(authorId?: number): PieChartDatum[] {
   return useChartsStore((state) => {
-    if (!authorId) {
+    if (authorId == null) {
       return [];
     }
 
     const reviewerMrs = state.mergeRequests.filter((item) => (item.reviewers ?? []).map((item) => item.id).includes(authorId));
     return getWhoAssignsToAuthorToReview(reviewerMrs);
+  });
+}
+
+export function useCommentsReceivedFromUsers(userId?: number) {
+  return useChartsStore((state) => {
+    if (userId == null) {
+      return [];
+    }
+
+    return convertToCommentsReceivedFromUsers(state.comments, userId);
+  });
+}
+
+export function useCommentsLeftToUsers(userId?: number) {
+  return useChartsStore((state) => {
+    if (userId == null) {
+      return [];
+    }
+
+    return convertToCommentsLeftToUsers(state.comments, userId);
   });
 }
