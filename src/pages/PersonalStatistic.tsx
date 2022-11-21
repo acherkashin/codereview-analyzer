@@ -35,7 +35,7 @@ export function PersonalStatistic() {
   const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(currentUser?.id);
   const commentsReceivedFromUsers = useCommentsReceivedFromUsers(currentUser?.id);
   const commentsLeftToUsers = useCommentsLeftToUsers(currentUser?.id);
-  const approvedMrs = useWhoApprovesMergeRequests(client, project?.id, currentUser?.id);
+  const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, currentUser?.id);
 
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
 
@@ -52,9 +52,14 @@ export function PersonalStatistic() {
             <PieChart data={whoAssignsToReviewPieChart} />
           </ChartContainer>
         )}
-        {currentUser && approvedMrs && (
+        {currentUser && whoApprovesUser && (
           <ChartContainer title={`Following people approves ${currentUser?.name} changes`}>
-            <PieChart data={approvedMrs} />
+            <PieChart data={whoApprovesUser} />
+          </ChartContainer>
+        )}
+        {currentUser && whomUserApproves && (
+          <ChartContainer title={`${currentUser?.name} approves changes of following people`}>
+            <PieChart data={whomUserApproves} />
           </ChartContainer>
         )}
         {currentUser && commentsLeftToUsers && (

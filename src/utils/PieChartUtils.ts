@@ -122,14 +122,8 @@ export function getMergeRequestsWithApprovals(
   );
 }
 
-export async function getWhoApprovesMergeRequests(
-  client: Resources.Gitlab,
-  projectId: number,
-  mrs: MergeRequestSchema[],
-  authorId: number
-): Promise<PieChartDatum[]> {
-  const mergeRequests = await getMergeRequestsWithApprovals(client, projectId, mrs);
-  const authorMrs = mergeRequests.filter((item) => item.mergeRequest.author.id === authorId);
+export function getWhoApprovesUser(mergeRequests: MergeRequestWithApprovals[], userId: number): PieChartDatum[] {
+  const authorMrs = mergeRequests.filter((item) => item.mergeRequest.author.id === userId);
   const approvers = authorMrs.flatMap((mr) => (mr.approvals.approved_by ?? []).map((item) => item.user));
 
   return tidy(approvers, groupBy('username', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
@@ -139,4 +133,17 @@ export async function getWhoApprovesMergeRequests(
       value: item.total,
     })
   );
+}
+
+export function getWhomUserApproves(mergeRequests: MergeRequestWithApprovals[], userId: number): PieChartDatum[] {
+  const approvedByUser = mergeRequests.filter((item) =>
+    (item.approvals.approved_by ?? []).some(({ user }) => user.id === userId)
+  );
+  const authors = approvedByUser.filter((item) => item.mergeRequest.author).map((item) => item.mergeRequest.author);
+
+  return tidy(authors, groupBy('username', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>((item) => ({
+    id: item.username as string,
+    label: item.username as string,
+    value: item.total,
+  }));
 }

@@ -15,9 +15,11 @@ import {
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
-  getWhoApprovesMergeRequests,
+  getMergeRequestsWithApprovals,
+  getWhoApprovesUser,
   getWhoAssignsToAuthorToReview,
   getWhomAuthorAssignsToReview as convertAssignedToReview,
+  getWhomUserApproves,
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
@@ -155,17 +157,22 @@ export function useCommentsLeftToUsers(userId?: number) {
 }
 
 export function useWhoApprovesMergeRequests(client: Resources.Gitlab, projectId?: number, userId?: number) {
-  const [whoApproves, setWhoApproves] = useState<PieChartDatum[]>([]);
+  const [whoApprovesUser, setWhoApprovesUser] = useState<PieChartDatum[]>([]);
+  const [whomUserApproves, setWhomUserApproves] = useState<PieChartDatum[]>([]);
 
   useChartsStore((state) => {
     if (userId == null || state.mergeRequests.length === 0 || !projectId) {
       return [];
     }
 
-    getWhoApprovesMergeRequests(client, projectId, state.mergeRequests, userId).then((resp) => {
-      setWhoApproves(resp);
+    getMergeRequestsWithApprovals(client, projectId, state.mergeRequests).then((response) => {
+      setWhoApprovesUser(getWhoApprovesUser(response, userId));
+      setWhomUserApproves(getWhomUserApproves(response, userId));
     });
   });
 
-  return whoApproves;
+  return {
+    whoApprovesUser,
+    whomUserApproves,
+  };
 }
