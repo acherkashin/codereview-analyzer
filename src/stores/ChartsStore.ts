@@ -15,11 +15,13 @@ import {
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
+  getWhoApprovesMergeRequests,
   getWhoAssignsToAuthorToReview,
   getWhomAuthorAssignsToReview as convertAssignedToReview,
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
+import { useState } from 'react';
 
 export interface ChartsStore {
   mergeRequests: MergeRequestSchema[];
@@ -150,4 +152,20 @@ export function useCommentsLeftToUsers(userId?: number) {
 
     return convertToCommentsLeftToUsers(state.comments, userId);
   });
+}
+
+export function useWhoApprovesMergeRequests(client: Resources.Gitlab, projectId?: number, userId?: number) {
+  const [whoApproves, setWhoApproves] = useState<PieChartDatum[]>([]);
+
+  useChartsStore((state) => {
+    if (userId == null || state.mergeRequests.length === 0 || !projectId) {
+      return [];
+    }
+
+    getWhoApprovesMergeRequests(client, projectId, state.mergeRequests, userId).then((resp) => {
+      setWhoApproves(resp);
+    });
+  });
+
+  return whoApproves;
 }
