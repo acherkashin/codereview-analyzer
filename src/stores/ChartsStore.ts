@@ -8,14 +8,19 @@ import {
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
-import { getDiscussions, getUserComments, UserComment, UserDiscussion } from '../utils/GitLabUtils';
+import {
+  getDiscussions,
+  getMergeRequestsWithApprovals,
+  getUserComments,
+  UserComment,
+  UserDiscussion,
+} from '../utils/GitLabUtils';
 import { Resources } from '@gitbeaker/core';
 import {
   convertToCommentsLeftPieChart,
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
-  getMergeRequestsWithApprovals,
   getWhoApprovesUser,
   getWhoAssignsToAuthorToReview,
   getWhomAuthorAssignsToReview as convertAssignedToReview,

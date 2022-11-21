@@ -2,13 +2,13 @@ import {
   getAuthorReviewerFromComments,
   getAuthorReviewerFromDiscussions,
   getAuthorReviewerFromMergeRequests,
+  MergeRequestWithApprovals,
   UserComment,
   UserDiscussion,
 } from './GitLabUtils';
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
-import { MergeRequestSchema, MergeRequestLevelMergeRequestApprovalSchema } from '@gitbeaker/core/dist/types/types';
+import { MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 import { BarDatum } from '@nivo/bar';
-import { Resources } from '@gitbeaker/core';
 
 export interface PieChartDatum extends BarDatum {
   id: string;
@@ -98,28 +98,6 @@ export function getWhoAssignsToAuthorToReview(mrs: MergeRequestSchema[]): PieCha
   );
 
   return data;
-}
-
-export interface MergeRequestWithApprovals {
-  mergeRequest: MergeRequestSchema;
-  approvals: MergeRequestLevelMergeRequestApprovalSchema;
-}
-
-export function getMergeRequestsWithApprovals(
-  client: Resources.Gitlab,
-  projectId: number,
-  mrs: MergeRequestSchema[]
-): Promise<MergeRequestWithApprovals[]> {
-  return Promise.all(
-    mrs.map((mr) =>
-      client.MergeRequestApprovals.configuration(projectId, {
-        mergerequestIid: mr.iid,
-      }).then((approvals) => ({
-        mergeRequest: mr,
-        approvals,
-      }))
-    )
-  );
 }
 
 export function getWhoApprovesUser(mergeRequests: MergeRequestWithApprovals[], userId: number): PieChartDatum[] {
