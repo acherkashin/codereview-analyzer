@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
-import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList } from '../components';
+import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
@@ -46,10 +46,19 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
 
+  const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<UserComment[]>([]);
 
   const updateComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
+      if (reviewerName && authorName) {
+        setTitle(`Comments received by ${authorName} from ${reviewerName}`);
+      } else if (reviewerName) {
+        setTitle(`Comments left by ${reviewerName}`);
+      } else if (authorName) {
+        setTitle(`Comments received by ${authorName}`);
+      }
+
       setFilteredComments(getFilteredComments(comments, reviewerName, authorName));
     },
     [comments]
@@ -118,7 +127,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
                 );
               }}
               onClick={(e) => {
-                updateComments(e.indexValue as string, e.id as string);
+                const reviewerName = e.indexValue as string;
+
+                updateComments(reviewerName, e.id as string);
               }}
             />
           </ChartContainer>
@@ -136,7 +147,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
                 );
               }}
               onClick={(e) => {
-                updateComments(e.id as string, e.indexValue as string);
+                const authorName = e.indexValue as string;
+
+                updateComments(e.id as string, authorName);
               }}
             />
           </ChartContainer>
@@ -175,9 +188,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             />
           </ChartContainer>
         </div>
-        <DiscussionList discussions={discussions} />
-        <CommentList comments={filteredComments} />
-        Total: {filteredComments.length}
       </div>
       <Stack spacing={2} position="sticky" top={10}>
         <FilterPanel onAnalyze={handleAnalyze} />
@@ -214,6 +224,16 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           onDownload={handleDownload}
         />
       </Stack>
+      <FullScreenDialog
+        title={title}
+        open={filteredComments.length !== 0}
+        onClose={() => {
+          setFilteredComments([]);
+        }}
+      >
+        {/* <DiscussionList discussions={discussions} /> */}
+        <CommentList comments={filteredComments} />
+      </FullScreenDialog>
     </PageContainer>
   );
 }
