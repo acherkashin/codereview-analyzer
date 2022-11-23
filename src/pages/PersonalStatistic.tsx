@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { Stack } from '@mui/material';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { ChartContainer, FilterPanel, UserSelect } from '../components';
 import { BarChart, PieChart } from '../components/charts';
