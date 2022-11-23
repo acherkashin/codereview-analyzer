@@ -1,6 +1,12 @@
 import { Gitlab } from '@gitbeaker/core/dist/types';
-import { MergeRequestNoteSchema, MergeRequestSchema, DiscussionSchema } from '@gitbeaker/core/dist/types/types';
+import {
+  MergeRequestNoteSchema,
+  MergeRequestSchema,
+  DiscussionSchema,
+  MergeRequestLevelMergeRequestApprovalSchema,
+} from '@gitbeaker/core/dist/types/types';
 import { timeSince, TimeSpan } from './TimeSpanUtils';
+import { Resources } from '@gitbeaker/core';
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;
@@ -180,4 +186,26 @@ export async function getReadyMergeRequestsForPage(client: Gitlab, projectId: nu
 function getReadyTime(mr: MergeRequestWithNotes) {
   const readyNote = mr.notes.find((item) => item.body === 'marked this merge request as **ready**');
   return readyNote?.created_at ?? mr.mergeRequest.created_at;
+}
+
+export interface MergeRequestWithApprovals {
+  mergeRequest: MergeRequestSchema;
+  approvals: MergeRequestLevelMergeRequestApprovalSchema;
+}
+
+export function getMergeRequestsWithApprovals(
+  client: Resources.Gitlab,
+  projectId: number,
+  mrs: MergeRequestSchema[]
+): Promise<MergeRequestWithApprovals[]> {
+  return Promise.all(
+    mrs.map((mr) =>
+      client.MergeRequestApprovals.configuration(projectId, {
+        mergerequestIid: mr.iid,
+      }).then((approvals) => ({
+        mergeRequest: mr,
+        approvals,
+      }))
+    )
+  );
 }

@@ -1,22 +1,34 @@
-import create from 'zustand';
+import create, { StoreApi } from 'zustand';
 import { MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 import {
   convertToCommentsLeft,
+  convertToCommentsLeftToUsers,
   convertToCommentsReceived,
+  convertToCommentsReceivedFromUsers,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
-import { getDiscussions, getUserComments, UserComment, UserDiscussion } from '../utils/GitLabUtils';
+import {
+  getDiscussions,
+  getMergeRequestsWithApprovals,
+  getUserComments,
+  UserComment,
+  UserDiscussion,
+} from '../utils/GitLabUtils';
 import { Resources } from '@gitbeaker/core';
 import {
   convertToCommentsLeftPieChart,
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
+  getWhoApprovesUser,
   getWhoAssignsToAuthorToReview,
   getWhomAuthorAssignsToReview as convertAssignedToReview,
+  getWhomUserApproves,
   PieChartDatum,
 } from '../utils/PieChartUtils';
+import createContext from 'zustand/context';
+import { useState } from 'react';
 
 export interface ChartsStore {
   mergeRequests: MergeRequestSchema[];
@@ -27,32 +39,49 @@ export interface ChartsStore {
   analyze: (client: Resources.Gitlab, projectId: number, createdAfter: Date, createdBefore: Date) => Promise<void>;
 }
 
-export const useChartsStore = create<ChartsStore>((set, get) => ({
-  mergeRequests: [],
-  comments: [],
-  discussions: [],
-  setComments: (newComments: UserComment[]) => set({ comments: newComments }),
-  setDiscussions: (newDiscussions: UserDiscussion[]) => set({ discussions: newDiscussions }),
-  analyze: async (client: Resources.Gitlab, projectId: number, createdAfter: Date, createdBefore: Date) => {
-    const mergeRequests = await client.MergeRequests.all({
-      projectId,
-      createdAfter: createdAfter.toISOString(),
-      createdBefore: createdBefore.toISOString(),
-      perPage: 100,
-    });
+const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
+export { ChartsStoreProvider, useChartsStore };
 
-    const [comments, discussions] = await Promise.all([
-      getUserComments(client, projectId, mergeRequests),
-      getDiscussions(client, projectId, mergeRequests),
-    ]);
+export function createChartsStore() {
+  return create<ChartsStore>((set, get) => ({
+    mergeRequests: [],
+    comments: [],
+    discussions: [],
+    setComments: (newComments: UserComment[]) => set({ comments: newComments }),
+    setDiscussions: (newDiscussions: UserDiscussion[]) => set({ discussions: newDiscussions }),
+    analyze: async (client: Resources.Gitlab, projectId: number, createdAfter: Date, createdBefore: Date) => {
+      const mergeRequests = await client.MergeRequests.all({
+        projectId,
+        createdAfter: createdAfter.toISOString(),
+        createdBefore: createdBefore.toISOString(),
+        perPage: 100,
+      });
 
-    set({
-      mergeRequests,
-      comments,
-      discussions,
-    });
-  },
-}));
+      const [comments, discussions] = await Promise.all([
+        getUserComments(client, projectId, mergeRequests),
+        getDiscussions(client, projectId, mergeRequests),
+      ]);
+
+      set({
+        mergeRequests,
+        comments,
+        discussions,
+      });
+    },
+  }));
+}
+
+const personalPageStore = createChartsStore();
+
+export function createPersonalPageStore() {
+  return personalPageStore;
+}
+
+const chartsStore = createChartsStore();
+
+export function createCommonChartsStore() {
+  return chartsStore;
+}
 
 export function getDiscussionsLeft(state: ChartsStore) {
   return convertToDiscussionsLeft(state.discussions);
@@ -90,7 +119,7 @@ export function getAnalyze(state: ChartsStore) {
   return state.analyze;
 }
 
-export function useAssignedToReviewPieChart(authorId?: string): PieChartDatum[] {
+export function useWhomAssignedToReviewPieChart(authorId?: number): PieChartDatum[] {
   return useChartsStore((state) => {
     if (!authorId) {
       return [];
@@ -101,13 +130,54 @@ export function useAssignedToReviewPieChart(authorId?: string): PieChartDatum[] 
   });
 }
 
-export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieChartDatum[] {
+export function useWhoAssignsToAuthorToReviewPieChart(authorId?: number): PieChartDatum[] {
   return useChartsStore((state) => {
-    if (!authorId) {
+    if (authorId == null) {
       return [];
     }
 
     const reviewerMrs = state.mergeRequests.filter((item) => (item.reviewers ?? []).map((item) => item.id).includes(authorId));
     return getWhoAssignsToAuthorToReview(reviewerMrs);
   });
+}
+
+export function useCommentsReceivedFromUsers(userId?: number) {
+  return useChartsStore((state) => {
+    if (userId == null) {
+      return [];
+    }
+
+    return convertToCommentsReceivedFromUsers(state.comments, userId);
+  });
+}
+
+export function useCommentsLeftToUsers(userId?: number) {
+  return useChartsStore((state) => {
+    if (userId == null) {
+      return [];
+    }
+
+    return convertToCommentsLeftToUsers(state.comments, userId);
+  });
+}
+
+export function useWhoApprovesMergeRequests(client: Resources.Gitlab, projectId?: number, userId?: number) {
+  const [whoApprovesUser, setWhoApprovesUser] = useState<PieChartDatum[]>([]);
+  const [whomUserApproves, setWhomUserApproves] = useState<PieChartDatum[]>([]);
+
+  useChartsStore((state) => {
+    if (userId == null || state.mergeRequests.length === 0 || !projectId) {
+      return [];
+    }
+
+    getMergeRequestsWithApprovals(client, projectId, state.mergeRequests).then((response) => {
+      setWhoApprovesUser(getWhoApprovesUser(response, userId));
+      setWhomUserApproves(getWhomUserApproves(response, userId));
+    });
+  });
+
+  return {
+    whoApprovesUser,
+    whomUserApproves,
+  };
 }

@@ -1,13 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
-import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, ProjectList, UserSelect } from '../components';
-import { Box, Button, TextField, Stack } from '@mui/material';
+import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList } from '../components';
+import { Button, Stack } from '@mui/material';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalyze,
-  useAssignedToReviewPieChart as getWhomAssignedToReviewPieChart,
   getCommentsLeft,
   getCommentsLeftPieChart,
   getCommentsReceived,
@@ -16,35 +13,30 @@ import {
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
-  useWhoAssignsToAuthorToReviewPieChart,
   useChartsStore,
 } from '../stores/ChartsStore';
-import { useRequest } from '../hooks';
-import LoadingButton from '@mui/lab/LoadingButton';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { BarChart } from '../components/charts/BarChart';
-import { convertToCommentsLeftToUsers, convertToCommentsReceivedFromUsers } from '../utils/ChartUtils';
 import { PieChart } from '../components/charts/PieChart';
 import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
 import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
+import { FilterPanel, FilterPanelState } from '../components/FilterPanel/FilterPanel';
+import { PageContainer } from './PageContainer';
 
 export interface CodeReviewChartsProps {}
 
-export function CodeReviewCharts() {
+export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const excelDialog = useOpen();
-  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
-  const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
 
   const comments = useChartsStore((state) => state.comments);
   const discussions = useChartsStore((state) => state.discussions);
   const setComments = useChartsStore((state) => state.setComments);
   const setDiscussions = useChartsStore((state) => state.setDiscussions);
-  const { makeRequest: analyze, isLoading } = useRequest(useChartsStore(getAnalyze));
+  const analyze = useChartsStore(getAnalyze);
   const discussionsLeft = useChartsStore(getDiscussionsLeft);
   const discussionsReceived = useChartsStore(getDiscussionsReceived);
   const commentsLeft = useChartsStore(getCommentsLeft);
@@ -53,21 +45,9 @@ export function CodeReviewCharts() {
   const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
-  const assignedToReviewPieChart = getWhomAssignedToReviewPieChart(selectedUser?.id);
-  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
 
-  const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
-  const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
   const [filteredComments, setFilteredComments] = useState<UserComment[]>([]);
 
-  const commentsReceivedFromUsers = useMemo(
-    () => (selectedUser ? convertToCommentsReceivedFromUsers(comments, selectedUser.id) : null),
-    [comments, selectedUser]
-  );
-  const commentsLeftToUsers = useMemo(
-    () => (selectedUser ? convertToCommentsLeftToUsers(comments, selectedUser.id) : null),
-    [comments, selectedUser]
-  );
   const updateComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
       setFilteredComments(getFilteredComments(comments, reviewerName, authorName));
@@ -84,12 +64,15 @@ export function CodeReviewCharts() {
     }
   };
 
-  const handleAnalyze = () => {
-    analyze(client, project.id, createdAfter, createdBefore);
-  };
+  const handleAnalyze = useCallback(
+    ({ project, createdAfter, createdBefore }: FilterPanelState) => {
+      return analyze(client, project.id, createdAfter, createdBefore);
+    },
+    [analyze, client]
+  );
 
   return (
-    <Box style={{ display: 'flex' }}>
+    <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <div className="charts">
           {discussionsReceivedPieChart && (
@@ -118,36 +101,6 @@ export function CodeReviewCharts() {
                 data={commentsLeftByPieChart}
                 onClick={(e) => {
                   updateComments(e.id as string, null);
-                }}
-              />
-            </ChartContainer>
-          )}
-          {selectedUser && assignedToReviewPieChart && (
-            <ChartContainer title={`${selectedUser?.name} asks following people to review his changes`}>
-              <PieChart data={assignedToReviewPieChart} />
-            </ChartContainer>
-          )}
-          {selectedUser && whoAssignsToReviewPieChart && (
-            <ChartContainer title={`Following people ask ${selectedUser?.name} to review their changes`}>
-              <PieChart data={whoAssignsToReviewPieChart} />
-            </ChartContainer>
-          )}
-          {selectedUser && commentsLeftToUsers && (
-            <ChartContainer title={`${selectedUser?.name} leaves comments to following people`}>
-              <BarChart
-                {...commentsLeftToUsers}
-                onClick={(e) => {
-                  updateComments(selectedUser.username, e.data.author as string);
-                }}
-              />
-            </ChartContainer>
-          )}
-          {selectedUser && commentsReceivedFromUsers && (
-            <ChartContainer title={`Following people leave comments to ${selectedUser?.name}`}>
-              <BarChart
-                {...commentsReceivedFromUsers}
-                onClick={(e) => {
-                  updateComments(e.data.reviewer as string, selectedUser.username);
                 }}
               />
             </ChartContainer>
@@ -226,38 +179,8 @@ export function CodeReviewCharts() {
         <CommentList comments={filteredComments} />
         Total: {filteredComments.length}
       </div>
-      <Stack className="App-users" spacing={2} position="sticky" top={0}>
-        <ProjectList project={project} onProjectSelected={setProject} />
-        <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
-        <TextField
-          label="Created After"
-          type="date"
-          value={createdAfter?.toISOString().substring(0, 10)}
-          onChange={(newValue) => {
-            const newDate = new Date(newValue.target.value);
-            setCreatedAfter(newDate);
-          }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          fullWidth
-        />
-        <TextField
-          label="Created Before"
-          type="date"
-          value={createdBefore?.toISOString().substring(0, 10)}
-          onChange={(newValue) => {
-            const newDate = new Date(newValue.target.value);
-            setCreatedBefore(newDate);
-          }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          fullWidth
-        />
-        <LoadingButton startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
-          Analyze
-        </LoadingButton>
+      <Stack spacing={2} position="sticky" top={10}>
+        <FilterPanel onAnalyze={handleAnalyze} />
         <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
           Download as Excel
         </Button>
@@ -291,6 +214,6 @@ export function CodeReviewCharts() {
           onDownload={handleDownload}
         />
       </Stack>
-    </Box>
+    </PageContainer>
   );
 }

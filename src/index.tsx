@@ -7,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from './theme';
 import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage, Login } from './pages';
+import { ChartsStoreProvider, createCommonChartsStore, createPersonalPageStore } from './stores/ChartsStore';
 
 const router = createBrowserRouter(
   [
@@ -21,7 +22,14 @@ const router = createBrowserRouter(
       children: [
         {
           path: '/charts',
-          element: <CodeReviewCharts />,
+          element: (
+            // We need to specify "key" to use different provider for CodeReviewCharts and PersonalStatistic pages
+            // otherwise react think that component (ChartsStoreProvider) is not changed and just re-render page without re-rendering context
+            // and in this case both pages uses the same store
+            <ChartsStoreProvider key="charts" createStore={createPersonalPageStore}>
+              <CodeReviewCharts />
+            </ChartsStoreProvider>
+          ),
         },
         {
           path: '/ready-mrs',
@@ -29,7 +37,11 @@ const router = createBrowserRouter(
         },
         {
           path: '/personal',
-          element: <PersonalStatistic />,
+          element: (
+            <ChartsStoreProvider key="personal" createStore={createCommonChartsStore}>
+              <PersonalStatistic />
+            </ChartsStoreProvider>
+          ),
         },
       ],
     },
