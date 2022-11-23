@@ -1,14 +1,14 @@
-import { Box } from '@mui/material';
 import { useCallback, useEffect } from 'react';
 import { getReadyMergeRequestsForPage } from '../utils/GitLabUtils';
 import { MergeRequest } from '../components/MergeRequest';
 import { useRequest } from '../hooks';
 import { FullSizeProgress } from '../components';
 import { useClient } from '../stores/AuthStore';
+import { PageContainer } from './PageContainer';
 
 export interface ReadyMergeRequestsProps {}
 
-export function ReadyMergeRequests({}: ReadyMergeRequestsProps) {
+export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
   const client = useClient();
   const requestMergeRequests = useCallback(() => getReadyMergeRequestsForPage(client, 39), [client]);
   const { makeRequest, response: mrs, isLoading } = useRequest(requestMergeRequests);
@@ -22,7 +22,7 @@ export function ReadyMergeRequests({}: ReadyMergeRequestsProps) {
   }
 
   return (
-    <Box>
+    <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', width: 800, margin: '0 auto' }}>
         {mrs && (
           <>
@@ -35,6 +35,6 @@ export function ReadyMergeRequests({}: ReadyMergeRequestsProps) {
           </>
         )}
       </div>
-    </Box>
+    </PageContainer>
   );
 }
