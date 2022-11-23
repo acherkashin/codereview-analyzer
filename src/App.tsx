@@ -32,6 +32,19 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 
+const AppFrame = styled('div')(() => ({
+  display: 'flex',
+  flexDirection: 'row',
+  width: '100%',
+  height: '100%',
+  textAlign: 'center',
+}));
+
+const Main = styled('main')(() => ({
+  overflow: 'hidden',
+  flexGrow: 1,
+}));
+
 function App() {
   const signOut = useAuthStore(getSignOut);
   const userCurrent = useAuthStore(getCurrentUser);
@@ -57,7 +70,7 @@ function App() {
 
   return (
     <AuthGuard>
-      <div className="App" style={{ display: 'flex', flexDirection: 'row' }}>
+      <AppFrame className="App">
         <SideBar />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <DashboardNavbarRoot position="relative">
@@ -105,11 +118,11 @@ function App() {
               </Toolbar>
             </Container>
           </DashboardNavbarRoot>
-          <main style={{ overflow: 'hidden', flexGrow: 1 }}>
+          <Main>
             <Outlet />
-          </main>
+          </Main>
         </div>
-      </div>
+      </AppFrame>
     </AuthGuard>
   );
 }
