@@ -15,6 +15,7 @@ import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { getCurrentUser, useAuthStore, useClient } from '../stores/AuthStore';
 import { useLocalStorage } from '../hooks';
 import { FilterPanelState } from '../components/FilterPanel/FilterPanel';
+import { PageContainer } from './PageContainer';
 
 export function PersonalStatistic() {
   const analyze = useChartsStore(getAnalyze);
@@ -39,16 +40,7 @@ export function PersonalStatistic() {
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignContent: 'center',
-        overflow: 'auto',
-      }}
-    >
+    <PageContainer>
       <div className="charts">
         {currentUser && assignedToReviewPieChart && (
           <ChartContainer title={`${currentUser?.name} asks following people to review his changes`}>
@@ -94,6 +86,6 @@ export function PersonalStatistic() {
       <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 0 }}>
         <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
       </FilterPanel>
-    </div>
+    </PageContainer>
   );
 }

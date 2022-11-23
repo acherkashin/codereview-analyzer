@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList } from '../components';
-import { Box, Button, Stack } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalyze,
@@ -24,6 +24,7 @@ import { downloadFile } from '../utils/FileUtils';
 import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
 import { FilterPanel, FilterPanelState } from '../components/FilterPanel/FilterPanel';
+import { PageContainer } from './PageContainer';
 
 export interface CodeReviewChartsProps {}
 
@@ -71,7 +72,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   );
 
   return (
-    <Box style={{ display: 'flex' }}>
+    <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <div className="charts">
           {discussionsReceivedPieChart && (
@@ -178,7 +179,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         <CommentList comments={filteredComments} />
         Total: {filteredComments.length}
       </div>
-      <Stack className="App-users" spacing={2} position="sticky" top={0}>
+      <Stack spacing={2} position="sticky" top={10}>
         <FilterPanel onAnalyze={handleAnalyze} />
         <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
           Download as Excel
@@ -213,6 +214,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           onDownload={handleDownload}
         />
       </Stack>
-    </Box>
+    </PageContainer>
   );
 }

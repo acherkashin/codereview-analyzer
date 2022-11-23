@@ -1,8 +1,9 @@
 import './App.css';
-import { AppBar, styled } from '@mui/material';
+import { styled } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { SideBar } from './components/SideBar';
 import { AuthGuard } from './components/AuthGuard';
+import { AppHeader } from './components/AppHeader/AppHeader';
 
 export interface Credentials {
   token: string;
@@ -27,8 +28,8 @@ function App() {
     <AuthGuard>
       <AppFrame>
         <SideBar />
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <AppBar />
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+          <AppHeader />
           <Main>
             <Outlet />
           </Main>
