@@ -105,7 +105,7 @@ function App() {
               </Toolbar>
             </Container>
           </DashboardNavbarRoot>
-          <main style={{ width: '100%', height: '100%', overflow: 'auto' }}>
+          <main style={{ overflow: 'hidden', flexGrow: 1 }}>
             <Outlet />
           </main>
         </div>

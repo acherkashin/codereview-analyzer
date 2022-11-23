@@ -40,7 +40,16 @@ export function PersonalStatistic() {
   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignContent: 'center' }}>
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignContent: 'center',
+        overflow: 'auto',
+      }}
+    >
       <div className="charts">
         {currentUser && assignedToReviewPieChart && (
           <ChartContainer title={`${currentUser?.name} asks following people to review his changes`}>
@@ -83,11 +92,9 @@ export function PersonalStatistic() {
           </ChartContainer>
         )}
       </div>
-      <Stack className="App-users" spacing={2} position="sticky" top={0}>
-        <FilterPanel onAnalyze={handleAnalyze}>
-          <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
-        </FilterPanel>
-      </Stack>
+      <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 0 }}>
+        <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
+      </FilterPanel>
     </div>
   );
 }

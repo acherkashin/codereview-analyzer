@@ -25,7 +25,6 @@ body {
 }
 
 .App-users {
-  height: 100%;
   overflow: auto;
   flex-shrink: 0;
   width: 300px;
@@ -65,7 +64,7 @@ body {
 .charts {
   display: flex;
   flex-flow: row wrap;
-  overflow: auto;
+  /* overflow: auto; */
   /* height: 100%; */
   padding: 10px;
 }

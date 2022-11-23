@@ -15,9 +15,10 @@ export interface FilterPanelState {
 export interface FilterPanelProps {
   onAnalyze: (state: FilterPanelState) => Promise<any>;
   children?: React.ReactElement;
+  style?: React.CSSProperties;
 }
 
-export function FilterPanel({ onAnalyze, children }: FilterPanelProps) {
+export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
   const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
@@ -33,7 +34,7 @@ export function FilterPanel({ onAnalyze, children }: FilterPanelProps) {
   }, [analyze, createdAfter, createdBefore, project]);
 
   return (
-    <Stack className="App-users" spacing={2} position="sticky" top={0}>
+    <Stack className="App-users" spacing={2} position="sticky" top={0} style={style}>
       <ProjectList project={project} onProjectSelected={setProject} />
       <TextField
         label="Created After"
