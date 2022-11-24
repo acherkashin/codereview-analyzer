@@ -1,5 +1,6 @@
 import { Gitlab } from '@gitbeaker/core/dist/types';
 import {
+  UserSchema,
   MergeRequestNoteSchema,
   MergeRequestSchema,
   DiscussionSchema,
@@ -118,7 +119,7 @@ export function getFilteredDiscussions(
   let filteredDiscussions = discussions;
 
   if (!!reviewerName) {
-    filteredDiscussions = filteredDiscussions.filter(({ discussion }) => getDiscussionAuthor(discussion) === reviewerName);
+    filteredDiscussions = filteredDiscussions.filter(({ discussion }) => getDiscussionAuthorName(discussion) === reviewerName);
   }
 
   if (!!authorName) {
@@ -126,7 +127,7 @@ export function getFilteredDiscussions(
   }
 
   filteredDiscussions = filteredDiscussions.filter(
-    ({ mergeRequest, discussion }) => mergeRequest.author.username !== getDiscussionAuthor(discussion)
+    ({ mergeRequest, discussion }) => mergeRequest.author.username !== getDiscussionAuthorName(discussion)
   );
 
   return filteredDiscussions;
@@ -151,7 +152,7 @@ export function getAuthorReviewerFromComments(comments: UserComment[]): AuthorRe
 export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]): AuthorReviewer[] {
   return discussions.map<AuthorReviewer>((item) => ({
     author: item.mergeRequest.author.username as string,
-    reviewer: getDiscussionAuthor(item.discussion) ?? '[empty]',
+    reviewer: getDiscussionAuthorName(item.discussion) ?? '[empty]',
   }));
 }
 
@@ -164,8 +165,12 @@ export function getAuthorReviewerFromMergeRequests(mrs: MergeRequestSchema[]): A
   );
 }
 
-export function getDiscussionAuthor(discussion: DiscussionSchema): string {
-  return discussion?.notes?.[0]?.author.username as string;
+export function getDiscussionAuthor(discussion: DiscussionSchema): Omit<UserSchema, 'created_at'> | undefined {
+  return discussion?.notes?.[0]?.author;
+}
+
+export function getDiscussionAuthorName(discussion: DiscussionSchema): string {
+  return getDiscussionAuthor(discussion)?.username as string;
 }
 
 export interface MergeRequestWithNotes {
