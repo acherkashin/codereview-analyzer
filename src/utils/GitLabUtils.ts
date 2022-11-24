@@ -96,12 +96,16 @@ export function getFilteredComments(
   let filteredComments = comments;
 
   if (!!reviewerName) {
-    filteredComments = filteredComments.filter((item) => item.comment.author.username === reviewerName);
+    filteredComments = filteredComments.filter(({ comment }) => comment.author.username === reviewerName);
   }
 
   if (!!authorName) {
-    filteredComments = filteredComments.filter((item) => item.mergeRequest.author.username === authorName);
+    filteredComments = filteredComments.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
   }
+
+  filteredComments = filteredComments.filter(
+    ({ comment, mergeRequest }) => mergeRequest.author.username !== comment.author.username
+  );
 
   return filteredComments;
 }
@@ -114,12 +118,16 @@ export function getFilteredDiscussions(
   let filteredDiscussions = discussions;
 
   if (!!reviewerName) {
-    filteredDiscussions = filteredDiscussions.filter((item) => getDiscussionAuthor(item.discussion) === reviewerName);
+    filteredDiscussions = filteredDiscussions.filter(({ discussion }) => getDiscussionAuthor(discussion) === reviewerName);
   }
 
   if (!!authorName) {
-    filteredDiscussions = filteredDiscussions.filter((item) => item.mergeRequest.author.username === authorName);
+    filteredDiscussions = filteredDiscussions.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
   }
+
+  filteredDiscussions = filteredDiscussions.filter(
+    ({ mergeRequest, discussion }) => mergeRequest.author.username !== getDiscussionAuthor(discussion)
+  );
 
   return filteredDiscussions;
 }
