@@ -4,6 +4,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getDiscussionAuthor, UserDiscussion } from './../utils/GitLabUtils';
+import MarkdownView from 'react-showdown';
 
 export interface DiscussionListProps {
   discussions: UserDiscussion[];
@@ -21,7 +22,9 @@ export function DiscussionList({ discussions }: DiscussionListProps) {
           </AccordionSummary>
           <AccordionDetails>
             {item.discussion.notes?.map((item) => (
-              <div key={item.id}>{item.body}</div>
+              <div key={item.id}>
+                <MarkdownView markdown={item.body} options={{ tables: true, emoji: true }} />
+              </div>
             ))}
           </AccordionDetails>
         </Accordion>

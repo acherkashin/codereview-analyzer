@@ -1,5 +1,6 @@
 import { UserComment, getNoteUrl } from './../utils/GitLabUtils';
 import { Avatar, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+import MarkdownView from 'react-showdown';
 
 export interface CommentListProps {
   comments: UserComment[];
@@ -19,7 +20,7 @@ export function CommentList({ comments }: CommentListProps) {
                 {item.mergeRequest.title}
               </Typography>
             }
-            secondary={item.comment.body}
+            secondary={<MarkdownView className="abcdefgh" markdown={item.comment.body} />}
           />
         </ListItem>
       ))}
