@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { getFilteredComments, getFilteredDiscussions, UserComment, UserDiscussion } from './../utils/GitLabUtils';
+import { getFilteredComments, getFilteredDiscussions, getNoteUrl, UserComment, UserDiscussion } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
@@ -27,6 +27,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
 import { FilterPanel, FilterPanelState } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
+import { CommentItemProps } from '../components/CommentList';
 
 export interface CodeReviewChartsProps {}
 
@@ -266,7 +267,18 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           setFilteredComments([]);
         }}
       >
-        <CommentList comments={filteredComments} />
+        <CommentList
+          comments={filteredComments.map(
+            (item) =>
+              ({
+                id: item.comment.id.toString(),
+                avatarUrl: item.comment.author.avatar_url,
+                title: item.mergeRequest.title,
+                commentUrl: getNoteUrl(item),
+                noteText: item.comment.body,
+              } as CommentItemProps)
+          )}
+        />
       </FullScreenDialog>
       <FullScreenDialog
         icon={<QuestionAnswerOutlinedIcon />}

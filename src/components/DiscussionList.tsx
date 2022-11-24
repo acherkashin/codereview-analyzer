@@ -4,7 +4,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getDiscussionAuthor, UserDiscussion } from './../utils/GitLabUtils';
-import { MarkdownControl } from './MarkdownControl';
+import { CommentList } from './CommentList';
 
 export interface DiscussionListProps {
   discussions: UserDiscussion[];
@@ -16,16 +16,18 @@ export function DiscussionList({ discussions }: DiscussionListProps) {
       {discussions.map((item) => (
         <Accordion key={item.discussion.id}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>Merge Request: {item.mergeRequest.title}</Typography>
+            <Typography>{item.mergeRequest.title}</Typography>
             <Typography>Author: {item.mergeRequest.author.username as any}</Typography>
             <Typography>Reviewer: {getDiscussionAuthor(item.discussion)}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            {item.discussion.notes?.map((item) => (
-              <div key={item.id}>
-                <MarkdownControl markdown={item.body} />
-              </div>
-            ))}
+            <CommentList
+              comments={(item.discussion.notes ?? []).map((item) => ({
+                id: item.id.toString(),
+                noteText: item.body,
+                avatarUrl: item.author.avatar_url as string,
+              }))}
+            />
           </AccordionDetails>
         </Accordion>
       ))}
