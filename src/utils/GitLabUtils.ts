@@ -88,7 +88,11 @@ async function getCommentsForMergeRequests(client: Gitlab, projectId: number, al
   return comments;
 }
 
-export function getFilteredComments(comments: UserComment[], reviewerName: string | null, authorName: string | null) {
+export function getFilteredComments(
+  comments: UserComment[],
+  reviewerName: string | null,
+  authorName: string | null
+): UserComment[] {
   let filteredComments = comments;
 
   if (!!reviewerName) {
@@ -100,6 +104,24 @@ export function getFilteredComments(comments: UserComment[], reviewerName: strin
   }
 
   return filteredComments;
+}
+
+export function getFilteredDiscussions(
+  discussions: UserDiscussion[],
+  reviewerName: string | null,
+  authorName: string | null
+): UserDiscussion[] {
+  let filteredDiscussions = discussions;
+
+  if (!!reviewerName) {
+    filteredDiscussions = filteredDiscussions.filter((item) => getDiscussionAuthor(item.discussion) === reviewerName);
+  }
+
+  if (!!authorName) {
+    filteredDiscussions = filteredDiscussions.filter((item) => item.mergeRequest.author.username === authorName);
+  }
+
+  return filteredDiscussions;
 }
 
 export function getNoteUrl({ mergeRequest, comment }: UserComment) {

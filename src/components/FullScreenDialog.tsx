@@ -18,17 +18,19 @@ const Transition = React.forwardRef(function Transition(
 });
 
 export interface FullScreenDialogProps {
+  icon?: React.ReactElement;
   children: React.ReactElement;
   open: boolean;
   title: string;
   onClose: () => void;
 }
 
-export function FullScreenDialog({ children, open, title, onClose }: FullScreenDialogProps) {
+export function FullScreenDialog({ icon, children, open, title, onClose }: FullScreenDialogProps) {
   return (
     <Dialog fullScreen open={open} onClose={onClose} TransitionComponent={Transition}>
       <AppBar sx={{ position: 'relative' }}>
         <Toolbar>
+          {icon}
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             {title}
           </Typography>
