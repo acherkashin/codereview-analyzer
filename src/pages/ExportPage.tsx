@@ -12,6 +12,7 @@ import { useEffect, useMemo } from 'react';
 export function ExportPage() {
   const handleExport = useExportsStore((store) => store.export);
   const fetchProjects = useExportsStore((store) => store.fetchProjects);
+  const setProjectsToExport = useExportsStore((store) => store.setProjectsToExport);
   const allProjects = useExportsStore((store) => store.allProjects);
   const exportData = useExportsStore((store) => store.exportData);
   const client = useClient();
@@ -39,7 +40,7 @@ export function ExportPage() {
         <Typography variant="h2">Projects</Typography>
         {isLoadingProjects && <CircularProgress style={{ alignSelf: 'center' }} />}
         <div style={{ overflow: 'auto' }}>
-          <CheckBoxProjectList projects={projects} />
+          <CheckBoxProjectList projects={projects} onChange={setProjectsToExport} />
         </div>
       </section>
       <div>

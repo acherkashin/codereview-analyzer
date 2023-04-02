@@ -11,6 +11,7 @@ export interface ExportStore {
   allProjects: ProjectSchema[] | null;
   export: (client: Resources.Gitlab) => Promise<void>;
   fetchProjects: (client: Resources.Gitlab) => Promise<void>;
+  setProjectsToExport: (projectIds: number[]) => void;
 }
 
 export interface ExportData {
@@ -36,6 +37,9 @@ export function createExportStore() {
     fetchProjects: async (client: Resources.Gitlab) => {
       const projects = await client.Projects.all({ perPage: 100 });
       set({ allProjects: projects });
+    },
+    setProjectsToExport: (ids: number[]) => {
+      set({ projectsToExport: ids });
     },
     export: async (client: Resources.Gitlab) => {
       const projects = get().projectsToExport;
