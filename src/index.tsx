@@ -6,8 +6,9 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from './theme';
-import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage, Login } from './pages';
+import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage, Login, ExportPage } from './pages';
 import { ChartsStoreProvider, createCommonChartsStore, createPersonalPageStore } from './stores/ChartsStore';
+import { createExportStore, ExportStoreProvider } from './stores/ExportStore';
 
 const router = createBrowserRouter(
   [
@@ -41,6 +42,14 @@ const router = createBrowserRouter(
             <ChartsStoreProvider key="personal" createStore={createCommonChartsStore}>
               <PersonalStatistic />
             </ChartsStoreProvider>
+          ),
+        },
+        {
+          path: '/export',
+          element: (
+            <ExportStoreProvider createStore={createExportStore}>
+              <ExportPage />
+            </ExportStoreProvider>
           ),
         },
       ],
