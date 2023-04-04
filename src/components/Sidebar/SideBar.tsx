@@ -5,6 +5,7 @@ import { NavItem } from './NavItem';
 import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
 import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
 
 const items = [
   {
@@ -21,6 +22,11 @@ const items = [
     href: '/ready-mrs',
     icon: <GppGoodRoundedIcon />,
     title: 'Ready Merge Requests',
+  },
+  {
+    href: '/export',
+    icon: <ImportExportIcon />,
+    title: 'Export',
   },
 ];
 

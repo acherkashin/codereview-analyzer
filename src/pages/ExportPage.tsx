@@ -8,6 +8,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { downloadFile } from '../utils/FileUtils';
 import { CheckBoxProjectList, ProjectItem } from '../components/CheckBoxProjectList';
 import { useEffect, useMemo } from 'react';
+const { version } = require('./../../package.json');
 
 export function ExportPage() {
   const handleExport = useExportsStore((store) => store.export);
@@ -52,7 +53,7 @@ export function ExportPage() {
           startIcon={<FileDownloadIcon />}
           onClick={() => {
             // Need to specify Range <StartDate>-<EndDate> as a default name
-            downloadFile('newFile.json', JSON.stringify(exportData, null, 2));
+            downloadFile('newFile.json', JSON.stringify({ ...exportData, version }, null, 2));
           }}
         >
           Export as JSON
