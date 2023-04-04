@@ -1,5 +1,6 @@
 import { Gitlab } from '@gitbeaker/core/dist/types';
 import {
+  UserSchema,
   MergeRequestNoteSchema,
   MergeRequestSchema,
   DiscussionSchema,
@@ -88,18 +89,48 @@ async function getCommentsForMergeRequests(client: Gitlab, projectId: number, al
   return comments;
 }
 
-export function getFilteredComments(comments: UserComment[], reviewerName: string | null, authorName: string | null) {
+export function getFilteredComments(
+  comments: UserComment[],
+  reviewerName: string | null,
+  authorName: string | null
+): UserComment[] {
   let filteredComments = comments;
 
   if (!!reviewerName) {
-    filteredComments = filteredComments.filter((item) => item.comment.author.username === reviewerName);
+    filteredComments = filteredComments.filter(({ comment }) => comment.author.username === reviewerName);
   }
 
   if (!!authorName) {
-    filteredComments = filteredComments.filter((item) => item.mergeRequest.author.username === authorName);
+    filteredComments = filteredComments.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
   }
 
+  filteredComments = filteredComments.filter(
+    ({ comment, mergeRequest }) => mergeRequest.author.username !== comment.author.username
+  );
+
   return filteredComments;
+}
+
+export function getFilteredDiscussions(
+  discussions: UserDiscussion[],
+  reviewerName: string | null,
+  authorName: string | null
+): UserDiscussion[] {
+  let filteredDiscussions = discussions;
+
+  if (!!reviewerName) {
+    filteredDiscussions = filteredDiscussions.filter(({ discussion }) => getDiscussionAuthorName(discussion) === reviewerName);
+  }
+
+  if (!!authorName) {
+    filteredDiscussions = filteredDiscussions.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
+  }
+
+  filteredDiscussions = filteredDiscussions.filter(
+    ({ mergeRequest, discussion }) => mergeRequest.author.username !== getDiscussionAuthorName(discussion)
+  );
+
+  return filteredDiscussions;
 }
 
 export function getNoteUrl({ mergeRequest, comment }: UserComment) {
@@ -121,7 +152,7 @@ export function getAuthorReviewerFromComments(comments: UserComment[]): AuthorRe
 export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]): AuthorReviewer[] {
   return discussions.map<AuthorReviewer>((item) => ({
     author: item.mergeRequest.author.username as string,
-    reviewer: getDiscussionAuthor(item.discussion) ?? '[empty]',
+    reviewer: getDiscussionAuthorName(item.discussion) ?? '[empty]',
   }));
 }
 
@@ -134,8 +165,12 @@ export function getAuthorReviewerFromMergeRequests(mrs: MergeRequestSchema[]): A
   );
 }
 
-export function getDiscussionAuthor(discussion: DiscussionSchema): string {
-  return discussion?.notes?.[0]?.author.username as string;
+export function getDiscussionAuthor(discussion: DiscussionSchema): Omit<UserSchema, 'created_at'> | undefined {
+  return discussion?.notes?.[0]?.author;
+}
+
+export function getDiscussionAuthorName(discussion: DiscussionSchema): string {
+  return getDiscussionAuthor(discussion)?.username as string;
 }
 
 export interface MergeRequestWithNotes {

@@ -83,7 +83,7 @@ export function PersonalStatistic() {
           </ChartContainer>
         )}
       </div>
-      <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 0 }}>
+      <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 10 }}>
         <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
       </FilterPanel>
     </PageContainer>

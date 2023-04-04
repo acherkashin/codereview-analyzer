@@ -50,7 +50,7 @@ export function SideBar(_: SideBarProps) {
         }}
       >
         <div>
-          <Box sx={{ paddingTop: 3 }}>
+          <Box sx={{ paddingTop: 3 }} textAlign="center">
             <RouterLink to="/">
               <img src={process.env.PUBLIC_URL + '/code-review-icon.png'} alt="Code review icon" width="50px" />
             </RouterLink>
@@ -97,6 +97,7 @@ export function SideBar(_: SideBarProps) {
             px: 2,
             py: 3,
           }}
+          textAlign="center"
         >
           <Typography color="neutral.100" variant="subtitle2">
             Need more features or found a bug?

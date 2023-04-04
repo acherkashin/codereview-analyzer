@@ -1,7 +1,9 @@
 import { useCallback, useState } from 'react';
-import { getFilteredComments, UserComment } from './../utils/GitLabUtils';
-import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList } from '../components';
+import { getFilteredComments, getFilteredDiscussions, getNoteUrl, UserComment, UserDiscussion } from './../utils/GitLabUtils';
+import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
+import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
+import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalyze,
@@ -25,6 +27,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
 import { FilterPanel, FilterPanelState } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
+import { CommentItemProps } from '../components/CommentList';
 
 export interface CodeReviewChartsProps {}
 
@@ -46,13 +49,49 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
 
+  const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<UserComment[]>([]);
+  const [filteredDiscussions, setFilteredDiscussions] = useState<UserDiscussion[]>([]);
 
-  const updateComments = useCallback(
+  const showFilteredComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
-      setFilteredComments(getFilteredComments(comments, reviewerName, authorName));
+      const filteredComments = getFilteredComments(comments, reviewerName, authorName);
+
+      let title = '';
+      if (reviewerName && authorName) {
+        title = `Comments received by ${authorName} from ${reviewerName}`;
+      } else if (reviewerName) {
+        title = `Comments left by ${reviewerName}`;
+      } else if (authorName) {
+        title = `Comments received by ${authorName}`;
+      }
+
+      title += `. Total: ${filteredComments.length}`;
+
+      setTitle(title);
+      setFilteredComments(filteredComments);
     },
     [comments]
+  );
+
+  const showFilteredDiscussions = useCallback(
+    (reviewerName: string | null, authorName: string | null) => {
+      const filteredDiscussions = getFilteredDiscussions(discussions, reviewerName, authorName);
+
+      let title = '';
+      if (reviewerName && authorName) {
+        title = `Discussions started by ${reviewerName} with ${authorName}`;
+      } else if (reviewerName) {
+        title = `Discussions started by ${reviewerName}`;
+      } else if (authorName) {
+        title = `Discussions started with ${authorName}`;
+      }
+      title += `. Total: ${filteredDiscussions.length}`;
+
+      setTitle(title);
+      setFilteredDiscussions(filteredDiscussions);
+    },
+    [discussions]
   );
 
   const handleDownload = (fileName: string) => {
@@ -77,12 +116,24 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         <div className="charts">
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
-              <PieChart data={discussionsReceivedPieChart} onClick={(e) => console.log(e)} />
+              <PieChart
+                data={discussionsReceivedPieChart}
+                onClick={(e) => {
+                  const authorName = e.id as string;
+                  showFilteredDiscussions(null, authorName);
+                }}
+              />
             </ChartContainer>
           )}
           {discussionsStartedPieChart && (
             <ChartContainer title="Discussions started by person">
-              <PieChart data={discussionsStartedPieChart} onClick={(e) => console.log(e)} />
+              <PieChart
+                data={discussionsStartedPieChart}
+                onClick={(e) => {
+                  const reviewerName = e.id as string;
+                  showFilteredDiscussions(reviewerName, null);
+                }}
+              />
             </ChartContainer>
           )}
           {commentsReceivedPieChart && (
@@ -90,7 +141,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               <PieChart
                 data={commentsReceivedPieChart}
                 onClick={(e) => {
-                  updateComments(null, e.id as string);
+                  showFilteredComments(null, e.id as string);
                 }}
               />
             </ChartContainer>
@@ -100,7 +151,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               <PieChart
                 data={commentsLeftByPieChart}
                 onClick={(e) => {
-                  updateComments(e.id as string, null);
+                  showFilteredComments(e.id as string, null);
                 }}
               />
             </ChartContainer>
@@ -118,7 +169,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
                 );
               }}
               onClick={(e) => {
-                updateComments(e.indexValue as string, e.id as string);
+                const reviewerName = e.indexValue as string;
+
+                showFilteredComments(reviewerName, e.id as string);
               }}
             />
           </ChartContainer>
@@ -136,7 +189,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
                 );
               }}
               onClick={(e) => {
-                updateComments(e.id as string, e.indexValue as string);
+                const authorName = e.indexValue as string;
+
+                showFilteredComments(e.id as string, authorName);
               }}
             />
           </ChartContainer>
@@ -153,7 +208,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
                 );
               }}
               onClick={(e) => {
-                console.log(e);
+                const authorName = e.id as string;
+                const reviewerName = e.indexValue as string;
+                showFilteredDiscussions(reviewerName, authorName);
               }}
             />
           </ChartContainer>
@@ -170,14 +227,13 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
                 );
               }}
               onClick={(e) => {
-                console.log(e);
+                const authorName = e.indexValue as string;
+                const reviewerName = e.id as string;
+                showFilteredDiscussions(reviewerName, authorName);
               }}
             />
           </ChartContainer>
         </div>
-        <DiscussionList discussions={discussions} />
-        <CommentList comments={filteredComments} />
-        Total: {filteredComments.length}
       </div>
       <Stack spacing={2} position="sticky" top={10}>
         <FilterPanel onAnalyze={handleAnalyze} />
@@ -214,6 +270,37 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           onDownload={handleDownload}
         />
       </Stack>
+      <FullScreenDialog
+        icon={<SpeakerNotesOutlinedIcon />}
+        title={title}
+        open={filteredComments.length !== 0}
+        onClose={() => {
+          setFilteredComments([]);
+        }}
+      >
+        <CommentList
+          comments={filteredComments.map(
+            (item) =>
+              ({
+                id: item.comment.id.toString(),
+                avatarUrl: item.comment.author.avatar_url,
+                title: item.mergeRequest.title,
+                commentUrl: getNoteUrl(item),
+                noteText: item.comment.body,
+              } as CommentItemProps)
+          )}
+        />
+      </FullScreenDialog>
+      <FullScreenDialog
+        icon={<QuestionAnswerOutlinedIcon />}
+        title={title}
+        open={filteredDiscussions.length !== 0}
+        onClose={() => {
+          setFilteredDiscussions([]);
+        }}
+      >
+        <DiscussionList discussions={filteredDiscussions} />
+      </FullScreenDialog>
     </PageContainer>
   );
 }

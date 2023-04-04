@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 
 export const PageContainer = styled('div')(() => ({
   width: '100%',
