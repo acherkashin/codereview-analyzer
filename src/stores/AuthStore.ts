@@ -11,6 +11,7 @@ export interface AuthStore {
   user: UserSchema | null;
   client: GitlabType | null;
   isSigningIn: boolean;
+  signInError: string | null;
   signIn: (host: string, token: string) => Promise<void>;
   signOut: () => void;
 }
@@ -21,6 +22,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   client: null,
   isSigningIn: false,
+  signInError: null,
   signIn: async (host: string, token: string) => {
     if (!isValidHttpUrl(host)) {
       throw Error(`Incorrect url provided: ${host}`);
@@ -55,7 +57,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         client: null,
       });
 
-      console.error(e);
+      set({ signInError: (e as any).toString() });
 
       throw e;
     } finally {
