@@ -55,30 +55,41 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
   const showFilteredComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
+      const filteredComments = getFilteredComments(comments, reviewerName, authorName);
+
+      let title = '';
       if (reviewerName && authorName) {
-        setTitle(`Comments received by ${authorName} from ${reviewerName}`);
+        title = `Comments received by ${authorName} from ${reviewerName}`;
       } else if (reviewerName) {
-        setTitle(`Comments left by ${reviewerName}`);
+        title = `Comments left by ${reviewerName}`;
       } else if (authorName) {
-        setTitle(`Comments received by ${authorName}`);
+        title = `Comments received by ${authorName}`;
       }
 
-      setFilteredComments(getFilteredComments(comments, reviewerName, authorName));
+      title += `. Total: ${filteredComments.length}`;
+
+      setTitle(title);
+      setFilteredComments(filteredComments);
     },
     [comments]
   );
 
   const showFilteredDiscussions = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
-      if (reviewerName && authorName) {
-        setTitle(`Discussions started by ${reviewerName} with ${authorName}`);
-      } else if (reviewerName) {
-        setTitle(`Discussions started by ${reviewerName}`);
-      } else if (authorName) {
-        setTitle(`Discussions started with ${authorName}`);
-      }
+      const filteredDiscussions = getFilteredDiscussions(discussions, reviewerName, authorName);
 
-      setFilteredDiscussions(getFilteredDiscussions(discussions, reviewerName, authorName));
+      let title = '';
+      if (reviewerName && authorName) {
+        title = `Discussions started by ${reviewerName} with ${authorName}`;
+      } else if (reviewerName) {
+        title = `Discussions started by ${reviewerName}`;
+      } else if (authorName) {
+        title = `Discussions started with ${authorName}`;
+      }
+      title += `. Total: ${filteredDiscussions.length}`;
+
+      setTitle(title);
+      setFilteredDiscussions(filteredDiscussions);
     },
     [discussions]
   );
@@ -288,7 +299,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           setFilteredDiscussions([]);
         }}
       >
-        <DiscussionList discussions={discussions} />
+        <DiscussionList discussions={filteredDiscussions} />
       </FullScreenDialog>
     </PageContainer>
   );
