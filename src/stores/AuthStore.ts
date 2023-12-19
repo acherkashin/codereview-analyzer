@@ -4,12 +4,16 @@ import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { clearCredentials, saveCredentials } from '../utils/CredentialUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
+import { Client } from '../clients/types/Client';
+import { GiteaClient } from '../clients/GiteaClient';
+import { User } from '../clients/types/User';
 
 export interface AuthStore {
   host: string | null;
   token: string | null;
-  user: UserSchema | null;
+  user: User | null;
   client: GitlabType | null;
+  genericClient: Client | null;
   isSigningIn: boolean;
   signInError: string | null;
   signIn: (host: string, token: string) => Promise<void>;
@@ -23,6 +27,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   client: null,
   isSigningIn: false,
   signInError: null,
+  genericClient: null,
   signIn: async (host: string, token: string) => {
     if (!isValidHttpUrl(host)) {
       throw Error(`Incorrect url provided: ${host}`);
@@ -34,20 +39,23 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     set({ isSigningIn: true });
 
-    const client = new Gitlab({
-      token,
-      host,
-    });
+    // const client = new Gitlab({
+    //   token,
+    //   host,
+    // });
+
+    const client: Client = new GiteaClient(host, token);
 
     try {
-      const user = await client.Users.current();
+      const user = await client.getCurrentUser();
       saveCredentials({ token, host });
 
       set({
         host,
         token,
         user,
-        client,
+        client: null,
+        genericClient: client,
       });
     } catch (e) {
       set({
@@ -55,6 +63,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         token: null,
         user: null,
         client: null,
+        genericClient: null,
       });
 
       set({ signInError: (e as any).toString() });
@@ -70,13 +79,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       token: null,
       user: null,
       client: null,
+      genericClient: null,
     });
     clearCredentials();
   },
 }));
 
 export function getIsAuthenticated(store: AuthStore) {
-  return store.client != null;
+  return store.user != null;
 }
 
 export function getSignIn(store: AuthStore) {

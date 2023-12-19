@@ -9127,6 +9127,11 @@ gh-pages@^3.2.3:
     fs-extra "^8.1.0"
     globby "^6.1.0"
 
+gitea-js@^1.20.1:
+  version "1.20.1"
+  resolved "https://registry.yarnpkg.com/gitea-js/-/gitea-js-1.20.1.tgz#a382c8c56a869fedb11bc7889a5effea1bbbfede"
+  integrity sha512-g1wdNP5zYN258tTVIm2vGY8bRJTwVwCfYH0ockUpi34RAuOwJ0FavpFVVvazxXEcdo2XmXRKZcAmVhAhwMXkgg==
+
 github-slugger@^1.0.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/github-slugger/-/github-slugger-1.5.0.tgz#17891bbc73232051474d68bd867a34625c955f7d"

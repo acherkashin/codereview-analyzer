@@ -42,7 +42,7 @@ export function AppHeader() {
   };
 
   const handleViewAccount = () => {
-    window.open(userCurrent?.web_url ?? '', '_blank');
+    window.open(userCurrent?.webUrl ?? '', '_blank');
     handleCloseUserMenu();
   };
 
@@ -56,7 +56,7 @@ export function AppHeader() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={userCurrent?.name} src={userCurrent?.avatar_url} />
+                <Avatar alt={userCurrent?.fullName} src={userCurrent?.avatarUrl} />
               </IconButton>
             </Tooltip>
             <Menu
