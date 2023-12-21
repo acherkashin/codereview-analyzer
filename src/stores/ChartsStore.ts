@@ -23,8 +23,7 @@ import {
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
 import { useState } from 'react';
-import { Client } from '../clients/types/Client';
-import { Comment } from '../clients/types/Comment';
+import { Client, Comment } from '../clients/types';
 
 export interface ChartsStore {
   mergeRequests: MergeRequestSchema[];

@@ -8,7 +8,7 @@ import {
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
 import { MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 import { BarDatum } from '@nivo/bar';
-import { Comment } from './../clients/types/Comment';
+import { Comment } from './../clients/types';
 
 export interface PieChartDatum extends BarDatum {
   id: string;

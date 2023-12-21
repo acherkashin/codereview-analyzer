@@ -37,11 +37,11 @@ export function PersonalStatistic() {
   const commentsLeftToUsers = useCommentsLeftToUsers(currentUser?.id);
   //   const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, currentUser?.id);
 
-  //   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
+  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
 
   return (
     <PageContainer>
-      <div className="charts">
+      <div /*className="charts"*/>
         {/* {currentUser && assignedToReviewPieChart && (
            <ChartContainer title={`${currentUser?.name} asks following people to review his changes`}>
              <PieChart data={assignedToReviewPieChart} />
@@ -63,7 +63,7 @@ export function PersonalStatistic() {
            </ChartContainer>
          )} */}
         {currentUser && commentsLeftToUsers && (
-          <ChartContainer title={`${currentUser?.name} leaves comments to following people`}>
+          <ChartContainer title={`${currentUser?.fullName} leaves comments to following people`}>
             <BarChart
               {...commentsLeftToUsers}
               onClick={(e) => {
@@ -73,7 +73,7 @@ export function PersonalStatistic() {
           </ChartContainer>
         )}
         {currentUser && commentsReceivedFromUsers && (
-          <ChartContainer title={`Following people leave comments to ${currentUser?.name}`}>
+          <ChartContainer title={`Following people leave comments to ${currentUser?.fullName}`}>
             <BarChart
               {...commentsReceivedFromUsers}
               onClick={(e) => {
@@ -84,8 +84,7 @@ export function PersonalStatistic() {
         )}
       </div>
       <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 10 }}>
-        <div></div>
-        {/* <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} /> */}
+        <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
       </FilterPanel>
     </PageContainer>
   );

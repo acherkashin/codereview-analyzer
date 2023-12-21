@@ -1,7 +1,7 @@
 import { BarDatum } from '@nivo/bar';
 import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
-import { Comment } from './../clients/types/Comment';
+import { Comment } from './../clients/types';
 
 interface ReviewBarDatum extends BarDatum {
   userName: string;

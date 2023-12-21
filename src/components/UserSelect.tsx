@@ -1,37 +1,35 @@
 import { useEffect, useState } from 'react';
-import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Autocomplete, Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField } from '@mui/material';
 import { useClient } from '../stores/AuthStore';
+import { User } from '../clients/types';
 
 export interface UserListProps {
   label: string;
-  user: UserSchema | null;
-  onUserSelected: (user: UserSchema | null) => void;
+  user: User | null;
+  onUserSelected: (user: User | null) => void;
 }
 
 export function UserSelect({ user, label, onUserSelected }: UserListProps) {
   const client = useClient();
-  const [users, setUsers] = useState<UserSchema[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    // client.Users.all({ perPage: 100 }).then((users) => {
-    //   setUsers(users);
-    // });
+    client.getUsers().then(setUsers);
   }, [client]);
 
   return (
     <Autocomplete
       value={user}
       options={users}
-      getOptionLabel={(option) => option.name}
+      getOptionLabel={(option) => option.fullName}
       onChange={(_, newValue) => onUserSelected(newValue)}
       renderOption={(props, item) => (
-        <ListItem key={item.id} alignItems="flex-start" disabled={item.state === 'blocked'} {...props}>
+        <ListItem key={item.id} alignItems="flex-start" /*disabled={item.state === 'blocked'}*/ {...props}>
           <ListItemButton selected={user?.id === item.id}>
             <ListItemAvatar>
-              <Avatar alt={item.name} src={item.avatar_url} />
+              <Avatar alt={item.fullName} src={item.avatarUrl} />
             </ListItemAvatar>
-            <ListItemText primary={item.name} secondary={item.username} />
+            <ListItemText primary={item.fullName} secondary={item.userName} />
           </ListItemButton>
         </ListItem>
       )}

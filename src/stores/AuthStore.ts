@@ -1,12 +1,9 @@
 import create from 'zustand';
-import { Gitlab } from '@gitbeaker/browser';
-import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { clearCredentials, saveCredentials } from '../utils/CredentialUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
-import { Client } from '../clients/types/Client';
+import { Client, User } from '../clients/types';
 import { GiteaClient } from '../clients/GiteaClient';
-import { User } from '../clients/types/User';
 
 export interface AuthStore {
   host: string | null;

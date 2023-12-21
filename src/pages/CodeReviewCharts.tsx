@@ -27,7 +27,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
 import { FilterPanel, FilterPanelState } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { Comment } from './../clients/types/Comment';
+import { Comment } from './../clients/types';
 
 export interface CodeReviewChartsProps {}
 

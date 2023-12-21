@@ -1,7 +1,5 @@
-import { Api, giteaApi } from 'gitea-js';
-import { User } from './types/User';
-import { Client } from './types/Client';
-import { Comment } from './types/Comment';
+import { Api, giteaApi, User as GiteaUser } from 'gitea-js';
+import { User, Client, Comment } from './types';
 
 const owner = '*';
 const projectId = '*';
@@ -15,16 +13,18 @@ export class GiteaClient implements Client {
     });
   }
 
-  getCurrentUser(): Promise<User> {
-    return this.api.user.userGetCurrent().then(({ data: user }) => {
-      return {
-        id: user.id!.toString(),
-        name: user.full_name!,
-        email: user.email!,
-        avatarUrl: user.avatar_url!,
-        webUrl: `${this.host}/${user.login}`,
-      } as User;
+  async getCurrentUser(): Promise<User> {
+    const { data: user } = await this.api.user.userGetCurrent();
+    return convertToUser(this.host, user);
+  }
+
+  async getUsers(): Promise<User[]> {
+    const { data } = await this.api.users.userSearch({
+      q: '',
+      page: 1,
+      limit: 100,
     });
+    return (data.data ?? []).map((user) => convertToUser(this.host, user));
   }
 
   getPullRequests(params: any) {
@@ -87,4 +87,16 @@ export class GiteaClient implements Client {
 
     return allComments;
   }
+}
+
+export function convertToUser(host: string, user: GiteaUser): User {
+  return {
+    id: user.id!.toString(),
+    fullName: user.full_name!,
+    userName: user.login ?? user.email ?? 'unknown userName',
+    // email: user.email!,
+    avatarUrl: user.avatar_url!,
+    webUrl: `${host}/${user.login}`,
+    active: !!user.active,
+  };
 }

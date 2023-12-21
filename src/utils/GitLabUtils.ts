@@ -8,7 +8,7 @@ import {
 } from '@gitbeaker/core/dist/types/types';
 import { timeSince, TimeSpan } from './TimeSpanUtils';
 import { Resources } from '@gitbeaker/core';
-import { Comment } from './../clients/types/Comment';
+import { Comment } from './../clients/types';
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;

@@ -1,6 +1,6 @@
-import { User } from './types/User';
-import { Client } from './types/Client';
+import { User, Client } from './types';
 import { Gitlab } from '@gitbeaker/browser';
+import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { MergeRequestNoteSchema, MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 
@@ -39,21 +39,29 @@ export class GitlabClient implements Client {
   }
 
   getCurrentUser(): Promise<User> {
-    return this.api.Users.current().then((user) => {
-      return {
-        id: user.id!.toString(),
-        name: user.name!,
-        // email: user.,
-        avatarUrl: user.avatar_url!,
-        webUrl: user.web_url,
-      } as User;
-    });
+    return this.api.Users.current().then(convertToUser);
+  }
+
+  async getUsers(): Promise<User[]> {
+    const resp = await this.api.Users.all({ perPage: 100 });
+    return resp.map(convertToUser);
   }
 }
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;
   comment: MergeRequestNoteSchema;
+}
+
+export function convertToUser(user: UserSchema): User {
+  return {
+    id: user.id!.toString(),
+    fullName: user.name!,
+    userName: user.username,
+    avatarUrl: user.avatar_url!,
+    webUrl: user.web_url,
+    active: user.state !== 'blocked',
+  };
 }
 
 export async function getUserComments(client: GitlabType, projectId: number, mrs: MergeRequestSchema[]): Promise<UserComment[]> {
