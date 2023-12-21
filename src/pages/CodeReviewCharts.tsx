@@ -27,7 +27,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
 import { FilterPanel, FilterPanelState } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { CommentItemProps } from '../components/CommentList';
+import { Comment } from './../clients/types/Comment';
 
 export interface CodeReviewChartsProps {}
 
@@ -50,7 +50,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
 
   const [title, setTitle] = useState('');
-  const [filteredComments, setFilteredComments] = useState<UserComment[]>([]);
+  const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
   const [filteredDiscussions, setFilteredDiscussions] = useState<UserDiscussion[]>([]);
 
   const showFilteredComments = useCallback(
@@ -96,16 +96,16 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
   const handleDownload = (fileName: string) => {
     if (filteredComments != null && filteredComments.length !== 0) {
-      downloadComments(fileName, filteredComments);
+      // downloadComments(fileName, filteredComments);
     }
     if (comments != null && comments.length !== 0) {
-      downloadComments(fileName, comments);
+      // downloadComments(fileName, comments);
     }
   };
 
   const handleAnalyze = useCallback(
     ({ project, createdAfter, createdBefore }: FilterPanelState) => {
-      return analyze(client, project.id, createdAfter, createdBefore);
+      return analyze(client, 0 /*project.id*/, createdAfter, createdBefore);
     },
     [analyze, client]
   );
@@ -270,7 +270,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           onDownload={handleDownload}
         />
       </Stack>
-      <FullScreenDialog
+      {/* <FullScreenDialog
         icon={<SpeakerNotesOutlinedIcon />}
         title={title}
         open={filteredComments.length !== 0}
@@ -290,7 +290,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               } as CommentItemProps)
           )}
         />
-      </FullScreenDialog>
+      </FullScreenDialog> */}
       <FullScreenDialog
         icon={<QuestionAnswerOutlinedIcon />}
         title={title}

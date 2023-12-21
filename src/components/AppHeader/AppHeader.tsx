@@ -56,7 +56,7 @@ export function AppHeader() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={userCurrent?.fullName} src={userCurrent?.avatarUrl} />
+                <Avatar alt={userCurrent?.name} src={userCurrent?.avatarUrl} />
               </IconButton>
             </Tooltip>
             <Menu

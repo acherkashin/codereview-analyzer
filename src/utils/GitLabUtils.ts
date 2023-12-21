@@ -8,6 +8,7 @@ import {
 } from '@gitbeaker/core/dist/types/types';
 import { timeSince, TimeSpan } from './TimeSpanUtils';
 import { Resources } from '@gitbeaker/core';
+import { Comment } from './../clients/types/Comment';
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;
@@ -89,24 +90,20 @@ async function getCommentsForMergeRequests(client: Gitlab, projectId: number, al
   return comments;
 }
 
-export function getFilteredComments(
-  comments: UserComment[],
-  reviewerName: string | null,
-  authorName: string | null
-): UserComment[] {
+export function getFilteredComments(comments: Comment[], reviewerName: string | null, authorName: string | null): Comment[] {
   let filteredComments = comments;
 
   if (!!reviewerName) {
-    filteredComments = filteredComments.filter(({ comment }) => comment.author.username === reviewerName);
+    // filteredComments = filteredComments.filter(({ comment }) => comment.author.username === reviewerName);
   }
 
   if (!!authorName) {
-    filteredComments = filteredComments.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
+    // filteredComments = filteredComments.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
   }
 
-  filteredComments = filteredComments.filter(
-    ({ comment, mergeRequest }) => mergeRequest.author.username !== comment.author.username
-  );
+  // filteredComments = filteredComments.filter(
+  //   ({ comment, mergeRequest }) => mergeRequest.author.username !== comment.author.username
+  // );
 
   return filteredComments;
 }
@@ -142,12 +139,16 @@ export function getNoteUrl({ mergeRequest, comment }: UserComment) {
  * @param comments comments in merge requests
  * @returns pair of "reviewer" and "author"
  */
-export function getAuthorReviewerFromComments(comments: UserComment[]): AuthorReviewer[] {
+export function getAuthorReviewerFromComments(comments: Comment[]): AuthorReviewer[] {
   return comments.map<AuthorReviewer>((item) => ({
-    reviewer: item.comment.author.username,
-    author: item.mergeRequest.author.username as string,
+    author: item.prAuthorName,
+    reviewer: item.reviewerName,
   }));
 }
+// return comments.map<AuthorReviewer>((item) => ({
+//   reviewer: item.comment.author.username,
+//   author: item.mergeRequest.author.username as string,
+// }));
 
 export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]): AuthorReviewer[] {
   return discussions.map<AuthorReviewer>((item) => ({

@@ -3,12 +3,12 @@ import {
   getAuthorReviewerFromDiscussions,
   getAuthorReviewerFromMergeRequests,
   MergeRequestWithApprovals,
-  UserComment,
   UserDiscussion,
 } from './GitLabUtils';
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
 import { MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 import { BarDatum } from '@nivo/bar';
+import { Comment } from './../clients/types/Comment';
 
 export interface PieChartDatum extends BarDatum {
   id: string;
@@ -16,7 +16,7 @@ export interface PieChartDatum extends BarDatum {
   value: number;
 }
 
-export function convertToCommentsReceivedPieChart(comments: UserComment[]): PieChartDatum[] {
+export function convertToCommentsReceivedPieChart(comments: Comment[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromComments(comments);
   const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
     (item) => ({
@@ -29,7 +29,7 @@ export function convertToCommentsReceivedPieChart(comments: UserComment[]): PieC
   return data;
 }
 
-export function convertToCommentsLeftPieChart(comments: UserComment[]): PieChartDatum[] {
+export function convertToCommentsLeftPieChart(comments: Comment[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromComments(comments);
   const data = tidy(rawData, groupBy('reviewer', summarize({ total: n() })), arrange([asc('total')])).map<PieChartDatum>(
     (item) => ({

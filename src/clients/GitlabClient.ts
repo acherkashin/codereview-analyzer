@@ -48,7 +48,7 @@ export class GitlabClient implements Client {
     return this.api.Users.current().then((user) => {
       return {
         id: user.id!.toString(),
-        fullName: user.name!,
+        name: user.name!,
         // email: user.,
         avatarUrl: user.avatar_url!,
         webUrl: user.web_url,

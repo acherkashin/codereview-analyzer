@@ -1,6 +1,7 @@
 import { Api, giteaApi } from 'gitea-js';
 import { User } from './types/User';
 import { Client } from './types/Client';
+import { Comment } from './types/Comment';
 
 const owner = '*';
 const projectId = '*';
@@ -20,7 +21,7 @@ export class GiteaClient implements Client {
     return this.api.user.userGetCurrent().then(({ data: user }) => {
       return {
         id: user.id!.toString(),
-        fullName: user.full_name!,
+        name: user.full_name!,
         email: user.email!,
         avatarUrl: user.avatar_url!,
         webUrl: `${this.host}/${user.login}`,
@@ -49,7 +50,7 @@ export class GiteaClient implements Client {
     // this.api.repos.repoGetPullReviewComments(owner, projectId, 21163, 67588).then((data) => console.log(data));
   }
 
-  async getComments(params: any): Promise<any> {
+  async getComments(params: any): Promise<Comment[]> {
     const pullRequests = await this.api.repos.repoListPullRequests(owner, projectId, {
       state: 'all',
       sort: 'recentupdate',
@@ -72,6 +73,15 @@ export class GiteaClient implements Client {
     const allComments = commentsResponse.flatMap((item) => item.flatMap((item) => item.data));
     console.log(allComments);
 
-    return allComments;
+    return allComments.map<Comment>((item) => ({
+      prAuthorId: 'alex',
+      prAuthorName: 'alex',
+      commentId: item.commit_id!,
+      comment: item.body!,
+      reviewerId: item.user?.id?.toString() ?? 'unknown',
+      reviewerName: item.user?.full_name ?? 'unknown',
+      pullRequestId: 'pullRequestId',
+      pullRequestName: 'pullRequestName',
+    }));
   }
 }

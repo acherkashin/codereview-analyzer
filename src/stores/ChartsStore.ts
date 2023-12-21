@@ -8,7 +8,7 @@ import {
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
-import { getMergeRequestsWithApprovals, UserComment, UserDiscussion } from '../utils/GitLabUtils';
+import { getMergeRequestsWithApprovals, UserDiscussion } from '../utils/GitLabUtils';
 import { Resources } from '@gitbeaker/core';
 import {
   convertToCommentsLeftPieChart,
@@ -24,12 +24,13 @@ import {
 import createContext from 'zustand/context';
 import { useState } from 'react';
 import { Client } from '../clients/types/Client';
+import { Comment } from '../clients/types/Comment';
 
 export interface ChartsStore {
   mergeRequests: MergeRequestSchema[];
-  comments: UserComment[];
+  comments: Comment[];
   discussions: UserDiscussion[];
-  setComments: (newComments: UserComment[]) => void;
+  setComments: (newComments: Comment[]) => void;
   setDiscussions: (newDiscussions: UserDiscussion[]) => void;
   analyze: (client: Client, projectId: number, createdAfter: Date, createdBefore: Date) => Promise<void>;
 }
@@ -42,7 +43,7 @@ export function createChartsStore() {
     mergeRequests: [],
     comments: [],
     discussions: [],
-    setComments: (newComments: UserComment[]) => set({ comments: newComments }),
+    setComments: (newComments: Comment[]) => set({ comments: newComments }),
     setDiscussions: (newDiscussions: UserDiscussion[]) => set({ discussions: newDiscussions }),
     analyze: async (client: Client, projectId: number, createdAfter: Date, createdBefore: Date) => {
       const mergeRequests = await client.getPullRequests({
@@ -143,7 +144,7 @@ export function useWhoAssignsToAuthorToReviewPieChart(authorId?: number): PieCha
   });
 }
 
-export function useCommentsReceivedFromUsers(userId?: number) {
+export function useCommentsReceivedFromUsers(userId?: string) {
   return useChartsStore((state) => {
     if (userId == null) {
       return [];
@@ -153,7 +154,7 @@ export function useCommentsReceivedFromUsers(userId?: number) {
   });
 }
 
-export function useCommentsLeftToUsers(userId?: number) {
+export function useCommentsLeftToUsers(userId?: string) {
   return useChartsStore((state) => {
     if (userId == null) {
       return [];
