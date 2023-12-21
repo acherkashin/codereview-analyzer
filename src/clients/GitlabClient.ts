@@ -2,13 +2,7 @@ import { User } from './types/User';
 import { Client } from './types/Client';
 import { Gitlab } from '@gitbeaker/browser';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
-import {
-  UserSchema,
-  MergeRequestNoteSchema,
-  MergeRequestSchema,
-  DiscussionSchema,
-  MergeRequestLevelMergeRequestApprovalSchema,
-} from '@gitbeaker/core/dist/types/types';
+import { MergeRequestNoteSchema, MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 
 export interface PullRequestsParams {
   projectId: number;

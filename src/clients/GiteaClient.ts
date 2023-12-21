@@ -16,8 +16,6 @@ export class GiteaClient implements Client {
   }
 
   getCurrentUser(): Promise<User> {
-    // this.getPullRequests();
-
     return this.api.user.userGetCurrent().then(({ data: user }) => {
       return {
         id: user.id!.toString(),
@@ -58,30 +56,35 @@ export class GiteaClient implements Client {
       limit: 100,
     });
 
-    const commentsPromise = pullRequests.data.map((pr) => {
-      return this.api.repos.repoListPullReviews(owner, projectId, pr.number!).then((reviews) => {
-        const comments = reviews.data
+    const commentsPromise = pullRequests.data.map((pullRequest) => {
+      return this.api.repos.repoListPullReviews(owner, projectId, pullRequest.number!).then(async (reviews) => {
+        const commentsPromise = reviews.data
           .filter((review) => (review.comments_count ?? 0) > 0)
-          .map((review) => this.api.repos.repoGetPullReviewComments(owner, projectId, pr.number!, review.id!));
+          .map((review) => this.api.repos.repoGetPullReviewComments(owner, projectId, pullRequest.number!, review.id!));
 
-        return Promise.all(comments);
+        const commentsResp = await Promise.all(commentsPromise);
+        const comments = commentsResp.flatMap((item) => item.data);
+
+        return { pullRequest, comments };
       });
     });
 
     const commentsResponse = await Promise.all(commentsPromise);
 
-    const allComments = commentsResponse.flatMap((item) => item.flatMap((item) => item.data));
+    const allComments = commentsResponse.flatMap(({ comments, pullRequest }) =>
+      comments.flatMap<Comment>((item) => ({
+        prAuthorId: pullRequest.user?.id?.toString() || 'unknown prAuthorId',
+        prAuthorName: pullRequest.user?.full_name || pullRequest.user?.login || 'unknown prAuthorName',
+        commentId: item.commit_id!,
+        comment: item.body!,
+        reviewerId: item.user?.id?.toString() || 'unknown reviewerId',
+        reviewerName: item.user?.full_name || item.user?.login || 'unknown reviewerName',
+        pullRequestId: pullRequest.id!.toString(),
+        pullRequestName: pullRequest.title!,
+      }))
+    );
     console.log(allComments);
 
-    return allComments.map<Comment>((item) => ({
-      prAuthorId: 'alex',
-      prAuthorName: 'alex',
-      commentId: item.commit_id!,
-      comment: item.body!,
-      reviewerId: item.user?.id?.toString() ?? 'unknown',
-      reviewerName: item.user?.full_name ?? 'unknown',
-      pullRequestId: 'pullRequestId',
-      pullRequestName: 'pullRequestName',
-    }));
+    return allComments;
   }
 }
