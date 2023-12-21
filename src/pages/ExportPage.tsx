@@ -31,7 +31,8 @@ export function ExportPage() {
 
   useEffect(() => {
     if (allProjects == null || allProjects.length === 0) {
-      requestProjects(client);
+      //TODO: remove any
+      requestProjects(client as any);
     }
   }, [allProjects, client, requestProjects]);
 
@@ -45,7 +46,7 @@ export function ExportPage() {
         </div>
       </section>
       <div>
-        <LoadingButton loading={isExporting} onClick={() => makeRequest(client)}>
+        <LoadingButton loading={isExporting} onClick={() => makeRequest(client as any)}>
           Export
         </LoadingButton>
         <Button

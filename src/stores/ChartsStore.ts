@@ -8,13 +8,7 @@ import {
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
-import {
-  getDiscussions,
-  getMergeRequestsWithApprovals,
-  getUserComments,
-  UserComment,
-  UserDiscussion,
-} from '../utils/GitLabUtils';
+import { getMergeRequestsWithApprovals, UserComment, UserDiscussion } from '../utils/GitLabUtils';
 import { Resources } from '@gitbeaker/core';
 import {
   convertToCommentsLeftPieChart,
@@ -29,6 +23,7 @@ import {
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
 import { useState } from 'react';
+import { Client } from '../clients/types/Client';
 
 export interface ChartsStore {
   mergeRequests: MergeRequestSchema[];
@@ -36,7 +31,7 @@ export interface ChartsStore {
   discussions: UserDiscussion[];
   setComments: (newComments: UserComment[]) => void;
   setDiscussions: (newDiscussions: UserDiscussion[]) => void;
-  analyze: (client: Resources.Gitlab, projectId: number, createdAfter: Date, createdBefore: Date) => Promise<void>;
+  analyze: (client: Client, projectId: number, createdAfter: Date, createdBefore: Date) => Promise<void>;
 }
 
 const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
@@ -49,23 +44,30 @@ export function createChartsStore() {
     discussions: [],
     setComments: (newComments: UserComment[]) => set({ comments: newComments }),
     setDiscussions: (newDiscussions: UserDiscussion[]) => set({ discussions: newDiscussions }),
-    analyze: async (client: Resources.Gitlab, projectId: number, createdAfter: Date, createdBefore: Date) => {
-      const mergeRequests = await client.MergeRequests.all({
+    analyze: async (client: Client, projectId: number, createdAfter: Date, createdBefore: Date) => {
+      const mergeRequests = await client.getPullRequests({
         projectId,
         createdAfter: createdAfter.toISOString(),
         createdBefore: createdBefore.toISOString(),
         perPage: 100,
       });
 
-      const [comments, discussions] = await Promise.all([
-        getUserComments(client, projectId, mergeRequests),
-        getDiscussions(client, projectId, mergeRequests),
-      ]);
+      const comments = await client.getComments({
+        projectId,
+        createdAfter: createdAfter.toISOString(),
+        createdBefore: createdBefore.toISOString(),
+        perPage: 100,
+      });
+
+      // const [comments, discussions] = await Promise.all([
+      //   getUserComments(client, projectId, mergeRequests),
+      //   getDiscussions(client, projectId, mergeRequests),
+      // ]);
 
       set({
         mergeRequests,
         comments,
-        discussions,
+        discussions: [],
       });
     },
   }));

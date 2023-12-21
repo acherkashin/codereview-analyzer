@@ -101,10 +101,10 @@ export function getCurrentUser(store: AuthStore) {
   return store.user;
 }
 
-export function useClient(): GitlabType {
+export function useClient(): Client {
   return useAuthStore(getClient)!;
 }
 
 function getClient(store: AuthStore) {
-  return store.client;
+  return store.genericClient;
 }

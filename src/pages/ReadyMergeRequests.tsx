@@ -10,7 +10,7 @@ export interface ReadyMergeRequestsProps {}
 
 export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
   const client = useClient();
-  const requestMergeRequests = useCallback(() => getReadyMergeRequestsForPage(client, 39), [client]);
+  const requestMergeRequests = useCallback(() => getReadyMergeRequestsForPage(client as any, 39), [client]);
   const { makeRequest, response: mrs, isLoading } = useRequest(requestMergeRequests);
 
   useEffect(() => {

@@ -14,9 +14,9 @@ export function UserSelect({ user, label, onUserSelected }: UserListProps) {
   const [users, setUsers] = useState<UserSchema[]>([]);
 
   useEffect(() => {
-    client.Users.all({ perPage: 100 }).then((users) => {
-      setUsers(users);
-    });
+    // client.Users.all({ perPage: 100 }).then((users) => {
+    //   setUsers(users);
+    // });
   }, [client]);
 
   return (

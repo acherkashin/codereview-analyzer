@@ -28,6 +28,7 @@ export function useRequest<TResult, Params extends any[]>(
 
         return data;
       } catch (error) {
+        console.log(error);
         setIsLoading(false);
         setError(error);
       }

@@ -1,51 +1,47 @@
-// import { useCallback, useState } from 'react';
-// import { UserSchema } from '@gitbeaker/core/dist/types/types';
-// import { ChartContainer, FilterPanel, UserSelect } from '../components';
-// import { BarChart, PieChart } from '../components/charts';
-// import {
-//   getAnalyze,
-//   useChartsStore,
-//   useCommentsLeftToUsers,
-//   useCommentsReceivedFromUsers,
-//   useWhoApprovesMergeRequests,
-//   useWhoAssignsToAuthorToReviewPieChart,
-//   useWhomAssignedToReviewPieChart,
-// } from '../stores/ChartsStore';
-// import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
-// import { getCurrentUser, useAuthStore, useClient } from '../stores/AuthStore';
-// import { useLocalStorage } from '../hooks';
-// import { FilterPanelState } from '../components/FilterPanel/FilterPanel';
-// import { PageContainer } from './PageContainer';
+import { useCallback, useState } from 'react';
+import { UserSchema } from '@gitbeaker/core/dist/types/types';
+import { ChartContainer, FilterPanel, UserSelect } from '../components';
+import { BarChart, PieChart } from '../components/charts';
+import {
+  getAnalyze,
+  useChartsStore,
+  useCommentsLeftToUsers,
+  useCommentsReceivedFromUsers,
+  useWhoApprovesMergeRequests,
+  useWhoAssignsToAuthorToReviewPieChart,
+  useWhomAssignedToReviewPieChart,
+} from '../stores/ChartsStore';
+import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
+import { getCurrentUser, useAuthStore, useClient } from '../stores/AuthStore';
+import { useLocalStorage } from '../hooks';
+import { FilterPanelState } from '../components/FilterPanel/FilterPanel';
+import { PageContainer } from './PageContainer';
 
 export function PersonalStatistic() {
-  return null;
-}
+  const analyze = useChartsStore(getAnalyze);
+  const client = useClient();
+  //   const [project, setProject] = useState<ProjectSchema | null>(null);
 
-// export function PersonalStatistic() {
-//   const analyze = useChartsStore(getAnalyze);
-//   const client = useClient();
-//   const [project, setProject] = useState<ProjectSchema | null>(null);
+  const handleAnalyze = useCallback(
+    ({ project, createdAfter, createdBefore }: FilterPanelState) => {
+      // setProject(project);
+      return analyze(client, 0 /*project.id*/, createdAfter, createdBefore);
+    },
+    [analyze, client]
+  );
 
-//   const handleAnalyze = useCallback(
-//     ({ project, createdAfter, createdBefore }: FilterPanelState) => {
-//       setProject(project);
-//       return analyze(client, project.id, createdAfter, createdBefore);
-//     },
-//     [analyze, client]
-//   );
+  //   const currentUser = useAuthStore(getCurrentUser);
+  //   const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(currentUser?.id);
+  //   const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(currentUser?.id);
+  //   const commentsReceivedFromUsers = useCommentsReceivedFromUsers(currentUser?.id);
+  //   const commentsLeftToUsers = useCommentsLeftToUsers(currentUser?.id);
+  //   const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, currentUser?.id);
 
-//   const currentUser = useAuthStore(getCurrentUser);
-//   const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(currentUser?.id);
-//   const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(currentUser?.id);
-//   const commentsReceivedFromUsers = useCommentsReceivedFromUsers(currentUser?.id);
-//   const commentsLeftToUsers = useCommentsLeftToUsers(currentUser?.id);
-//   const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, currentUser?.id);
+  //   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
 
-//   const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
-
-//   return (
-//     <PageContainer>
-//       <div className="charts">
+  return (
+    <PageContainer>
+      {/* //       <div className="charts">
 //         {currentUser && assignedToReviewPieChart && (
 //           <ChartContainer title={`${currentUser?.name} asks following people to review his changes`}>
 //             <PieChart data={assignedToReviewPieChart} />
@@ -86,10 +82,11 @@ export function PersonalStatistic() {
 //             />
 //           </ChartContainer>
 //         )}
-//       </div>
-//       <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 10 }}>
-//         <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
-//       </FilterPanel>
-//     </PageContainer>
-//   );
-// }
+//       </div> */}
+      <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 10 }}>
+        <div></div>
+        {/* <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} /> */}
+      </FilterPanel>
+    </PageContainer>
+  );
+}

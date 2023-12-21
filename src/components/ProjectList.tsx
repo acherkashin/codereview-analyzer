@@ -23,7 +23,8 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
   useEffect(() => {
     if (client && open && debouncedValue) {
       setLoading(true);
-      searchProjects(client, debouncedValue)
+      //TODO: remove any
+      searchProjects(client as any, debouncedValue)
         .then(setOptions)
         .finally(() => setLoading(false));
     }
