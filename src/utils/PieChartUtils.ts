@@ -6,9 +6,8 @@ import {
   UserDiscussion,
 } from './GitLabUtils';
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
-import { MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 import { BarDatum } from '@nivo/bar';
-import { Comment } from './../clients/types';
+import { Comment, PullRequest } from './../clients/types';
 
 export interface PieChartDatum extends BarDatum {
   id: string;
@@ -71,7 +70,7 @@ export function convertToDiscussionsStartedPieChart(discussions: UserDiscussion[
 /**
  * Methods calculates whom author of merge requests assign merge requests to review
  */
-export function getWhomAuthorAssignsToReview(mrs: MergeRequestSchema[]): PieChartDatum[] {
+export function getWhomAuthorAssignsToReview(mrs: PullRequest[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromMergeRequests(mrs);
   const data = tidy(rawData, groupBy('reviewer', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
     (item) => ({
@@ -87,7 +86,7 @@ export function getWhomAuthorAssignsToReview(mrs: MergeRequestSchema[]): PieChar
 /**
  * Methods calculates who authors of merge requests assign their merge requests to review
  */
-export function getWhoAssignsToAuthorToReview(mrs: MergeRequestSchema[]): PieChartDatum[] {
+export function getWhoAssignsToAuthorToReview(mrs: PullRequest[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromMergeRequests(mrs);
   const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
     (item) => ({

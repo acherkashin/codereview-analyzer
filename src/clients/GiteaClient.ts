@@ -1,5 +1,5 @@
 import { Api, giteaApi, User as GiteaUser } from 'gitea-js';
-import { User, Client, Comment, Project, AnalyzeParams } from './types';
+import { User, Client, Comment, Project, AnalyzeParams, PullRequest } from './types';
 
 export class GiteaClient implements Client {
   private api: Api<any>;
@@ -36,8 +36,22 @@ export class GiteaClient implements Client {
     return (data.data ?? []).map((user) => convertToUser(this.host, user));
   }
 
-  getPullRequests(params: any) {
-    return Promise.resolve([]);
+  async getPullRequests(params: any): Promise<PullRequest[]> {
+    const { owner, projectId, perPage } = params;
+
+    const giteaPrs = await this.api.repos.repoListPullRequests(owner, projectId, {
+      state: 'all',
+      sort: 'recentupdate',
+      page: 1,
+      limit: perPage,
+    });
+
+    const pullRequests = giteaPrs.data.map<PullRequest>((pr) => ({
+      author: convertToUser(this.host, pr.user!),
+      reviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(this.host, user)),
+    }));
+
+    return pullRequests;
 
     // open -na Google\ Chrome --args --user-data-dir=/tmp/temporary-chrome-profile-dir --disable-web-security --disable-site-isolation-trials
     // get all orgs

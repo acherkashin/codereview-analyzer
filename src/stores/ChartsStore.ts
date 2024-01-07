@@ -9,7 +9,6 @@ import {
   convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
 import { getMergeRequestsWithApprovals, UserDiscussion } from '../utils/GitLabUtils';
-import { Resources } from '@gitbeaker/core';
 import {
   convertToCommentsLeftPieChart,
   convertToCommentsReceivedPieChart,
@@ -23,10 +22,10 @@ import {
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
 import { useState } from 'react';
-import { AnalyzeParams, Client, Comment } from '../clients/types';
+import { AnalyzeParams, Client, Comment, PullRequest } from '../clients/types';
 
 export interface ChartsStore {
-  mergeRequests: MergeRequestSchema[];
+  mergeRequests: PullRequest[];
   comments: Comment[];
   discussions: UserDiscussion[];
   setComments: (newComments: Comment[]) => void;
@@ -110,7 +109,7 @@ export function getAnalyze(state: ChartsStore) {
   return state.analyze;
 }
 
-export function useWhomAssignedToReviewPieChart(authorId?: number): PieChartDatum[] {
+export function useWhomAssignedToReviewPieChart(authorId?: string): PieChartDatum[] {
   return useChartsStore((state) => {
     if (!authorId) {
       return [];
@@ -121,7 +120,7 @@ export function useWhomAssignedToReviewPieChart(authorId?: number): PieChartDatu
   });
 }
 
-export function useWhoAssignsToAuthorToReviewPieChart(authorId?: number): PieChartDatum[] {
+export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieChartDatum[] {
   return useChartsStore((state) => {
     if (authorId == null) {
       return [];
@@ -152,23 +151,23 @@ export function useCommentsLeftToUsers(userId?: string) {
   });
 }
 
-export function useWhoApprovesMergeRequests(client: Resources.Gitlab, projectId?: number, userId?: number) {
-  const [whoApprovesUser, setWhoApprovesUser] = useState<PieChartDatum[]>([]);
-  const [whomUserApproves, setWhomUserApproves] = useState<PieChartDatum[]>([]);
+// export function useWhoApprovesMergeRequests(client: Resources.Gitlab, projectId?: number, userId?: number) {
+//   const [whoApprovesUser, setWhoApprovesUser] = useState<PieChartDatum[]>([]);
+//   const [whomUserApproves, setWhomUserApproves] = useState<PieChartDatum[]>([]);
 
-  useChartsStore((state) => {
-    if (userId == null || state.mergeRequests.length === 0 || !projectId) {
-      return [];
-    }
+//   useChartsStore((state) => {
+//     if (userId == null || state.mergeRequests.length === 0 || !projectId) {
+//       return [];
+//     }
 
-    getMergeRequestsWithApprovals(client, projectId, state.mergeRequests).then((response) => {
-      setWhoApprovesUser(getWhoApprovesUser(response, userId));
-      setWhomUserApproves(getWhomUserApproves(response, userId));
-    });
-  });
+//     getMergeRequestsWithApprovals(client, projectId, state.mergeRequests).then((response) => {
+//       setWhoApprovesUser(getWhoApprovesUser(response, userId));
+//       setWhomUserApproves(getWhomUserApproves(response, userId));
+//     });
+//   });
 
-  return {
-    whoApprovesUser,
-    whomUserApproves,
-  };
-}
+//   return {
+//     whoApprovesUser,
+//     whomUserApproves,
+//   };
+// }

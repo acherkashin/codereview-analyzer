@@ -8,7 +8,7 @@ import {
 } from '@gitbeaker/core/dist/types/types';
 import { timeSince, TimeSpan } from './TimeSpanUtils';
 import { Resources } from '@gitbeaker/core';
-import { Comment } from './../clients/types';
+import { Comment, PullRequest } from './../clients/types';
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;
@@ -152,11 +152,11 @@ export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]):
   }));
 }
 
-export function getAuthorReviewerFromMergeRequests(mrs: MergeRequestSchema[]): AuthorReviewer[] {
+export function getAuthorReviewerFromMergeRequests(mrs: PullRequest[]): AuthorReviewer[] {
   return mrs.flatMap<AuthorReviewer>((mr) =>
     (mr.reviewers ?? []).map<AuthorReviewer>((reviewer) => ({
-      author: mr.author.username as string,
-      reviewer: reviewer.username as string,
+      author: mr.author.userName as string,
+      reviewer: reviewer.userName as string,
     }))
   );
 }

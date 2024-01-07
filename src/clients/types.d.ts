@@ -50,6 +50,11 @@ export interface AnalyzeParams {
   perPage: number;
 }
 
+export interface PullRequest {
+  author: User;
+  reviewers: User[];
+}
+
 export interface Client {
   getCurrentUser(): Promise<User>;
   getPullRequests(params: any): Promise<any>;
