@@ -10,7 +10,7 @@ import {
   useWhoAssignsToAuthorToReviewPieChart,
   useWhomAssignedToReviewPieChart,
 } from '../stores/ChartsStore';
-import { getCurrentUser, useAuthStore, useClient } from '../stores/AuthStore';
+import { useClient } from '../stores/AuthStore';
 import { useLocalStorage } from '../hooks';
 import { PageContainer } from './PageContainer';
 import { AnalyzeParams, User } from '../clients/types';
@@ -26,54 +26,52 @@ export function PersonalStatistic() {
     [analyze, client]
   );
 
-  const currentUser = useAuthStore(getCurrentUser);
-  const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(currentUser?.id);
-  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(currentUser?.id);
-  const commentsReceivedFromUsers = useCommentsReceivedFromUsers(currentUser?.id);
-  const commentsLeftToUsers = useCommentsLeftToUsers(currentUser?.id);
-  //   const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, currentUser?.id);
-
-  const [selectedUser, selectUser] = useLocalStorage<User | null>('user', null);
+  const [selectedUser, selectUser] = useLocalStorage<User | null>('personal-statistic-user', null);
+  const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(selectedUser?.id);
+  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
+  const commentsReceivedFromUsers = useCommentsReceivedFromUsers(selectedUser?.id);
+  const commentsLeftToUsers = useCommentsLeftToUsers(selectedUser?.id);
+  //   const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, selectedUser?.id);
 
   return (
     <PageContainer>
       <div /*className="charts"*/>
-        {currentUser && assignedToReviewPieChart && (
-          <ChartContainer title={`${currentUser?.userName} asks following people to review his changes`}>
+        {selectedUser && assignedToReviewPieChart && (
+          <ChartContainer title={`${selectedUser?.userName} asks following people to review his changes`}>
             <PieChart data={assignedToReviewPieChart} />
           </ChartContainer>
         )}
-        {currentUser && whoAssignsToReviewPieChart && (
-          <ChartContainer title={`Following people ask ${currentUser?.userName} to review their changes`}>
+        {selectedUser && whoAssignsToReviewPieChart && (
+          <ChartContainer title={`Following people ask ${selectedUser?.userName} to review their changes`}>
             <PieChart data={whoAssignsToReviewPieChart} />
           </ChartContainer>
         )}
-        {/*  {currentUser && whoApprovesUser && (
-           <ChartContainer title={`Following people approves ${currentUser?.name} changes`}>
+        {/*  {selectedUser && whoApprovesUser && (
+           <ChartContainer title={`Following people approves ${selectedUser?.name} changes`}>
              <PieChart data={whoApprovesUser} />
            </ChartContainer>
          )}
-         {currentUser && whomUserApproves && (
-           <ChartContainer title={`${currentUser?.name} approves changes of following people`}>
+         {selectedUser && whomUserApproves && (
+           <ChartContainer title={`${selectedUser?.name} approves changes of following people`}>
              <PieChart data={whomUserApproves} />
            </ChartContainer>
          )} */}
-        {currentUser && commentsLeftToUsers && (
-          <ChartContainer title={`${currentUser?.fullName} leaves comments to following people`}>
+        {selectedUser && commentsLeftToUsers && (
+          <ChartContainer title={`${selectedUser?.fullName} leaves comments to following people`}>
             <BarChart
               {...commentsLeftToUsers}
               onClick={(e) => {
-                // updateComments(currentUser.username, e.data.author as string);
+                // updateComments(selectedUser.username, e.data.author as string);
               }}
             />
           </ChartContainer>
         )}
-        {currentUser && commentsReceivedFromUsers && (
-          <ChartContainer title={`Following people leave comments to ${currentUser?.fullName}`}>
+        {selectedUser && commentsReceivedFromUsers && (
+          <ChartContainer title={`Following people leave comments to ${selectedUser?.fullName}`}>
             <BarChart
               {...commentsReceivedFromUsers}
               onClick={(e) => {
-                // updateComments(e.data.reviewer as string, currentUser.username);
+                // updateComments(e.data.reviewer as string, selectedUser.username);
               }}
             />
           </ChartContainer>
