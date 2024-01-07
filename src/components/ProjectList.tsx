@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
-import { searchProjects } from '../utils/GitLabUtils';
 import { useDebounce } from '../hooks/useDebounce';
-import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { Autocomplete, Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField } from '@mui/material';
 import { useClient } from '../stores/AuthStore';
+import { Project } from '../clients/types';
 
 export interface ProjectListProps {
-  project: ProjectSchema;
-  onProjectSelected: (project: ProjectSchema | null) => void;
+  project: Project;
+  onProjectSelected: (project: Project | null) => void;
 }
 
 export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
   const client = useClient();
   const [open, setOpen] = React.useState(false);
-  const [options, setOptions] = React.useState<ProjectSchema[]>([]);
+  const [options, setOptions] = React.useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [value, setValue] = useState<string>('');
@@ -23,8 +22,9 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
   useEffect(() => {
     if (client && open && debouncedValue) {
       setLoading(true);
-      //TODO: remove any
-      searchProjects(client as any, debouncedValue)
+
+      client
+        .searchProjects(debouncedValue)
         .then(setOptions)
         .finally(() => setLoading(false));
     }
@@ -32,7 +32,7 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
 
   return (
     <Autocomplete
-      getOptionLabel={(option) => option.name_with_namespace}
+      getOptionLabel={(option) => option.name}
       open={open}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
@@ -47,9 +47,9 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
         <ListItem key={item.id} alignItems="flex-start" {...props}>
           <ListItemButton selected={project?.id === item.id}>
             <ListItemAvatar>
-              <Avatar alt={item.name} src={item.avatar_url} />
+              <Avatar alt={item.name} src={item.avatarUr} />
             </ListItemAvatar>
-            <ListItemText primary={item.name_with_namespace} secondary={item.description} />
+            <ListItemText primary={item.name} secondary={item.description} />
           </ListItemButton>
         </ListItem>
       )}

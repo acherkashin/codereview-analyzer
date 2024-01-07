@@ -19,9 +19,17 @@ export interface User {
   active: boolean;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  avatarUr?: string;
+  description?: string;
+}
+
 export interface Client {
   getCurrentUser(): Promise<User>;
   getPullRequests(params: any): Promise<any>;
   getComments(params: any): Promise<any>;
   getUsers(): Promise<User[]>;
+  searchProjects(searchText: string): Promise<Project[]>;
 }

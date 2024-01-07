@@ -1,4 +1,4 @@
-import { User, Client } from './types';
+import { User, Client, Project } from './types';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
@@ -19,6 +19,17 @@ export class GitlabClient implements Client {
       host,
     });
   }
+  async searchProjects(searchText: string): Promise<Project[]> {
+    const projects = await this.api.Projects.search(searchText);
+
+    return projects.map<Project>((item) => ({
+      id: item.id.toString(),
+      name: item.name_with_namespace,
+      avatarUrl: item.avatar_url,
+      description: item.description,
+    }));
+  }
+
   async getComments({ projectId, createdAfter, createdBefore }: PullRequestsParams): Promise<any> {
     const mergeRequests = await this.getPullRequests({
       projectId,

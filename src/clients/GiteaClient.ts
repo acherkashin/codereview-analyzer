@@ -1,5 +1,5 @@
 import { Api, giteaApi, User as GiteaUser } from 'gitea-js';
-import { User, Client, Comment } from './types';
+import { User, Client, Comment, Project } from './types';
 
 const owner = '*';
 const projectId = '*';
@@ -11,6 +11,17 @@ export class GiteaClient implements Client {
     this.api = giteaApi(this.host, {
       token: this.token, // generate one at https://gitea.example.com/user/settings/applications
     });
+  }
+
+  async searchProjects(searchText: string): Promise<Project[]> {
+    const projects = (await this.api.repos.repoSearch({ q: searchText, page: 1, limit: 100 })).data.data;
+
+    return (projects ?? []).map<Project>((item) => ({
+      id: item.id!.toString(),
+      name: item.full_name || item.name || 'unknown name',
+      avatarUrl: item.avatar_url,
+      description: item.description,
+    }));
   }
 
   async getCurrentUser(): Promise<User> {

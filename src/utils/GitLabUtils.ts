@@ -31,11 +31,6 @@ export interface BaseRequestOptions {
   createdBefore?: string;
 }
 
-export async function searchProjects(client: Gitlab, searchText: string) {
-  const projects = await client.Projects.search(searchText);
-  return projects;
-}
-
 export async function getMergeRequestsToReview(
   client: Gitlab,
   { projectId, createdAfter, createdBefore, reviewer }: BaseRequestOptions & { reviewer: string }
