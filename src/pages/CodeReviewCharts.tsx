@@ -25,9 +25,9 @@ import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
 import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
-import { FilterPanel, FilterPanelState } from '../components/FilterPanel/FilterPanel';
+import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { Comment } from './../clients/types';
+import { AnalyzeParams, Comment } from './../clients/types';
 
 export interface CodeReviewChartsProps {}
 
@@ -104,8 +104,8 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   };
 
   const handleAnalyze = useCallback(
-    ({ project, createdAfter, createdBefore }: FilterPanelState) => {
-      return analyze(client, 0 /*project.id*/, createdAfter, createdBefore);
+    (params: AnalyzeParams) => {
+      return analyze(client, params);
     },
     [analyze, client]
   );

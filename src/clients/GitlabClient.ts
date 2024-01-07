@@ -4,6 +4,9 @@ import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { MergeRequestNoteSchema, MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 
+/**
+ * Replace with AnalyzeParams
+ */
 export interface PullRequestsParams {
   projectId: number;
   createdAfter: Date;

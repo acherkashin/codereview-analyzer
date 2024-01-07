@@ -1,19 +1,13 @@
 import { LoadingButton } from '@mui/lab';
 import { Stack, TextField } from '@mui/material';
 import { ProjectList } from '../ProjectList';
-import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { useCallback, useState } from 'react';
 import { useLocalStorage, useRequest } from '../../hooks';
-
-export interface FilterPanelState {
-  createdAfter: Date;
-  createdBefore: Date;
-  project: ProjectSchema;
-}
+import { AnalyzeParams, Project } from '../../clients/types';
 
 export interface FilterPanelProps {
-  onAnalyze: (state: FilterPanelState) => Promise<any>;
+  onAnalyze: (state: AnalyzeParams) => Promise<any>;
   children?: React.ReactElement;
   style?: React.CSSProperties;
 }
@@ -21,21 +15,27 @@ export interface FilterPanelProps {
 export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
-  const [project, setProject] = useLocalStorage<ProjectSchema | null>('project', null);
+  const [project, setProject] = useLocalStorage<Project | undefined>('project', undefined);
 
   const { makeRequest: analyze, isLoading } = useRequest(onAnalyze);
 
   const handleAnalyze = useCallback(() => {
+    if (!project) {
+      return;
+    }
+
     analyze({
       createdAfter,
       createdBefore,
-      project,
+      projectId: project?.name,
+      owner: project?.owner!,
+      perPage: 100,
     });
   }, [analyze, createdAfter, createdBefore, project]);
 
   return (
     <Stack className="App-users" spacing={2} position="sticky" top={0} style={style}>
-      <ProjectList project={project} onProjectSelected={setProject} />
+      <ProjectList project={project} onSelected={setProject} />
       <TextField
         label="Created After"
         type="date"

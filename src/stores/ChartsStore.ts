@@ -23,7 +23,7 @@ import {
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
 import { useState } from 'react';
-import { Client, Comment } from '../clients/types';
+import { AnalyzeParams, Client, Comment } from '../clients/types';
 
 export interface ChartsStore {
   mergeRequests: MergeRequestSchema[];
@@ -31,7 +31,7 @@ export interface ChartsStore {
   discussions: UserDiscussion[];
   setComments: (newComments: Comment[]) => void;
   setDiscussions: (newDiscussions: UserDiscussion[]) => void;
-  analyze: (client: Client, projectId: number, createdAfter: Date, createdBefore: Date) => Promise<void>;
+  analyze: (client: Client, params: AnalyzeParams) => Promise<void>;
 }
 
 const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
@@ -44,20 +44,9 @@ export function createChartsStore() {
     discussions: [],
     setComments: (newComments: Comment[]) => set({ comments: newComments }),
     setDiscussions: (newDiscussions: UserDiscussion[]) => set({ discussions: newDiscussions }),
-    analyze: async (client: Client, projectId: number, createdAfter: Date, createdBefore: Date) => {
-      const mergeRequests = await client.getPullRequests({
-        projectId,
-        createdAfter: createdAfter.toISOString(),
-        createdBefore: createdBefore.toISOString(),
-        perPage: 100,
-      });
-
-      const comments = await client.getComments({
-        projectId,
-        createdAfter: createdAfter.toISOString(),
-        createdBefore: createdBefore.toISOString(),
-        perPage: 100,
-      });
+    analyze: async (client: Client, params: AnalyzeParams) => {
+      const mergeRequests = await client.getPullRequests(params);
+      const comments = await client.getComments(params);
 
       // const [comments, discussions] = await Promise.all([
       //   getUserComments(client, projectId, mergeRequests),

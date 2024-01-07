@@ -6,11 +6,11 @@ import { useClient } from '../stores/AuthStore';
 import { Project } from '../clients/types';
 
 export interface ProjectListProps {
-  project: Project;
-  onProjectSelected: (project: Project | null) => void;
+  project?: Project;
+  onSelected: (project: Project | undefined) => void;
 }
 
-export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
+export function ProjectList({ project, onSelected }: ProjectListProps) {
   const client = useClient();
   const [open, setOpen] = React.useState(false);
   const [options, setOptions] = React.useState<Project[]>([]);
@@ -39,7 +39,7 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
       options={options}
       loading={loading}
       value={project}
-      onChange={(_, newValue) => onProjectSelected(newValue)}
+      onChange={(_, newValue) => onSelected(newValue ?? undefined)}
       onInputChange={(_, newInputValue) => setValue(newInputValue)}
       // reset client side filtering
       filterOptions={(x) => x}

@@ -24,6 +24,30 @@ export interface Project {
   name: string;
   avatarUr?: string;
   description?: string;
+  /**
+   * Owner id. Specific to Gitea.
+   */
+  owner?: string;
+}
+
+export interface AnalyzeParams {
+  projectId: string;
+  /**
+   * NOTE: Specific to gitlab
+   */
+  createdAfter: Date;
+  /**
+   * NOTE: Specific to gitlab
+   */
+  createdBefore: Date;
+  /**
+   * NOTE: ownerId is specific to gitea
+   */
+  owner: string;
+  /**
+   * NOTE: Specific to gitea
+   */
+  perPage: number;
 }
 
 export interface Client {

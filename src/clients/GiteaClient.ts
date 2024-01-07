@@ -1,8 +1,5 @@
 import { Api, giteaApi, User as GiteaUser } from 'gitea-js';
-import { User, Client, Comment, Project } from './types';
-
-const owner = '*';
-const projectId = '*';
+import { User, Client, Comment, Project, AnalyzeParams } from './types';
 
 export class GiteaClient implements Client {
   private api: Api<any>;
@@ -18,9 +15,10 @@ export class GiteaClient implements Client {
 
     return (projects ?? []).map<Project>((item) => ({
       id: item.id!.toString(),
-      name: item.full_name || item.name || 'unknown name',
+      name: /*item.full_name || */ item.name || 'unknown name',
       avatarUrl: item.avatar_url,
       description: item.description,
+      owner: item.owner!.login!.toString(),
     }));
   }
 
@@ -59,12 +57,15 @@ export class GiteaClient implements Client {
     // this.api.repos.repoGetPullReviewComments(owner, projectId, 21163, 67588).then((data) => console.log(data));
   }
 
-  async getComments(params: any): Promise<Comment[]> {
+  async getComments(params: AnalyzeParams): Promise<Comment[]> {
+    //TODO: replace perPage with prCount
+    const { owner, projectId, perPage } = params;
+
     const pullRequests = await this.api.repos.repoListPullRequests(owner, projectId, {
       state: 'all',
       sort: 'recentupdate',
       page: 1,
-      limit: 100,
+      limit: perPage,
     });
 
     const commentsPromise = pullRequests.data.map((pullRequest) => {

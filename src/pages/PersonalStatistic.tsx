@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { ChartContainer, FilterPanel, UserSelect } from '../components';
 import { BarChart, PieChart } from '../components/charts';
 import {
@@ -11,11 +10,10 @@ import {
   useWhoAssignsToAuthorToReviewPieChart,
   useWhomAssignedToReviewPieChart,
 } from '../stores/ChartsStore';
-import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { getCurrentUser, useAuthStore, useClient } from '../stores/AuthStore';
 import { useLocalStorage } from '../hooks';
-import { FilterPanelState } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
+import { AnalyzeParams, User } from '../clients/types';
 
 export function PersonalStatistic() {
   const analyze = useChartsStore(getAnalyze);
@@ -23,9 +21,9 @@ export function PersonalStatistic() {
   //   const [project, setProject] = useState<ProjectSchema | null>(null);
 
   const handleAnalyze = useCallback(
-    ({ project, createdAfter, createdBefore }: FilterPanelState) => {
+    (params: AnalyzeParams) => {
       // setProject(project);
-      return analyze(client, 0 /*project.id*/, createdAfter, createdBefore);
+      return analyze(client, params);
     },
     [analyze, client]
   );
@@ -37,7 +35,7 @@ export function PersonalStatistic() {
   const commentsLeftToUsers = useCommentsLeftToUsers(currentUser?.id);
   //   const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, currentUser?.id);
 
-  const [selectedUser, selectUser] = useLocalStorage<UserSchema | null>('user', null);
+  const [selectedUser, selectUser] = useLocalStorage<User | null>('user', null);
 
   return (
     <PageContainer>
