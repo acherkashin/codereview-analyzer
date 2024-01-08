@@ -5,6 +5,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { useCallback, useState } from 'react';
 import { useLocalStorage, useRequest } from '../../hooks';
 import { AnalyzeParams, Project } from '../../clients/types';
+import { useAuthStore } from '../../stores/AuthStore';
 
 export interface FilterPanelProps {
   onAnalyze: (state: AnalyzeParams) => Promise<any>;
@@ -19,6 +20,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   const [prCount, setPrCount] = useState(100);
 
   const { makeRequest: analyze, isLoading } = useRequest(onAnalyze);
+  const hostType = useAuthStore((store) => store.hostType);
 
   const handleAnalyze = useCallback(() => {
     if (!project) {
@@ -37,38 +39,44 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   return (
     <Stack className="App-users" spacing={2} position="sticky" top={0} style={style}>
       <ProjectList project={project} onSelected={setProject} />
-      <TextField
-        type="number"
-        label="Pull Requests Count"
-        value={prCount}
-        onChange={(e) => setPrCount(parseInt(e.target.value))}
-      />
-      <TextField
-        label="Created After"
-        type="date"
-        value={createdAfter?.toISOString().substring(0, 10)}
-        onChange={(newValue) => {
-          const newDate = new Date(newValue.target.value);
-          setCreatedAfter(newDate);
-        }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        fullWidth
-      />
-      <TextField
-        label="Created Before"
-        type="date"
-        value={createdBefore?.toISOString().substring(0, 10)}
-        onChange={(newValue) => {
-          const newDate = new Date(newValue.target.value);
-          setCreatedBefore(newDate);
-        }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        fullWidth
-      />
+      {hostType === 'Gitea' && (
+        <TextField
+          type="number"
+          label="Pull Requests Count"
+          value={prCount}
+          onChange={(e) => setPrCount(parseInt(e.target.value))}
+        />
+      )}
+      {hostType === 'Gitlab' && (
+        <>
+          <TextField
+            label="Created After"
+            type="date"
+            value={createdAfter?.toISOString().substring(0, 10)}
+            onChange={(newValue) => {
+              const newDate = new Date(newValue.target.value);
+              setCreatedAfter(newDate);
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth
+          />
+          <TextField
+            label="Created Before"
+            type="date"
+            value={createdBefore?.toISOString().substring(0, 10)}
+            onChange={(newValue) => {
+              const newDate = new Date(newValue.target.value);
+              setCreatedBefore(newDate);
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth
+          />
+        </>
+      )}
       {children}
       <LoadingButton startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
         Analyze

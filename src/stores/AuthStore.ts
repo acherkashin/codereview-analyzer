@@ -53,6 +53,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         user,
         client: null,
         genericClient: client,
+        hostType,
       });
     } catch (e) {
       set({
@@ -61,6 +62,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         user: null,
         client: null,
         genericClient: null,
+        hostType: null,
       });
 
       set({ signInError: (e as any).toString() });
@@ -77,6 +79,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       user: null,
       client: null,
       genericClient: null,
+      hostType: null,
     });
     clearCredentials();
   },
