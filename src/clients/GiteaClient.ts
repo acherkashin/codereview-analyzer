@@ -1,8 +1,8 @@
-import { Api, giteaApi, User as GiteaUser } from 'gitea-js';
+import { Api as GiteaApi, giteaApi, User as GiteaUser, PullRequest as GiteaPullRequest } from 'gitea-js';
 import { User, Client, Comment, Project, AnalyzeParams, PullRequest } from './types';
 
 export class GiteaClient implements Client {
-  private api: Api<any>;
+  private api: GiteaApi<any>;
 
   constructor(private host: string, private token: string) {
     this.api = giteaApi(this.host, {
@@ -37,16 +37,11 @@ export class GiteaClient implements Client {
   }
 
   async getPullRequests(params: AnalyzeParams): Promise<PullRequest[]> {
-    const { owner, projectId, perPage } = params;
+    const { owner, projectId, pullRequestCount } = params;
 
-    const giteaPrs = await this.api.repos.repoListPullRequests(owner, projectId, {
-      state: 'all',
-      sort: 'recentupdate',
-      page: 1,
-      limit: perPage,
-    });
+    const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount);
 
-    const pullRequests = giteaPrs.data.map<PullRequest>((pr) => ({
+    const pullRequests = giteaPrs.map<PullRequest>((pr) => ({
       author: convertToUser(this.host, pr.user!),
       reviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(this.host, user)),
     }));
@@ -72,17 +67,11 @@ export class GiteaClient implements Client {
   }
 
   async getComments(params: AnalyzeParams): Promise<Comment[]> {
-    //TODO: replace perPage with prCount
-    const { owner, projectId, perPage } = params;
+    const { owner, projectId, pullRequestCount } = params;
 
-    const pullRequests = await this.api.repos.repoListPullRequests(owner, projectId, {
-      state: 'all',
-      sort: 'recentupdate',
-      page: 1,
-      limit: perPage,
-    });
+    const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount);
 
-    const commentsPromise = pullRequests.data.map((pullRequest) => {
+    const commentsPromise = giteaPrs.map((pullRequest) => {
       return this.api.repos.repoListPullReviews(owner, projectId, pullRequest.number!).then(async (reviews) => {
         const commentsPromise = reviews.data
           .filter((review) => (review.comments_count ?? 0) > 0)
@@ -125,4 +114,31 @@ export function convertToUser(host: string, user: GiteaUser): User {
     webUrl: `${host}/${user.login}`,
     active: !!user.active,
   };
+}
+
+async function getAllPullRequests(
+  client: GiteaApi<any>,
+  owner: string,
+  projectId: string,
+  prCount: number
+): Promise<GiteaPullRequest[]> {
+  const pages = Math.ceil(prCount / 50);
+
+  const pullRequests: GiteaPullRequest[] = [];
+
+  for (let pageIndex = 1; pageIndex <= pages; pageIndex++) {
+    const result = await client.repos.repoListPullRequests(owner, projectId, {
+      state: 'all',
+      sort: 'recentupdate',
+      page: pageIndex,
+    });
+
+    if ((result.data ?? []).length > 0) {
+      pullRequests.push(...result.data);
+    } else {
+      break;
+    }
+  }
+
+  return pullRequests;
 }

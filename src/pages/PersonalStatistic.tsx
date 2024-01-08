@@ -35,7 +35,7 @@ export function PersonalStatistic() {
 
   return (
     <PageContainer>
-      <div /*className="charts"*/>
+      <div className="charts">
         {selectedUser && assignedToReviewPieChart && (
           <ChartContainer title={`${selectedUser?.userName} asks following people to review his changes`}>
             <PieChart data={assignedToReviewPieChart} />

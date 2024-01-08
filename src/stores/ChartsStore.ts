@@ -1,5 +1,4 @@
 import create, { StoreApi } from 'zustand';
-import { MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
 import {
   convertToCommentsLeft,
   convertToCommentsLeftToUsers,

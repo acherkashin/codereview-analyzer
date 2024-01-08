@@ -45,9 +45,10 @@ export interface AnalyzeParams {
    */
   owner: string;
   /**
+   * How many pull requests to analyze
    * NOTE: Specific to gitea
    */
-  perPage: number;
+  pullRequestCount: number;
 }
 
 export interface PullRequest {

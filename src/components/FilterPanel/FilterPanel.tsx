@@ -16,6 +16,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
   const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
   const [project, setProject] = useLocalStorage<Project | undefined>('project', undefined);
+  const [prCount, setPrCount] = useState(100);
 
   const { makeRequest: analyze, isLoading } = useRequest(onAnalyze);
 
@@ -29,13 +30,19 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
       createdBefore,
       projectId: project?.name,
       owner: project?.owner!,
-      perPage: 100,
+      pullRequestCount: prCount,
     });
-  }, [analyze, createdAfter, createdBefore, project]);
+  }, [analyze, createdAfter, createdBefore, prCount, project]);
 
   return (
     <Stack className="App-users" spacing={2} position="sticky" top={0} style={style}>
       <ProjectList project={project} onSelected={setProject} />
+      <TextField
+        type="number"
+        label="Pull Requests Count"
+        value={prCount}
+        onChange={(e) => setPrCount(parseInt(e.target.value))}
+      />
       <TextField
         label="Created After"
         type="date"
