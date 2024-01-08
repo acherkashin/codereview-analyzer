@@ -4,16 +4,20 @@ import { clearCredentials, saveCredentials } from '../utils/CredentialUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
 import { Client, User } from '../clients/types';
 import { GiteaClient } from '../clients/GiteaClient';
+import { GitlabClient } from '../clients/GitlabClient';
+
+export type HostingType = 'Gitlab' | 'Gitea';
 
 export interface AuthStore {
   host: string | null;
+  hostType: HostingType | null;
   token: string | null;
   user: User | null;
   client: GitlabType | null;
   genericClient: Client | null;
   isSigningIn: boolean;
   signInError: string | null;
-  signIn: (host: string, token: string) => Promise<void>;
+  signIn: (host: string, token: string, hostType: HostingType) => Promise<void>;
   signOut: () => void;
 }
 
@@ -25,7 +29,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isSigningIn: false,
   signInError: null,
   genericClient: null,
-  signIn: async (host: string, token: string) => {
+  hostType: null,
+  signIn: async (host: string, token: string, hostType: HostingType) => {
     if (!isValidHttpUrl(host)) {
       throw Error(`Incorrect url provided: ${host}`);
     }
@@ -36,16 +41,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     set({ isSigningIn: true });
 
-    // const client = new Gitlab({
-    //   token,
-    //   host,
-    // });
-
-    const client: Client = new GiteaClient(host, token);
+    const client: Client = hostType === 'Gitlab' ? new GitlabClient(host, token) : new GiteaClient(host, token);
 
     try {
       const user = await client.getCurrentUser();
-      saveCredentials({ token, host });
+      saveCredentials({ token, host, hostType });
 
       set({
         host,

@@ -14,7 +14,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
 import { ReactComponent as GiteaIcon } from './../components/gitea.svg';
 import { TooltipPrompt } from '../components';
-import { getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
+import { HostingType, getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
 import { getCredentials } from '../utils/CredentialUtils';
@@ -24,7 +24,7 @@ export interface LoginProps {}
 
 export function Login(_: LoginProps) {
   const navigate = useNavigate();
-  const [selectedOption, setSelectedOption] = useState('Gitlab');
+  const [hostType, setHostType] = useState<HostingType>('Gitlab');
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
   //TODO: upgrade zustand and use shallowEquals
@@ -34,7 +34,7 @@ export function Login(_: LoginProps) {
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
   const handleLoggedIn = useCallback(() => {
-    signIn(host, token).then(
+    signIn(host, token, hostType).then(
       () => {
         navigate('/personal');
       },
@@ -43,14 +43,14 @@ export function Login(_: LoginProps) {
         //TODO: need to show validation
       }
     );
-  }, [host, navigate, signIn, token]);
+  }, [host, hostType, navigate, signIn, token]);
 
   //TODO: refactor, it is duplicated with AuthGuard
   useEffect(() => {
     if (!isAuthenticated) {
       const credentials = getCredentials();
       if (credentials) {
-        signIn(credentials.host, credentials.token);
+        signIn(credentials.host, credentials.token, credentials.hostType);
         navigate('/personal');
         return;
       }
@@ -60,7 +60,7 @@ export function Login(_: LoginProps) {
   }, [isAuthenticated, navigate, signIn]);
 
   const handleChange = (event: SelectChangeEvent<string>) => {
-    setSelectedOption(event.target.value);
+    setHostType(event.target.value as HostingType);
   };
 
   return (
@@ -72,7 +72,7 @@ export function Login(_: LoginProps) {
             Code Review Analyzer
           </Typography>
         </Stack>
-        <Select required value={selectedOption} onChange={handleChange} style={{ height: 56 }}>
+        <Select required value={hostType} onChange={handleChange} style={{ height: 56 }}>
           <MenuItem value="Gitlab">
             <ListItem>
               <ListItemIcon>
