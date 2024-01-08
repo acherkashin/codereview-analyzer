@@ -36,7 +36,7 @@ export class GiteaClient implements Client {
     return (data.data ?? []).map((user) => convertToUser(this.host, user));
   }
 
-  async getPullRequests(params: any): Promise<PullRequest[]> {
+  async getPullRequests(params: AnalyzeParams): Promise<PullRequest[]> {
     const { owner, projectId, perPage } = params;
 
     const giteaPrs = await this.api.repos.repoListPullRequests(owner, projectId, {

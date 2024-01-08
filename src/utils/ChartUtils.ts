@@ -35,9 +35,8 @@ export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSe
 }
 
 export function convertToCommentsReceivedFromUsers(comments: Comment[], userId: string): ReviewBarChartSettings {
-  const rawData = getAuthorReviewerFromComments(comments.filter((item) => item.prAuthorId === userId)).filter(
-    (item) => item.reviewer !== item.author
-  );
+  const commentsToAuthor = comments.filter((item) => item.prAuthorId === userId);
+  const rawData = getAuthorReviewerFromComments(commentsToAuthor).filter((item) => item.reviewer !== item.author);
 
   const data = tidy(rawData, groupBy('reviewer', [summarize({ total: n() })]), arrange([asc('total')]));
 
@@ -49,9 +48,8 @@ export function convertToCommentsReceivedFromUsers(comments: Comment[], userId: 
 }
 
 export function convertToCommentsLeftToUsers(comment: Comment[], userId: string): ReviewBarChartSettings {
-  const rawData = getAuthorReviewerFromComments(comment.filter((item) => item.prAuthorId === userId)).filter(
-    (item) => item.author !== item.reviewer
-  );
+  const commentsFromAuthor = comment.filter((item) => item.reviewerId === userId);
+  const rawData = getAuthorReviewerFromComments(commentsFromAuthor).filter((item) => item.author !== item.reviewer);
 
   const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')]));
 
