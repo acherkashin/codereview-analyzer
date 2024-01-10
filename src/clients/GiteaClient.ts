@@ -1,4 +1,11 @@
-import { Api as GiteaApi, giteaApi, User as GiteaUser, PullRequest as GiteaPullRequest } from 'gitea-js';
+import {
+  Api as GiteaApi,
+  giteaApi,
+  User as GiteaUser,
+  PullRequest as GiteaPullRequest,
+  PullReviewComment as GiteaPullReviewComment,
+  PullReview as GiteaPullReview,
+} from 'gitea-js';
 import { User, Client, Comment, Project, AnalyzeParams, PullRequest } from './types';
 
 export class GiteaClient implements Client {
@@ -70,38 +77,52 @@ export class GiteaClient implements Client {
     const { owner, projectId, pullRequestCount } = params;
 
     const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount);
+    const allComments: Comment[] = [];
 
-    const commentsPromise = giteaPrs.map((pullRequest) => {
-      return this.api.repos.repoListPullReviews(owner, projectId, pullRequest.number!).then(async (reviews) => {
-        const commentsPromise = reviews.data
-          .filter((review) => (review.comments_count ?? 0) > 0)
-          .map((review) => this.api.repos.repoGetPullReviewComments(owner, projectId, pullRequest.number!, review.id!));
+    const commentsPromise = giteaPrs.map(async (pullRequest) => {
+      const { data: reviews } = await this.api.repos.repoListPullReviews(owner, projectId, pullRequest.number!);
 
-        const commentsResp = await Promise.all(commentsPromise);
-        const comments = commentsResp.flatMap((item) => item.data);
+      const commentsPromise = reviews
+        .filter((review) => (review.comments_count ?? 0) > 0)
+        .map((review) => this.api.repos.repoGetPullReviewComments(owner, projectId, pullRequest.number!, review.id!));
 
-        return { pullRequest, comments };
-      });
+      const commentsResp = await Promise.all(commentsPromise);
+      const prComments = commentsResp.flatMap((item) => item.data);
+      return { pullRequest, comments: prComments, reviews };
     });
 
-    const commentsResponse = await Promise.all(commentsPromise);
+    const commentsResp = await Promise.all(commentsPromise);
 
-    const allComments = commentsResponse.flatMap(({ comments, pullRequest }) =>
-      comments.flatMap<Comment>((item) => ({
-        prAuthorId: pullRequest.user?.id?.toString() || 'unknown prAuthorId',
-        prAuthorName: pullRequest.user?.full_name || pullRequest.user?.login || 'unknown prAuthorName',
-        commentId: item.commit_id!,
-        comment: item.body!,
-        reviewerId: item.user?.id?.toString() || 'unknown reviewerId',
-        reviewerName: item.user?.full_name || item.user?.login || 'unknown reviewerName',
-        pullRequestId: pullRequest.id!.toString(),
-        pullRequestName: pullRequest.title!,
-      }))
+    const reviewComments = commentsResp.flatMap((item) => {
+      const notEmptyReviews = item.reviews.filter((item) => !!item.body);
+
+      return notEmptyReviews.map((review) => convertToComment(item.pullRequest, review));
+    });
+
+    allComments.push(...reviewComments);
+
+    const comments = commentsResp.flatMap(({ comments, pullRequest }) =>
+      comments.map<Comment>((item) => convertToComment(pullRequest, item))
     );
+    allComments.push(...comments);
+
     console.log(allComments);
 
     return allComments;
   }
+}
+
+function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewComment | GiteaPullReview): Comment {
+  return {
+    prAuthorId: pullRequest.user?.id?.toString() || 'unknown prAuthorId',
+    prAuthorName: pullRequest.user?.full_name || pullRequest.user?.login || 'unknown prAuthorName',
+    commentId: item.commit_id!,
+    comment: item.body!,
+    reviewerId: item.user?.id?.toString() || 'unknown reviewerId',
+    reviewerName: item.user?.full_name || item.user?.login || 'unknown reviewerName',
+    pullRequestId: pullRequest.id!.toString(),
+    pullRequestName: pullRequest.title!,
+  };
 }
 
 export function convertToUser(host: string, user: GiteaUser): User {
