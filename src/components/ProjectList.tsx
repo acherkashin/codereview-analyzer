@@ -12,8 +12,8 @@ export interface ProjectListProps {
 
 export function ProjectList({ project, onSelected }: ProjectListProps) {
   const client = useClient();
-  const [open, setOpen] = React.useState(false);
-  const [options, setOptions] = React.useState<Project[]>([]);
+  const [open, setOpen] = useState(false);
+  const [options, setOptions] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [value, setValue] = useState<string>('');

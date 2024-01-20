@@ -26,7 +26,7 @@ export function PersonalStatistic() {
     [analyze, client]
   );
 
-  const [selectedUser, selectUser] = useLocalStorage<User | null>('personal-statistic-user', null);
+  const [selectedUser, selectUser] = useLocalStorage<User | undefined>('personal-statistic-user', undefined);
   const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(selectedUser?.id);
   const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
   const commentsReceivedFromUsers = useCommentsReceivedFromUsers(selectedUser?.id);
@@ -78,7 +78,7 @@ export function PersonalStatistic() {
         )}
       </div>
       <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 10 }}>
-        <UserSelect label="Author" user={selectedUser} onUserSelected={selectUser} />
+        <UserSelect label="Author" user={selectedUser} onSelected={selectUser} />
       </FilterPanel>
     </PageContainer>
   );

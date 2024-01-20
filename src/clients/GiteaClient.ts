@@ -34,9 +34,9 @@ export class GiteaClient implements Client {
     return convertToUser(this.host, user);
   }
 
-  async getUsers(): Promise<User[]> {
+  async searchUsers(searchText: string): Promise<User[]> {
     const { data } = await this.api.users.userSearch({
-      q: '',
+      q: searchText,
       page: 1,
       limit: 100,
     });

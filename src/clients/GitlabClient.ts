@@ -56,8 +56,8 @@ export class GitlabClient implements Client {
     return this.api.Users.current().then(convertToUser);
   }
 
-  async getUsers(): Promise<User[]> {
-    const resp = await this.api.Users.all({ perPage: 100 });
+  async searchUsers(searchText: string): Promise<User[]> {
+    const resp = await this.api.Users.search(searchText);
     return resp.map(convertToUser);
   }
 }

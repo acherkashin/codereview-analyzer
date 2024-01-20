@@ -60,6 +60,6 @@ export interface Client {
   getCurrentUser(): Promise<User>;
   getPullRequests(params: any): Promise<any>;
   getComments(params: any): Promise<any>;
-  getUsers(): Promise<User[]>;
+  searchUsers(searchText: string): Promise<User[]>;
   searchProjects(searchText: string): Promise<Project[]>;
 }
