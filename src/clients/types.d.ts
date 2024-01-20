@@ -22,7 +22,7 @@ export interface User {
 export interface Project {
   id: string;
   name: string;
-  avatarUr?: string;
+  avatarUrl?: string;
   description?: string;
   /**
    * Owner id. Specific to Gitea.
@@ -59,7 +59,9 @@ export interface PullRequest {
 export interface Client {
   getCurrentUser(): Promise<User>;
   getPullRequests(params: any): Promise<any>;
-  getComments(params: any): Promise<any>;
+  getComments(params: AnalyzeParams): Promise<any>;
   searchUsers(searchText: string): Promise<User[]>;
+  getAllUsers(): Promise<User[]>;
   searchProjects(searchText: string): Promise<Project[]>;
+  getAllProjects(): Promise<Project[]>;
 }

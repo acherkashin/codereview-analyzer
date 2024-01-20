@@ -1,17 +1,8 @@
-import { User, Client, Project } from './types';
+import { User, Client, Project, AnalyzeParams } from './types';
 import { Gitlab } from '@gitbeaker/browser';
-import { UserSchema } from '@gitbeaker/core/dist/types/types';
+import { UserSchema, ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { MergeRequestNoteSchema, MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
-
-/**
- * Replace with AnalyzeParams
- */
-export interface PullRequestsParams {
-  projectId: number;
-  createdAfter: Date;
-  createdBefore: Date;
-}
 
 export class GitlabClient implements Client {
   private api: GitlabType;
@@ -22,6 +13,13 @@ export class GitlabClient implements Client {
       host,
     });
   }
+
+  async getAllProjects(): Promise<Project[]> {
+    const projects = await this.api.Projects.all({ perPage: 100 });
+
+    return projects.map((item) => convertToProject(item));
+  }
+
   async searchProjects(searchText: string): Promise<Project[]> {
     const projects = await this.api.Projects.search(searchText);
 
@@ -33,17 +31,13 @@ export class GitlabClient implements Client {
     }));
   }
 
-  async getComments({ projectId, createdAfter, createdBefore }: PullRequestsParams): Promise<any> {
-    const mergeRequests = await this.getPullRequests({
-      projectId,
-      createdAfter,
-      createdBefore,
-    });
+  async getComments(params: AnalyzeParams): Promise<any> {
+    const mergeRequests = await this.getPullRequests(params);
 
-    return getUserComments(this.api, projectId, mergeRequests);
+    return getUserComments(this.api, parseInt(params.projectId), mergeRequests);
   }
 
-  getPullRequests({ projectId, createdAfter, createdBefore }: PullRequestsParams): Promise<any> {
+  getPullRequests({ projectId, createdAfter, createdBefore }: AnalyzeParams): Promise<any> {
     return this.api.MergeRequests.all({
       projectId,
       createdAfter: createdAfter.toISOString(),
@@ -60,6 +54,10 @@ export class GitlabClient implements Client {
     const resp = await this.api.Users.search(searchText);
     return resp.map(convertToUser);
   }
+
+  async getAllUsers(): Promise<User[]> {
+    return this.api.Users.all({ perPage: 100 }).then((resp) => resp.map(convertToUser));
+  }
 }
 
 export interface UserComment {
@@ -75,6 +73,15 @@ export function convertToUser(user: UserSchema): User {
     avatarUrl: user.avatar_url!,
     webUrl: user.web_url,
     active: user.state !== 'blocked',
+  };
+}
+
+export function convertToProject(project: ProjectSchema): Project {
+  return {
+    id: project.id.toString(),
+    name: project.name_with_namespace,
+    avatarUrl: project.avatar_url,
+    description: project.description,
   };
 }
 

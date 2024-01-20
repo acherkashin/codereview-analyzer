@@ -5,6 +5,7 @@ import {
   PullRequest as GiteaPullRequest,
   PullReviewComment as GiteaPullReviewComment,
   PullReview as GiteaPullReview,
+  Repository,
 } from 'gitea-js';
 import { User, Client, Comment, Project, AnalyzeParams, PullRequest } from './types';
 
@@ -17,21 +18,44 @@ export class GiteaClient implements Client {
     });
   }
 
+  async getAllProjects(): Promise<Project[]> {
+    const all: Repository[] = [];
+    let projects: Repository[] = [];
+
+    let page = 1;
+
+    do {
+      projects = (await this.api.repos.repoSearch({ q: '', page, limit: 100 })).data.data ?? [];
+      all.push(...projects);
+      page++;
+    } while (projects.length === 100);
+
+    return projects.map(convertToProject);
+  }
+
   async searchProjects(searchText: string): Promise<Project[]> {
     const projects = (await this.api.repos.repoSearch({ q: searchText, page: 1, limit: 100 })).data.data;
 
-    return (projects ?? []).map<Project>((item) => ({
-      id: item.id!.toString(),
-      name: /*item.full_name || */ item.name || 'unknown name',
-      avatarUrl: item.avatar_url,
-      description: item.description,
-      owner: item.owner!.login!.toString(),
-    }));
+    return (projects ?? []).map(convertToProject);
   }
 
   async getCurrentUser(): Promise<User> {
     const { data: user } = await this.api.user.userGetCurrent();
     return convertToUser(this.host, user);
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const all: GiteaUser[] = [];
+    let users: GiteaUser[] = [];
+
+    let page = 1;
+    do {
+      users = (await this.api.users.userSearch({ q: '', page, limit: 100 })).data.data ?? [];
+      all.push(...users);
+      page++;
+    } while (users.length === 100);
+
+    return users.map((user) => convertToUser(this.host, user));
   }
 
   async searchUsers(searchText: string): Promise<User[]> {
@@ -110,6 +134,16 @@ export class GiteaClient implements Client {
 
     return allComments;
   }
+}
+
+function convertToProject(repository: Repository): Project {
+  return {
+    id: repository.id!.toString(),
+    name: /*repository.full_name || */ repository.name || 'unknown name',
+    avatarUrl: repository.avatar_url,
+    description: repository.description,
+    owner: repository.owner!.login!.toString(),
+  };
 }
 
 function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewComment | GiteaPullReview): Comment {

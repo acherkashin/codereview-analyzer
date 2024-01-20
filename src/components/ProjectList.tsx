@@ -47,7 +47,7 @@ export function ProjectList({ project, onSelected }: ProjectListProps) {
         <ListItem key={item.id} alignItems="flex-start" {...props}>
           <ListItemButton selected={project?.id === item.id}>
             <ListItemAvatar>
-              <Avatar alt={item.name} src={item.avatarUr} />
+              <Avatar alt={item.name} src={item.avatarUrl} />
             </ListItemAvatar>
             <ListItemText primary={item.name} secondary={item.description} />
           </ListItemButton>
