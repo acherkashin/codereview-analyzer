@@ -1,31 +1,31 @@
 import { useCallback, useEffect } from 'react';
 import { MergeRequest } from '../components/MergeRequest';
-import { useRequest } from '../hooks';
-import { FullSizeProgress } from '../components';
+import { useLocalStorage, useRequest } from '../hooks';
+import { FullSizeProgress, ProjectList } from '../components';
 import { useClient } from '../stores/AuthStore';
 import { PageContainer } from './PageContainer';
-import { Client, MergeRequestForPage } from '../clients/types';
+import { Client, MergeRequestForPage, Project } from '../clients/types';
 import { timeSince } from '../utils/TimeSpanUtils';
 
 export interface ReadyMergeRequestsProps {}
 
 export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
   const client = useClient();
-  const requestMergeRequests = useCallback(() => getReadyMergeRequestsForPage(client, '39'), [client]);
+  const requestMergeRequests = useCallback((project: Project) => getReadyMergeRequestsForPage(client, project), [client]);
   const { makeRequest, response: mrs, isLoading } = useRequest(requestMergeRequests);
+  const [project, setProject] = useLocalStorage<Project | undefined>('ready-merge-request-project', undefined);
 
   useEffect(() => {
-    makeRequest();
-  }, [client, makeRequest]);
+    if (project == null) return;
 
-  if (isLoading) {
-    return <FullSizeProgress />;
-  }
+    makeRequest(project);
+  }, [client, makeRequest, project]);
 
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', width: 800, margin: '0 auto' }}>
-        {mrs && (
+        <ProjectList project={project} onSelected={setProject} />
+        {mrs && !isLoading && (
           <>
             <div>Merge Requests: {mrs.length}</div>
             <ul>
@@ -35,17 +35,19 @@ export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
             </ul>
           </>
         )}
+        {isLoading && <FullSizeProgress />}
       </div>
     </PageContainer>
   );
 }
 
 //TODO: rename somehow
-export async function getReadyMergeRequestsForPage(client: Client, projectId: string): Promise<MergeRequestForPage[]> {
+export async function getReadyMergeRequestsForPage(client: Client, project: Project): Promise<MergeRequestForPage[]> {
   const mrs = await client.analyze({
-    projectId,
+    //TODO: probably it doesn't work for gitlab, probably need to pass whole project object to analyze method
+    projectId: project.name,
     state: 'open',
-    owner: '',
+    owner: project.owner,
     pullRequestCount: Number.MAX_VALUE,
   });
 

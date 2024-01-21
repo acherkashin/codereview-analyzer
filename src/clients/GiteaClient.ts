@@ -70,6 +70,10 @@ export class GiteaClient implements Client {
   async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
     const { owner, projectId, pullRequestCount, state } = params;
 
+    if (owner == null) {
+      throw new Error('owner is required');
+    }
+
     const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount, state);
 
     const commentsPromise = giteaPrs.map(async (pullRequest) => {

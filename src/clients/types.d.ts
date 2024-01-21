@@ -50,7 +50,7 @@ export interface AnalyzeParams {
   /**
    * NOTE: ownerId is specific to gitea
    */
-  owner: string;
+  owner?: string;
   /**
    * How many pull requests to analyze
    * NOTE: Specific to gitea
