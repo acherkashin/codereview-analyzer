@@ -1,5 +1,4 @@
 import create, { StoreApi } from 'zustand';
-// import { getDiscussions, getUserComments, UserComment, UserDiscussion } from '../utils/GitLabUtils';
 import createContext from 'zustand/context';
 import { Client, Project, PullRequest, User } from '../clients/types';
 import { UserDiscussion } from '../utils/GitLabUtils';
@@ -21,7 +20,6 @@ export interface ExportData {
 export interface ProjectExport {
   project: Project;
   mergeRequests: PullRequest[];
-  comments: Comment[];
   discussions: UserDiscussion[];
 }
 
@@ -49,7 +47,7 @@ export function createExportStore() {
       const users = await client.getAllUsers();
 
       const allPromises = projects.map(async (projectId) => {
-        const mergeRequests = await client.getPullRequests({
+        const mergeRequests = await client.analyze({
           projectId: projectId,
           createdAfter: new Date(0),
           createdBefore: new Date(),
@@ -58,25 +56,24 @@ export function createExportStore() {
         });
 
         //TODO: how to provide owner?
-        const [comments, discussions] = await Promise.all([
-          client.getComments({
-            projectId,
-            createdAfter: new Date(0),
-            createdBefore: new Date(),
-            owner: '',
-            pullRequestCount: Number.MAX_VALUE,
-          }),
-          [],
-          // getDiscussions(client, projectId, mergeRequests),
-        ]);
+        // const [comments, discussions] = await Promise.all([
+        //   client.analyze({
+        //     projectId,
+        //     createdAfter: new Date(0),
+        //     createdBefore: new Date(),
+        //     owner: '',
+        //     pullRequestCount: Number.MAX_VALUE,
+        //   }),
+        //   [],
+        //   // getDiscussions(client, projectId, mergeRequests),
+        // ]);
 
         const project = (get().allProjects ?? []).find((item) => item.id === projectId)!;
 
         return {
           project,
           mergeRequests,
-          comments,
-          discussions,
+          discussions: [],
         };
       });
 

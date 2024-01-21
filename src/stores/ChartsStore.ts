@@ -43,13 +43,8 @@ export function createChartsStore() {
     setComments: (newComments: Comment[]) => set({ comments: newComments }),
     setDiscussions: (newDiscussions: UserDiscussion[]) => set({ discussions: newDiscussions }),
     analyze: async (client: Client, params: AnalyzeParams) => {
-      const mergeRequests = await client.getPullRequests(params);
-      const comments = await client.getComments(params);
-
-      // const [comments, discussions] = await Promise.all([
-      //   getUserComments(client, projectId, mergeRequests),
-      //   getDiscussions(client, projectId, mergeRequests),
-      // ]);
+      const mergeRequests = await client.analyze(params);
+      const comments = mergeRequests.flatMap((item) => item.comments);
 
       set({
         mergeRequests,

@@ -1,4 +1,4 @@
-import { User, Client, Project, AnalyzeParams, PullRequest } from './types';
+import { User, Client, Project, AnalyzeParams, PullRequest, Comment } from './types';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema, ProjectSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
@@ -31,25 +31,11 @@ export class GitlabClient implements Client {
     }));
   }
 
-  async getComments(params: AnalyzeParams): Promise<any> {
+  async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
     const mergeRequests = await getMergeRequests(this.api, params);
 
-    return getUserComments(this.api, parseInt(params.projectId), mergeRequests);
-  }
-
-  async getPullRequests(params: AnalyzeParams): Promise<PullRequest[]> {
-    const mergeRequest = await getMergeRequests(this.api, params);
-
-    return mergeRequest.map<PullRequest>((item) => ({
-      id: item.id.toString(),
-      title: item.title,
-      branchName: item.source_branch,
-      url: item.web_url,
-      targetBranch: item.target_branch,
-      updatedAt: item.updated_at,
-      author: convertToUser(item.author as any),
-      reviewers: (item.reviewers ?? []).map((item) => convertToUser(item as any)),
-    }));
+    const mrs = await getMergeRequestsWithComments(this.api, parseInt(params.projectId), mergeRequests);
+    return mrs;
   }
 
   getCurrentUser(): Promise<User> {
@@ -91,17 +77,17 @@ export function convertToProject(project: ProjectSchema): Project {
   };
 }
 
-export async function getUserComments(client: GitlabType, projectId: number, mrs: MergeRequestSchema[]): Promise<UserComment[]> {
-  const comments = await getCommentsForMergeRequests(client, projectId, mrs);
-
-  return comments.filter((item) => !item.comment.system);
-}
-
-async function getCommentsForMergeRequests(client: GitlabType, projectId: number, allMrs: MergeRequestSchema[]) {
+async function getMergeRequestsWithComments(
+  client: GitlabType,
+  projectId: number,
+  allMrs: MergeRequestSchema[]
+): Promise<PullRequest[]> {
   const mrs = allMrs.filter((item) => item.user_notes_count !== 0);
+
   const promises = mrs.map((mrItem) => {
     return client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 }).then((userNotes) => {
-      return userNotes.map((item) => ({ mergeRequest: mrItem, comment: item } as UserComment));
+      const comments = userNotes.filter((item) => !item.system);
+      return convertToPullRequest(mrItem, comments);
     });
   });
 
@@ -130,4 +116,27 @@ function getMergeRequests(api: GitlabType, { projectId, createdAfter, createdBef
     perPage: 100,
     state: gitlabState,
   });
+}
+
+function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNoteSchema[]): PullRequest {
+  return {
+    id: mr.id.toString(),
+    title: mr.title,
+    branchName: mr.source_branch,
+    url: mr.web_url,
+    targetBranch: mr.target_branch,
+    updatedAt: mr.updated_at,
+    author: convertToUser(mr.author as any),
+    reviewers: (mr.reviewers ?? []).map((item) => convertToUser(item as any)),
+    comments: comments.map<Comment>((item) => ({
+      prAuthorId: (mr.author.id as string).toString(),
+      prAuthorName: mr.author.name as string,
+      reviewerId: item.author.id.toString(),
+      reviewerName: item.author.name,
+      commentId: item.id.toString(),
+      comment: item.body,
+      pullRequestId: mr.id.toString(),
+      pullRequestName: mr.title,
+    })),
+  };
 }

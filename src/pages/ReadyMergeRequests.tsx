@@ -42,7 +42,7 @@ export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
 
 //TODO: rename somehow
 export async function getReadyMergeRequestsForPage(client: Client, projectId: string): Promise<MergeRequestForPage[]> {
-  const mrs = await client.getPullRequests({
+  const mrs = await client.analyze({
     projectId,
     state: 'open',
     owner: '',
@@ -62,6 +62,7 @@ export async function getReadyMergeRequestsForPage(client: Client, projectId: st
 }
 
 // function getReadyTime(mr: PullRequest) {
+// //TODO: need to add this info to the PullRequest interface and calculate separately for gitlab and gitea
 //   const readyNote = mr.notes.find((item) => item.body === 'marked this merge request as **ready**');
 //   return readyNote?.created_at ?? mr.mergeRequest.created_at;
 // }

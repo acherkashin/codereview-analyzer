@@ -67,49 +67,17 @@ export class GiteaClient implements Client {
     return (data.data ?? []).map((user) => convertToUser(this.host, user));
   }
 
-  async getPullRequests(params: AnalyzeParams): Promise<PullRequest[]> {
+  async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
     const { owner, projectId, pullRequestCount, state } = params;
 
     const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount, state);
-
-    const pullRequests = giteaPrs.map<PullRequest>((pr) => ({
-      id: pr.id!.toString(),
-      title: pr.title ?? 'unknown title',
-      targetBranch: pr.base?.label ?? 'unknown target branch',
-      branchName: pr.head?.label ?? 'unknown branch name',
-      url: pr.url!,
-      updatedAt: pr.updated_at ?? 'unknown updated at',
-      author: convertToUser(this.host, pr.user!),
-      reviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(this.host, user)),
-    }));
-
-    return pullRequests;
-
-    // open -na Google\ Chrome --args --user-data-dir=/tmp/temporary-chrome-profile-dir --disable-web-security --disable-site-isolation-trials
-    // get all orgs
-    // get all repos
-    // get all pull requests
-    // or search /repos/search
-    // this.api.orgs.orgListRepos(owner).then((data) => console.log(data));
-    // this.api.repos
-    //   .repoSearch({
-    //     q: projectId,
-    //   })
-    //   .then((data) => console.log(data));
-    // this.api.repos.repoGetPullRequest(owner, projectId, 21163).then((data) => console.log(data));
-    // /repos/{owner}/{repo}/pulls/{index}/reviews
-    // this.api.repos.repoListPullReviews(owner, projectId, 21163).then((data) => console.log(data));
-    // /repos/{owner}/{repo}/pulls/{index}/reviews
-    // this.api.repos.repoGetPullReviewComments(owner, projectId, 21163, 67588).then((data) => console.log(data));
-  }
-
-  async getComments(params: AnalyzeParams): Promise<Comment[]> {
-    const { owner, projectId, pullRequestCount, state } = params;
-
-    const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount, state);
-    const allComments: Comment[] = [];
 
     const commentsPromise = giteaPrs.map(async (pullRequest) => {
+      // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
+      // So, we need:
+      // 1. Get all pull requests
+      // 2. Get reviews for each pull request
+      // 3. Get comments for each review
       const { data: reviews } = await this.api.repos.repoListPullReviews(owner, projectId, pullRequest.number!);
 
       const commentsPromise = reviews
@@ -123,23 +91,30 @@ export class GiteaClient implements Client {
 
     const commentsResp = await Promise.all(commentsPromise);
 
-    const reviewComments = commentsResp.flatMap((item) => {
-      const notEmptyReviews = item.reviews.filter((item) => !!item.body);
+    const allPrs = commentsResp.map(({ pullRequest, reviews, comments }) => {
+      const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pullRequest, review));
+      const prComments = comments.map<Comment>((item) => convertToComment(pullRequest, item));
+      const pr = convertToPullRequest(this.host, pullRequest, [...notEmptyReviews, ...prComments]);
 
-      return notEmptyReviews.map((review) => convertToComment(item.pullRequest, review));
+      return pr;
     });
 
-    allComments.push(...reviewComments);
-
-    const comments = commentsResp.flatMap(({ comments, pullRequest }) =>
-      comments.map<Comment>((item) => convertToComment(pullRequest, item))
-    );
-    allComments.push(...comments);
-
-    console.log(allComments);
-
-    return allComments;
+    return allPrs;
   }
+}
+
+function convertToPullRequest(hostUrl: string, pr: GiteaPullRequest, comments: Comment[]): PullRequest {
+  return {
+    id: pr.id!.toString(),
+    title: pr.title ?? 'unknown title',
+    targetBranch: pr.base?.label ?? 'unknown target branch',
+    branchName: pr.head?.label ?? 'unknown branch name',
+    url: pr.url!,
+    updatedAt: pr.updated_at ?? 'unknown updated at',
+    author: convertToUser(hostUrl, pr.user!),
+    reviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user)),
+    comments,
+  };
 }
 
 function convertToProject(repository: Repository): Project {

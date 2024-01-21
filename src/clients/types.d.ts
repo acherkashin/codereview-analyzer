@@ -68,14 +68,14 @@ export interface PullRequest {
   author: User;
   reviewers: User[];
   updatedAt: string;
+  comments: Comment[];
 }
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';
 
 export interface Client {
   getCurrentUser(): Promise<User>;
-  getPullRequests(params: AnalyzeParams): Promise<PullRequest[]>;
-  getComments(params: AnalyzeParams): Promise<any>;
+  analyze(params: AnalyzeParams): Promise<PullRequest[]>;
   searchUsers(searchText: string): Promise<User[]>;
   getAllUsers(): Promise<User[]>;
   searchProjects(searchText: string): Promise<Project[]>;
