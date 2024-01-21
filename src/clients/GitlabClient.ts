@@ -77,6 +77,10 @@ export function convertToProject(project: ProjectSchema): Project {
   };
 }
 
+export function getNoteUrl({ mergeRequest, comment }: UserComment) {
+  return `${mergeRequest.web_url}/#note_${comment.id}`;
+}
+
 async function getMergeRequestsWithComments(
   client: GitlabType,
   projectId: number,
@@ -137,6 +141,7 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
       comment: item.body,
       pullRequestId: mr.id.toString(),
       pullRequestName: mr.title,
+      url: getNoteUrl({ mergeRequest: mr, comment: item }),
     })),
   };
 }

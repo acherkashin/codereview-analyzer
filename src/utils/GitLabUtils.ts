@@ -125,10 +125,6 @@ export function getFilteredDiscussions(
   return filteredDiscussions;
 }
 
-export function getNoteUrl({ mergeRequest, comment }: UserComment) {
-  return `${mergeRequest.web_url}/#note_${comment.id}`;
-}
-
 /**
  * Converts comments to the pair of "reviewer" and "author"
  * @param comments comments in merge requests

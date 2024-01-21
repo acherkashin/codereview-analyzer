@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { getFilteredComments, getFilteredDiscussions, getNoteUrl, UserComment, UserDiscussion } from './../utils/GitLabUtils';
+import { getFilteredComments, getFilteredDiscussions, UserDiscussion } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
@@ -96,10 +96,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
   const handleDownload = (fileName: string) => {
     if (filteredComments != null && filteredComments.length !== 0) {
-      // downloadComments(fileName, filteredComments);
+      downloadComments(fileName, filteredComments);
     }
     if (comments != null && comments.length !== 0) {
-      // downloadComments(fileName, comments);
+      downloadComments(fileName, comments);
     }
   };
 

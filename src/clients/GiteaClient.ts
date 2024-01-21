@@ -141,6 +141,7 @@ function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewCo
     reviewerName: item.user?.full_name || item.user?.login || 'unknown reviewerName',
     pullRequestId: pullRequest.id!.toString(),
     pullRequestName: pullRequest.title!,
+    url: item.html_url ?? '#',
   };
 }
 

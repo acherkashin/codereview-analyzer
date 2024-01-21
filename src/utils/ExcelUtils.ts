@@ -1,26 +1,26 @@
 import zipcelx, { ZipCelXConfig, ZipCelXRow } from 'zipcelx';
-import { getNoteUrl, UserComment } from './GitLabUtils';
+import { Comment } from './../clients/types';
 
-export function downloadComments(fileName: string, comments: UserComment[]) {
-  const exportEntries = comments.map<ZipCelXRow>(({ mergeRequest, comment }) => [
+export function downloadComments(fileName: string, comments: Comment[]) {
+  const exportEntries = comments.map<ZipCelXRow>((comment) => [
     {
-      value: mergeRequest.author.username as string,
+      value: comment.prAuthorName,
       type: 'string',
     },
     {
-      value: comment.author.username,
+      value: comment.reviewerName,
       type: 'string',
     },
     {
-      value: comment.body,
+      value: comment.comment,
       type: 'string',
     },
     {
-      value: getNoteUrl({ mergeRequest, comment }),
+      value: comment.url,
       type: 'string',
     },
     {
-      value: mergeRequest.title,
+      value: comment.pullRequestName,
       type: 'string',
     },
   ]);
@@ -31,7 +31,7 @@ export function downloadComments(fileName: string, comments: UserComment[]) {
       data: [
         [
           {
-            value: 'MR Author',
+            value: 'PR Author',
             type: 'string',
           },
           {

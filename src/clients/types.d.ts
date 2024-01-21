@@ -14,6 +14,7 @@ export interface Comment {
   comment: string;
   pullRequestId: string;
   pullRequestName: string;
+  url: string;
 }
 
 export interface User {
