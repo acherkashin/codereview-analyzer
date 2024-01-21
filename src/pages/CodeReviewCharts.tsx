@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions, UserDiscussion } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
@@ -7,6 +7,7 @@ import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlin
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalyze,
+  getComments,
   getCommentsLeft,
   getCommentsLeftPieChart,
   getCommentsReceived,
@@ -27,7 +28,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment } from './../clients/types';
+import { AnalyzeParams, Comment, PullRequest } from './../clients/types';
 
 export interface CodeReviewChartsProps {}
 
@@ -35,10 +36,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const excelDialog = useOpen();
 
-  const comments = useChartsStore((state) => state.comments);
-  const discussions = useChartsStore((state) => state.discussions);
-  const setComments = useChartsStore((state) => state.setComments);
-  const setDiscussions = useChartsStore((state) => state.setDiscussions);
+  const pullRequests = useChartsStore((state) => state.pullRequests);
+  const setPullRequests = useChartsStore((state) => state.setPullRequests);
+  const comments = useChartsStore(getComments);
+  const discussions = useMemo(() => [], []); // useChartsStore((state) => state.discussions);
   const analyze = useChartsStore(getAnalyze);
   const discussionsLeft = useChartsStore(getDiscussionsLeft);
   const discussionsReceived = useChartsStore(getDiscussionsReceived);
@@ -245,7 +246,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           startIcon={<FileDownloadIcon />}
           onClick={() => {
             // Need to specify Range <StartDate>-<EndDate> as a default name
-            downloadFile('newFile.json', JSON.stringify({ comments, discussions }, null, 2));
+            downloadFile('newFile.json', JSON.stringify({ pullRequests }, null, 2));
           }}
         >
           Export as JSON
@@ -254,9 +255,8 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           label="Import as JSON"
           onTextSelected={(text) => {
             try {
-              const { comments, discussions } = JSON.parse(text as string);
-              setComments(comments);
-              setDiscussions(discussions);
+              const { pullRequests } = JSON.parse(text as string) as { pullRequests: PullRequest[] };
+              setPullRequests(pullRequests);
             } catch (ex) {
               console.error(ex);
             }
