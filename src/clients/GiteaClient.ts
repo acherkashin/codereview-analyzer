@@ -7,7 +7,7 @@ import {
   PullReview as GiteaPullReview,
   Repository,
 } from 'gitea-js';
-import { User, Client, Comment, Project, AnalyzeParams, PullRequest } from './types';
+import { User, Client, Comment, Project, AnalyzeParams, PullRequest, PullRequestStatus } from './types';
 
 export class GiteaClient implements Client {
   private api: GiteaApi<any>;
@@ -68,11 +68,17 @@ export class GiteaClient implements Client {
   }
 
   async getPullRequests(params: AnalyzeParams): Promise<PullRequest[]> {
-    const { owner, projectId, pullRequestCount } = params;
+    const { owner, projectId, pullRequestCount, state } = params;
 
-    const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount);
+    const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount, state);
 
     const pullRequests = giteaPrs.map<PullRequest>((pr) => ({
+      id: pr.id!.toString(),
+      title: pr.title ?? 'unknown title',
+      targetBranch: pr.base?.label ?? 'unknown target branch',
+      branchName: pr.head?.label ?? 'unknown branch name',
+      url: pr.url!,
+      updatedAt: pr.updated_at ?? 'unknown updated at',
       author: convertToUser(this.host, pr.user!),
       reviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(this.host, user)),
     }));
@@ -98,9 +104,9 @@ export class GiteaClient implements Client {
   }
 
   async getComments(params: AnalyzeParams): Promise<Comment[]> {
-    const { owner, projectId, pullRequestCount } = params;
+    const { owner, projectId, pullRequestCount, state } = params;
 
-    const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount);
+    const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount, state);
     const allComments: Comment[] = [];
 
     const commentsPromise = giteaPrs.map(async (pullRequest) => {
@@ -175,7 +181,8 @@ async function getAllPullRequests(
   client: GiteaApi<any>,
   owner: string,
   projectId: string,
-  prCount: number
+  prCount: number,
+  state?: PullRequestStatus
 ): Promise<GiteaPullRequest[]> {
   const pages = Math.ceil(prCount / 50);
 
@@ -183,7 +190,7 @@ async function getAllPullRequests(
 
   for (let pageIndex = 1; pageIndex <= pages; pageIndex++) {
     const result = await client.repos.repoListPullRequests(owner, projectId, {
-      state: 'all',
+      state,
       sort: 'recentupdate',
       page: pageIndex,
     });

@@ -23,7 +23,6 @@ export function ExportPage() {
 
   useEffect(() => {
     if (allProjects == null || allProjects.length === 0) {
-      //TODO: remove any
       requestProjects(client);
     }
   }, [allProjects, client, requestProjects]);

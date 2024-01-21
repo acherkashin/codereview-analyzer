@@ -1,3 +1,10 @@
+export interface MergeRequestForPage {
+  item: PullRequest;
+  //TOOD: make 'readyTime', 'readyPeriod' required again
+  readyTime?: string;
+  readyPeriod?: TimeSpan;
+}
+
 export interface Comment {
   prAuthorId: string;
   prAuthorName: string;
@@ -35,11 +42,11 @@ export interface AnalyzeParams {
   /**
    * NOTE: Specific to gitlab
    */
-  createdAfter: Date;
+  createdAfter?: Date;
   /**
    * NOTE: Specific to gitlab
    */
-  createdBefore: Date;
+  createdBefore?: Date;
   /**
    * NOTE: ownerId is specific to gitea
    */
@@ -49,16 +56,25 @@ export interface AnalyzeParams {
    * NOTE: Specific to gitea
    */
   pullRequestCount: number;
+  state?: PullRequestStatus;
 }
 
 export interface PullRequest {
+  id: string;
+  title: string;
+  branchName: string;
+  url: string;
+  targetBranch: string;
   author: User;
   reviewers: User[];
+  updatedAt: string;
 }
+
+export type PullRequestStatus = 'closed' | 'open' | 'all';
 
 export interface Client {
   getCurrentUser(): Promise<User>;
-  getPullRequests(params: any): Promise<any>;
+  getPullRequests(params: AnalyzeParams): Promise<PullRequest[]>;
   getComments(params: AnalyzeParams): Promise<any>;
   searchUsers(searchText: string): Promise<User[]>;
   getAllUsers(): Promise<User[]>;

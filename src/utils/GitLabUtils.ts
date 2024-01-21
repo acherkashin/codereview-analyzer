@@ -192,33 +192,6 @@ export async function getReadyMergeRequests(client: Gitlab, projectId: number): 
   return comments;
 }
 
-export interface MergeRequestForPage {
-  item: MergeRequestWithNotes;
-  readyTime: string;
-  readyPeriod: TimeSpan;
-}
-
-//TODO: rename somehow
-export async function getReadyMergeRequestsForPage(client: Gitlab, projectId: number): Promise<MergeRequestForPage[]> {
-  const mrs = await getReadyMergeRequests(client, projectId);
-  console.log(mrs);
-
-  return mrs
-    .map((item) => {
-      return {
-        item,
-        readyTime: getReadyTime(item),
-        readyPeriod: timeSince(new Date(getReadyTime(item))),
-      };
-    })
-    .sort((item1, item2) => item2.readyPeriod._milliseconds - item1.readyPeriod._milliseconds);
-}
-
-function getReadyTime(mr: MergeRequestWithNotes) {
-  const readyNote = mr.notes.find((item) => item.body === 'marked this merge request as **ready**');
-  return readyNote?.created_at ?? mr.mergeRequest.created_at;
-}
-
 export interface MergeRequestWithApprovals {
   mergeRequest: MergeRequestSchema;
   approvals: MergeRequestLevelMergeRequestApprovalSchema;

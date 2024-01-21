@@ -1,16 +1,16 @@
-import { MergeRequestForPage } from '../utils/GitLabUtils';
+import { MergeRequestForPage } from '../clients/types';
 import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
 import { UserItem, UserItemProps, UserList } from './UserList';
 
 export interface MergeRequestProps extends MergeRequestForPage {}
 
-export function MergeRequest({ item: { mergeRequest }, readyPeriod, readyTime }: MergeRequestProps) {
+export function MergeRequest({ item: mergeRequest, readyPeriod, readyTime }: MergeRequestProps) {
   const users = mergeRequest.reviewers?.map(
     (item) =>
       ({
-        name: item.name as any,
-        avatarUrl: item.avatar_url as any,
-        userUrl: item.web_url as any,
+        name: item.userName,
+        avatarUrl: item.avatarUrl,
+        userUrl: item.webUrl,
       } as UserItemProps)
   );
 
@@ -27,29 +27,29 @@ export function MergeRequest({ item: { mergeRequest }, readyPeriod, readyTime }:
       key={mergeRequest.id}
     >
       <div style={{ marginBottom: 8 }}>
-        <a href={mergeRequest.web_url} target="_blank" rel="noreferrer">
+        <a href={mergeRequest.url} target="_blank" rel="noreferrer">
           {mergeRequest.title}
         </a>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>Target Branch</div>
-        <div>{mergeRequest.target_branch}</div>
+        <div>{mergeRequest.targetBranch}</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>In Review</div>
-        <div>{timeSinceString(readyPeriod)}</div>
+        {/* <div>{timeSinceString(readyPeriod)}</div> */}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>Last Update</div>
-        <div>{timeSinceString(timeSince(new Date(mergeRequest.updated_at)))}</div>
+        <div>{timeSinceString(timeSince(new Date(mergeRequest.updatedAt)))}</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', marginBottom: 8 }}>
         <div style={{ fontWeight: 'bold' }}>Author</div>
         <UserItem
           component="div"
-          name={mergeRequest.author.name as any}
-          avatarUrl={mergeRequest.author.avatar_url as any}
-          userUrl={mergeRequest.author.web_url as any}
+          name={mergeRequest.author.userName}
+          avatarUrl={mergeRequest.author.avatarUrl}
+          userUrl={mergeRequest.author.webUrl}
         />
       </div>
 

@@ -51,9 +51,10 @@ export function createExportStore() {
       const allPromises = projects.map(async (projectId) => {
         const mergeRequests = await client.getPullRequests({
           projectId: projectId,
-          createdAfter: new Date(0).toISOString(),
-          createdBefore: new Date().toISOString(),
-          perPage: 100,
+          createdAfter: new Date(0),
+          createdBefore: new Date(),
+          owner: '',
+          pullRequestCount: Number.MAX_VALUE,
         });
 
         //TODO: how to provide owner?
