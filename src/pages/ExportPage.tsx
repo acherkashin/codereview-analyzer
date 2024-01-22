@@ -37,7 +37,7 @@ export function ExportPage() {
         </div>
       </section>
       <div>
-        <LoadingButton loading={isExporting} onClick={() => makeRequest(client as any)}>
+        <LoadingButton loading={isExporting} onClick={() => makeRequest(client)}>
           Export
         </LoadingButton>
         <Button
