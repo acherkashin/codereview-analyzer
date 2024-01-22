@@ -57,6 +57,8 @@ export function ProjectList({ project, onSelected }: ProjectListProps) {
         <TextField
           {...params}
           label="Projects"
+          error={!project}
+          helperText={!project ? 'Please select a project' : undefined}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
