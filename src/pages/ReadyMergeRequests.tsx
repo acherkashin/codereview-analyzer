@@ -44,10 +44,8 @@ export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
 //TODO: rename somehow
 export async function getReadyMergeRequestsForPage(client: Client, project: Project): Promise<MergeRequestForPage[]> {
   const mrs = await client.analyze({
-    //TODO: probably it doesn't work for gitlab, probably need to pass whole project object to analyze method
-    projectId: project.name,
+    project,
     state: 'open',
-    owner: project.owner,
     pullRequestCount: Number.MAX_VALUE,
   });
 

@@ -39,36 +39,22 @@ export function createExportStore() {
       set({ projectsToExport: ids });
     },
     export: async (client: Client) => {
-      const projects = get().projectsToExport;
-      if (projects == null || projects.length === 0) {
+      const { projectsToExport, allProjects } = get();
+      if (projectsToExport == null || projectsToExport.length === 0 || allProjects == null) {
         return;
       }
 
       const users = await client.getAllUsers();
 
-      const allPromises = projects.map(async (projectId) => {
+      const projects = allProjects.filter((item) => projectsToExport.includes(item.id));
+
+      const allPromises = projects.map(async (project) => {
         const mergeRequests = await client.analyze({
-          projectId: projectId,
+          project,
           createdAfter: new Date(0),
           createdBefore: new Date(),
-          owner: '',
           pullRequestCount: Number.MAX_VALUE,
         });
-
-        //TODO: how to provide owner?
-        // const [comments, discussions] = await Promise.all([
-        //   client.analyze({
-        //     projectId,
-        //     createdAfter: new Date(0),
-        //     createdBefore: new Date(),
-        //     owner: '',
-        //     pullRequestCount: Number.MAX_VALUE,
-        //   }),
-        //   [],
-        //   // getDiscussions(client, projectId, mergeRequests),
-        // ]);
-
-        const project = (get().allProjects ?? []).find((item) => item.id === projectId)!;
 
         return {
           project,

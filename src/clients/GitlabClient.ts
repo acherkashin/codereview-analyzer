@@ -34,7 +34,7 @@ export class GitlabClient implements Client {
   async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
     const mergeRequests = await getMergeRequests(this.api, params);
 
-    const mrs = await getMergeRequestsWithComments(this.api, parseInt(params.projectId), mergeRequests);
+    const mrs = await getMergeRequestsWithComments(this.api, parseInt(params.project.id), mergeRequests);
     return mrs;
   }
 
@@ -102,7 +102,7 @@ async function getMergeRequestsWithComments(
   return comments;
 }
 
-function getMergeRequests(api: GitlabType, { projectId, createdAfter, createdBefore, state }: AnalyzeParams) {
+function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefore, state }: AnalyzeParams) {
   let gitlabState: AllMergeRequestsOptions['state'] = undefined;
 
   if (state === 'open') {
@@ -114,7 +114,7 @@ function getMergeRequests(api: GitlabType, { projectId, createdAfter, createdBef
   }
 
   return api.MergeRequests.all({
-    projectId,
+    project: project.id,
     createdAfter: createdAfter?.toISOString(),
     createdBefore: createdBefore?.toISOString(),
     perPage: 100,

@@ -39,7 +39,7 @@ export interface Project {
 }
 
 export interface AnalyzeParams {
-  projectId: string;
+  project: Project;
   /**
    * NOTE: Specific to gitlab
    */
@@ -48,10 +48,6 @@ export interface AnalyzeParams {
    * NOTE: Specific to gitlab
    */
   createdBefore?: Date;
-  /**
-   * NOTE: ownerId is specific to gitea
-   */
-  owner?: string;
   /**
    * How many pull requests to analyze
    * NOTE: Specific to gitea

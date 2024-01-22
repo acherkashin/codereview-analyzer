@@ -68,13 +68,15 @@ export class GiteaClient implements Client {
   }
 
   async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
-    const { owner, projectId, pullRequestCount, state } = params;
+    const { project, pullRequestCount, state } = params;
 
-    if (owner == null) {
-      throw new Error('owner is required');
+    if (project == null || project.owner == null) {
+      throw new Error('project is required');
     }
 
-    const giteaPrs = await getAllPullRequests(this.api, owner, projectId, pullRequestCount, state);
+    const { id: projectId, owner } = project;
+
+    const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state);
 
     const commentsPromise = giteaPrs.map(async (pullRequest) => {
       // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
@@ -159,8 +161,7 @@ export function convertToUser(host: string, user: GiteaUser): User {
 
 async function getAllPullRequests(
   client: GiteaApi<any>,
-  owner: string,
-  projectId: string,
+  project: Project,
   prCount: number,
   state?: PullRequestStatus
 ): Promise<GiteaPullRequest[]> {
@@ -169,7 +170,7 @@ async function getAllPullRequests(
   const pullRequests: GiteaPullRequest[] = [];
 
   for (let pageIndex = 1; pageIndex <= pages; pageIndex++) {
-    const result = await client.repos.repoListPullRequests(owner, projectId, {
+    const result = await client.repos.repoListPullRequests(project.owner!, project.name, {
       state,
       sort: 'recentupdate',
       page: pageIndex,

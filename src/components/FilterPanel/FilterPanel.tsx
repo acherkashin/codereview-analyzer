@@ -30,8 +30,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
     analyze({
       createdAfter,
       createdBefore,
-      projectId: project?.name,
-      owner: project?.owner!,
+      project,
       pullRequestCount: prCount,
     });
   }, [analyze, createdAfter, createdBefore, prCount, project]);
@@ -78,7 +77,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
         </>
       )}
       {children}
-      <LoadingButton startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
+      <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
         Analyze
       </LoadingButton>
     </Stack>
