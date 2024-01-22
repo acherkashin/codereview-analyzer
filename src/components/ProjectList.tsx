@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
-import { searchProjects } from '../utils/GitLabUtils';
 import { useDebounce } from '../hooks/useDebounce';
-import { ProjectSchema } from '@gitbeaker/core/dist/types/types';
 import { Autocomplete, Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField } from '@mui/material';
 import { useClient } from '../stores/AuthStore';
+import { Project } from '../clients/types';
 
 export interface ProjectListProps {
-  project: ProjectSchema;
-  onProjectSelected: (project: ProjectSchema | null) => void;
+  project?: Project;
+  onSelected: (project: Project | undefined) => void;
 }
 
-export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
+export function ProjectList({ project, onSelected }: ProjectListProps) {
   const client = useClient();
-  const [open, setOpen] = React.useState(false);
-  const [options, setOptions] = React.useState<ProjectSchema[]>([]);
+  const [open, setOpen] = useState(false);
+  const [options, setOptions] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [value, setValue] = useState<string>('');
@@ -23,7 +22,9 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
   useEffect(() => {
     if (client && open && debouncedValue) {
       setLoading(true);
-      searchProjects(client, debouncedValue)
+
+      client
+        .searchProjects(debouncedValue)
         .then(setOptions)
         .finally(() => setLoading(false));
     }
@@ -31,14 +32,14 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
 
   return (
     <Autocomplete
-      getOptionLabel={(option) => option.name_with_namespace}
+      getOptionLabel={(option) => option.name}
       open={open}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       options={options}
       loading={loading}
       value={project}
-      onChange={(_, newValue) => onProjectSelected(newValue)}
+      onChange={(_, newValue) => onSelected(newValue ?? undefined)}
       onInputChange={(_, newInputValue) => setValue(newInputValue)}
       // reset client side filtering
       filterOptions={(x) => x}
@@ -46,9 +47,9 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
         <ListItem key={item.id} alignItems="flex-start" {...props}>
           <ListItemButton selected={project?.id === item.id}>
             <ListItemAvatar>
-              <Avatar alt={item.name} src={item.avatar_url} />
+              <Avatar alt={item.name} src={item.avatarUrl} />
             </ListItemAvatar>
-            <ListItemText primary={item.name_with_namespace} secondary={item.description} />
+            <ListItemText primary={item.name} secondary={item.description} />
           </ListItemButton>
         </ListItem>
       )}
@@ -56,6 +57,8 @@ export function ProjectList({ project, onProjectSelected }: ProjectListProps) {
         <TextField
           {...params}
           label="Projects"
+          error={!project}
+          helperText={!project ? 'Please select a project' : undefined}
           InputProps={{
             ...params.InputProps,
             endAdornment: (

@@ -1,22 +1,16 @@
 import { Avatar, Checkbox, List, ListItem, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-
-export interface ProjectItem {
-  id: number;
-  name: string;
-  avatarUrl: string;
-  description?: string;
-}
+import { Project } from '../clients/types';
 
 export interface CheckBoxProjectListProps {
-  projects: ProjectItem[];
-  onChange: (projectIds: number[]) => void;
+  projects: Project[];
+  onChange: (projectIds: string[]) => void;
 }
 
 export function CheckBoxProjectList({ projects, onChange }: CheckBoxProjectListProps) {
-  const [checkedProjects, setCheckedProjects] = useState<number[]>([]);
+  const [checkedProjects, setCheckedProjects] = useState<string[]>([]);
   const handleChange = useCallback(
-    (projectId: number, checked: boolean) => {
+    (projectId: string, checked: boolean) => {
       if (checked) {
         setCheckedProjects([...checkedProjects, projectId]);
       } else {
@@ -39,9 +33,9 @@ export function CheckBoxProjectList({ projects, onChange }: CheckBoxProjectListP
   );
 }
 
-export interface CheckBoxProjectItemProps extends ProjectItem {
+export interface CheckBoxProjectItemProps extends Project {
   checked: boolean;
-  onChange: (projectId: number, checked: boolean) => void;
+  onChange: (projectId: string, checked: boolean) => void;
 }
 
 export function CheckBoxProjectItem({ id, name, description, avatarUrl, checked, onChange }: CheckBoxProjectItemProps) {

@@ -6,8 +6,9 @@ import { PageContainer } from './PageContainer';
 import { LoadingButton } from '@mui/lab';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { downloadFile } from '../utils/FileUtils';
-import { CheckBoxProjectList, ProjectItem } from '../components/CheckBoxProjectList';
-import { useEffect, useMemo } from 'react';
+import { CheckBoxProjectList } from '../components/CheckBoxProjectList';
+import { useEffect } from 'react';
+
 const { version } = require('./../../package.json');
 
 export function ExportPage() {
@@ -19,15 +20,6 @@ export function ExportPage() {
   const client = useClient();
   const { isLoading: isExporting, makeRequest } = useRequest(handleExport);
   const { isLoading: isLoadingProjects, makeRequest: requestProjects } = useRequest(fetchProjects);
-
-  const projects: ProjectItem[] = useMemo(() => {
-    return (allProjects ?? []).map((item) => ({
-      id: item.id,
-      name: item.name,
-      avatarUrl: item.avatar_url,
-      description: item.description,
-    }));
-  }, [allProjects]);
 
   useEffect(() => {
     if (allProjects == null || allProjects.length === 0) {
@@ -41,7 +33,7 @@ export function ExportPage() {
         <Typography variant="h2">Projects</Typography>
         {isLoadingProjects && <CircularProgress style={{ alignSelf: 'center' }} />}
         <div style={{ overflow: 'auto' }}>
-          <CheckBoxProjectList projects={projects} onChange={setProjectsToExport} />
+          {allProjects != null && <CheckBoxProjectList projects={allProjects} onChange={setProjectsToExport} />}
         </div>
       </section>
       <div>

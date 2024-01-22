@@ -1,6 +1,9 @@
+import { HostingType } from '../stores/AuthStore';
+
 export interface Credentials {
   token: string;
   host: string;
+  hostType: HostingType;
 }
 
 export function getCredentials() {

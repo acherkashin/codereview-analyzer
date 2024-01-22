@@ -1,18 +1,23 @@
 import create from 'zustand';
-import { Gitlab } from '@gitbeaker/browser';
-import { UserSchema } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { clearCredentials, saveCredentials } from '../utils/CredentialUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
+import { Client, User } from '../clients/types';
+import { GiteaClient } from '../clients/GiteaClient';
+import { GitlabClient } from '../clients/GitlabClient';
+
+export type HostingType = 'Gitlab' | 'Gitea';
 
 export interface AuthStore {
   host: string | null;
+  hostType: HostingType | null;
   token: string | null;
-  user: UserSchema | null;
+  user: User | null;
   client: GitlabType | null;
+  genericClient: Client | null;
   isSigningIn: boolean;
   signInError: string | null;
-  signIn: (host: string, token: string) => Promise<void>;
+  signIn: (host: string, token: string, hostType: HostingType) => Promise<void>;
   signOut: () => void;
 }
 
@@ -23,7 +28,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   client: null,
   isSigningIn: false,
   signInError: null,
-  signIn: async (host: string, token: string) => {
+  genericClient: null,
+  hostType: null,
+  signIn: async (host: string, token: string, hostType: HostingType) => {
     if (!isValidHttpUrl(host)) {
       throw Error(`Incorrect url provided: ${host}`);
     }
@@ -34,20 +41,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     set({ isSigningIn: true });
 
-    const client = new Gitlab({
-      token,
-      host,
-    });
+    const client: Client = hostType === 'Gitlab' ? new GitlabClient(host, token) : new GiteaClient(host, token);
 
     try {
-      const user = await client.Users.current();
-      saveCredentials({ token, host });
+      const user = await client.getCurrentUser();
+      saveCredentials({ token, host, hostType });
 
       set({
         host,
         token,
         user,
-        client,
+        client: null,
+        genericClient: client,
+        hostType,
       });
     } catch (e) {
       set({
@@ -55,6 +61,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         token: null,
         user: null,
         client: null,
+        genericClient: null,
+        hostType: null,
       });
 
       set({ signInError: (e as any).toString() });
@@ -70,13 +78,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       token: null,
       user: null,
       client: null,
+      genericClient: null,
+      hostType: null,
     });
     clearCredentials();
   },
 }));
 
 export function getIsAuthenticated(store: AuthStore) {
-  return store.client != null;
+  return store.user != null;
 }
 
 export function getSignIn(store: AuthStore) {
@@ -91,10 +101,10 @@ export function getCurrentUser(store: AuthStore) {
   return store.user;
 }
 
-export function useClient(): GitlabType {
+export function useClient(): Client {
   return useAuthStore(getClient)!;
 }
 
 function getClient(store: AuthStore) {
-  return store.client;
+  return store.genericClient;
 }

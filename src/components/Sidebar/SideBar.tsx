@@ -6,6 +6,7 @@ import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
 import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
+import { Logo } from '../Logo';
 
 const items = [
   {
@@ -52,7 +53,7 @@ export function SideBar(_: SideBarProps) {
         <div>
           <Box sx={{ paddingTop: 3 }} textAlign="center">
             <RouterLink to="/">
-              <img src={process.env.PUBLIC_URL + '/code-review-icon.png'} alt="Code review icon" width="50px" />
+              <Logo />
             </RouterLink>
           </Box>
           {/* Later we can show the instance name and author name here */}

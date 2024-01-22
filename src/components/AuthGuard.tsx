@@ -20,7 +20,7 @@ export function AuthGuard({ children }: AuthGuardProps): JSX.Element | null {
     if (!isAuthenticated) {
       const credentials = getCredentials();
       if (credentials) {
-        signIn(credentials.host, credentials.token);
+        signIn(credentials.host, credentials.token, credentials.hostType);
         return;
       }
       console.log('Not authenticated, redirecting');

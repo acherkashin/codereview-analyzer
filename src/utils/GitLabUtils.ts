@@ -8,6 +8,7 @@ import {
 } from '@gitbeaker/core/dist/types/types';
 import { timeSince, TimeSpan } from './TimeSpanUtils';
 import { Resources } from '@gitbeaker/core';
+import { Comment, PullRequest } from './../clients/types';
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;
@@ -28,11 +29,6 @@ export interface BaseRequestOptions {
   projectId: number;
   createdAfter?: string;
   createdBefore?: string;
-}
-
-export async function searchProjects(client: Gitlab, searchText: string) {
-  const projects = await client.Projects.search(searchText);
-  return projects;
 }
 
 export async function getMergeRequestsToReview(
@@ -89,24 +85,20 @@ async function getCommentsForMergeRequests(client: Gitlab, projectId: number, al
   return comments;
 }
 
-export function getFilteredComments(
-  comments: UserComment[],
-  reviewerName: string | null,
-  authorName: string | null
-): UserComment[] {
+export function getFilteredComments(comments: Comment[], reviewerName: string | null, authorName: string | null): Comment[] {
   let filteredComments = comments;
 
   if (!!reviewerName) {
-    filteredComments = filteredComments.filter(({ comment }) => comment.author.username === reviewerName);
+    // filteredComments = filteredComments.filter(({ comment }) => comment.author.username === reviewerName);
   }
 
   if (!!authorName) {
-    filteredComments = filteredComments.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
+    // filteredComments = filteredComments.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
   }
 
-  filteredComments = filteredComments.filter(
-    ({ comment, mergeRequest }) => mergeRequest.author.username !== comment.author.username
-  );
+  // filteredComments = filteredComments.filter(
+  //   ({ comment, mergeRequest }) => mergeRequest.author.username !== comment.author.username
+  // );
 
   return filteredComments;
 }
@@ -133,21 +125,21 @@ export function getFilteredDiscussions(
   return filteredDiscussions;
 }
 
-export function getNoteUrl({ mergeRequest, comment }: UserComment) {
-  return `${mergeRequest.web_url}/#note_${comment.id}`;
-}
-
 /**
  * Converts comments to the pair of "reviewer" and "author"
  * @param comments comments in merge requests
  * @returns pair of "reviewer" and "author"
  */
-export function getAuthorReviewerFromComments(comments: UserComment[]): AuthorReviewer[] {
+export function getAuthorReviewerFromComments(comments: Comment[]): AuthorReviewer[] {
   return comments.map<AuthorReviewer>((item) => ({
-    reviewer: item.comment.author.username,
-    author: item.mergeRequest.author.username as string,
+    author: item.prAuthorName,
+    reviewer: item.reviewerName,
   }));
 }
+// return comments.map<AuthorReviewer>((item) => ({
+//   reviewer: item.comment.author.username,
+//   author: item.mergeRequest.author.username as string,
+// }));
 
 export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]): AuthorReviewer[] {
   return discussions.map<AuthorReviewer>((item) => ({
@@ -156,11 +148,11 @@ export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]):
   }));
 }
 
-export function getAuthorReviewerFromMergeRequests(mrs: MergeRequestSchema[]): AuthorReviewer[] {
+export function getAuthorReviewerFromMergeRequests(mrs: PullRequest[]): AuthorReviewer[] {
   return mrs.flatMap<AuthorReviewer>((mr) =>
     (mr.reviewers ?? []).map<AuthorReviewer>((reviewer) => ({
-      author: mr.author.username as string,
-      reviewer: reviewer.username as string,
+      author: mr.author.userName as string,
+      reviewer: reviewer.userName as string,
     }))
   );
 }
@@ -194,33 +186,6 @@ export async function getReadyMergeRequests(client: Gitlab, projectId: number): 
   const comments = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
 
   return comments;
-}
-
-export interface MergeRequestForPage {
-  item: MergeRequestWithNotes;
-  readyTime: string;
-  readyPeriod: TimeSpan;
-}
-
-//TODO: rename somehow
-export async function getReadyMergeRequestsForPage(client: Gitlab, projectId: number): Promise<MergeRequestForPage[]> {
-  const mrs = await getReadyMergeRequests(client, projectId);
-  console.log(mrs);
-
-  return mrs
-    .map((item) => {
-      return {
-        item,
-        readyTime: getReadyTime(item),
-        readyPeriod: timeSince(new Date(getReadyTime(item))),
-      };
-    })
-    .sort((item1, item2) => item2.readyPeriod._milliseconds - item1.readyPeriod._milliseconds);
-}
-
-function getReadyTime(mr: MergeRequestWithNotes) {
-  const readyNote = mr.notes.find((item) => item.body === 'marked this merge request as **ready**');
-  return readyNote?.created_at ?? mr.mergeRequest.created_at;
 }
 
 export interface MergeRequestWithApprovals {

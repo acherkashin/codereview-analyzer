@@ -1,12 +1,7 @@
 import { BarDatum } from '@nivo/bar';
-import {
-  AuthorReviewer,
-  getAuthorReviewerFromComments,
-  getAuthorReviewerFromDiscussions,
-  UserComment,
-  UserDiscussion,
-} from './GitLabUtils';
+import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
+import { Comment } from './../clients/types';
 
 interface ReviewBarDatum extends BarDatum {
   userName: string;
@@ -29,20 +24,19 @@ export function convertToDiscussionsReceived(discussions: UserDiscussion[]): Rev
   return convertToItemsReceived(rawData);
 }
 
-export function convertToCommentsLeft(comments: UserComment[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function convertToCommentsLeft(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
   const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
   return convertToItemsLeft(rawData);
 }
 
-export function convertToCommentsReceived(comments: UserComment[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
   const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
   return convertToItemsReceived(rawData);
 }
 
-export function convertToCommentsReceivedFromUsers(comments: UserComment[], userId: number): ReviewBarChartSettings {
-  const rawData = getAuthorReviewerFromComments(comments.filter((item) => item.mergeRequest.author.id === userId)).filter(
-    (item) => item.reviewer !== item.author
-  );
+export function convertToCommentsReceivedFromUsers(comments: Comment[], userId: string): ReviewBarChartSettings {
+  const commentsToAuthor = comments.filter((item) => item.prAuthorId === userId);
+  const rawData = getAuthorReviewerFromComments(commentsToAuthor).filter((item) => item.reviewer !== item.author);
 
   const data = tidy(rawData, groupBy('reviewer', [summarize({ total: n() })]), arrange([asc('total')]));
 
@@ -53,10 +47,9 @@ export function convertToCommentsReceivedFromUsers(comments: UserComment[], user
   };
 }
 
-export function convertToCommentsLeftToUsers(comment: UserComment[], userId: number): ReviewBarChartSettings {
-  const rawData = getAuthorReviewerFromComments(comment.filter((item) => item.comment.author.id === userId)).filter(
-    (item) => item.author !== item.reviewer
-  );
+export function convertToCommentsLeftToUsers(comment: Comment[], userId: string): ReviewBarChartSettings {
+  const commentsFromAuthor = comment.filter((item) => item.reviewerId === userId);
+  const rawData = getAuthorReviewerFromComments(commentsFromAuthor).filter((item) => item.author !== item.reviewer);
 
   const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')]));
 
