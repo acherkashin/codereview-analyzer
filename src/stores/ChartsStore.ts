@@ -1,5 +1,6 @@
 import create, { StoreApi } from 'zustand';
 import {
+  convertToPullRequestCreated,
   convertToCommentsLeft,
   convertToCommentsLeftToUsers,
   convertToCommentsReceived,
@@ -81,6 +82,10 @@ export function getCommentsLeft(state: ChartsStore) {
 
 export function getCommentsReceived(state: ChartsStore) {
   return convertToCommentsReceived(getComments(state));
+}
+
+export function getCreatedPullRequestsPieChart(state: ChartsStore) {
+  return convertToPullRequestCreated(state.pullRequests);
 }
 
 export function getCommentsReceivedPieChart(state: ChartsStore) {

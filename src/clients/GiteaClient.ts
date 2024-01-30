@@ -74,7 +74,7 @@ export class GiteaClient implements Client {
       throw new Error('project is required');
     }
 
-    const { id: projectId, owner } = project;
+    const { id: projectId, owner, name } = project;
 
     const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state);
 
@@ -84,11 +84,11 @@ export class GiteaClient implements Client {
       // 1. Get all pull requests
       // 2. Get reviews for each pull request
       // 3. Get comments for each review
-      const { data: reviews } = await this.api.repos.repoListPullReviews(owner, projectId, pullRequest.number!);
+      const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
 
       const commentsPromise = reviews
         .filter((review) => (review.comments_count ?? 0) > 0)
-        .map((review) => this.api.repos.repoGetPullReviewComments(owner, projectId, pullRequest.number!, review.id!));
+        .map((review) => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!));
 
       const commentsResp = await Promise.all(commentsPromise);
       const prComments = commentsResp.flatMap((item) => item.data);

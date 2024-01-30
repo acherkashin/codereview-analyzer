@@ -1,7 +1,7 @@
 import { BarDatum } from '@nivo/bar';
 import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
-import { Comment } from './../clients/types';
+import { Comment, PullRequest } from './../clients/types';
 
 interface ReviewBarDatum extends BarDatum {
   userName: string;
@@ -32,6 +32,18 @@ export function convertToCommentsLeft(comments: Comment[]): ReviewBarChartSettin
 export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
   const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
   return convertToItemsReceived(rawData);
+}
+
+export function convertToPullRequestCreated(pullRequests: PullRequest[]) {
+  const rawData = pullRequests.map((item) => ({ userName: item.author.fullName || item.author.userName }));
+
+  const data = tidy(rawData, groupBy('userName', [summarize({ total: n() })]), arrange([asc('total')]));
+
+  return {
+    indexBy: 'userName',
+    keys: ['total'],
+    data,
+  };
 }
 
 export function convertToCommentsReceivedFromUsers(comments: Comment[], userId: string): ReviewBarChartSettings {

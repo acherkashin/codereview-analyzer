@@ -16,4 +16,5 @@ export const barChartSettings = {
   labelSkipWidth: 16,
   labelSkipHeight: 16,
   layout: 'horizontal',
+  enableLabel: true,
 } as BarSvgProps<BarDatum>;

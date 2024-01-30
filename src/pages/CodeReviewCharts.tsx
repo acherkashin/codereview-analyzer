@@ -12,6 +12,7 @@ import {
   getCommentsLeftPieChart,
   getCommentsReceived,
   getCommentsReceivedPieChart,
+  getCreatedPullRequestsPieChart,
   getDiscussionsLeft,
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
@@ -49,6 +50,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
+  const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -233,6 +235,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
                 showFilteredDiscussions(reviewerName, authorName);
               }}
             />
+          </ChartContainer>
+          <ChartContainer title="Pull Requests Created">
+            <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
           </ChartContainer>
         </div>
       </div>
