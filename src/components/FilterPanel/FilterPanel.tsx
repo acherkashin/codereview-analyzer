@@ -5,7 +5,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { useCallback, useState } from 'react';
 import { useLocalStorage, useRequest } from '../../hooks';
 import { AnalyzeParams, Project } from '../../clients/types';
-import { useAuthStore } from '../../stores/AuthStore';
+import { getHostType, useAuthStore } from '../../stores/AuthStore';
 
 export interface FilterPanelProps {
   onAnalyze: (state: AnalyzeParams) => Promise<any>;
@@ -20,7 +20,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   const [prCount, setPrCount] = useState(100);
 
   const { makeRequest: analyze, isLoading } = useRequest(onAnalyze);
-  const hostType = useAuthStore((store) => store.hostType);
+  const hostType = useAuthStore(getHostType);
 
   const handleAnalyze = useCallback(() => {
     if (!project) {

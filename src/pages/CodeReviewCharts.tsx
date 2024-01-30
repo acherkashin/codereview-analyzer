@@ -7,6 +7,7 @@ import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlin
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalyze,
+  getCommentedFilesPieChart,
   getComments,
   getCommentsLeft,
   getCommentsLeftPieChart,
@@ -26,7 +27,7 @@ import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
 import { ImportTextButton } from '../components/FileUploadButton';
-import { useClient } from '../stores/AuthStore';
+import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, PullRequest } from './../clients/types';
@@ -51,10 +52,13 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
+  const commentedFilesPieChart = useChartsStore(getCommentedFilesPieChart);
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
   const [filteredDiscussions, setFilteredDiscussions] = useState<UserDiscussion[]>([]);
+
+  const hostType = useAuthStore(getHostType);
 
   const showFilteredComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
@@ -239,6 +243,11 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartContainer title="Pull Requests Created">
             <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
           </ChartContainer>
+          {hostType == 'Gitea' && (
+            <ChartContainer title="Commented Files">
+              <BarChart {...commentedFilesPieChart} onClick={() => {}} />
+            </ChartContainer>
+          )}
         </div>
       </div>
       <Stack spacing={2} position="sticky" top={10}>

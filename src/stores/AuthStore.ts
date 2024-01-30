@@ -101,6 +101,10 @@ export function getCurrentUser(store: AuthStore) {
   return store.user;
 }
 
+export function getHostType(store: AuthStore) {
+  return store.hostType;
+}
+
 export function useClient(): Client {
   return useAuthStore(getClient)!;
 }

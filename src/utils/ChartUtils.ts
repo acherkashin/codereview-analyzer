@@ -34,6 +34,19 @@ export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSe
   return convertToItemsReceived(rawData);
 }
 
+export function convertToFilesCommented(comments: Comment[]): ReviewBarChartSettings {
+  const paths = comments.filter((item) => !!item.filePath).map((item) => ({ filePath: item.filePath }));
+  const extensions = paths.map((item) => ({ extension: getFileExtension(item.filePath) }));
+
+  const data = tidy(extensions, groupBy('extension', [summarize({ total: n() })]), arrange([asc('total')]));
+
+  return {
+    indexBy: 'extension',
+    keys: ['total'],
+    data,
+  };
+}
+
 export function convertToPullRequestCreated(pullRequests: PullRequest[]) {
   const rawData = pullRequests.map((item) => ({ userName: item.author.fullName || item.author.userName }));
 
@@ -144,4 +157,15 @@ function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings
     keys: reviewers,
     data: barData,
   };
+}
+
+/**
+ * The getFileExtension function takes a filename as input and returns the file extension of the filename.
+ * If the filename contains a period, the function uses the lastIndexOf method to find the last occurrence of
+ * the period and then extracts the substring starting from that position plus 2.
+ * This assumes that the file extension is always after the last period in the filename.
+ */
+function getFileExtension(filename: string) {
+  // The >>> 0 is a bitwise operation that ensures that the value returned by lastIndexOf is always a non-negative integer, even if the filename does not contain a period. This is done because the slice method expects a non-negative integer as its start position.
+  return filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
 }

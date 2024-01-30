@@ -15,6 +15,7 @@ export interface Comment {
   pullRequestId: string;
   pullRequestName: string;
   url: string;
+  filePath: string;
 }
 
 export interface User {
@@ -65,6 +66,7 @@ export interface PullRequest {
   author: User;
   reviewers: User[];
   updatedAt: string;
+  createdAt: string;
   comments: Comment[];
 }
 

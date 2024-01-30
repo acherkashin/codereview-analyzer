@@ -120,6 +120,7 @@ function convertToPullRequest(hostUrl: string, pr: GiteaPullRequest, comments: C
     author: convertToUser(hostUrl, pr.user!),
     reviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user)),
     comments,
+    createdAt: pr.created_at ?? 'unknown created at',
   };
 }
 
@@ -144,6 +145,7 @@ function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewCo
     pullRequestId: pullRequest.id!.toString(),
     pullRequestName: pullRequest.title!,
     url: item.html_url ?? '#',
+    filePath: 'path' in item ? item.path ?? '' : '',
   };
 }
 

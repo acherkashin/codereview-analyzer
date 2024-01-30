@@ -130,6 +130,7 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
     url: mr.web_url,
     targetBranch: mr.target_branch,
     updatedAt: mr.updated_at,
+    createdAt: mr.created_at,
     author: convertToUser(mr.author as any),
     reviewers: (mr.reviewers ?? []).map((item) => convertToUser(item as any)),
     comments: comments.map<Comment>((item) => ({
@@ -142,6 +143,7 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
       pullRequestId: mr.id.toString(),
       pullRequestName: mr.title,
       url: getNoteUrl({ mergeRequest: mr, comment: item }),
+      filePath: '',
     })),
   };
 }
