@@ -36,13 +36,51 @@ export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSe
 
 export function convertToFilesCommented(comments: Comment[]): ReviewBarChartSettings {
   const paths = comments.filter((item) => !!item.filePath).map((item) => ({ filePath: item.filePath }));
-  const extensions = paths.map((item) => ({ extension: getFileExtension(item.filePath) }));
+  const authors = tidy(comments, distinct(['reviewerName'])).map((item) => item.reviewerName);
+  const extensions = tidy(
+    paths.map((item) => ({ extension: getFileExtension(item.filePath) })),
+    distinct(['extension'])
+  );
 
-  const data = tidy(extensions, groupBy('extension', [summarize({ total: n() })]), arrange([asc('total')]));
+  /**
+   * Array consist of the following objects
+   * [{
+   *   "Alexander Cherkashin": 1,
+   *   "Vasya Pupkin": 2,
+   *   total: 3,
+   *   extension: "ts",
+   * }, ...]
+   */
+  const data = extensions.map(({ extension }) => {
+    // only comments for current extension
+    const extensionComments = tidy(
+      comments,
+      filter((i) => getFileExtension(i.filePath) == extension)
+    );
+
+    const reviewerComments = tidy(
+      extensionComments,
+      groupBy('reviewerName', [summarize({ total: n() })]),
+      arrange([asc('total')])
+    );
+
+    const result = reviewerComments.reduce((acc, { reviewerName, total }) => {
+      acc[reviewerName] = total;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      ...result,
+      extension: extension,
+      total: extensionComments.length,
+    };
+  });
+
+  // const data = tidy(extensions, groupBy('extension', [summarize({ total: n() })]), arrange([asc('total')]));
 
   return {
     indexBy: 'extension',
-    keys: ['total'],
+    keys: authors,
     data,
   };
 }
@@ -133,6 +171,15 @@ function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<Rev
     return getStatisticForUser(items, 'reviewer', userName);
   });
 
+  /**
+   * Array consist of the following objects
+   * [{
+   *   "Alexander Cherkashin": 1, //several authors
+   *   "Natasha Petrova": 2,
+   *   total: 3,
+   *   userName: "Vasya Pupkin",
+   * }, ...]
+   */
   barData = tidy(barData, arrange([asc('total')]));
 
   return {
