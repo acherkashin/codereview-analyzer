@@ -32,6 +32,7 @@ import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, PullRequest } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
+import { LineChart } from '../components/charts/LineChart';
 
 export interface CodeReviewChartsProps {}
 
@@ -122,6 +123,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <div className="charts">
+          <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
+            <LineChart />
+          </ChartContainer>
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">
               <PieChart
