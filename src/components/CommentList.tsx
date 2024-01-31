@@ -17,13 +17,13 @@ export function CommentList({ comments }: CommentListProps) {
 
 export interface CommentItemProps {
   id: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   title?: string;
   commentUrl?: string;
   noteText: string;
 }
 
-export function CommentItem({ avatarUrl, title, commentUrl, noteText: text }: Omit<CommentItemProps, 'id'>) {
+export function CommentItem({ avatarUrl, title, commentUrl, noteText }: Omit<CommentItemProps, 'id'>) {
   return (
     <ListItem>
       <ListItemAvatar>
@@ -36,7 +36,7 @@ export function CommentItem({ avatarUrl, title, commentUrl, noteText: text }: Om
           </Link>
           // TODO: show icon on hover that indicates that link will be opened in new window
         }
-        secondary={<MarkdownControl markdown={text} />}
+        secondary={<MarkdownControl markdown={noteText} />}
       />
     </ListItem>
   );

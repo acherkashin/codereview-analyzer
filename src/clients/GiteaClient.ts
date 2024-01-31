@@ -136,10 +136,13 @@ function convertToProject(repository: Repository): Project {
 
 function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewComment | GiteaPullReview): Comment {
   return {
+    id: item.id!.toString(),
     prAuthorId: pullRequest.user?.id?.toString() || 'unknown prAuthorId',
     prAuthorName: pullRequest.user?.full_name || pullRequest.user?.login || 'unknown prAuthorName',
+    prAuthorAvatarUrl: pullRequest.user?.avatar_url,
+
     commentId: item.commit_id!,
-    comment: item.body!,
+    body: item.body!,
     reviewerId: item.user?.id?.toString() || 'unknown reviewerId',
     reviewerName: item.user?.full_name || item.user?.login || 'unknown reviewerName',
     pullRequestId: pullRequest.id!.toString(),

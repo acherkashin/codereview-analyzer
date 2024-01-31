@@ -31,6 +31,7 @@ import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, PullRequest } from './../clients/types';
+import { CommentItemProps } from '../components/CommentList';
 
 export interface CodeReviewChartsProps {}
 
@@ -288,7 +289,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           onDownload={handleDownload}
         />
       </Stack>
-      {/* <FullScreenDialog
+      <FullScreenDialog
         icon={<SpeakerNotesOutlinedIcon />}
         title={title}
         open={filteredComments.length !== 0}
@@ -300,15 +301,15 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           comments={filteredComments.map(
             (item) =>
               ({
-                id: item.comment.id.toString(),
-                avatarUrl: item.comment.author.avatar_url,
-                title: item.mergeRequest.title,
-                commentUrl: getNoteUrl(item),
-                noteText: item.comment.body,
+                id: item.id,
+                avatarUrl: item.prAuthorAvatarUrl,
+                title: item.pullRequestName,
+                commentUrl: item.url,
+                noteText: item.body,
               } as CommentItemProps)
           )}
         />
-      </FullScreenDialog> */}
+      </FullScreenDialog>
       <FullScreenDialog
         icon={<QuestionAnswerOutlinedIcon />}
         title={title}

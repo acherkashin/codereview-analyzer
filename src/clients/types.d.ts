@@ -6,12 +6,15 @@ export interface MergeRequestForPage {
 }
 
 export interface Comment {
+  id: string;
   prAuthorId: string;
   prAuthorName: string;
+  prAuthorAvatarUrl?: string;
+
   reviewerId: string;
   reviewerName: string;
   commentId: string;
-  comment: string;
+  body: string;
   pullRequestId: string;
   pullRequestName: string;
   url: string;

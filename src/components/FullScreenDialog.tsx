@@ -28,7 +28,7 @@ export interface FullScreenDialogProps {
 export function FullScreenDialog({ icon, children, open, title, onClose }: FullScreenDialogProps) {
   return (
     <Dialog fullScreen open={open} onClose={onClose} TransitionComponent={Transition}>
-      <AppBar sx={{ position: 'relative' }}>
+      <AppBar sx={{ position: 'relative', backgroundColor: 'neutral.900' }}>
         <Toolbar>
           {icon}
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">

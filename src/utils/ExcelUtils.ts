@@ -12,7 +12,7 @@ export function downloadComments(fileName: string, comments: Comment[]) {
       type: 'string',
     },
     {
-      value: comment.comment,
+      value: comment.body,
       type: 'string',
     },
     {

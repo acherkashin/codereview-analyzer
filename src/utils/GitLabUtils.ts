@@ -85,20 +85,19 @@ async function getCommentsForMergeRequests(client: Gitlab, projectId: number, al
   return comments;
 }
 
+// TODO: move to appropriate place
 export function getFilteredComments(comments: Comment[], reviewerName: string | null, authorName: string | null): Comment[] {
   let filteredComments = comments;
 
   if (!!reviewerName) {
-    // filteredComments = filteredComments.filter(({ comment }) => comment.author.username === reviewerName);
+    filteredComments = filteredComments.filter(({ reviewerName }) => reviewerName === reviewerName);
   }
 
   if (!!authorName) {
-    // filteredComments = filteredComments.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
+    filteredComments = filteredComments.filter(({ prAuthorName }) => prAuthorName === authorName);
   }
 
-  // filteredComments = filteredComments.filter(
-  //   ({ comment, mergeRequest }) => mergeRequest.author.username !== comment.author.username
-  // );
+  filteredComments = filteredComments.filter(({ prAuthorName, reviewerName }) => prAuthorName !== reviewerName);
 
   return filteredComments;
 }
