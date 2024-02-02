@@ -149,6 +149,7 @@ function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewCo
     pullRequestName: pullRequest.title!,
     url: item.html_url ?? '#',
     filePath: 'path' in item ? item.path ?? '' : '',
+    createdAt: 'created_at' in item ? item.created_at! : (item as GiteaPullReview).submitted_at!,
   };
 }
 

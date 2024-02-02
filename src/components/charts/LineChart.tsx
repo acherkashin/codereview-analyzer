@@ -1,4 +1,4 @@
-import { ResponsiveLine } from '@nivo/line';
+import { ResponsiveLine, Serie } from '@nivo/line';
 
 const data = [
   {
@@ -273,11 +273,11 @@ const data = [
   },
 ];
 
-export function LineChart(
-  {
-    /* see data tab */
-  }
-) {
+export interface ILineChartProps {
+  data: Serie[];
+}
+
+export function LineChart({ data }: ILineChartProps) {
   return (
     <ResponsiveLine
       data={data}
