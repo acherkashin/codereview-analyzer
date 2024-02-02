@@ -36,14 +36,16 @@ export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSe
 }
 
 export function convertToCommentsLineChart(comments: Comment[]) {
-  const getDate = (date: Date) => `${date.getMonth()}.${date.getFullYear()}`;
+  // const getDate = (date: Date) => `${date.getMonth()}-${date.getFullYear()}-${date.getDay()}`;
 
-  const data = comments
-    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-    .map((item) => ({
+  const data = comments.map((item) => {
+    const date = new Date(item.createdAt);
+
+    return {
       id: item.reviewerName,
-      x: getDate(new Date(item.createdAt)),
-    }));
+      x: new Date(date.getFullYear(), date.getMonth()),
+    };
+  });
 
   const grouped = tidy(data, groupBy(['id', 'x'], [summarize({ y: n() })]));
 
@@ -55,9 +57,11 @@ export function convertToCommentsLineChart(comments: Comment[]) {
       result.push({ id: item.id, data: [{ x: item.x, y: item.y }] });
     }
     return result;
-  }, [] as Array<{ id: string; data: { x: string; y: number }[] }>);
+  }, [] as Array<{ id: string; data: { x: Date; y: number }[] }>);
 
-  return transformedData;
+  const filtered = transformedData.filter((item) => item.data.every((i) => i.y !== 0));
+
+  return filtered;
 }
 
 export function convertToFilesCommented(comments: Comment[]): ReviewBarChartSettings {
