@@ -19,6 +19,8 @@ export interface Comment {
   pullRequestName: string;
   url: string;
   filePath: string;
+
+  createdAt: string;
 }
 
 export interface User {

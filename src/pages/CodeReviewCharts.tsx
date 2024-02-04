@@ -11,6 +11,7 @@ import {
   getComments,
   getCommentsLeft,
   getCommentsLeftPieChart,
+  getCommentsLineChart,
   getCommentsReceived,
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
@@ -32,6 +33,7 @@ import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, PullRequest } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
+import { LineChart } from '../components/charts/LineChart';
 
 export interface CodeReviewChartsProps {}
 
@@ -54,6 +56,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
   const commentedFilesPieChart = useChartsStore(getCommentedFilesPieChart);
+  const commentsLinePieChart = useChartsStore(getCommentsLineChart);
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -122,6 +125,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <div className="charts">
+          <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
+            <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
+          </ChartContainer>
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">
               <PieChart

@@ -146,6 +146,7 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
       pullRequestName: mr.title,
       url: getNoteUrl({ mergeRequest: mr, comment: item }),
       filePath: '',
+      createdAt: item.created_at,
     })),
   };
 }

@@ -22,6 +22,7 @@ import {
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
 import { AnalyzeParams, Client, PullRequest } from '../clients/types';
+import { convertToCommentsLineChart } from '../utils/LineChartUtils';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
@@ -91,6 +92,10 @@ export function getCreatedPullRequestsPieChart(state: ChartsStore) {
 
 export function getCommentedFilesPieChart(state: ChartsStore) {
   return convertToFilesCommented(getComments(state));
+}
+
+export function getCommentsLineChart(state: ChartsStore) {
+  return convertToCommentsLineChart(getComments(state));
 }
 
 export function getCommentsReceivedPieChart(state: ChartsStore) {
