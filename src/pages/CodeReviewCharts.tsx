@@ -34,6 +34,7 @@ import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, PullRequest } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
 import { LineChart } from '../components/charts/LineChart';
+import { Tile } from '../components/Tile/Tile';
 
 export interface CodeReviewChartsProps {}
 
@@ -124,6 +125,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        <div className="tiles">
+          <Tile count={comments.length} title="Comments" color="blue" />
+          <Tile count={pullRequests.length} title="Pull requests" color="green" />
+        </div>
         <div className="charts">
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
