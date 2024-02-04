@@ -1,11 +1,12 @@
 import { ResponsiveLine, Serie } from '@nivo/line';
-import { debug } from 'console';
 
 export interface ILineChartProps {
+  legendXLabel?: string;
+  legendYLabel?: string;
   data: Serie[];
 }
 
-export function LineChart({ data }: ILineChartProps) {
+export function LineChart({ data, legendYLabel, legendXLabel }: ILineChartProps) {
   // https://github.com/plouc/nivo/blob/master/storybook/stories/line/Line.stories.tsx#L114
   return (
     <ResponsiveLine
@@ -30,14 +31,14 @@ export function LineChart({ data }: ILineChartProps) {
       axisBottom={{
         format: '%b %y',
         tickValues: 'every month',
-        legend: 'time scale',
+        legend: legendXLabel,
         legendOffset: -12,
       }}
       axisLeft={{
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: 'count',
+        legend: legendYLabel,
         legendOffset: -40,
         legendPosition: 'middle',
       }}
@@ -49,7 +50,7 @@ export function LineChart({ data }: ILineChartProps) {
       useMesh={true}
       legends={[
         {
-          anchor: 'bottom-right',
+          anchor: 'top-right',
           direction: 'column',
           justify: false,
           translateX: 100,
@@ -57,7 +58,7 @@ export function LineChart({ data }: ILineChartProps) {
           itemsSpacing: 0,
           itemDirection: 'left-to-right',
           itemWidth: 80,
-          itemHeight: 20,
+          itemHeight: 14,
           itemOpacity: 0.75,
           symbolSize: 12,
           symbolShape: 'circle',

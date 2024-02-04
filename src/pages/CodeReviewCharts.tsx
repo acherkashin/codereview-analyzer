@@ -126,7 +126,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <div className="charts">
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
-            <LineChart data={commentsLinePieChart} />
+            <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
           </ChartContainer>
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">

@@ -2,7 +2,6 @@ import { BarDatum } from '@nivo/bar';
 import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest } from './../clients/types';
-import { group } from 'console';
 
 interface ReviewBarDatum extends BarDatum {
   userName: string;
@@ -36,8 +35,6 @@ export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSe
 }
 
 export function convertToCommentsLineChart(comments: Comment[]) {
-  // const getDate = (date: Date) => `${date.getMonth()}-${date.getFullYear()}-${date.getDay()}`;
-
   const data = comments.map((item) => {
     const date = new Date(item.createdAt);
 
@@ -60,6 +57,10 @@ export function convertToCommentsLineChart(comments: Comment[]) {
   }, [] as Array<{ id: string; data: { x: Date; y: number }[] }>);
 
   const filtered = transformedData.filter((item) => item.data.every((i) => i.y !== 0));
+
+  filtered.forEach((item) => {
+    item.data.sort((a, b) => a.x.getTime() - b.x.getTime());
+  });
 
   return filtered;
 }
