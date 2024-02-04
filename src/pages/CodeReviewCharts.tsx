@@ -35,6 +35,8 @@ import { AnalyzeParams, Comment, PullRequest } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
 import { LineChart } from '../components/charts/LineChart';
 import { Tile } from '../components/Tile/Tile';
+import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
+import { BranchIcon } from '../icons/BranchIcon';
 
 export interface CodeReviewChartsProps {}
 
@@ -125,10 +127,15 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <div className="tiles">
-          <Tile count={comments.length} title="Comments" color="blue" />
-          <Tile count={pullRequests.length} title="Pull requests" color="green" />
-        </div>
+        <Stack direction="row">
+          <Tile
+            count={comments.length}
+            title="Comments"
+            color="blue"
+            icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />}
+          />
+          <Tile count={pullRequests.length} title="Pull requests" color="green" icon={<BranchIcon />} />
+        </Stack>
         <div className="charts">
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
