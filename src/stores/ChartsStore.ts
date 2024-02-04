@@ -8,7 +8,6 @@ import {
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
   convertToFilesCommented,
-  convertToCommentsLineChart,
 } from '../utils/ChartUtils';
 import {
   convertToCommentsLeftPieChart,
@@ -23,6 +22,7 @@ import {
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
 import { AnalyzeParams, Client, PullRequest } from '../clients/types';
+import { convertToCommentsLineChart } from '../utils/LineChartUtils';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
