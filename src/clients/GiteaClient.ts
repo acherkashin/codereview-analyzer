@@ -50,12 +50,12 @@ export class GiteaClient implements Client {
 
     let page = 1;
     do {
-      users = (await this.api.users.userSearch({ q: '', page, limit: 100 })).data.data ?? [];
+      users = (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
       all.push(...users);
       page++;
-    } while (users.length === 100);
+    } while (users.length === 50);
 
-    return users.map((user) => convertToUser(this.host, user));
+    return all.map((user) => convertToUser(this.host, user));
   }
 
   async searchUsers(searchText: string): Promise<User[]> {
