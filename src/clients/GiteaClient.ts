@@ -165,21 +165,24 @@ export function convertToUser(host: string, user: GiteaUser): User {
   };
 }
 
+const pageSize = 50;
+
 async function getAllPullRequests(
   client: GiteaApi<any>,
   project: Project,
   prCount: number,
   state?: PullRequestStatus
 ): Promise<GiteaPullRequest[]> {
-  const pages = Math.ceil(prCount / 50);
+  const pages = Math.ceil(prCount / pageSize);
 
   const pullRequests: GiteaPullRequest[] = [];
 
   for (let pageIndex = 1; pageIndex <= pages; pageIndex++) {
     const result = await client.repos.repoListPullRequests(project.owner!, project.name, {
       state,
-      sort: 'recentupdate',
+      // sort: 'recentupdate',
       page: pageIndex,
+      limit: prCount - (pageIndex - 1) * pageSize,
     });
 
     if ((result.data ?? []).length > 0) {
