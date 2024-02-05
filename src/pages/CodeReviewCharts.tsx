@@ -20,8 +20,10 @@ import {
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
   useChartsStore,
+  useMostCommentsLeft,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { Avatar } from '@mui/material';
 import { BarChart } from '../components/charts/BarChart';
 import { PieChart } from '../components/charts/PieChart';
 import { useOpen } from '../hooks/useOpen';
@@ -60,6 +62,14 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
   const commentedFilesPieChart = useChartsStore(getCommentedFilesPieChart);
   const commentsLinePieChart = useChartsStore(getCommentsLineChart);
+
+  const mostCommentedPRs = useMemo(() => {
+    const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
+    console.log(sorted.slice(0, 3));
+    return sorted.slice(0, 3);
+  }, [pullRequests]);
+
+  const { user: mostCommentsLeft, total: mostCommentsLeftTotal } = useMostCommentsLeft();
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -135,6 +145,36 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />}
           />
           <Tile count={pullRequests.length} title="Pull requests" color="green" icon={<BranchIcon />} />
+          {mostCommentedPRs[0] != null && (
+            <Tile
+              count={mostCommentedPRs[0].comments.length}
+              title="Most comments for PR"
+              color="green"
+              icon={
+                <Avatar
+                  alt={`${mostCommentedPRs[0].author.fullName}'s avatar`}
+                  sizes="40px"
+                  title={mostCommentedPRs[0].author.fullName}
+                  src={mostCommentedPRs[0].author.avatarUrl}
+                />
+              }
+            />
+          )}
+          {mostCommentsLeft != null && (
+            <Tile
+              count={mostCommentsLeftTotal}
+              title={`Most comments left by ${mostCommentsLeft.fullName}`}
+              color="green"
+              icon={
+                <Avatar
+                  alt={`${name}'s avatar`}
+                  sizes="40px"
+                  title={mostCommentsLeft.fullName}
+                  src={mostCommentsLeft.avatarUrl}
+                />
+              }
+            />
+          )}
         </Stack>
         <div className="charts">
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>

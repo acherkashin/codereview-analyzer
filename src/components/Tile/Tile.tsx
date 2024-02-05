@@ -3,7 +3,7 @@ import { Card } from '@mui/material';
 
 export interface TileProps {
   title: string;
-  count: number;
+  count: string | number;
   color: React.CSSProperties['color'];
   icon: React.ReactNode;
 }
@@ -16,8 +16,6 @@ const TileRoot = styled(Card)({
   justifyContent: 'space-between',
   margin: 10,
   padding: 15,
-  borderRadius: 8,
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
   backgroundColor: '#293164' /* Pastel color for the tile background */,
   position: 'relative',
 });

@@ -21,11 +21,13 @@ import {
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
-import { AnalyzeParams, Client, PullRequest } from '../clients/types';
+import { AnalyzeParams, Client, PullRequest, User } from '../clients/types';
 import { convertToCommentsLineChart } from '../utils/LineChartUtils';
+import { arrange, desc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
+  users: User[];
   setPullRequests: (pullRequests: PullRequest[]) => void;
   analyze: (client: Client, params: AnalyzeParams) => Promise<void>;
 }
@@ -36,17 +38,19 @@ export { ChartsStoreProvider, useChartsStore };
 export function createChartsStore() {
   return create<ChartsStore>((set, get) => ({
     pullRequests: [],
-    comments: [],
     discussions: [],
+    users: [],
     setPullRequests(pullRequests: PullRequest[]) {
       set({
         pullRequests,
       });
     },
     analyze: async (client: Client, params: AnalyzeParams) => {
+      const users = await client.getAllUsers();
       const mergeRequests = await client.analyze(params);
 
       set({
+        users,
         pullRequests: mergeRequests,
       });
     },
@@ -157,6 +161,17 @@ export function useCommentsLeftToUsers(userId?: string) {
     }
 
     return convertToCommentsLeftToUsers(getComments(state), userId);
+  });
+}
+
+export function useMostCommentsLeft() {
+  return useChartsStore((state) => {
+    const comments = getComments(state);
+    const data = tidy(comments, groupBy('reviewerId', summarize({ total: n() })), arrange([desc('total')]));
+    return {
+      user: state.users.find((item) => item.id === data[0].reviewerId),
+      total: data[0]?.total,
+    };
   });
 }
 
