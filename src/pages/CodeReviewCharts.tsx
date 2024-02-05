@@ -21,6 +21,7 @@ import {
   getDiscussionsStartedPieChart,
   useChartsStore,
   useMostCommentsLeft,
+  useMostCommentsReceived,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Avatar } from '@mui/material';
@@ -65,11 +66,11 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
   const mostCommentedPRs = useMemo(() => {
     const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
-    console.log(sorted.slice(0, 3));
     return sorted.slice(0, 3);
   }, [pullRequests]);
 
-  const { user: mostCommentsLeft, total: mostCommentsLeftTotal } = useMostCommentsLeft();
+  const { user: mostCommentsLeftUser, total: mostCommentsLeftTotal } = useMostCommentsLeft();
+  const { user: mostCommentsReceivedUser, total: mostCommentsReceivedTotal } = useMostCommentsReceived();
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -160,17 +161,32 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               }
             />
           )}
-          {mostCommentsLeft != null && (
+          {mostCommentsLeftUser && (
             <Tile
               count={mostCommentsLeftTotal}
-              title={`Most comments left by ${mostCommentsLeft.fullName}`}
+              title={`Most comments left by ${mostCommentsLeftUser.fullName}`}
               color="green"
               icon={
                 <Avatar
                   alt={`${name}'s avatar`}
                   sizes="40px"
-                  title={mostCommentsLeft.fullName}
-                  src={mostCommentsLeft.avatarUrl}
+                  title={mostCommentsLeftUser.fullName}
+                  src={mostCommentsLeftUser.avatarUrl}
+                />
+              }
+            />
+          )}
+          {mostCommentsReceivedUser && (
+            <Tile
+              count={mostCommentsReceivedTotal}
+              title={`Most comments received by ${mostCommentsReceivedUser.fullName}`}
+              color="green"
+              icon={
+                <Avatar
+                  alt={`${name}'s avatar`}
+                  sizes="40px"
+                  title={mostCommentsReceivedUser.fullName}
+                  src={mostCommentsReceivedUser.avatarUrl}
                 />
               }
             />

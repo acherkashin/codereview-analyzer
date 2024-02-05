@@ -21,7 +21,7 @@ const TileRoot = styled(Card)({
 });
 
 const Title = styled('div')(({ theme }) => ({
-  fontSize: 18,
+  fontSize: 16,
   fontWeight: 'bold',
   color: theme.palette.common.white,
   marginBottom: 10 /*theme.spacing(2)*/,
