@@ -20,11 +20,8 @@ import {
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
   useChartsStore,
-  useMostCommentsLeft,
-  useMostCommentsReceived,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { Avatar } from '@mui/material';
 import { BarChart } from '../components/charts/BarChart';
 import { PieChart } from '../components/charts/PieChart';
 import { useOpen } from '../hooks/useOpen';
@@ -37,9 +34,7 @@ import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, PullRequest, User } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
 import { LineChart } from '../components/charts/LineChart';
-import { Tile } from '../components/Tile/Tile';
-import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
-import { BranchIcon } from '../icons/BranchIcon';
+import { CodeReviewTiles } from './CodeReviewTiles';
 
 export interface CodeReviewChartsProps {}
 
@@ -64,14 +59,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
   const commentedFilesPieChart = useChartsStore(getCommentedFilesPieChart);
   const commentsLinePieChart = useChartsStore(getCommentsLineChart);
-
-  const mostCommentedPRs = useMemo(() => {
-    const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
-    return sorted.slice(0, 3);
-  }, [pullRequests]);
-
-  const { user: mostCommentsLeftUser, total: mostCommentsLeftTotal } = useMostCommentsLeft();
-  const { user: mostCommentsReceivedUser, total: mostCommentsReceivedTotal } = useMostCommentsReceived();
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -139,53 +126,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <Stack direction="row" flexWrap={'wrap'}>
-          <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
-          <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
-          {mostCommentedPRs[0] != null && (
-            <Tile
-              count={mostCommentedPRs[0].comments.length}
-              title="Most comments for PR"
-              details={mostCommentedPRs[0].title}
-              icon={
-                <Avatar
-                  alt={`${mostCommentedPRs[0].author.fullName}'s avatar`}
-                  sizes="40px"
-                  title={mostCommentedPRs[0].author.fullName}
-                  src={mostCommentedPRs[0].author.avatarUrl}
-                />
-              }
-            />
-          )}
-          {mostCommentsLeftUser && (
-            <Tile
-              count={mostCommentsLeftTotal}
-              title={`Most comments left by ${mostCommentsLeftUser.fullName}`}
-              icon={
-                <Avatar
-                  alt={`${name}'s avatar`}
-                  sizes="40px"
-                  title={mostCommentsLeftUser.fullName}
-                  src={mostCommentsLeftUser.avatarUrl}
-                />
-              }
-            />
-          )}
-          {mostCommentsReceivedUser && (
-            <Tile
-              count={mostCommentsReceivedTotal}
-              title={`Most comments received by ${mostCommentsReceivedUser.fullName}`}
-              icon={
-                <Avatar
-                  alt={`${name}'s avatar`}
-                  sizes="40px"
-                  title={mostCommentsReceivedUser.fullName}
-                  src={mostCommentsReceivedUser.avatarUrl}
-                />
-              }
-            />
-          )}
-        </Stack>
+        <CodeReviewTiles />
         <div className="charts">
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />

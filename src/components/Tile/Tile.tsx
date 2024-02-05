@@ -3,7 +3,7 @@ import { Card } from '@mui/material';
 
 export interface TileProps {
   title: string;
-  details?: string;
+  details?: string | React.ReactNode;
   count: string | number;
   icon: React.ReactNode;
 }
@@ -59,7 +59,7 @@ export function Tile({ title, count, details, icon }: TileProps) {
   return (
     <TileRoot>
       <Title title={title}>{title}</Title>
-      <Details title={details}>{details}</Details>
+      <Details title={typeof details === 'string' ? details : undefined}>{details}</Details>
       <Number>{count}</Number>
       <Icon>{icon}</Icon>
     </TileRoot>
