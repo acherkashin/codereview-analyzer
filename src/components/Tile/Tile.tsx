@@ -3,14 +3,14 @@ import { Card } from '@mui/material';
 
 export interface TileProps {
   title: string;
+  details?: string;
   count: string | number;
-  color: React.CSSProperties['color'];
   icon: React.ReactNode;
 }
 
 const TileRoot = styled(Card)({
-  width: 200,
-  height: 100,
+  width: 220,
+  height: 110,
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
@@ -18,6 +18,7 @@ const TileRoot = styled(Card)({
   padding: 15,
   backgroundColor: '#293164' /* Pastel color for the tile background */,
   position: 'relative',
+  overflow: 'hidden',
 });
 
 const Title = styled('div')(({ theme }) => ({
@@ -25,6 +26,19 @@ const Title = styled('div')(({ theme }) => ({
   fontWeight: 'bold',
   color: theme.palette.common.white,
   marginBottom: 10 /*theme.spacing(2)*/,
+  overflow: 'hidden',
+  display: '-webkit-box',
+  '-webkit-line-clamp': '2',
+  '-webkit-box-orient': 'vertical',
+}));
+
+const Details = styled('div')(({ theme }) => ({
+  fontSize: 14,
+  color: theme.palette.common.white,
+  marginBottom: 10,
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
 }));
 
 const Number = styled('div')(({ theme }) => ({
@@ -41,10 +55,11 @@ const Icon = styled('i')(({ theme }) => ({
   color: '#333',
 }));
 
-export function Tile({ title, count, color, icon }: TileProps) {
+export function Tile({ title, count, details, icon }: TileProps) {
   return (
     <TileRoot>
-      <Title>{title}</Title>
+      <Title title={title}>{title}</Title>
+      <Details title={details}>{details}</Details>
       <Number>{count}</Number>
       <Icon>{icon}</Icon>
     </TileRoot>

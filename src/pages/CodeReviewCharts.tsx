@@ -139,19 +139,14 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <Stack direction="row">
-          <Tile
-            count={comments.length}
-            title="Comments"
-            color="blue"
-            icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />}
-          />
-          <Tile count={pullRequests.length} title="Pull requests" color="green" icon={<BranchIcon />} />
+        <Stack direction="row" flexWrap={'wrap'}>
+          <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
+          <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
           {mostCommentedPRs[0] != null && (
             <Tile
               count={mostCommentedPRs[0].comments.length}
               title="Most comments for PR"
-              color="green"
+              details={mostCommentedPRs[0].title}
               icon={
                 <Avatar
                   alt={`${mostCommentedPRs[0].author.fullName}'s avatar`}
@@ -166,7 +161,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <Tile
               count={mostCommentsLeftTotal}
               title={`Most comments left by ${mostCommentsLeftUser.fullName}`}
-              color="green"
               icon={
                 <Avatar
                   alt={`${name}'s avatar`}
@@ -181,7 +175,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <Tile
               count={mostCommentsReceivedTotal}
               title={`Most comments received by ${mostCommentsReceivedUser.fullName}`}
-              color="green"
               icon={
                 <Avatar
                   alt={`${name}'s avatar`}
