@@ -28,7 +28,7 @@ import { arrange, desc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 export interface ChartsStore {
   pullRequests: PullRequest[];
   users: User[];
-  setPullRequests: (pullRequests: PullRequest[]) => void;
+  import: (options: Pick<ChartsStore, 'pullRequests' | 'users'>) => void;
   analyze: (client: Client, params: AnalyzeParams) => Promise<void>;
 }
 
@@ -40,9 +40,10 @@ export function createChartsStore() {
     pullRequests: [],
     discussions: [],
     users: [],
-    setPullRequests(pullRequests: PullRequest[]) {
+    import({ pullRequests, users }: Pick<ChartsStore, 'pullRequests' | 'users'>) {
       set({
         pullRequests,
+        users,
       });
     },
     analyze: async (client: Client, params: AnalyzeParams) => {

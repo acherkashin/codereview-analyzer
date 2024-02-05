@@ -34,7 +34,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, PullRequest } from './../clients/types';
+import { AnalyzeParams, Comment, PullRequest, User } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
 import { LineChart } from '../components/charts/LineChart';
 import { Tile } from '../components/Tile/Tile';
@@ -48,7 +48,8 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const excelDialog = useOpen();
 
   const pullRequests = useChartsStore((state) => state.pullRequests);
-  const setPullRequests = useChartsStore((state) => state.setPullRequests);
+  const users = useChartsStore((state) => state.users);
+  const importData = useChartsStore((state) => state.import);
   const comments = useChartsStore(getComments);
   const discussions = useMemo(() => [], []); // useChartsStore((state) => state.discussions);
   const analyze = useChartsStore(getAnalyze);
@@ -339,7 +340,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           startIcon={<FileDownloadIcon />}
           onClick={() => {
             // Need to specify Range <StartDate>-<EndDate> as a default name
-            downloadFile('newFile.json', JSON.stringify({ pullRequests }, null, 2));
+            downloadFile('newFile.json', JSON.stringify({ pullRequests, users }, null, 2));
           }}
         >
           Export as JSON
@@ -348,8 +349,8 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           label="Import as JSON"
           onTextSelected={(text) => {
             try {
-              const { pullRequests } = JSON.parse(text as string) as { pullRequests: PullRequest[] };
-              setPullRequests(pullRequests);
+              const { pullRequests, users } = JSON.parse(text as string) as { pullRequests: PullRequest[]; users: User[] };
+              importData({ pullRequests, users });
             } catch (ex) {
               console.error(ex);
             }
