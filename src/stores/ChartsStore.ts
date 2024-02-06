@@ -21,12 +21,14 @@ import {
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
-import { AnalyzeParams, Client, PullRequest } from '../clients/types';
+import { AnalyzeParams, Client, PullRequest, User } from '../clients/types';
 import { convertToCommentsLineChart } from '../utils/LineChartUtils';
+import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
-  setPullRequests: (pullRequests: PullRequest[]) => void;
+  users: User[];
+  import: (options: Pick<ChartsStore, 'pullRequests' | 'users'>) => void;
   analyze: (client: Client, params: AnalyzeParams) => Promise<void>;
 }
 
@@ -36,17 +38,20 @@ export { ChartsStoreProvider, useChartsStore };
 export function createChartsStore() {
   return create<ChartsStore>((set, get) => ({
     pullRequests: [],
-    comments: [],
     discussions: [],
-    setPullRequests(pullRequests: PullRequest[]) {
+    users: [],
+    import({ pullRequests, users }: Pick<ChartsStore, 'pullRequests' | 'users'>) {
       set({
         pullRequests,
+        users,
       });
     },
     analyze: async (client: Client, params: AnalyzeParams) => {
+      const users = await client.getAllUsers();
       const mergeRequests = await client.analyze(params);
 
       set({
+        users,
         pullRequests: mergeRequests,
       });
     },
@@ -157,6 +162,41 @@ export function useCommentsLeftToUsers(userId?: string) {
     }
 
     return convertToCommentsLeftToUsers(getComments(state), userId);
+  });
+}
+
+export function useMostCommentsLeft() {
+  return useChartsStore((state) => {
+    const comments = getComments(state);
+    const data = tidy(comments, groupBy('reviewerId', summarize({ total: n() })), arrange([desc('total')]));
+    const user = state.users.find((item) => item.id === data[0].reviewerId);
+
+    return {
+      user,
+      total: data[0]?.total,
+    };
+  });
+}
+
+export function useMostCommentsReceived() {
+  return useChartsStore((state) => {
+    const comments = getComments(state);
+    const data = tidy(comments, groupBy('prAuthorId', summarize({ total: n() })), arrange([desc('total')]));
+    const user = state.users.find((item) => item.id === data[0].prAuthorId);
+
+    return {
+      user,
+      total: data[0]?.total,
+    };
+  });
+}
+
+export function useChangedFilesCount() {
+  return useChartsStore((state) => {
+    const comments = getComments(state);
+    const changedFiles = tidy(comments, distinct(['filePath'])).map((item) => item.filePath);
+
+    return changedFiles.length;
   });
 }
 

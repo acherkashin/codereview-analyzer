@@ -50,12 +50,12 @@ export class GiteaClient implements Client {
 
     let page = 1;
     do {
-      users = (await this.api.users.userSearch({ q: '', page, limit: 100 })).data.data ?? [];
+      users = (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
       all.push(...users);
       page++;
-    } while (users.length === 100);
+    } while (users.length === 50);
 
-    return users.map((user) => convertToUser(this.host, user));
+    return all.map((user) => convertToUser(this.host, user));
   }
 
   async searchUsers(searchText: string): Promise<User[]> {
@@ -165,21 +165,24 @@ export function convertToUser(host: string, user: GiteaUser): User {
   };
 }
 
+const pageSize = 50;
+
 async function getAllPullRequests(
   client: GiteaApi<any>,
   project: Project,
   prCount: number,
   state?: PullRequestStatus
 ): Promise<GiteaPullRequest[]> {
-  const pages = Math.ceil(prCount / 50);
+  const pages = Math.ceil(prCount / pageSize);
 
   const pullRequests: GiteaPullRequest[] = [];
 
   for (let pageIndex = 1; pageIndex <= pages; pageIndex++) {
     const result = await client.repos.repoListPullRequests(project.owner!, project.name, {
       state,
-      sort: 'recentupdate',
+      // sort: 'recentupdate',
       page: pageIndex,
+      limit: prCount - (pageIndex - 1) * pageSize,
     });
 
     if ((result.data ?? []).length > 0) {
