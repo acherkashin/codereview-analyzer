@@ -71,7 +71,7 @@ export function PersonalStatistic() {
             <BarChart
               {...commentsReceivedFromUsers}
               onClick={(e) => {
-                // updateComments(e.data.reviewer as string, selectedUser.username);
+                //   updateComments(e.data.reviewer as string, selectedUser.username);
               }}
             />
           </ChartContainer>

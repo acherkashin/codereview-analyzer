@@ -19,6 +19,7 @@ import {
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
+  getTop10PullRequestsBarChart,
   useChartsStore,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -57,6 +58,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
+  const top10PullRequestsBarChart = useChartsStore(getTop10PullRequestsBarChart);
   const commentedFilesPieChart = useChartsStore(getCommentedFilesPieChart);
   const commentsLinePieChart = useChartsStore(getCommentsLineChart);
 
@@ -128,6 +130,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <CodeReviewTiles />
         <div className="charts">
+          <ChartContainer title="Top 10 Pull Requests by Commits">
+            <BarChart {...top10PullRequestsBarChart} />
+          </ChartContainer>
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
           </ChartContainer>

@@ -8,7 +8,7 @@ export interface ChartContainerProps {
 
 export function ChartContainer({ children, title, style }: ChartContainerProps) {
   return (
-    <Paper variant="outlined" square component="section" style={style}>
+    <Paper variant="outlined" component="section" style={style}>
       <Typography variant="subtitle1" textAlign="center">
         {title}
       </Typography>

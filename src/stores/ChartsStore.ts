@@ -8,6 +8,7 @@ import {
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
   convertToFilesCommented,
+  convertToTop10PullRequests,
 } from '../utils/ChartUtils';
 import {
   convertToCommentsLeftPieChart,
@@ -95,6 +96,10 @@ export function getCreatedPullRequestsPieChart(state: ChartsStore) {
   return convertToPullRequestCreated(state.pullRequests);
 }
 
+export function getTop10PullRequestsBarChart(state: ChartsStore) {
+  return convertToTop10PullRequests(state.pullRequests);
+}
+
 export function getCommentedFilesPieChart(state: ChartsStore) {
   return convertToFilesCommented(getComments(state));
 }
@@ -148,7 +153,7 @@ export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieCha
 export function useCommentsReceivedFromUsers(userId?: string) {
   return useChartsStore((state) => {
     if (userId == null) {
-      return [];
+      return null;
     }
 
     return convertToCommentsReceivedFromUsers(getComments(state), userId);
@@ -158,7 +163,7 @@ export function useCommentsReceivedFromUsers(userId?: string) {
 export function useCommentsLeftToUsers(userId?: string) {
   return useChartsStore((state) => {
     if (userId == null) {
-      return [];
+      return null;
     }
 
     return convertToCommentsLeftToUsers(getComments(state), userId);

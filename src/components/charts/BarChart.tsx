@@ -1,7 +1,7 @@
 import { Bar, BarSvgProps } from '@nivo/bar';
 import { BarDatum } from '@nivo/bar';
 
-export interface BarChartProps extends Pick<BarSvgProps<BarDatum>, 'onClick' | 'tooltip'> {}
+export interface BarChartProps extends Partial<BarSvgProps<BarDatum>> {}
 
 export function BarChart(props: BarChartProps) {
   return <Bar {...barChartSettings} {...props} />;

@@ -19,7 +19,7 @@ export function CodeReviewTiles() {
 
   const mostCommentedPRs = useMemo(() => {
     const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
-    return sorted.slice(0, 3);
+    return sorted[0];
   }, [pullRequests]);
 
   const { user: mostCommentsLeftUser, total: mostCommentsLeftTotal } = useMostCommentsLeft();
@@ -35,21 +35,21 @@ export function CodeReviewTiles() {
     <Stack direction="row" flexWrap={'wrap'}>
       <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
       <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
-      {mostCommentedPRs[0] != null && (
+      {mostCommentedPRs != null && (
         <Tile
-          count={mostCommentedPRs[0].comments.length}
+          count={mostCommentedPRs.comments.length}
           title="Most comments for PR"
           details={
-            <a href={mostCommentedPRs[0].url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
-              {mostCommentedPRs[0].title}
+            <a href={mostCommentedPRs.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+              {mostCommentedPRs.title}
             </a>
           }
           icon={
             <Avatar
-              alt={`${mostCommentedPRs[0].author.fullName}'s avatar`}
+              alt={`${mostCommentedPRs.author.fullName}'s avatar`}
               sizes="40px"
-              title={mostCommentedPRs[0].author.fullName}
-              src={mostCommentedPRs[0].author.avatarUrl}
+              title={mostCommentedPRs.author.fullName}
+              src={mostCommentedPRs.author.avatarUrl}
             />
           }
         />

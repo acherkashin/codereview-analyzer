@@ -8,7 +8,7 @@ interface ReviewBarDatum extends BarDatum {
   total: number;
 }
 
-interface ReviewBarChartSettings<T = BarDatum> {
+export interface ReviewBarChartSettings<T = BarDatum> {
   indexBy: string;
   keys: string[];
   data: T[];
@@ -93,6 +93,23 @@ export function convertToPullRequestCreated(pullRequests: PullRequest[]) {
   return {
     indexBy: 'userName',
     keys: ['total'],
+    data,
+  };
+}
+
+export function convertToTop10PullRequests(pullRequests: PullRequest[]): ReviewBarChartSettings {
+  const count = 10;
+  const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
+  const top10 = sorted.slice(0, count);
+
+  const data = top10.map((item) => ({
+    pullRequest: item.title,
+    commentsCount: item.comments.length,
+  }));
+
+  return {
+    indexBy: 'pullRequest',
+    keys: ['commentsCount'],
     data,
   };
 }
