@@ -130,11 +130,11 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <CodeReviewTiles />
         <div className="charts">
-          <ChartContainer title="Top 10 Pull Requests by Commits">
-            <BarChart {...top10PullRequestsBarChart} />
-          </ChartContainer>
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
+          </ChartContainer>
+          <ChartContainer title="Top 10 Pull Requests by Commits">
+            <BarChart {...top10PullRequestsBarChart} />
           </ChartContainer>
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">

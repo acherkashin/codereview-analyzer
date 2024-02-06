@@ -1,4 +1,4 @@
-import { BarDatum } from '@nivo/bar';
+import { BarDatum, BarSvgProps } from '@nivo/bar';
 import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest } from './../clients/types';
@@ -97,20 +97,24 @@ export function convertToPullRequestCreated(pullRequests: PullRequest[]) {
   };
 }
 
-export function convertToTop10PullRequests(pullRequests: PullRequest[]): ReviewBarChartSettings {
+export function convertToTop10PullRequests(pullRequests: PullRequest[]): ReviewBarChartSettings & Partial<BarSvgProps<BarDatum>> {
   const count = 10;
   const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
   const top10 = sorted.slice(0, count);
 
-  const data = top10.map((item) => ({
-    pullRequest: item.title,
-    commentsCount: item.comments.length,
-  }));
+  const data = top10
+    .map((item) => ({
+      // Unicode for ellipsis character
+      pullRequest: item.title.length > 50 ? item.title.substring(0, 50) + '\u2026' : item.title,
+      commentsCount: item.comments.length,
+    }))
+    .reverse();
 
   return {
     indexBy: 'pullRequest',
     keys: ['commentsCount'],
     data,
+    margin: { left: 300 },
   };
 }
 
