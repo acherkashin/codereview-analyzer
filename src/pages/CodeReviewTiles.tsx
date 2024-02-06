@@ -1,8 +1,15 @@
 import { useMemo } from 'react';
 import { Stack } from '@mui/material';
-import { getComments, useChartsStore, useMostCommentsLeft, useMostCommentsReceived } from '../stores/ChartsStore';
+import {
+  getComments,
+  useChangedFilesCount,
+  useChartsStore,
+  useMostCommentsLeft,
+  useMostCommentsReceived,
+} from '../stores/ChartsStore';
 import { Avatar } from '@mui/material';
 import { Tile } from '../components/Tile/Tile';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
 import { BranchIcon } from '../icons/BranchIcon';
 
@@ -17,6 +24,12 @@ export function CodeReviewTiles() {
 
   const { user: mostCommentsLeftUser, total: mostCommentsLeftTotal } = useMostCommentsLeft();
   const { user: mostCommentsReceivedUser, total: mostCommentsReceivedTotal } = useMostCommentsReceived();
+
+  const changedFilesCount = useChangedFilesCount();
+
+  if (pullRequests == null || pullRequests.length === 0) {
+    return null;
+  }
 
   return (
     <Stack direction="row" flexWrap={'wrap'}>
@@ -69,6 +82,7 @@ export function CodeReviewTiles() {
           }
         />
       )}
+      <Tile count={changedFilesCount} title="Changed files" icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />} />
     </Stack>
   );
 }

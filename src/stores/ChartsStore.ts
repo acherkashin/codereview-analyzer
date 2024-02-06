@@ -23,7 +23,7 @@ import {
 import createContext from 'zustand/context';
 import { AnalyzeParams, Client, PullRequest, User } from '../clients/types';
 import { convertToCommentsLineChart } from '../utils/LineChartUtils';
-import { arrange, desc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
+import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
@@ -188,6 +188,15 @@ export function useMostCommentsReceived() {
       user,
       total: data[0]?.total,
     };
+  });
+}
+
+export function useChangedFilesCount() {
+  return useChartsStore((state) => {
+    const comments = getComments(state);
+    const changedFiles = tidy(comments, distinct(['filePath'])).map((item) => item.filePath);
+
+    return changedFiles.length;
   });
 }
 
