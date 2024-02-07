@@ -97,29 +97,6 @@ export function convertToPullRequestCreated(pullRequests: PullRequest[]) {
   };
 }
 
-export function convertToTop10PullRequests(pullRequests: PullRequest[]): ReviewBarChartSettings & Partial<BarSvgProps<BarDatum>> {
-  const count = 10;
-  const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
-  const top10 = sorted.slice(0, count);
-
-  const data = top10
-    .map((item) => ({
-      // Unicode for ellipsis character
-      pullRequest: item.title.length > 50 ? item.title.substring(0, 50) + '\u2026' : item.title,
-      commentsCount: item.comments.length,
-      authorName: item.author.fullName || item.author.userName,
-      authorAvatarUrl: item.author.avatarUrl,
-    }))
-    .reverse();
-
-  return {
-    indexBy: 'pullRequest',
-    keys: ['commentsCount'],
-    data,
-    margin: { left: 300 },
-  };
-}
-
 export function convertToCommentsReceivedFromUsers(comments: Comment[], userId: string): ReviewBarChartSettings {
   const commentsToAuthor = comments.filter((item) => item.prAuthorId === userId);
   const rawData = getAuthorReviewerFromComments(commentsToAuthor).filter((item) => item.reviewer !== item.author);

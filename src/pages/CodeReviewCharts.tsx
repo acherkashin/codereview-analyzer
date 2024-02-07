@@ -19,7 +19,6 @@ import {
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
-  getTop10PullRequestsBarChart,
   useChartsStore,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -36,6 +35,7 @@ import { AnalyzeParams, Comment, PullRequest, User } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
 import { LineChart } from '../components/charts/LineChart';
 import { CodeReviewTiles } from './CodeReviewTiles';
+import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
 
 export interface CodeReviewChartsProps {}
 
@@ -58,7 +58,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
-  const top10PullRequestsBarChart = useChartsStore(getTop10PullRequestsBarChart);
   const commentedFilesPieChart = useChartsStore(getCommentedFilesPieChart);
   const commentsLinePieChart = useChartsStore(getCommentsLineChart);
 
@@ -133,25 +132,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
           </ChartContainer>
-          <ChartContainer title="Top 10 Pull Requests by Commits">
-            <BarChart
-              {...top10PullRequestsBarChart}
-              tooltip={(props) => {
-                const { indexValue: pullRequestName, value: commentsCount, data } = props;
-                const authorAvatarUrl = data.authorAvatarUrl as string;
-                const authorName = data.authorName as string;
-
-                console.log(props);
-                return (
-                  <BaseChartTooltip {...props}>
-                    <Avatar src={authorAvatarUrl} alt={`${authorName}'s avatar`} />
-                    <div>{data.authorName}</div> got <strong>{commentsCount}</strong> comments for{' '}
-                    <strong>{pullRequestName}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-            />
-          </ChartContainer>
+          <TopPullRequestsChart pullRequests={pullRequests} count={10} />
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">
               <PieChart
