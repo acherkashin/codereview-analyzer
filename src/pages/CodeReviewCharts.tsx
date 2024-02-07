@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions, UserDiscussion } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
-import { Button, Stack } from '@mui/material';
+import { Avatar, Button, Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import { downloadComments } from '../utils/ExcelUtils';
@@ -134,7 +134,23 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
           </ChartContainer>
           <ChartContainer title="Top 10 Pull Requests by Commits">
-            <BarChart {...top10PullRequestsBarChart} />
+            <BarChart
+              {...top10PullRequestsBarChart}
+              tooltip={(props) => {
+                const { indexValue: pullRequestName, value: commentsCount, data } = props;
+                const authorAvatarUrl = data.authorAvatarUrl as string;
+                const authorName = data.authorName as string;
+
+                console.log(props);
+                return (
+                  <BaseChartTooltip {...props}>
+                    <Avatar src={authorAvatarUrl} alt={`${authorName}'s avatar`} />
+                    <div>{data.authorName}</div> got <strong>{commentsCount}</strong> comments for{' '}
+                    <strong>{pullRequestName}</strong>
+                  </BaseChartTooltip>
+                );
+              }}
+            />
           </ChartContainer>
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">

@@ -107,6 +107,8 @@ export function convertToTop10PullRequests(pullRequests: PullRequest[]): ReviewB
       // Unicode for ellipsis character
       pullRequest: item.title.length > 50 ? item.title.substring(0, 50) + '\u2026' : item.title,
       commentsCount: item.comments.length,
+      authorName: item.author.fullName || item.author.userName,
+      authorAvatarUrl: item.author.avatarUrl,
     }))
     .reverse();
 
