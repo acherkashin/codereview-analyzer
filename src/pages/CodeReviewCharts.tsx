@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions, UserDiscussion } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
-import { Button, Stack } from '@mui/material';
+import { Avatar, Button, Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import { downloadComments } from '../utils/ExcelUtils';
@@ -35,6 +35,7 @@ import { AnalyzeParams, Comment, PullRequest, User } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
 import { LineChart } from '../components/charts/LineChart';
 import { CodeReviewTiles } from './CodeReviewTiles';
+import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
 
 export interface CodeReviewChartsProps {}
 
@@ -131,6 +132,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
           </ChartContainer>
+          <TopPullRequestsChart pullRequests={pullRequests} count={10} />
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">
               <PieChart

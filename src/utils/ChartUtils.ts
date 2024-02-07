@@ -1,4 +1,4 @@
-import { BarDatum } from '@nivo/bar';
+import { BarDatum, BarSvgProps } from '@nivo/bar';
 import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest } from './../clients/types';
@@ -8,7 +8,7 @@ interface ReviewBarDatum extends BarDatum {
   total: number;
 }
 
-interface ReviewBarChartSettings<T = BarDatum> {
+export interface ReviewBarChartSettings<T = BarDatum> {
   indexBy: string;
   keys: string[];
   data: T[];

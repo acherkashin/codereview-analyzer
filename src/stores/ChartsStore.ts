@@ -148,7 +148,7 @@ export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieCha
 export function useCommentsReceivedFromUsers(userId?: string) {
   return useChartsStore((state) => {
     if (userId == null) {
-      return [];
+      return null;
     }
 
     return convertToCommentsReceivedFromUsers(getComments(state), userId);
@@ -158,7 +158,7 @@ export function useCommentsReceivedFromUsers(userId?: string) {
 export function useCommentsLeftToUsers(userId?: string) {
   return useChartsStore((state) => {
     if (userId == null) {
-      return [];
+      return null;
     }
 
     return convertToCommentsLeftToUsers(getComments(state), userId);
