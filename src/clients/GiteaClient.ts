@@ -122,6 +122,10 @@ function convertToPullRequest(
     .filter((item) => item.state && item.user && ['APPROVED', 'CHANGES_REQUESTED', 'COMMENT'].includes(item.state))
     .map((item) => convertToUser(hostUrl, item.user!));
 
+  const approvedBy = reviews
+    .filter((item) => item.state && item.user && item.state === 'APPROVED')
+    .map((item) => convertToUser(hostUrl, item.user!));
+
   return {
     id: pr.id!.toString(),
     title: pr.title ?? 'unknown title',
@@ -134,6 +138,7 @@ function convertToPullRequest(
     comments: [...notEmptyReviews, ...prComments],
     createdAt: pr.created_at ?? 'unknown created at',
     reviewedBy,
+    approvedBy,
   };
 }
 

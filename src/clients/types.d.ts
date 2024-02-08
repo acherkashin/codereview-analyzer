@@ -80,6 +80,10 @@ export interface PullRequest {
    * - commented
    */
   reviewedBy: User[];
+  /**
+   * Users who approved the pull request
+   */
+  approvedBy: User[];
   updatedAt: string;
   createdAt: string;
   comments: Comment[];

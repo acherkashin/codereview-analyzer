@@ -131,6 +131,8 @@ export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) 
     const reviewRequestedCount = pullRequests.filter((pr) => (pr.requestedReviewers ?? []).some((i) => i.id === item.id)).length;
     const reviewedPrs = pullRequests.filter((pr) => (pr.reviewedBy ?? []).some((i) => i.id === item.id));
     const reviewedCount = reviewedPrs.length;
+    const approvedPrs = pullRequests.filter((pr) => (pr.approvedBy ?? []).some((i) => i.id === item.id));
+    const approvedCount = approvedPrs.length;
 
     return {
       userId: item.id,
@@ -139,6 +141,7 @@ export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) 
       reviewRequestedCount,
       // reviewedPrs,
       reviewedCount,
+      approvedCount,
     };
   });
 
