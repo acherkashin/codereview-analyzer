@@ -1,7 +1,7 @@
 import { BarDatum, BarSvgProps } from '@nivo/bar';
 import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
-import { Comment, PullRequest } from './../clients/types';
+import { Comment, PullRequest, User } from './../clients/types';
 
 interface ReviewBarDatum extends BarDatum {
   userName: string;
@@ -121,6 +121,32 @@ export function convertToCommentsLeftToUsers(comment: Comment[], userId: string)
     keys: ['total'],
     data,
   };
+}
+
+/**
+ * Chart shows how many users get pull requests assigned and how many of them he reviews
+ */
+export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) {
+  const rawData = users.map((item) => {
+    const reviewRequestedCount = pullRequests.filter((pr) => (pr.requestedReviewers ?? []).some((i) => i.id === item.id)).length;
+    const reviewedPrs = pullRequests.filter((pr) => (pr.reviewedBy ?? []).some((i) => i.id === item.id));
+    const reviewedCount = reviewedPrs.length;
+
+    return {
+      userId: item.id,
+      userAvatarUrl: item.avatarUrl,
+      userName: (item.userName = item.fullName || item.userName),
+      reviewRequestedCount,
+      // reviewedPrs,
+      reviewedCount,
+    };
+  });
+
+  const resultData = rawData.filter((item) => item.reviewRequestedCount > 0);
+
+  resultData.sort((a, b) => b.reviewedCount - a.reviewedCount);
+
+  return resultData;
 }
 
 /**

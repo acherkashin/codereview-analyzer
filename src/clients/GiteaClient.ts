@@ -84,6 +84,8 @@ export class GiteaClient implements Client {
       // 1. Get all pull requests
       // 2. Get reviews for each pull request
       // 3. Get comments for each review
+
+      // TODO: it seems we get not all reviews here. it cannot return more reviews than some limit
       const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
 
       const commentsPromise = reviews
@@ -98,9 +100,7 @@ export class GiteaClient implements Client {
     const commentsResp = await Promise.all(commentsPromise);
 
     const allPrs = commentsResp.map(({ pullRequest, reviews, comments }) => {
-      const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pullRequest, review));
-      const prComments = comments.map<Comment>((item) => convertToComment(pullRequest, item));
-      const pr = convertToPullRequest(this.host, pullRequest, [...notEmptyReviews, ...prComments]);
+      const pr = convertToPullRequest(this.host, pullRequest, reviews, comments);
 
       return pr;
     });
@@ -109,7 +109,19 @@ export class GiteaClient implements Client {
   }
 }
 
-function convertToPullRequest(hostUrl: string, pr: GiteaPullRequest, comments: Comment[]): PullRequest {
+function convertToPullRequest(
+  hostUrl: string,
+  pr: GiteaPullRequest,
+  reviews: GiteaPullReview[],
+  comments: GiteaPullReviewComment[]
+): PullRequest {
+  const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pr, review));
+  const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
+
+  const reviewedBy = reviews
+    .filter((item) => item.state && item.user && ['APPROVED', 'CHANGES_REQUESTED', 'COMMENT'].includes(item.state))
+    .map((item) => convertToUser(hostUrl, item.user!));
+
   return {
     id: pr.id!.toString(),
     title: pr.title ?? 'unknown title',
@@ -118,9 +130,10 @@ function convertToPullRequest(hostUrl: string, pr: GiteaPullRequest, comments: C
     url: pr.url!,
     updatedAt: pr.updated_at ?? 'unknown updated at',
     author: convertToUser(hostUrl, pr.user!),
-    reviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user)),
-    comments,
+    requestedReviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user)),
+    comments: [...notEmptyReviews, ...prComments],
     createdAt: pr.created_at ?? 'unknown created at',
+    reviewedBy,
   };
 }
 
