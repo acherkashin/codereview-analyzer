@@ -133,8 +133,8 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
           </ChartContainer>
-          <TopPullRequestsChart pullRequests={pullRequests} count={10} />
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
+          <TopPullRequestsChart pullRequests={pullRequests} count={10} />
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">
               <PieChart

@@ -133,6 +133,8 @@ export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) 
     const reviewedCount = reviewedPrs.length;
 
     return {
+      userId: item.id,
+      userAvatarUrl: item.avatarUrl,
       userName: (item.userName = item.fullName || item.userName),
       reviewRequestedCount,
       // reviewedPrs,
