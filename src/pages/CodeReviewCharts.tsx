@@ -36,6 +36,7 @@ import { CommentItemProps } from '../components/CommentList';
 import { LineChart } from '../components/charts/LineChart';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
+import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
 
 export interface CodeReviewChartsProps {}
 
@@ -133,6 +134,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
           </ChartContainer>
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
+          <ReviewByUserChart pullRequests={pullRequests} users={users} />
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">
               <PieChart
