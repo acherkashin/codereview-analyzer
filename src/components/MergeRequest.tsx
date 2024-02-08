@@ -5,7 +5,7 @@ import { UserItem, UserItemProps, UserList } from './UserList';
 export interface MergeRequestProps extends MergeRequestForPage {}
 
 export function MergeRequest({ item: mergeRequest, readyPeriod, readyTime }: MergeRequestProps) {
-  const users = mergeRequest.reviewers?.map(
+  const users = mergeRequest.requestedReviewers?.map(
     (item) =>
       ({
         name: item.userName,

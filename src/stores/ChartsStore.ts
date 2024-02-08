@@ -140,7 +140,9 @@ export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieCha
       return [];
     }
 
-    const reviewerMrs = state.pullRequests.filter((item) => (item.reviewers ?? []).map((item) => item.id).includes(authorId));
+    const reviewerMrs = state.pullRequests.filter((item) =>
+      (item.requestedReviewers ?? []).map((item) => item.id).includes(authorId)
+    );
     return getWhoAssignsToAuthorToReview(reviewerMrs);
   });
 }

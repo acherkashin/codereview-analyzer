@@ -149,7 +149,7 @@ export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]):
 
 export function getAuthorReviewerFromMergeRequests(mrs: PullRequest[]): AuthorReviewer[] {
   return mrs.flatMap<AuthorReviewer>((mr) =>
-    (mr.reviewers ?? []).map<AuthorReviewer>((reviewer) => ({
+    (mr.requestedReviewers ?? []).map<AuthorReviewer>((reviewer) => ({
       author: mr.author.userName as string,
       reviewer: reviewer.userName as string,
     }))

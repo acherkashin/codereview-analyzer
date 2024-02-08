@@ -69,7 +69,17 @@ export interface PullRequest {
   url: string;
   targetBranch: string;
   author: User;
-  reviewers: User[];
+  /**
+   * Users selected as reviewers in the pull request
+   */
+  requestedReviewers: User[];
+  /**
+   * Users who reviewed the pull request:
+   * - approved
+   * - requested changes
+   * - commented
+   */
+  reviewedBy: User[];
   updatedAt: string;
   createdAt: string;
   comments: Comment[];

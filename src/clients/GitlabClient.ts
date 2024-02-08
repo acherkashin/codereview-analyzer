@@ -132,7 +132,7 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
     updatedAt: mr.updated_at,
     createdAt: mr.created_at,
     author: convertToUser(mr.author as any),
-    reviewers: (mr.reviewers ?? []).map((item) => convertToUser(item as any)),
+    requestedReviewers: (mr.reviewers ?? []).map((item) => convertToUser(item as any)),
     comments: comments.map<Comment>((item) => ({
       id: item.id.toString(),
       prAuthorId: (mr.author.id as string).toString(),
@@ -148,5 +148,7 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
       filePath: '',
       createdAt: item.created_at,
     })),
+    //TODO: implement
+    reviewedBy: [],
   };
 }
