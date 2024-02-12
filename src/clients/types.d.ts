@@ -79,7 +79,15 @@ export interface PullRequest {
    * - requested changes
    * - commented
    */
-  reviewedBy: User[];
+  reviewedByUserIds: string[];
+  /**
+   * Users who approved the pull request
+   */
+  approvedByUserIds: string[];
+  /**
+   * Users who requested changes in pull request
+   */
+  requestedChangesByUserIds: string[];
   updatedAt: string;
   createdAt: string;
   comments: Comment[];

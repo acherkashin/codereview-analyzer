@@ -149,6 +149,8 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
       createdAt: item.created_at,
     })),
     //TODO: implement
-    reviewedBy: [],
+    reviewedByUserIds: [],
+    approvedByUserIds: [],
+    requestedChangesByUserIds: [],
   };
 }

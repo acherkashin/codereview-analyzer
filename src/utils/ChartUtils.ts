@@ -129,22 +129,31 @@ export function convertToCommentsLeftToUsers(comment: Comment[], userId: string)
 export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) {
   const rawData = users.map((item) => {
     const reviewRequestedCount = pullRequests.filter((pr) => (pr.requestedReviewers ?? []).some((i) => i.id === item.id)).length;
-    const reviewedPrs = pullRequests.filter((pr) => (pr.reviewedBy ?? []).some((i) => i.id === item.id));
+
+    const reviewedPrs = pullRequests.filter((pr) => (pr.reviewedByUserIds ?? []).some((id) => id === item.id));
     const reviewedCount = reviewedPrs.length;
+
+    const approvedPrs = pullRequests.filter((pr) => (pr.approvedByUserIds ?? []).some((id) => id === item.id));
+    const approvedCount = approvedPrs.length;
+
+    const requestedChangesPrs = pullRequests.filter((pr) => (pr.requestedChangesByUserIds ?? []).some((id) => id === item.id));
+    const requestedChangesCount = requestedChangesPrs.length;
 
     return {
       userId: item.id,
       userAvatarUrl: item.avatarUrl,
       userName: (item.userName = item.fullName || item.userName),
-      reviewRequestedCount,
+      Assigned: reviewRequestedCount,
       // reviewedPrs,
-      reviewedCount,
+      Reviewed: reviewedCount,
+      Approved: approvedCount,
+      'Requested Changes': requestedChangesCount,
     };
   });
 
-  const resultData = rawData.filter((item) => item.reviewRequestedCount > 0);
+  const resultData = rawData.filter((item) => item.Assigned > 0);
 
-  resultData.sort((a, b) => b.reviewedCount - a.reviewedCount);
+  resultData.sort((a, b) => b.Assigned - a.Assigned);
 
   return resultData;
 }
