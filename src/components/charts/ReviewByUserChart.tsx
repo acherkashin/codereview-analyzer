@@ -16,7 +16,7 @@ export function ReviewByUserChart({ users, pullRequests }: ReviewByUserChartProp
   const keys: (keyof typeof data[0])[] = ['Assigned', 'Reviewed', 'Approved', 'Requested Changes'];
 
   return (
-    <ChartContainer title={`Pull Request reviews by user`} style={{ width: 1020 }}>
+    <ChartContainer title={`Pull Requests reviews by user`} style={{ width: 1020 }}>
       <BarChart
         width={1020}
         indexBy="userName"
