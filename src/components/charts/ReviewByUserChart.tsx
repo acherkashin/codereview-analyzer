@@ -4,7 +4,7 @@ import { getReviewDataByUser } from '../../utils/ChartUtils';
 import { ChartContainer } from '../ChartContainer';
 import { BarChart } from './BarChart';
 import { BaseChartTooltip } from '../BaseChartTooltip';
-import { Avatar } from '@mui/material';
+import { Avatar, Stack } from '@mui/material';
 
 export interface ReviewByUserChartProps {
   users: User[];
@@ -22,7 +22,7 @@ export function ReviewByUserChart({ users, pullRequests }: ReviewByUserChartProp
         indexBy="userName"
         keys={keys}
         data={data}
-        margin={{ bottom: 100, left: 50, right: 150 }}
+        margin={{ top: 50, right: 150, bottom: 120, left: 50 }}
         groupMode="grouped"
         layout="vertical"
         borderRadius={4}
@@ -49,14 +49,35 @@ export function ReviewByUserChart({ users, pullRequests }: ReviewByUserChartProp
           },
         ]}
         tooltip={(props) => {
-          const { userAvatarUrl, userName, Reviewed, Assigned } = props.data as typeof data[0];
-          const percents = Math.floor((Reviewed / Assigned) * 100) + '%';
+          const barData = props.data as typeof data[0];
+          const { userAvatarUrl, userName, Reviewed = 0, Assigned = 0, Approved = 0 } = barData;
+          const requestedChanges = barData['Requested Changes'] || 0;
+          const reviewedPercent = Math.ceil((Reviewed / Assigned) * 100) + '%';
+          const approvedPercent = Math.ceil((Approved / Assigned) * 100) + '%';
+          const requestChangesPercent = Math.ceil((requestedChanges / Assigned) * 100) + '%';
 
           return (
-            <BaseChartTooltip {...props}>
-              <Avatar src={userAvatarUrl} alt={`${userName}'s avatar`} />
-              <div>{userName}</div> reviewed <strong>{Reviewed}</strong> pull requests from <strong>{Assigned}</strong> (
-              {percents})
+            <BaseChartTooltip>
+              <Stack direction="column" alignItems="center">
+                <Stack direction="row" alignItems="center" gap={1}>
+                  <Avatar src={userAvatarUrl} alt={`${userName}'s avatar`} />
+                  <strong>{userName}</strong>
+                </Stack>
+                <Stack direction="row" alignItems="center">
+                  <ul>
+                    <li>Pull Requests assigned - {Assigned}</li>
+                    <li>
+                      Reviewed - {Reviewed}/{Assigned} - <strong>{reviewedPercent}</strong>
+                    </li>
+                    <li>
+                      Approved - {Approved}/{Assigned} - <strong>{approvedPercent}</strong>
+                    </li>
+                    <li>
+                      Request Changes - {requestedChanges}/{Assigned} - <strong>{requestChangesPercent}</strong>
+                    </li>
+                  </ul>
+                </Stack>
+              </Stack>
             </BaseChartTooltip>
           );
         }}
