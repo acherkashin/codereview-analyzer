@@ -1,13 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions, UserDiscussion } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
-import { Avatar, Button, Stack } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalyze,
-  getCommentedFilesPieChart,
   getComments,
   getCommentsLeft,
   getCommentsLeftPieChart,
@@ -37,6 +36,7 @@ import { LineChart } from '../components/charts/LineChart';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
 import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
+import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/CommentedFilesChart';
 
 export interface CodeReviewChartsProps {}
 
@@ -59,7 +59,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
-  const commentedFilesPieChart = useChartsStore(getCommentedFilesPieChart);
   const commentsLinePieChart = useChartsStore(getCommentsLineChart);
 
   const [title, setTitle] = useState('');
@@ -261,11 +260,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartContainer title="Pull Requests Created">
             <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
           </ChartContainer>
-          {hostType == 'Gitea' && (
-            <ChartContainer title="Commented Files">
-              <BarChart {...commentedFilesPieChart} onClick={() => {}} />
-            </ChartContainer>
-          )}
+          {hostType == 'Gitea' && <CommentedFilesChart comments={comments} />}
         </div>
       </div>
       <Stack spacing={2} position="sticky" top={10}>

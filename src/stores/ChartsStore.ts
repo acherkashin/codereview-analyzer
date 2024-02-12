@@ -7,7 +7,6 @@ import {
   convertToCommentsReceivedFromUsers,
   convertToDiscussionsLeft,
   convertToDiscussionsReceived,
-  convertToFilesCommented,
 } from '../utils/ChartUtils';
 import {
   convertToCommentsLeftPieChart,
@@ -93,10 +92,6 @@ export function getCommentsReceived(state: ChartsStore) {
 
 export function getCreatedPullRequestsPieChart(state: ChartsStore) {
   return convertToPullRequestCreated(state.pullRequests);
-}
-
-export function getCommentedFilesPieChart(state: ChartsStore) {
-  return convertToFilesCommented(getComments(state));
 }
 
 export function getCommentsLineChart(state: ChartsStore) {

@@ -10,11 +10,13 @@ export function BarChart(props: BarChartProps) {
 export const barChartSettings = {
   width: 500,
   height: 400,
-  margin: { left: 150 },
+  margin: { left: 150, bottom: 50, right: 30 },
   padding: 0.2,
   labelTextColor: 'inherit:darker(1.4)',
   labelSkipWidth: 16,
   labelSkipHeight: 16,
   layout: 'horizontal',
   enableLabel: true,
+  enableGridX: true,
+  axisBottom: {},
 } as BarSvgProps<BarDatum>;
