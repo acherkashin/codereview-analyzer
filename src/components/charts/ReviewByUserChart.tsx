@@ -19,7 +19,7 @@ export function ReviewByUserChart({ users, pullRequests }: ReviewByUserChartProp
       <BarChart
         width={1000}
         indexBy="userName"
-        keys={['reviewRequestedCount', 'reviewedCount', 'approvedCount']}
+        keys={['reviewRequestedCount', 'reviewedCount', 'approvedCount', 'requestedChangesCount']}
         data={data}
         margin={{ bottom: 100, left: 50 }}
         groupMode="grouped"

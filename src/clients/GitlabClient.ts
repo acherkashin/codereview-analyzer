@@ -151,5 +151,6 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
     //TODO: implement
     reviewedBy: [],
     approvedBy: [],
+    requestedChangesBy: [],
   };
 }

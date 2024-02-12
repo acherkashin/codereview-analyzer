@@ -119,11 +119,15 @@ function convertToPullRequest(
   const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
 
   const reviewedBy = reviews
-    .filter((item) => item.state && item.user && ['APPROVED', 'CHANGES_REQUESTED', 'COMMENT'].includes(item.state))
+    .filter((item) => item.state && item.user && ['APPROVED', 'REQUEST_CHANGES', 'COMMENT'].includes(item.state))
     .map((item) => convertToUser(hostUrl, item.user!));
 
   const approvedBy = reviews
     .filter((item) => item.state && item.user && item.state === 'APPROVED')
+    .map((item) => convertToUser(hostUrl, item.user!));
+
+  const requestedChangesBy = reviews
+    .filter((item) => item.state && item.user && item.state === 'REQUEST_CHANGES')
     .map((item) => convertToUser(hostUrl, item.user!));
 
   return {
@@ -139,6 +143,7 @@ function convertToPullRequest(
     createdAt: pr.created_at ?? 'unknown created at',
     reviewedBy,
     approvedBy,
+    requestedChangesBy,
   };
 }
 

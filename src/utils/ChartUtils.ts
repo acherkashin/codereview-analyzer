@@ -129,10 +129,15 @@ export function convertToCommentsLeftToUsers(comment: Comment[], userId: string)
 export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) {
   const rawData = users.map((item) => {
     const reviewRequestedCount = pullRequests.filter((pr) => (pr.requestedReviewers ?? []).some((i) => i.id === item.id)).length;
+
     const reviewedPrs = pullRequests.filter((pr) => (pr.reviewedBy ?? []).some((i) => i.id === item.id));
     const reviewedCount = reviewedPrs.length;
+
     const approvedPrs = pullRequests.filter((pr) => (pr.approvedBy ?? []).some((i) => i.id === item.id));
     const approvedCount = approvedPrs.length;
+
+    const requestedChangesPrs = pullRequests.filter((pr) => (pr.requestedChangesBy ?? []).some((i) => i.id === item.id));
+    const requestedChangesCount = requestedChangesPrs.length;
 
     return {
       userId: item.id,
@@ -142,6 +147,7 @@ export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) 
       // reviewedPrs,
       reviewedCount,
       approvedCount,
+      requestedChangesCount,
     };
   });
 
