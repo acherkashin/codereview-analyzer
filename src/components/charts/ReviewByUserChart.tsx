@@ -5,6 +5,7 @@ import { ChartContainer } from '../ChartContainer';
 import { BarChart } from './BarChart';
 import { BaseChartTooltip } from '../BaseChartTooltip';
 import { Avatar, Stack } from '@mui/material';
+import React from 'react';
 
 export interface ReviewByUserChartProps {
   users: User[];
