@@ -17,7 +17,7 @@ export function ReviewByUserChart({ users, pullRequests }: ReviewByUserChartProp
   return (
     <ChartContainer title={`Reviews by user`}>
       <BarChart
-        width={1000}
+        width={1020}
         indexBy="userName"
         keys={['reviewRequestedCount', 'reviewedCount', 'approvedCount', 'requestedChangesCount']}
         data={data}
