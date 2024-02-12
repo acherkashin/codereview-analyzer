@@ -143,17 +143,17 @@ export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) 
       userId: item.id,
       userAvatarUrl: item.avatarUrl,
       userName: (item.userName = item.fullName || item.userName),
-      reviewRequestedCount,
+      Assigned: reviewRequestedCount,
       // reviewedPrs,
-      reviewedCount,
-      approvedCount,
-      requestedChangesCount,
+      Reviewed: reviewedCount,
+      Approved: approvedCount,
+      'Requested Changes': requestedChangesCount,
     };
   });
 
-  const resultData = rawData.filter((item) => item.reviewRequestedCount > 0);
+  const resultData = rawData.filter((item) => item.Assigned > 0);
 
-  resultData.sort((a, b) => b.reviewedCount - a.reviewedCount);
+  resultData.sort((a, b) => b.Assigned - a.Assigned);
 
   return resultData;
 }
