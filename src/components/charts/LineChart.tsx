@@ -1,12 +1,14 @@
-import { ResponsiveLine, Serie } from '@nivo/line';
+import { LineSvgProps, ResponsiveLine, Serie } from '@nivo/line';
+import { LegendProps } from '@nivo/legends';
 
-export interface ILineChartProps {
+export interface ILineChartProps extends LineSvgProps {
   legendXLabel?: string;
   legendYLabel?: string;
   data: Serie[];
+  onLegendClick?: LegendProps['onClick'];
 }
 
-export function LineChart({ data, legendYLabel, legendXLabel }: ILineChartProps) {
+export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick }: ILineChartProps) {
   // https://github.com/plouc/nivo/blob/master/storybook/stories/line/Line.stories.tsx#L114
   return (
     <ResponsiveLine
@@ -72,6 +74,7 @@ export function LineChart({ data, legendYLabel, legendXLabel }: ILineChartProps)
               },
             },
           ],
+          onClick: onLegendClick,
         },
       ]}
     />

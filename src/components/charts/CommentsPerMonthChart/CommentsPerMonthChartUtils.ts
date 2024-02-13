@@ -1,7 +1,11 @@
 import { groupBy, summarize, tidy, n } from '@tidyjs/tidy';
 import { Comment } from './../../../clients/types';
 
-export function convertToCommentsLineChart(comments: Comment[]) {
+export function convertToCommentsLineChart(comments: Comment[], reviewerNames: string[] = []) {
+  if (reviewerNames.length !== 0) {
+    comments = comments.filter((item) => reviewerNames.includes(item.reviewerName));
+  }
+
   const data = comments.map((item) => {
     const date = new Date(item.createdAt);
 
