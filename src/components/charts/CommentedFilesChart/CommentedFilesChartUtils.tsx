@@ -1,5 +1,5 @@
 import { arrange, asc, distinct, filter, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
-import { ReviewBarChartSettings, getFileExtension } from '../../../utils/ChartUtils';
+import { getFileExtension } from '../../../utils/ChartUtils';
 import { Comment } from './../../../clients/types';
 
 export function convertToFilesCommented(comments: Comment[]) {

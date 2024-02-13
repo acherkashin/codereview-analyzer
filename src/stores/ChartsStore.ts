@@ -21,7 +21,6 @@ import {
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
 import { AnalyzeParams, Client, PullRequest, User } from '../clients/types';
-import { convertToCommentsLineChart } from '../utils/LineChartUtils';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 
 export interface ChartsStore {
@@ -92,10 +91,6 @@ export function getCommentsReceived(state: ChartsStore) {
 
 export function getCreatedPullRequestsPieChart(state: ChartsStore) {
   return convertToPullRequestCreated(state.pullRequests);
-}
-
-export function getCommentsLineChart(state: ChartsStore) {
-  return convertToCommentsLineChart(getComments(state));
 }
 
 export function getCommentsReceivedPieChart(state: ChartsStore) {

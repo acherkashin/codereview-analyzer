@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Comment } from '../../../clients/types';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
@@ -8,7 +9,7 @@ export interface CommentedFilesChart {
 }
 
 export function CommentedFilesChart({ comments }: CommentedFilesChart) {
-  const { data, authors } = convertToFilesCommented(comments);
+  const { data, authors } = useMemo(() => convertToFilesCommented(comments), [comments]);
 
   return (
     <ChartContainer title="Commented Files">

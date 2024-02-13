@@ -10,7 +10,6 @@ import {
   getComments,
   getCommentsLeft,
   getCommentsLeftPieChart,
-  getCommentsLineChart,
   getCommentsReceived,
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
@@ -32,11 +31,11 @@ import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, PullRequest, User } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
-import { LineChart } from '../components/charts/LineChart';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
 import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
 import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/CommentedFilesChart';
+import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChart/CommentsPerMonthChart';
 
 export interface CodeReviewChartsProps {}
 
@@ -59,7 +58,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
-  const commentsLinePieChart = useChartsStore(getCommentsLineChart);
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -129,9 +127,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <CodeReviewTiles />
         <div className="charts">
-          <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
-            <LineChart legendYLabel="Comments count" data={commentsLinePieChart} />
-          </ChartContainer>
+          <CommentsPerMonthChart comments={comments} />
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (

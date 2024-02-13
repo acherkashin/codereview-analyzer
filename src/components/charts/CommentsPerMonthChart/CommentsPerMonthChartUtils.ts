@@ -1,5 +1,5 @@
 import { groupBy, summarize, tidy, n } from '@tidyjs/tidy';
-import { Comment } from './../clients/types';
+import { Comment } from './../../../clients/types';
 
 export function convertToCommentsLineChart(comments: Comment[]) {
   const data = comments.map((item) => {
