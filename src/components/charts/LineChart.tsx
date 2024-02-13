@@ -8,7 +8,7 @@ export interface ILineChartProps extends LineSvgProps {
   onLegendClick?: LegendProps['onClick'];
 }
 
-export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick }: ILineChartProps) {
+export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick, ...otherProps }: ILineChartProps) {
   // https://github.com/plouc/nivo/blob/master/storybook/stories/line/Line.stories.tsx#L114
   return (
     <ResponsiveLine
@@ -77,6 +77,7 @@ export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick }: I
           onClick: onLegendClick,
         },
       ]}
+      {...otherProps}
     />
   );
 }

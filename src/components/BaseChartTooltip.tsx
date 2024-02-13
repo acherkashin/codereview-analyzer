@@ -1,4 +1,5 @@
 import React from 'react';
+import { Property } from 'csstype';
 
 export interface BaseChartTooltipProps {
   color?: string;
@@ -19,19 +20,27 @@ export function BaseChartTooltip({ color, children, style }: React.PropsWithChil
       }}
     >
       <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center' }}>
-        {color && (
-          <span
-            style={{
-              display: 'block',
-              width: 12,
-              height: 12,
-              background: color,
-              marginRight: 7,
-            }}
-          ></span>
-        )}
+        {color && <SquareMarker color={color} />}
         {children}
       </div>
     </div>
+  );
+}
+
+export interface SquareMarkerProps {
+  color: Property.BackgroundColor | undefined;
+}
+
+export function SquareMarker({ color }: SquareMarkerProps) {
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        width: 12,
+        height: 12,
+        backgroundColor: color,
+        marginRight: 7,
+      }}
+    ></span>
   );
 }
