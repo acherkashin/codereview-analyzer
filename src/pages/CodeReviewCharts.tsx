@@ -36,6 +36,7 @@ import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
 import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
 import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/CommentedFilesChart';
 import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChart/CommentsPerMonthChart';
+import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
 
 export interface CodeReviewChartsProps {}
 
@@ -129,6 +130,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         <div className="charts">
           <CommentsPerMonthChart comments={comments} />
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
+          <WordsCloud comments={comments} />
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
           {discussionsReceivedPieChart && hostType == 'Gitlab' && (
             <ChartContainer title="Discussions started with person">
