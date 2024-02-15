@@ -90,6 +90,7 @@ export interface PullRequest {
   requestedChangesByUserIds: string[];
   updatedAt: string;
   createdAt: string;
+  mergedAt?: string;
   comments: Comment[];
 }
 

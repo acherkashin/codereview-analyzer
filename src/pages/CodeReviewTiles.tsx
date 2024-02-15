@@ -12,6 +12,8 @@ import { Tile } from '../components/Tile/Tile';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
 import { BranchIcon } from '../icons/BranchIcon';
+import { getLongestPullRequest } from '../utils/ChartUtils';
+import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
 
 export function CodeReviewTiles() {
   const pullRequests = useChartsStore((state) => state.pullRequests);
@@ -26,6 +28,8 @@ export function CodeReviewTiles() {
   const { user: mostCommentsReceivedUser, total: mostCommentsReceivedTotal } = useMostCommentsReceived();
 
   const changedFilesCount = useChangedFilesCount();
+
+  const longestPullRequest = useMemo(() => getLongestPullRequest(pullRequests), [pullRequests]);
 
   if (pullRequests == null || pullRequests.length === 0) {
     return null;
@@ -78,6 +82,25 @@ export function CodeReviewTiles() {
               sizes="40px"
               title={mostCommentsReceivedUser.fullName}
               src={mostCommentsReceivedUser.avatarUrl}
+            />
+          }
+        />
+      )}
+      {longestPullRequest && (
+        <Tile
+          count={timeSinceString(timeSince(new Date(longestPullRequest.createdAt), new Date(longestPullRequest.mergedAt!)))}
+          title="Longest pull request"
+          details={
+            <a href={longestPullRequest.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+              {longestPullRequest.title}
+            </a>
+          }
+          icon={
+            <Avatar
+              alt={`${longestPullRequest.author.fullName}'s avatar`}
+              sizes="40px"
+              title={longestPullRequest.author.fullName}
+              src={longestPullRequest.author.avatarUrl}
             />
           }
         />

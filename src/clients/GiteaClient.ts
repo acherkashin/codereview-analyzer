@@ -144,6 +144,7 @@ function convertToPullRequest(
     reviewedByUserIds: [...new Set(reviewedBy)],
     approvedByUserIds: [...new Set(approvedBy)],
     requestedChangesByUserIds: [...new Set(requestedChangesBy)],
+    mergedAt: pr.merged_at,
   };
 }
 

@@ -152,5 +152,6 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
     reviewedByUserIds: [],
     approvedByUserIds: [],
     requestedChangesByUserIds: [],
+    mergedAt: mr.merged_at,
   };
 }

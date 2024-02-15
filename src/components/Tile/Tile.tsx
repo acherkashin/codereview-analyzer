@@ -25,6 +25,7 @@ const Title = styled('div')(({ theme }) => ({
   fontSize: 16,
   fontWeight: 'bold',
   color: theme.palette.common.white,
+  flexShrink: 0,
   marginBottom: 10 /*theme.spacing(2)*/,
   overflow: 'hidden',
   display: '-webkit-box',
@@ -35,7 +36,9 @@ const Title = styled('div')(({ theme }) => ({
 const Details = styled('div')(({ theme }) => ({
   fontSize: 14,
   color: theme.palette.common.white,
+  opacity: 0.7,
   marginBottom: 10,
+  flexShrink: 0,
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
@@ -45,6 +48,10 @@ const Number = styled('div')(({ theme }) => ({
   fontSize: 32,
   fontWeight: 'bold',
   color: theme.palette.common.white,
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  width: 'calc(100% - 48px)',
 }));
 
 const Icon = styled('i')(({ theme }) => ({
@@ -60,7 +67,7 @@ export function Tile({ title, count, details, icon }: TileProps) {
     <TileRoot>
       <Title title={title}>{title}</Title>
       <Details title={typeof details === 'string' ? details : undefined}>{details}</Details>
-      <Number>{count}</Number>
+      <Number title={count.toString()}>{count}</Number>
       <Icon>{icon}</Icon>
     </TileRoot>
   );

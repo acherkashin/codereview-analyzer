@@ -2,6 +2,7 @@ import { BarDatum, BarSvgProps } from '@nivo/bar';
 import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, UserDiscussion } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest, User } from './../clients/types';
+import { TimeSpan, timeSince } from './TimeSpanUtils';
 
 interface ReviewBarDatum extends BarDatum {
   userName: string;
@@ -199,4 +200,20 @@ function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings
 export function getFileExtension(filename: string) {
   // The >>> 0 is a bitwise operation that ensures that the value returned by lastIndexOf is always a non-negative integer, even if the filename does not contain a period. This is done because the slice method expects a non-negative integer as its start position.
   return filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
+}
+
+export function getLongestPullRequest(prs: PullRequest[]): PullRequest | null {
+  const merged = prs.filter((item) => item.mergedAt != null);
+
+  if (merged.length == 0) {
+    return null;
+  }
+
+  const mergedSorted = merged.toSorted((a, b) => getInProgressTime(b)._milliseconds - getInProgressTime(a)._milliseconds);
+
+  return mergedSorted[0];
+}
+
+export function getInProgressTime(pr1: PullRequest): TimeSpan {
+  return timeSince(new Date(pr1.createdAt), new Date(pr1.mergedAt!));
 }

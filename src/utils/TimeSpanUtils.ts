@@ -14,10 +14,10 @@ export interface TimeSpan {
   _milliseconds: number;
 }
 
-export function timeSince(when: Date): TimeSpan {
+export function timeSince(when: Date, since: Date = new Date()): TimeSpan {
   // this ignores months
   const obj: TimeSpan = {} as any;
-  obj._milliseconds = new Date().valueOf() - when.valueOf();
+  obj._milliseconds = since.valueOf() - when.valueOf();
   obj.milliseconds = obj._milliseconds % 1000;
   obj._seconds = (obj._milliseconds - obj.milliseconds) / 1000;
   obj.seconds = obj._seconds % 60;
