@@ -23,6 +23,34 @@ export interface Comment {
   createdAt: string;
 }
 
+export interface UserDiscussion {
+  /**
+   * Discussion id
+   */
+  id: string;
+
+  prAuthorId: string;
+  prAuthorName: string;
+
+  /**
+   * Person id who started discussion
+   */
+  reviewerId: string;
+  /**
+   * Person name who started discussion
+   */
+  reviewerName: string;
+  // reviewerAvatarUrl?: string;
+
+  pullRequestName: string;
+  /**
+   * Link to discussion
+   */
+  url: string;
+
+  comments: Comment[];
+}
+
 export interface User {
   id: string;
   //   email: string;

@@ -3,21 +3,15 @@ import {
   UserSchema,
   MergeRequestNoteSchema,
   MergeRequestSchema,
-  DiscussionSchema,
   MergeRequestLevelMergeRequestApprovalSchema,
 } from '@gitbeaker/core/dist/types/types';
 import { timeSince, TimeSpan } from './TimeSpanUtils';
 import { Resources } from '@gitbeaker/core';
-import { Comment, PullRequest } from './../clients/types';
+import { Comment, UserDiscussion, PullRequest } from './../clients/types';
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;
   comment: MergeRequestNoteSchema;
-}
-
-export interface UserDiscussion {
-  mergeRequest: MergeRequestSchema;
-  discussion: DiscussionSchema;
 }
 
 export interface AuthorReviewer {
@@ -44,25 +38,25 @@ export async function getMergeRequestsToReview(
   });
 }
 
-export async function getDiscussions(
-  client: Gitlab,
-  projectId: number,
-  mergeRequests: MergeRequestSchema[]
-): Promise<UserDiscussion[]> {
-  const filteredMrs = mergeRequests.filter((item) => item.user_notes_count !== 0);
-  const promises = filteredMrs.map((mrItem) => {
-    return client.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 }).then((items) => {
-      const filtered = items.filter((discussion) => discussion.notes?.some((item) => !item.system));
-      return filtered.map((item) => ({ mergeRequest: mrItem, discussion: item } as UserDiscussion));
-    });
-  });
+// export async function getDiscussions(
+//   client: Gitlab,
+//   projectId: number,
+//   mergeRequests: MergeRequestSchema[]
+// ): Promise<UserDiscussion[]> {
+//   const filteredMrs = mergeRequests.filter((item) => item.user_notes_count !== 0);
+//   const promises = filteredMrs.map((mrItem) => {
+//     return client.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 }).then((items) => {
+//       const filtered = items.filter((discussion) => discussion.notes?.some((item) => !item.system));
+//       return filtered.map((item) => ({ mergeRequest: mrItem, discussion: item } as UserDiscussion));
+//     });
+//   });
 
-  const allDiscussions = await Promise.allSettled(promises);
+//   const allDiscussions = await Promise.allSettled(promises);
 
-  const discussions = allDiscussions.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
+//   const discussions = allDiscussions.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
 
-  return discussions;
-}
+//   return discussions;
+// }
 
 export async function getUserComments(client: Gitlab, projectId: number, mrs: MergeRequestSchema[]): Promise<UserComment[]> {
   const comments = await getCommentsForMergeRequests(client, projectId, mrs);
@@ -110,16 +104,14 @@ export function getFilteredDiscussions(
   let filteredDiscussions = discussions;
 
   if (!!reviewerName) {
-    filteredDiscussions = filteredDiscussions.filter(({ discussion }) => getDiscussionAuthorName(discussion) === reviewerName);
+    filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.reviewerName === reviewerName);
   }
 
   if (!!authorName) {
-    filteredDiscussions = filteredDiscussions.filter(({ mergeRequest }) => mergeRequest.author.username === authorName);
+    filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.prAuthorName === authorName);
   }
 
-  filteredDiscussions = filteredDiscussions.filter(
-    ({ mergeRequest, discussion }) => mergeRequest.author.username !== getDiscussionAuthorName(discussion)
-  );
+  filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.reviewerId !== discussion.prAuthorId);
 
   return filteredDiscussions;
 }
@@ -135,33 +127,21 @@ export function getAuthorReviewerFromComments(comments: Comment[]): AuthorReview
     reviewer: item.reviewerName,
   }));
 }
-// return comments.map<AuthorReviewer>((item) => ({
-//   reviewer: item.comment.author.username,
-//   author: item.mergeRequest.author.username as string,
-// }));
 
 export function getAuthorReviewerFromDiscussions(discussions: UserDiscussion[]): AuthorReviewer[] {
   return discussions.map<AuthorReviewer>((item) => ({
-    author: item.mergeRequest.author.username as string,
-    reviewer: getDiscussionAuthorName(item.discussion) ?? '[empty]',
+    author: item.prAuthorName,
+    reviewer: item.reviewerName,
   }));
 }
 
 export function getAuthorReviewerFromMergeRequests(mrs: PullRequest[]): AuthorReviewer[] {
   return mrs.flatMap<AuthorReviewer>((mr) =>
     (mr.requestedReviewers ?? []).map<AuthorReviewer>((reviewer) => ({
-      author: mr.author.userName as string,
-      reviewer: reviewer.userName as string,
+      author: mr.author.userName,
+      reviewer: reviewer.userName,
     }))
   );
-}
-
-export function getDiscussionAuthor(discussion: DiscussionSchema): Omit<UserSchema, 'created_at'> | undefined {
-  return discussion?.notes?.[0]?.author;
-}
-
-export function getDiscussionAuthorName(discussion: DiscussionSchema): string {
-  return getDiscussionAuthor(discussion)?.username as string;
 }
 
 export interface MergeRequestWithNotes {

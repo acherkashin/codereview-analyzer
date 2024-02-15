@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { getFilteredComments, getFilteredDiscussions, UserDiscussion } from './../utils/GitLabUtils';
+import { getFilteredComments, getFilteredDiscussions } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
@@ -29,7 +29,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, PullRequest, User } from './../clients/types';
+import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';

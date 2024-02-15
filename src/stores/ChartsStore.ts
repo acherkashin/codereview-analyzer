@@ -36,7 +36,6 @@ export { ChartsStoreProvider, useChartsStore };
 export function createChartsStore() {
   return create<ChartsStore>((set, get) => ({
     pullRequests: [],
-    discussions: [],
     users: [],
     import({ pullRequests, users }: Pick<ChartsStore, 'pullRequests' | 'users'>) {
       set({
