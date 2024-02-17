@@ -140,7 +140,6 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
       prAuthorAvatarUrl: mr.author.avatar_url as string,
       reviewerId: item.author.id.toString(),
       reviewerName: item.author.name,
-      commentId: item.id.toString(),
       body: item.body,
       pullRequestId: mr.id.toString(),
       pullRequestName: mr.title,
@@ -153,5 +152,6 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
     approvedByUserIds: [],
     requestedChangesByUserIds: [],
     mergedAt: mr.merged_at,
+    discussions: [],
   };
 }

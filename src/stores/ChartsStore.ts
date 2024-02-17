@@ -72,12 +72,17 @@ export function getComments(state: ChartsStore) {
   return comments;
 }
 
+export function getDiscussions(state: ChartsStore) {
+  const discussions = state.pullRequests.flatMap((item) => item.discussions);
+  return discussions;
+}
+
 export function getDiscussionsLeft(state: ChartsStore) {
-  return convertToDiscussionsLeft(/*state.discussions*/ []);
+  return convertToDiscussionsLeft(getDiscussions(state));
 }
 
 export function getDiscussionsReceived(state: ChartsStore) {
-  return convertToDiscussionsReceived(/*state.discussions*/ []);
+  return convertToDiscussionsReceived(getDiscussions(state));
 }
 
 export function getCommentsLeft(state: ChartsStore) {

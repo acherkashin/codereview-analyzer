@@ -13,7 +13,6 @@ export interface Comment {
 
   reviewerId: string;
   reviewerName: string;
-  commentId: string;
   body: string;
   pullRequestId: string;
   pullRequestName: string;
@@ -120,6 +119,7 @@ export interface PullRequest {
   createdAt: string;
   mergedAt?: string;
   comments: Comment[];
+  discussions: UserDiscussion[];
 }
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';
