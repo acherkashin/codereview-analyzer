@@ -13,19 +13,12 @@ export interface DiscussionListProps {
 export function DiscussionList({ discussions }: DiscussionListProps) {
   return (
     <ul>
-      {discussions.map(({ id, comments, url, pullRequestName }) => {
+      {discussions.map(({ id, comments, url, pullRequestName, reviewerAvatarUrl }) => {
         return (
           <Accordion key={id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              {/* <Avatar src={getDiscussionAuthor(discussion)?.avatar_url as string} /> */}
-              <Link
-                underline="none"
-                variant="subtitle2"
-                href={url}
-                // href={`${mergeRequest.web_url}/#note_${firstNote?.id}`}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <Avatar src={reviewerAvatarUrl} />
+              <Link underline="none" variant="subtitle2" href={url} target="_blank" rel="noreferrer">
                 {pullRequestName}
               </Link>
             </AccordionSummary>

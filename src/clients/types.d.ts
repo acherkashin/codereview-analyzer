@@ -13,6 +13,8 @@ export interface Comment {
 
   reviewerId: string;
   reviewerName: string;
+  reviewerAvatarUrl?: string;
+
   body: string;
   pullRequestId: string;
   pullRequestName: string;
@@ -39,7 +41,7 @@ export interface UserDiscussion {
    * Person name who started discussion
    */
   reviewerName: string;
-  // reviewerAvatarUrl?: string;
+  reviewerAvatarUrl?: string;
 
   pullRequestName: string;
   /**

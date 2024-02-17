@@ -1,11 +1,9 @@
 import { Gitlab } from '@gitbeaker/core/dist/types';
 import {
-  UserSchema,
   MergeRequestNoteSchema,
   MergeRequestSchema,
   MergeRequestLevelMergeRequestApprovalSchema,
 } from '@gitbeaker/core/dist/types/types';
-import { timeSince, TimeSpan } from './TimeSpanUtils';
 import { Resources } from '@gitbeaker/core';
 import { Comment, UserDiscussion, PullRequest } from './../clients/types';
 
@@ -106,24 +104,6 @@ export function getAuthorReviewerFromMergeRequests(mrs: PullRequest[]): AuthorRe
 export interface MergeRequestWithNotes {
   mergeRequest: MergeRequestSchema;
   notes: MergeRequestNoteSchema[];
-}
-
-export async function getReadyMergeRequests(client: Gitlab, projectId: number): Promise<MergeRequestWithNotes[]> {
-  const mrs = await client.MergeRequests.all({
-    projectId,
-    state: 'opened',
-    wip: 'no',
-  });
-
-  const promises = mrs.map(async (mrItem) => {
-    const notes = await client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
-    return { mergeRequest: mrItem, notes };
-  });
-
-  const allComments = await Promise.allSettled(promises);
-  const comments = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
-
-  return comments;
 }
 
 export interface MergeRequestWithApprovals {

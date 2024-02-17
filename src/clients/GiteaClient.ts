@@ -215,6 +215,7 @@ export function convertToDiscussions(pr: GiteaPullRequest, comments: GiteaPullRe
 
       reviewerId: comments[0].reviewerId,
       reviewerName: comments[0].reviewerName,
+      reviewerAvatarUrl: comments[0].reviewerAvatarUrl,
 
       pullRequestName: comments[0].pullRequestName,
       url: comments[0].url,
