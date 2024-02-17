@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { Comment } from '../../../clients/types';
 import { extractWords } from './WordsCloudUtils';
 import { ChartContainer } from '../../ChartContainer';
@@ -8,7 +8,7 @@ export interface WordsCloudProps {
   comments: Comment[];
 }
 
-export function WordsCloud({ comments }: WordsCloudProps) {
+function _WordsCloud({ comments }: WordsCloudProps) {
   const data = useMemo(() => {
     const text = comments.map((item) => item.body).join(' ');
     const words = extractWords(text);
@@ -26,3 +26,5 @@ export function WordsCloud({ comments }: WordsCloudProps) {
     </ChartContainer>
   );
 }
+
+export const WordsCloud = memo(_WordsCloud);
