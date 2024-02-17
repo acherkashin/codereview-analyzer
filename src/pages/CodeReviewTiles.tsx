@@ -12,7 +12,7 @@ import { Tile } from '../components/Tile/Tile';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
 import { BranchIcon } from '../icons/BranchIcon';
-import { getLongestPullRequest } from '../utils/ChartUtils';
+import { getLongestDiscussions, getLongestPullRequest } from '../utils/ChartUtils';
 import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
 
 export function CodeReviewTiles() {
@@ -30,6 +30,7 @@ export function CodeReviewTiles() {
   const changedFilesCount = useChangedFilesCount();
 
   const longestPullRequest = useMemo(() => getLongestPullRequest(pullRequests), [pullRequests]);
+  const longestDiscussion = useMemo(() => getLongestDiscussions(pullRequests, 1)[0], [pullRequests]);
 
   if (pullRequests == null || pullRequests.length === 0) {
     return null;
@@ -106,6 +107,23 @@ export function CodeReviewTiles() {
         />
       )}
       <Tile count={changedFilesCount} title="Changed files" icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />} />
+      <Tile
+        count={longestDiscussion.comments.length}
+        title="Longest Discussion"
+        details={
+          <a href={longestDiscussion.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+            {longestDiscussion.pullRequestName}
+          </a>
+        }
+        icon={
+          <Avatar
+            alt={`${longestDiscussion.reviewerName}'s avatar`}
+            sizes="40px"
+            title={longestDiscussion.reviewerName}
+            src={longestDiscussion.reviewerAvatarUrl}
+          />
+        }
+      />
     </Stack>
   );
 }

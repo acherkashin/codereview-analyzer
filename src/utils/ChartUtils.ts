@@ -214,6 +214,13 @@ export function getLongestPullRequest(prs: PullRequest[]): PullRequest | null {
   return mergedSorted[0];
 }
 
+export function getLongestDiscussions(prs: PullRequest[], count: number): UserDiscussion[] {
+  const longestDiscussions = prs.flatMap((item) => item.discussions).sort((a, b) => b.comments.length - a.comments.length);
+  const topN = longestDiscussions.slice(0, count);
+
+  return topN;
+}
+
 export function getInProgressTime(pr1: PullRequest): TimeSpan {
   return timeSince(new Date(pr1.createdAt), new Date(pr1.mergedAt!));
 }
