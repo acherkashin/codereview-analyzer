@@ -13,6 +13,7 @@ import {
   getCommentsReceived,
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
+  getDiscussions,
   getDiscussionsLeft,
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
@@ -48,7 +49,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const users = useChartsStore((state) => state.users);
   const importData = useChartsStore((state) => state.import);
   const comments = useChartsStore(getComments);
-  const discussions = useMemo(() => [], []); // useChartsStore((state) => state.discussions);
+  const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
   const discussionsLeft = useChartsStore(getDiscussionsLeft);
   const discussionsReceived = useChartsStore(getDiscussionsReceived);
