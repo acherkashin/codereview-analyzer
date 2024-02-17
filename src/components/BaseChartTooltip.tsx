@@ -2,7 +2,7 @@ import React from 'react';
 import { Property } from 'csstype';
 
 export interface BaseChartTooltipProps {
-  color?: string;
+  color?: string | null;
   style?: React.CSSProperties;
 }
 

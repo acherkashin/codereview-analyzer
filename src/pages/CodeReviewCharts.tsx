@@ -38,6 +38,7 @@ import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
 import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/CommentedFilesChart';
 import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChart/CommentsPerMonthChart';
 import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
+import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
 
 export interface CodeReviewChartsProps {}
 
@@ -133,6 +134,14 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
           <WordsCloud comments={comments} />
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
+          <TopLongestDiscussionsChart
+            pullRequests={pullRequests}
+            count={10}
+            onClick={(discussion) => {
+              setTitle(`Discussion started by ${discussion.reviewerName} in ${discussion.pullRequestName}`);
+              setFilteredDiscussions([discussion]);
+            }}
+          />
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
               <PieChart

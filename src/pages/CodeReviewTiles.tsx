@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Stack } from '@mui/material';
 import {
   getComments,
-  useChangedFilesCount,
+  useChangedFilesCount as useCommentedFilesCount,
   useChartsStore,
   useMostCommentsLeft,
   useMostCommentsReceived,
@@ -27,7 +27,7 @@ export function CodeReviewTiles() {
   const { user: mostCommentsLeftUser, total: mostCommentsLeftTotal } = useMostCommentsLeft();
   const { user: mostCommentsReceivedUser, total: mostCommentsReceivedTotal } = useMostCommentsReceived();
 
-  const changedFilesCount = useChangedFilesCount();
+  const commentedFilesCount = useCommentedFilesCount();
 
   const longestPullRequest = useMemo(() => getLongestPullRequest(pullRequests), [pullRequests]);
   const longestDiscussion = useMemo(() => getLongestDiscussions(pullRequests, 1)[0], [pullRequests]);
@@ -106,7 +106,11 @@ export function CodeReviewTiles() {
           }
         />
       )}
-      <Tile count={changedFilesCount} title="Changed files" icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />} />
+      <Tile
+        count={commentedFilesCount}
+        title="Commented files"
+        icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />}
+      />
       <Tile
         count={longestDiscussion.comments.length}
         title="Longest Discussion"
