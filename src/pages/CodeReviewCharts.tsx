@@ -125,6 +125,15 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     [analyze, client]
   );
 
+  const handleWordClick = useCallback(
+    (word: string) => {
+      const filtered = comments.filter((item) => item.body.includes(word));
+      setTitle(`Comments containing "${word}". Count: ${filtered.length}`);
+      setFilteredComments(filtered);
+    },
+    [comments]
+  );
+
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
@@ -132,7 +141,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         <div className="charts">
           <CommentsPerMonthChart comments={comments} />
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
-          <WordsCloud comments={comments} />
+          <WordsCloud comments={comments} onClick={handleWordClick} />
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
           <TopLongestDiscussionsChart
             pullRequests={pullRequests}
