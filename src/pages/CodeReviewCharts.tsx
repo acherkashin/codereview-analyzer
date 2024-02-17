@@ -132,7 +132,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
           <WordsCloud comments={comments} />
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
-          {discussionsReceivedPieChart && hostType == 'Gitlab' && (
+          {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
               <PieChart
                 data={discussionsReceivedPieChart}
@@ -143,7 +143,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               />
             </ChartContainer>
           )}
-          {discussionsStartedPieChart && hostType == 'Gitlab' && (
+          {discussionsStartedPieChart && (
             <ChartContainer title="Discussions started by person">
               <PieChart
                 data={discussionsStartedPieChart}

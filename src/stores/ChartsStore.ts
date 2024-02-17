@@ -106,11 +106,11 @@ export function getCommentsLeftPieChart(state: ChartsStore) {
 }
 
 export function getDiscussionsReceivedPieChart(state: ChartsStore) {
-  return convertToDiscussionsReceivedPieChart(/*state.discussions*/ []);
+  return convertToDiscussionsReceivedPieChart(getDiscussions(state));
 }
 
 export function getDiscussionsStartedPieChart(state: ChartsStore) {
-  return convertToDiscussionsStartedPieChart(/*state.discussions*/ []);
+  return convertToDiscussionsStartedPieChart(getDiscussions(state));
 }
 
 export function getAnalyze(state: ChartsStore) {
