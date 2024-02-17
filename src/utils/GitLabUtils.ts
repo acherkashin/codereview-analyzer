@@ -38,47 +38,6 @@ export async function getMergeRequestsToReview(
   });
 }
 
-// export async function getDiscussions(
-//   client: Gitlab,
-//   projectId: number,
-//   mergeRequests: MergeRequestSchema[]
-// ): Promise<UserDiscussion[]> {
-//   const filteredMrs = mergeRequests.filter((item) => item.user_notes_count !== 0);
-//   const promises = filteredMrs.map((mrItem) => {
-//     return client.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 }).then((items) => {
-//       const filtered = items.filter((discussion) => discussion.notes?.some((item) => !item.system));
-//       return filtered.map((item) => ({ mergeRequest: mrItem, discussion: item } as UserDiscussion));
-//     });
-//   });
-
-//   const allDiscussions = await Promise.allSettled(promises);
-
-//   const discussions = allDiscussions.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
-
-//   return discussions;
-// }
-
-export async function getUserComments(client: Gitlab, projectId: number, mrs: MergeRequestSchema[]): Promise<UserComment[]> {
-  const comments = await getCommentsForMergeRequests(client, projectId, mrs);
-
-  return comments.filter((item) => !item.comment.system);
-}
-
-async function getCommentsForMergeRequests(client: Gitlab, projectId: number, allMrs: MergeRequestSchema[]) {
-  const mrs = allMrs.filter((item) => item.user_notes_count !== 0);
-  const promises = mrs.map((mrItem) => {
-    return client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 }).then((userNotes) => {
-      return userNotes.map((item) => ({ mergeRequest: mrItem, comment: item } as UserComment));
-    });
-  });
-
-  const allComments = await Promise.allSettled(promises);
-
-  const comments = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
-
-  return comments;
-}
-
 // TODO: move to appropriate place
 export function getFilteredComments(comments: Comment[], reviewerName: string | null, authorName: string | null): Comment[] {
   let filteredComments = comments;

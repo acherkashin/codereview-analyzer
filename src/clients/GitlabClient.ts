@@ -1,8 +1,8 @@
-import { User, Client, Project, AnalyzeParams, PullRequest, Comment } from './types';
+import { User, Client, Project, AnalyzeParams, PullRequest, Comment, UserDiscussion } from './types';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema, ProjectSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
-import { MergeRequestNoteSchema, MergeRequestSchema } from '@gitbeaker/core/dist/types/types';
+import { MergeRequestNoteSchema, MergeRequestSchema, DiscussionSchema, DiscussionNote } from '@gitbeaker/core/dist/types/types';
 
 export class GitlabClient implements Client {
   private api: GitlabType;
@@ -77,8 +77,8 @@ export function convertToProject(project: ProjectSchema): Project {
   };
 }
 
-export function getNoteUrl({ mergeRequest, comment }: UserComment) {
-  return `${mergeRequest.web_url}/#note_${comment.id}`;
+export function getNoteUrl(mrUrl: string, commentId: string) {
+  return `${mrUrl}/#note_${commentId}`;
 }
 
 async function getMergeRequestsWithComments(
@@ -88,18 +88,24 @@ async function getMergeRequestsWithComments(
 ): Promise<PullRequest[]> {
   const mrs = allMrs.filter((item) => item.user_notes_count !== 0);
 
-  const promises = mrs.map((mrItem) => {
-    return client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 }).then((userNotes) => {
-      const comments = userNotes.filter((item) => !item.system);
-      return convertToPullRequest(mrItem, comments);
+  const promises = mrs.map(async (mrItem) => {
+    //TODO: most probably it is enough to get only discussions and get the user notes from it, so we can optimize it later
+    const userNotes = await client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
+    const discussions = await client.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 }).then((items) => {
+      // some notes are left by gitlab, so we need to filter them out
+      const notSystem = items.filter((discussion) => discussion.notes?.some((item) => !item.system));
+      return notSystem;
     });
+
+    const comments = userNotes.filter((item) => !item.system);
+    return convertToPullRequest(mrItem, comments, discussions);
   });
 
   const allComments = await Promise.allSettled(promises);
 
-  const comments = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
+  const result = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
 
-  return comments;
+  return result;
 }
 
 function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefore, state }: AnalyzeParams) {
@@ -122,7 +128,11 @@ function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefor
   });
 }
 
-function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNoteSchema[]): PullRequest {
+function convertToPullRequest(
+  mr: MergeRequestSchema,
+  comments: MergeRequestNoteSchema[],
+  discussions: DiscussionSchema[]
+): PullRequest {
   return {
     id: mr.id.toString(),
     title: mr.title,
@@ -133,25 +143,43 @@ function convertToPullRequest(mr: MergeRequestSchema, comments: MergeRequestNote
     createdAt: mr.created_at,
     author: convertToUser(mr.author as any),
     requestedReviewers: (mr.reviewers ?? []).map((item) => convertToUser(item as any)),
-    comments: comments.map<Comment>((item) => ({
-      id: item.id.toString(),
-      prAuthorId: (mr.author.id as string).toString(),
-      prAuthorName: mr.author.name as string,
-      prAuthorAvatarUrl: mr.author.avatar_url as string,
-      reviewerId: item.author.id.toString(),
-      reviewerName: item.author.name,
-      body: item.body,
-      pullRequestId: mr.id.toString(),
-      pullRequestName: mr.title,
-      url: getNoteUrl({ mergeRequest: mr, comment: item }),
-      filePath: '',
-      createdAt: item.created_at,
-    })),
+    comments: comments.map<Comment>((item) => convertToComment(mr, item)),
     //TODO: implement
     reviewedByUserIds: [],
     approvedByUserIds: [],
     requestedChangesByUserIds: [],
     mergedAt: mr.merged_at,
-    discussions: [],
+    discussions: discussions.map((item) => convertToDiscussion(mr, item)),
+  };
+}
+
+function convertToComment(mr: MergeRequestSchema, comment: MergeRequestNoteSchema | DiscussionNote): Comment {
+  return {
+    id: comment.id.toString(),
+    prAuthorId: (mr.author.id as string).toString(),
+    prAuthorName: mr.author.name as string,
+    prAuthorAvatarUrl: mr.author.avatar_url as string,
+    reviewerId: (comment.author as UserSchema).id.toString(),
+    reviewerName: (comment.author as UserSchema).name,
+    body: comment.body as string,
+    pullRequestId: mr.id.toString(),
+    pullRequestName: mr.title,
+    url: getNoteUrl(mr.web_url, comment.id.toString()),
+    filePath: '',
+    createdAt: comment.created_at as string,
+  };
+}
+
+function convertToDiscussion(mr: MergeRequestSchema, discussion: DiscussionSchema): UserDiscussion {
+  return {
+    id: discussion.id.toString(),
+    prAuthorId: (mr.author.id as string).toString(),
+    prAuthorName: mr.author.name as string,
+    // prAuthorAvatarUrl: mr.author.avatar_url as string,
+    reviewerId: (discussion.notes ?? []).length > 0 ? (discussion.notes![0].author.id as string) : 'unknown reviewerId',
+    reviewerName: (discussion.notes ?? []).length > 0 ? (discussion.notes![0].author.name as string) : 'unknown reviewerName',
+    pullRequestName: mr.title,
+    url: (discussion.notes ?? []).length > 0 ? getNoteUrl(mr.web_url, discussion.notes![0].id.toString()) : mr.web_url!,
+    comments: discussion.notes?.map((item) => convertToComment(mr, item)) ?? [],
   };
 }
