@@ -7,7 +7,8 @@ import {
   PullReview as GiteaPullReview,
   Repository,
 } from 'gitea-js';
-import { User, Client, Comment, Project, AnalyzeParams, PullRequest, PullRequestStatus } from './types';
+import { User, Client, Comment, Project, AnalyzeParams, PullRequest, PullRequestStatus, UserDiscussion } from './types';
+import { groupBy, tidy } from '@tidyjs/tidy';
 
 export class GiteaClient implements Client {
   private api: GiteaApi<any>;
@@ -74,7 +75,7 @@ export class GiteaClient implements Client {
       throw new Error('project is required');
     }
 
-    const { id: projectId, owner, name } = project;
+    const { owner, name } = project;
 
     const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state);
 
@@ -145,6 +146,7 @@ function convertToPullRequest(
     approvedByUserIds: [...new Set(approvedBy)],
     requestedChangesByUserIds: [...new Set(requestedChangesBy)],
     mergedAt: pr.merged_at,
+    discussions: convertToDiscussions(pr, comments),
   };
 }
 
@@ -161,11 +163,10 @@ function convertToProject(repository: Repository): Project {
 function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewComment | GiteaPullReview): Comment {
   return {
     id: item.id!.toString(),
-    prAuthorId: pullRequest.user?.id?.toString() || 'unknown prAuthorId',
-    prAuthorName: pullRequest.user?.full_name || pullRequest.user?.login || 'unknown prAuthorName',
+    prAuthorId: getUserId(pullRequest.user),
+    prAuthorName: getUserName(pullRequest.user),
     prAuthorAvatarUrl: pullRequest.user?.avatar_url,
 
-    commentId: item.commit_id!,
     body: item.body!,
     reviewerId: item.user?.id?.toString() || 'unknown reviewerId',
     reviewerName: item.user?.full_name || item.user?.login || 'unknown reviewerName',
@@ -175,6 +176,14 @@ function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewCo
     filePath: 'path' in item ? item.path ?? '' : '',
     createdAt: 'created_at' in item ? item.created_at! : (item as GiteaPullReview).submitted_at!,
   };
+}
+
+function getUserId(user: GiteaUser | undefined) {
+  return user?.id?.toString() || 'unknown authorId';
+}
+
+function getUserName(user: GiteaUser | undefined) {
+  return user?.full_name || user?.login || 'unknown authorname';
 }
 
 export function convertToUser(host: string, user: GiteaUser): User {
@@ -187,6 +196,33 @@ export function convertToUser(host: string, user: GiteaUser): User {
     webUrl: `${host}/${user.login}`,
     active: !!user.active,
   };
+}
+
+export function convertToDiscussions(pr: GiteaPullRequest, comments: GiteaPullReviewComment[]): UserDiscussion[] {
+  const discussions = tidy(
+    comments,
+    groupBy(['pull_request_review_id', 'path', 'position'], groupBy.values({ flat: true }))
+  ) as GiteaPullReviewComment[][];
+
+  const result = discussions.map<UserDiscussion>((groupedComments) => {
+    const comments = groupedComments.map((item) => convertToComment(pr, item));
+
+    return {
+      id: comments[0].id,
+      comments,
+      prAuthorId: comments[0].prAuthorId,
+      prAuthorName: comments[0].prAuthorName,
+
+      reviewerId: comments[0].reviewerId,
+      reviewerName: comments[0].reviewerName,
+      reviewerAvatarUrl: comments[0].reviewerAvatarUrl,
+
+      pullRequestName: comments[0].pullRequestName,
+      url: comments[0].url,
+    };
+  });
+
+  return result;
 }
 
 const pageSize = 50;

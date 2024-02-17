@@ -13,7 +13,8 @@ export interface Comment {
 
   reviewerId: string;
   reviewerName: string;
-  commentId: string;
+  reviewerAvatarUrl?: string;
+
   body: string;
   pullRequestId: string;
   pullRequestName: string;
@@ -21,6 +22,34 @@ export interface Comment {
   filePath: string;
 
   createdAt: string;
+}
+
+export interface UserDiscussion {
+  /**
+   * Discussion id
+   */
+  id: string;
+
+  prAuthorId: string;
+  prAuthorName: string;
+
+  /**
+   * Person id who started discussion
+   */
+  reviewerId: string;
+  /**
+   * Person name who started discussion
+   */
+  reviewerName: string;
+  reviewerAvatarUrl?: string;
+
+  pullRequestName: string;
+  /**
+   * Link to discussion
+   */
+  url: string;
+
+  comments: Comment[];
 }
 
 export interface User {
@@ -92,6 +121,7 @@ export interface PullRequest {
   createdAt: string;
   mergedAt?: string;
   comments: Comment[];
+  discussions: UserDiscussion[];
 }
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';

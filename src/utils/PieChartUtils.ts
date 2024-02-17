@@ -3,11 +3,10 @@ import {
   getAuthorReviewerFromDiscussions,
   getAuthorReviewerFromMergeRequests,
   MergeRequestWithApprovals,
-  UserDiscussion,
 } from './GitLabUtils';
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
 import { BarDatum } from '@nivo/bar';
-import { Comment, PullRequest } from './../clients/types';
+import { Comment, PullRequest, UserDiscussion } from './../clients/types';
 
 export interface PieChartDatum extends BarDatum {
   id: string;

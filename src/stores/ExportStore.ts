@@ -1,7 +1,6 @@
 import create, { StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { Client, Project, PullRequest, User } from '../clients/types';
-import { UserDiscussion } from '../utils/GitLabUtils';
 
 export interface ExportStore {
   exportData: ExportData | null;
@@ -20,7 +19,6 @@ export interface ExportData {
 export interface ProjectExport {
   project: Project;
   mergeRequests: PullRequest[];
-  discussions: UserDiscussion[];
 }
 
 const { Provider: ExportStoreProvider, useStore: useExportsStore } = createContext<StoreApi<ExportStore>>();
@@ -59,7 +57,6 @@ export function createExportStore() {
         return {
           project,
           mergeRequests,
-          discussions: [],
         };
       });
 

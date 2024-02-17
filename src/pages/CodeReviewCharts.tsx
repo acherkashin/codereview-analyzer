@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { getFilteredComments, getFilteredDiscussions, UserDiscussion } from './../utils/GitLabUtils';
+import { getFilteredComments, getFilteredDiscussions } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
@@ -13,6 +13,7 @@ import {
   getCommentsReceived,
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
+  getDiscussions,
   getDiscussionsLeft,
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
@@ -29,7 +30,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, PullRequest, User } from './../clients/types';
+import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from './../clients/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
@@ -48,7 +49,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const users = useChartsStore((state) => state.users);
   const importData = useChartsStore((state) => state.import);
   const comments = useChartsStore(getComments);
-  const discussions = useMemo(() => [], []); // useChartsStore((state) => state.discussions);
+  const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
   const discussionsLeft = useChartsStore(getDiscussionsLeft);
   const discussionsReceived = useChartsStore(getDiscussionsReceived);
@@ -132,7 +133,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
           <WordsCloud comments={comments} />
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
-          {discussionsReceivedPieChart && hostType == 'Gitlab' && (
+          {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
               <PieChart
                 data={discussionsReceivedPieChart}
@@ -143,7 +144,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               />
             </ChartContainer>
           )}
-          {discussionsStartedPieChart && hostType == 'Gitlab' && (
+          {discussionsStartedPieChart && (
             <ChartContainer title="Discussions started by person">
               <PieChart
                 data={discussionsStartedPieChart}
@@ -213,48 +214,44 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               }}
             />
           </ChartContainer>
-          {hostType == 'Gitlab' && (
-            <ChartContainer title="Discussions started by person">
-              <BarChart
-                {...discussionsLeft}
-                tooltip={(props) => {
-                  const { indexValue, value, id } = props;
+          <ChartContainer title="Discussions started by person">
+            <BarChart
+              {...discussionsLeft}
+              tooltip={(props) => {
+                const { indexValue, value, id } = props;
 
-                  return (
-                    <BaseChartTooltip {...props}>
-                      <strong>{indexValue}</strong> started <strong>{value}</strong> discussions with <strong>{id}</strong>
-                    </BaseChartTooltip>
-                  );
-                }}
-                onClick={(e) => {
-                  const authorName = e.id as string;
-                  const reviewerName = e.indexValue as string;
-                  showFilteredDiscussions(reviewerName, authorName);
-                }}
-              />
-            </ChartContainer>
-          )}
-          {hostType == 'Gitlab' && (
-            <ChartContainer title="Discussions started with person">
-              <BarChart
-                {...discussionsReceived}
-                tooltip={(props) => {
-                  const { indexValue, value, id } = props;
+                return (
+                  <BaseChartTooltip {...props}>
+                    <strong>{indexValue}</strong> started <strong>{value}</strong> discussions with <strong>{id}</strong>
+                  </BaseChartTooltip>
+                );
+              }}
+              onClick={(e) => {
+                const authorName = e.id as string;
+                const reviewerName = e.indexValue as string;
+                showFilteredDiscussions(reviewerName, authorName);
+              }}
+            />
+          </ChartContainer>
+          <ChartContainer title="Discussions started with person">
+            <BarChart
+              {...discussionsReceived}
+              tooltip={(props) => {
+                const { indexValue, value, id } = props;
 
-                  return (
-                    <BaseChartTooltip {...props}>
-                      <strong>{id}</strong> started <strong>{value}</strong> discussions with <strong>{indexValue}</strong>
-                    </BaseChartTooltip>
-                  );
-                }}
-                onClick={(e) => {
-                  const authorName = e.indexValue as string;
-                  const reviewerName = e.id as string;
-                  showFilteredDiscussions(reviewerName, authorName);
-                }}
-              />
-            </ChartContainer>
-          )}
+                return (
+                  <BaseChartTooltip {...props}>
+                    <strong>{id}</strong> started <strong>{value}</strong> discussions with <strong>{indexValue}</strong>
+                  </BaseChartTooltip>
+                );
+              }}
+              onClick={(e) => {
+                const authorName = e.indexValue as string;
+                const reviewerName = e.id as string;
+                showFilteredDiscussions(reviewerName, authorName);
+              }}
+            />
+          </ChartContainer>
           <ChartContainer title="Pull Requests Created">
             <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
           </ChartContainer>

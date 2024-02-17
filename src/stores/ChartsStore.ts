@@ -36,7 +36,6 @@ export { ChartsStoreProvider, useChartsStore };
 export function createChartsStore() {
   return create<ChartsStore>((set, get) => ({
     pullRequests: [],
-    discussions: [],
     users: [],
     import({ pullRequests, users }: Pick<ChartsStore, 'pullRequests' | 'users'>) {
       set({
@@ -73,12 +72,17 @@ export function getComments(state: ChartsStore) {
   return comments;
 }
 
+export function getDiscussions(state: ChartsStore) {
+  const discussions = state.pullRequests.flatMap((item) => item.discussions);
+  return discussions;
+}
+
 export function getDiscussionsLeft(state: ChartsStore) {
-  return convertToDiscussionsLeft(/*state.discussions*/ []);
+  return convertToDiscussionsLeft(getDiscussions(state));
 }
 
 export function getDiscussionsReceived(state: ChartsStore) {
-  return convertToDiscussionsReceived(/*state.discussions*/ []);
+  return convertToDiscussionsReceived(getDiscussions(state));
 }
 
 export function getCommentsLeft(state: ChartsStore) {
@@ -102,11 +106,11 @@ export function getCommentsLeftPieChart(state: ChartsStore) {
 }
 
 export function getDiscussionsReceivedPieChart(state: ChartsStore) {
-  return convertToDiscussionsReceivedPieChart(/*state.discussions*/ []);
+  return convertToDiscussionsReceivedPieChart(getDiscussions(state));
 }
 
 export function getDiscussionsStartedPieChart(state: ChartsStore) {
-  return convertToDiscussionsStartedPieChart(/*state.discussions*/ []);
+  return convertToDiscussionsStartedPieChart(getDiscussions(state));
 }
 
 export function getAnalyze(state: ChartsStore) {
