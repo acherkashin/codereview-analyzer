@@ -150,6 +150,7 @@ function convertToPullRequest(
     requestedChangesByUserIds: [],
     mergedAt: mr.merged_at,
     discussions: discussions.map((item) => convertToDiscussion(mr, item)),
+    readyAt: undefined, // TODO
   };
 }
 

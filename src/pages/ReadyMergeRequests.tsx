@@ -4,14 +4,23 @@ import { useLocalStorage, useRequest } from '../hooks';
 import { FullSizeProgress, ProjectList } from '../components';
 import { useClient } from '../stores/AuthStore';
 import { PageContainer } from './PageContainer';
-import { Client, MergeRequestForPage, Project } from '../clients/types';
+import { Client, Project } from '../clients/types';
 import { timeSince } from '../utils/TimeSpanUtils';
 
 export interface ReadyMergeRequestsProps {}
 
 export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
   const client = useClient();
-  const requestMergeRequests = useCallback((project: Project) => getReadyMergeRequestsForPage(client, project), [client]);
+  const requestMergeRequests = useCallback(
+    (project: Project) => {
+      return client.analyze({
+        project,
+        state: 'open',
+        pullRequestCount: Number.MAX_VALUE,
+      });
+    },
+    [client]
+  );
   const { makeRequest, response: mrs, isLoading } = useRequest(requestMergeRequests);
   const [project, setProject] = useLocalStorage<Project | undefined>('ready-merge-request-project', undefined);
 
@@ -30,7 +39,7 @@ export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
             <div>Merge Requests: {mrs.length}</div>
             <ul>
               {mrs.map((item) => (
-                <MergeRequest key={item.item.id} {...item} />
+                <MergeRequest key={item.id} pullRequest={item} />
               ))}
             </ul>
           </>
@@ -39,26 +48,6 @@ export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
       </div>
     </PageContainer>
   );
-}
-
-//TODO: rename somehow
-export async function getReadyMergeRequestsForPage(client: Client, project: Project): Promise<MergeRequestForPage[]> {
-  const mrs = await client.analyze({
-    project,
-    state: 'open',
-    pullRequestCount: Number.MAX_VALUE,
-  });
-
-  console.log(mrs);
-
-  return mrs.map((item) => {
-    return {
-      item,
-      // readyTime: getReadyTime(item),
-      // readyPeriod: timeSince(new Date(getReadyTime(item))),
-    };
-  });
-  // .sort((item1, item2) => item2.readyPeriod._milliseconds - item1.readyPeriod._milliseconds);
 }
 
 // function getReadyTime(mr: PullRequest) {

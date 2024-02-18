@@ -1,10 +1,3 @@
-export interface MergeRequestForPage {
-  item: PullRequest;
-  //TOOD: make 'readyTime', 'readyPeriod' required again
-  readyTime?: string;
-  readyPeriod?: TimeSpan;
-}
-
 export interface Comment {
   id: string;
   prAuthorId: string;
@@ -122,6 +115,11 @@ export interface PullRequest {
   mergedAt?: string;
   comments: Comment[];
   discussions: UserDiscussion[];
+  /**
+   * Represents when pull request was marked as ready (WIP => Ready).
+   * If not defined then pull request is WIP.
+   */
+  readyAt?: string;
 }
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';

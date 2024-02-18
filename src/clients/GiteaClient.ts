@@ -6,6 +6,7 @@ import {
   PullReviewComment as GiteaPullReviewComment,
   PullReview as GiteaPullReview,
   Repository,
+  TimelineComment,
 } from 'gitea-js';
 import { User, Client, Comment, Project, AnalyzeParams, PullRequest, PullRequestStatus, UserDiscussion } from './types';
 import { groupBy, tidy } from '@tidyjs/tidy';
@@ -88,6 +89,7 @@ export class GiteaClient implements Client {
 
       // TODO: it seems we get not all reviews here. it cannot return more reviews than some limit
       const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
+      const { data: timeline } = await this.api.repos.issueGetCommentsAndTimeline(owner, name, pullRequest.number!);
 
       const commentsPromise = reviews
         .filter((review) => (review.comments_count ?? 0) > 0)
@@ -95,13 +97,13 @@ export class GiteaClient implements Client {
 
       const commentsResp = await Promise.all(commentsPromise);
       const prComments = commentsResp.flatMap((item) => item.data);
-      return { pullRequest, comments: prComments, reviews };
+      return { pullRequest, comments: prComments, reviews, timeline };
     });
 
     const commentsResp = await Promise.all(commentsPromise);
 
-    const allPrs = commentsResp.map(({ pullRequest, reviews, comments }) => {
-      const pr = convertToPullRequest(this.host, pullRequest, reviews, comments);
+    const allPrs = commentsResp.map(({ pullRequest, reviews, comments, timeline }) => {
+      const pr = convertToPullRequest(this.host, pullRequest, reviews, comments, timeline);
 
       return pr;
     });
@@ -114,7 +116,8 @@ function convertToPullRequest(
   hostUrl: string,
   pr: GiteaPullRequest,
   reviews: GiteaPullReview[],
-  comments: GiteaPullReviewComment[]
+  comments: GiteaPullReviewComment[],
+  timeline: TimelineComment[]
 ): PullRequest {
   const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pr, review));
   const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
@@ -147,6 +150,7 @@ function convertToPullRequest(
     requestedChangesByUserIds: [...new Set(requestedChangesBy)],
     mergedAt: pr.merged_at,
     discussions: convertToDiscussions(pr, comments),
+    readyAt: getReadyTime(pr, timeline),
   };
 }
 
@@ -253,4 +257,18 @@ async function getAllPullRequests(
   }
 
   return pullRequests;
+}
+
+function getReadyTime(pullRequest: GiteaPullRequest, timeline: TimelineComment[]): string | undefined {
+  let readyTime: string | undefined = undefined;
+
+  if (!pullRequest.title?.trim().startsWith('WIP:')) {
+    const markReady = timeline.findLast(
+      (item) =>
+        item.type === 'change_title' && item.old_title?.trim().startsWith('WIP:') && !item.new_title?.trim().startsWith('WIP:')
+    );
+    readyTime = markReady?.created_at ?? pullRequest.created_at;
+  }
+
+  return readyTime;
 }
