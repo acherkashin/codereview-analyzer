@@ -97,8 +97,7 @@ async function getMergeRequestsWithComments(
       return notSystem;
     });
 
-    const comments = userNotes.filter((item) => !item.system);
-    return convertToPullRequest(mrItem, comments, discussions);
+    return convertToPullRequest(mrItem, userNotes, discussions);
   });
 
   const allComments = await Promise.allSettled(promises);
@@ -133,6 +132,8 @@ function convertToPullRequest(
   comments: MergeRequestNoteSchema[],
   discussions: DiscussionSchema[]
 ): PullRequest {
+  const notSystemComments = comments.filter((item) => !item.system);
+
   return {
     id: mr.id.toString(),
     title: mr.title,
@@ -143,14 +144,14 @@ function convertToPullRequest(
     createdAt: mr.created_at,
     author: convertToUser(mr.author as any),
     requestedReviewers: (mr.reviewers ?? []).map((item) => convertToUser(item as any)),
-    comments: comments.map<Comment>((item) => convertToComment(mr, item)),
+    comments: notSystemComments.map<Comment>((item) => convertToComment(mr, item)),
     //TODO: implement
     reviewedByUserIds: [],
     approvedByUserIds: [],
     requestedChangesByUserIds: [],
     mergedAt: mr.merged_at,
     discussions: discussions.map((item) => convertToDiscussion(mr, item)),
-    readyAt: undefined, // TODO
+    readyAt: getReadyTime(mr, comments),
   };
 }
 
@@ -184,4 +185,11 @@ function convertToDiscussion(mr: MergeRequestSchema, discussion: DiscussionSchem
     url: (discussion.notes ?? []).length > 0 ? getNoteUrl(mr.web_url, discussion.notes![0].id.toString()) : mr.web_url!,
     comments: discussion.notes?.map((item) => convertToComment(mr, item)) ?? [],
   };
+}
+
+function getReadyTime(mr: MergeRequestSchema, notes: MergeRequestNoteSchema[]) {
+  if (mr.work_in_progress) return undefined;
+
+  const readyNote = notes.find((item) => item.body === 'marked this merge request as **ready**');
+  return readyNote?.created_at ?? mr.created_at;
 }

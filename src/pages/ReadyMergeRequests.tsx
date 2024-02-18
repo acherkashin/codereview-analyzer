@@ -12,12 +12,14 @@ export interface ReadyMergeRequestsProps {}
 export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
   const client = useClient();
   const requestMergeRequests = useCallback(
-    (project: Project) => {
-      return client.analyze({
+    async (project: Project) => {
+      const prs = await client.analyze({
         project,
         state: 'open',
         pullRequestCount: Number.MAX_VALUE,
       });
+
+      return prs.filter((item) => item.readyAt != null);
     },
     [client]
   );
@@ -49,9 +51,3 @@ export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
     </PageContainer>
   );
 }
-
-// function getReadyTime(mr: PullRequest) {
-// //TODO: need to add this info to the PullRequest interface and calculate separately for gitlab and gitea
-//   const readyNote = mr.notes.find((item) => item.body === 'marked this merge request as **ready**');
-//   return readyNote?.created_at ?? mr.mergeRequest.created_at;
-// }
