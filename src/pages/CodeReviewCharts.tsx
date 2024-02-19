@@ -39,6 +39,7 @@ import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/Co
 import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChart/CommentsPerMonthChart';
 import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
 import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
+// import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
 
@@ -143,6 +144,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
           <WordsCloud comments={comments} onClick={handleWordClick} />
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
+          {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
           <TopLongestDiscussionsChart
             pullRequests={pullRequests}
             count={10}
