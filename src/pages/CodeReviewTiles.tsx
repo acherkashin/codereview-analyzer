@@ -32,6 +32,13 @@ export function CodeReviewTiles() {
   const longestPullRequest = useMemo(() => getLongestPullRequest(pullRequests), [pullRequests]);
   const longestDiscussion = useMemo(() => getLongestDiscussions(pullRequests, 1)[0], [pullRequests]);
 
+  const noDiscussionsPr = useMemo(() => {
+    const noComments = pullRequests.filter((item) => item.discussions.length === 0);
+    const percent = Math.ceil((noComments.length / pullRequests.length) * 100);
+
+    return `${percent}%`;
+  }, []);
+
   if (pullRequests == null || pullRequests.length === 0) {
     return null;
   }
@@ -128,6 +135,7 @@ export function CodeReviewTiles() {
           />
         }
       />
+      <Tile count={noDiscussionsPr} title={'PRs merged without comments'} icon={<BranchIcon />} />
     </Stack>
   );
 }
