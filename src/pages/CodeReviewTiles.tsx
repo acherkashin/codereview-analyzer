@@ -6,11 +6,13 @@ import {
   useChartsStore,
   useMostCommentsLeft,
   useMostCommentsReceived,
+  getDiscussions,
 } from '../stores/ChartsStore';
 import { Avatar } from '@mui/material';
 import { Tile } from '../components/Tile/Tile';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
+import ForumIcon from '@mui/icons-material/Forum';
 import { BranchIcon } from '../icons/BranchIcon';
 import { getLongestDiscussions, getLongestPullRequest } from '../utils/ChartUtils';
 import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
@@ -18,6 +20,7 @@ import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
 export function CodeReviewTiles() {
   const pullRequests = useChartsStore((state) => state.pullRequests);
   const comments = useChartsStore(getComments);
+  const discussions = useChartsStore(getDiscussions);
 
   const mostCommentedPRs = useMemo(() => {
     const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
@@ -46,6 +49,7 @@ export function CodeReviewTiles() {
   return (
     <Stack direction="row" flexWrap={'wrap'}>
       <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
+      <Tile count={discussions.length} title="Discussions" icon={<ForumIcon fontSize="large" sx={{ color: 'white' }} />} />
       <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
       {mostCommentedPRs != null && (
         <Tile
