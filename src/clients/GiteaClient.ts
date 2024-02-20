@@ -70,8 +70,13 @@ export class GiteaClient implements Client {
   }
 
   async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
-    const { project, pullRequestCount, state } = params;
+    const rawData = await this.requestRawData(params);
+    const allPrs = this.analyzeRawData(rawData);
 
+    return allPrs;
+  }
+
+  async requestRawData({ project, pullRequestCount, state }: AnalyzeParams): Promise<GiteaRawDatum[]> {
     if (project == null || project.owner == null) {
       throw new Error('project is required');
     }
@@ -80,7 +85,7 @@ export class GiteaClient implements Client {
 
     const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state);
 
-    const commentsPromise = giteaPrs.map(async (pullRequest) => {
+    const rawDataPromises = giteaPrs.map(async (pullRequest) => {
       // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
       // So, we need:
       // 1. Get all pull requests
@@ -100,25 +105,25 @@ export class GiteaClient implements Client {
       return { pullRequest, comments: prComments, reviews, timeline };
     });
 
-    const commentsResp = await Promise.all(commentsPromise);
+    const rawData = await Promise.all(rawDataPromises);
 
-    const allPrs = commentsResp.map(({ pullRequest, reviews, comments, timeline }) => {
-      const pr = convertToPullRequest(this.host, pullRequest, reviews, comments, timeline);
+    return rawData;
+  }
 
-      return pr;
-    });
-
+  async analyzeRawData(rawData: GiteaRawDatum[]): Promise<PullRequest[]> {
+    const allPrs = rawData.map((datum) => convertToPullRequest(this.host, datum));
     return allPrs;
   }
 }
 
-function convertToPullRequest(
-  hostUrl: string,
-  pr: GiteaPullRequest,
-  reviews: GiteaPullReview[],
-  comments: GiteaPullReviewComment[],
-  timeline: TimelineComment[]
-): PullRequest {
+export interface GiteaRawDatum {
+  pullRequest: GiteaPullRequest;
+  reviews: GiteaPullReview[];
+  comments: GiteaPullReviewComment[];
+  timeline: TimelineComment[];
+}
+
+function convertToPullRequest(hostUrl: string, { pullRequest: pr, reviews, comments, timeline }: GiteaRawDatum): PullRequest {
   const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pr, review));
   const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
 
