@@ -40,7 +40,7 @@ export function CodeReviewTiles() {
     const percent = Math.ceil((noComments.length / pullRequests.length) * 100);
 
     return `${percent}%`;
-  }, []);
+  }, [pullRequests]);
 
   if (pullRequests == null || pullRequests.length === 0) {
     return null;
