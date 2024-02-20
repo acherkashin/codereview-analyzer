@@ -8,7 +8,17 @@ import {
   Repository,
   TimelineComment,
 } from 'gitea-js';
-import { User, Client, Comment, Project, AnalyzeParams, PullRequest, PullRequestStatus, UserDiscussion } from './types';
+import {
+  User,
+  Client,
+  Comment,
+  Project,
+  AnalyzeParams,
+  PullRequest,
+  PullRequestStatus,
+  UserDiscussion,
+  ExportData,
+} from './types';
 import { groupBy, tidy } from '@tidyjs/tidy';
 
 export class GiteaClient implements Client {
@@ -69,11 +79,20 @@ export class GiteaClient implements Client {
     return (data.data ?? []).map((user) => convertToUser(this.host, user));
   }
 
-  async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
+  async analyze(params: AnalyzeParams): Promise<[PullRequest[], ExportData]> {
+    const users = await this.getAllUsers();
     const rawData = await this.requestRawData(params);
     const allPrs = this.analyzeRawData(rawData);
 
-    return allPrs;
+    return [
+      allPrs,
+      {
+        hostType: 'Gitea',
+        hostUrl: this.host,
+        data: rawData,
+        users,
+      },
+    ];
   }
 
   async requestRawData({ project, pullRequestCount, state }: AnalyzeParams): Promise<GiteaRawDatum[]> {
@@ -110,7 +129,7 @@ export class GiteaClient implements Client {
     return rawData;
   }
 
-  async analyzeRawData(rawData: GiteaRawDatum[]): Promise<PullRequest[]> {
+  analyzeRawData(rawData: GiteaRawDatum[]): PullRequest[] {
     const allPrs = rawData.map((datum) => convertToPullRequest(this.host, datum));
     return allPrs;
   }

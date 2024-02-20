@@ -20,13 +20,17 @@ import {
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
-import { AnalyzeParams, Client, PullRequest, User } from '../clients/types';
+import { AnalyzeParams, Client, ExportData, PullRequest, User } from '../clients/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
+import { GitlabClient } from '../clients/GitlabClient';
+import { GiteaClient } from '../clients/GiteaClient';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
   users: User[];
-  import: (options: Pick<ChartsStore, 'pullRequests' | 'users'>) => void;
+  exportData: ExportData | null;
+  import: (json: string) => void;
+
   analyze: (client: Client, params: AnalyzeParams) => Promise<void>;
 }
 
@@ -37,20 +41,36 @@ export function createChartsStore() {
   return create<ChartsStore>((set, get) => ({
     pullRequests: [],
     users: [],
-    import({ pullRequests, users }: Pick<ChartsStore, 'pullRequests' | 'users'>) {
+    exportData: null,
+    import(json: string) {
+      const exportData: ExportData = JSON.parse(json);
+      const { data: rawData, users, hostType, hostUrl } = exportData;
+
+      //TODO: need to refactor. We need a separate object that takes only host and analyzesRawData
+      const client: Client = hostType === 'Gitlab' ? new GitlabClient(hostUrl, '') : new GiteaClient(hostUrl, '');
+
+      const pullRequests = client.analyzeRawData(rawData);
       set({
+        exportData,
         pullRequests,
         users,
       });
     },
     analyze: async (client: Client, params: AnalyzeParams) => {
-      const users = await client.getAllUsers();
-      const mergeRequests = await client.analyze(params);
+      const [pullRequests, exportData] = await client.analyze(params);
 
       set({
-        users,
-        pullRequests: mergeRequests,
+        users: exportData.users,
+        pullRequests: pullRequests,
+        exportData: exportData,
       });
+    },
+    getExportData: () => {
+      const { users, exportData: rawData } = get();
+      return {
+        users,
+        rawData,
+      };
     },
   }));
 }
@@ -194,6 +214,10 @@ export function useChangedFilesCount() {
 
     return changedFiles.length;
   });
+}
+
+export function getExportData(state: ChartsStore) {
+  return state.exportData;
 }
 
 // export function useWhoApprovesMergeRequests(client: Resources.Gitlab, projectId?: number, userId?: number) {

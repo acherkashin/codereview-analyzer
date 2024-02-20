@@ -13,7 +13,7 @@ export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
   const client = useClient();
   const requestMergeRequests = useCallback(
     async (project: Project) => {
-      const prs = await client.analyze({
+      const [prs, _] = await client.analyze({
         project,
         state: 'open',
         pullRequestCount: Number.MAX_VALUE,

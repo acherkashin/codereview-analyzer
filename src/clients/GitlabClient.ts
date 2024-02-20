@@ -1,4 +1,4 @@
-import { User, Client, Project, AnalyzeParams, PullRequest, Comment, UserDiscussion } from './types';
+import { User, Client, Project, AnalyzeParams, PullRequest, Comment, UserDiscussion, ExportData } from './types';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema, ProjectSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
@@ -26,11 +26,21 @@ export class GitlabClient implements Client {
     return projects.map<Project>(convertToProject);
   }
 
-  async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
-    const mrs = await this.requestRawData(params);
-    const result = this.analyzeRawData(mrs);
+  async analyze(params: AnalyzeParams): Promise<[PullRequest[], ExportData]> {
+    const users = await this.getAllUsers();
+    const rawData = await this.requestRawData(params);
+    const result = this.analyzeRawData(rawData);
 
-    return result;
+    return [
+      result,
+      {
+        hostType: 'Gitlab',
+        hostUrl: this.host,
+        data: rawData,
+        // TODO: users should be of raw type as well
+        users,
+      },
+    ];
   }
 
   async requestRawData(params: AnalyzeParams): Promise<GitlabRawDatum[]> {
@@ -71,7 +81,7 @@ export class GitlabClient implements Client {
     return this.api.Users.all({ perPage: 100 }).then((resp) => resp.map(convertToUser));
   }
 
-  async analyzeRawData(rawData: GitlabRawDatum[]): Promise<PullRequest[]> {
+  analyzeRawData(rawData: GitlabRawDatum[]): PullRequest[] {
     const allPrs = rawData.map(convertToPullRequest);
     return allPrs;
   }

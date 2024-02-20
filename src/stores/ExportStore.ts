@@ -47,7 +47,7 @@ export function createExportStore() {
       const projects = allProjects.filter((item) => projectsToExport.includes(item.id));
 
       const allPromises = projects.map(async (project) => {
-        const mergeRequests = await client.analyze({
+        const [mergeRequests, _] = await client.analyze({
           project,
           createdAfter: new Date(0),
           createdBefore: new Date(),
