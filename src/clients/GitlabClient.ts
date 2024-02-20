@@ -17,18 +17,13 @@ export class GitlabClient implements Client {
   async getAllProjects(): Promise<Project[]> {
     const projects = await this.api.Projects.all({ perPage: 100 });
 
-    return projects.map((item) => convertToProject(item));
+    return projects.map(convertToProject);
   }
 
   async searchProjects(searchText: string): Promise<Project[]> {
     const projects = await this.api.Projects.search(searchText);
 
-    return projects.map<Project>((item) => ({
-      id: item.id.toString(),
-      name: item.name_with_namespace,
-      avatarUrl: item.avatar_url,
-      description: item.description,
-    }));
+    return projects.map<Project>(convertToProject);
   }
 
   async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
