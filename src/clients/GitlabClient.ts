@@ -27,10 +27,35 @@ export class GitlabClient implements Client {
   }
 
   async analyze(params: AnalyzeParams): Promise<PullRequest[]> {
-    const mergeRequests = await getMergeRequests(this.api, params);
+    const mrs = await this.requestRawData(params);
+    const result = this.analyzeRawData(mrs);
 
-    const mrs = await getMergeRequestsWithComments(this.api, parseInt(params.project.id), mergeRequests);
-    return mrs;
+    return result;
+  }
+
+  async requestRawData(params: AnalyzeParams): Promise<GitlabRawDatum[]> {
+    const allMrs = await getMergeRequests(this.api, params);
+    const projectId = parseInt(params.project.id);
+
+    const mrs = allMrs.filter((item) => item.user_notes_count !== 0);
+
+    const promises = mrs.map<Promise<GitlabRawDatum>>(async (mrItem) => {
+      //TODO: most probably it is enough to get only discussions and get the user notes from it, so we can optimize it later
+      const userNotes = await this.api.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
+      const discussions = await this.api.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 });
+
+      return {
+        mergeRequest: mrItem,
+        notes: userNotes,
+        discussions,
+      };
+    });
+
+    const allComments = await Promise.allSettled(promises);
+
+    const result = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
+
+    return result;
   }
 
   getCurrentUser(): Promise<User> {
@@ -45,11 +70,17 @@ export class GitlabClient implements Client {
   async getAllUsers(): Promise<User[]> {
     return this.api.Users.all({ perPage: 100 }).then((resp) => resp.map(convertToUser));
   }
+
+  async analyzeRawData(rawData: GitlabRawDatum[]): Promise<PullRequest[]> {
+    const allPrs = rawData.map(convertToPullRequest);
+    return allPrs;
+  }
 }
 
-export interface UserComment {
+export interface GitlabRawDatum {
   mergeRequest: MergeRequestSchema;
-  comment: MergeRequestNoteSchema;
+  notes: MergeRequestNoteSchema[];
+  discussions: DiscussionSchema[];
 }
 
 export function convertToUser(user: Pick<UserSchema, 'id' | 'name' | 'username' | 'avatar_url' | 'web_url' | 'state'>): User {
@@ -76,32 +107,6 @@ export function getNoteUrl(mrUrl: string, commentId: string) {
   return `${mrUrl}/#note_${commentId}`;
 }
 
-async function getMergeRequestsWithComments(
-  client: GitlabType,
-  projectId: number,
-  allMrs: MergeRequestSchema[]
-): Promise<PullRequest[]> {
-  const mrs = allMrs.filter((item) => item.user_notes_count !== 0);
-
-  const promises = mrs.map(async (mrItem) => {
-    //TODO: most probably it is enough to get only discussions and get the user notes from it, so we can optimize it later
-    const userNotes = await client.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
-    const discussions = await client.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 }).then((items) => {
-      // some notes are left by gitlab, so we need to filter them out
-      const notSystem = items.filter((discussion) => discussion.notes?.some((item) => !item.system));
-      return notSystem;
-    });
-
-    return convertToPullRequest(mrItem, userNotes, discussions);
-  });
-
-  const allComments = await Promise.allSettled(promises);
-
-  const result = allComments.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
-
-  return result;
-}
-
 function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefore, state }: AnalyzeParams) {
   let gitlabState: AllMergeRequestsOptions['state'] = undefined;
 
@@ -122,12 +127,10 @@ function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefor
   });
 }
 
-function convertToPullRequest(
-  mr: MergeRequestSchema,
-  comments: MergeRequestNoteSchema[],
-  discussions: DiscussionSchema[]
-): PullRequest {
+function convertToPullRequest({ mergeRequest: mr, notes: comments, discussions }: GitlabRawDatum): PullRequest {
+  //   // some notes are left by gitlab, so we need to filter them out
   const notSystemComments = comments.filter((item) => !item.system);
+  const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
 
   return {
     id: mr.id.toString(),
@@ -145,7 +148,7 @@ function convertToPullRequest(
     approvedByUserIds: [],
     requestedChangesByUserIds: [],
     mergedAt: mr.merged_at,
-    discussions: discussions.map((item) => convertToDiscussion(mr, item)),
+    discussions: notSystemDiscussions.map((item) => convertToDiscussion(mr, item)),
     readyAt: getReadyTime(mr, comments),
   };
 }
