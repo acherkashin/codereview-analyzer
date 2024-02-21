@@ -49,6 +49,7 @@ export function createExportStore() {
       const projects = allProjects.filter((item) => projectsToExport.includes(item.id));
 
       const allPromises = projects.map(async (project) => {
+        //TODO: we should not fetch users here
         const data = await client.fetch({
           project,
           createdAfter: new Date(0),
@@ -56,7 +57,7 @@ export function createExportStore() {
           pullRequestCount: Number.MAX_VALUE,
         });
 
-        const { users, pullRequests } = convert(data);
+        const { pullRequests } = convert(data);
 
         return {
           project,

@@ -22,8 +22,6 @@ import {
 import createContext from 'zustand/context';
 import { AnalyzeParams, ExportData, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
-import { GitlabService } from '../services/Gitlab/GitlabService';
-import { GiteaService } from '../services/Gitea/GiteaService';
 import { GitService } from '../services/GitService';
 import { convert } from '../services/GitConverter';
 

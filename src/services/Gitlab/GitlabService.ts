@@ -1,10 +1,10 @@
 import { User, Project, AnalyzeParams, PullRequest, ExportData, RawData } from '../types';
 import { Gitlab } from '@gitbeaker/browser';
-import { UserSchema, ProjectSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
+import { UserSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { MergeRequestNoteSchema, MergeRequestSchema, DiscussionSchema } from '@gitbeaker/core/dist/types/types';
 import { GitService } from '../GitService';
-import { convertToProject, convertToPullRequest, convertToUser } from './GitlabConverter';
+import { convertToProject, convertToUser } from './GitlabConverter';
 
 export class GitlabService implements GitService {
   private api: GitlabType;

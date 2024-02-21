@@ -1,6 +1,4 @@
 import {
-  Api as GiteaApi,
-  giteaApi,
   User as GiteaUser,
   PullRequest as GiteaPullRequest,
   PullReviewComment as GiteaPullReviewComment,
