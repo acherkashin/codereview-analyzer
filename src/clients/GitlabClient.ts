@@ -1,8 +1,9 @@
-import { User, Client, Project, AnalyzeParams, PullRequest, Comment, UserDiscussion, ExportData } from './types';
+import { User, Project, AnalyzeParams, PullRequest, Comment, UserDiscussion, ExportData } from './types';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema, ProjectSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { MergeRequestNoteSchema, MergeRequestSchema, DiscussionSchema, DiscussionNote } from '@gitbeaker/core/dist/types/types';
+import { Client } from './Client';
 
 export class GitlabClient implements Client {
   private api: GitlabType;

@@ -20,10 +20,11 @@ import {
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
-import { AnalyzeParams, Client, ExportData, PullRequest, User } from '../clients/types';
+import { AnalyzeParams, ExportData, PullRequest, User } from '../clients/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { GitlabClient } from '../clients/GitlabClient';
 import { GiteaClient } from '../clients/GiteaClient';
+import { Client } from '../clients/Client';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];

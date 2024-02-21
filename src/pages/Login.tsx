@@ -14,11 +14,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
 import { ReactComponent as GiteaIcon } from './../components/gitea.svg';
 import { TooltipPrompt } from '../components';
-import { HostingType, getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
+import { getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
 import { getCredentials } from '../utils/CredentialUtils';
 import { Logo } from '../components/Logo';
+import { HostingType } from '../clients/Client';
 
 export interface LoginProps {}
 

@@ -2,11 +2,8 @@ import create from 'zustand';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { clearCredentials, saveCredentials } from '../utils/CredentialUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
-import { Client, User } from '../clients/types';
-import { GiteaClient } from '../clients/GiteaClient';
-import { GitlabClient } from '../clients/GitlabClient';
-
-export type HostingType = 'Gitlab' | 'Gitea';
+import { User } from '../clients/types';
+import { Client, HostingType, getClient } from '../clients/Client';
 
 export interface AuthStore {
   host: string | null;
@@ -41,7 +38,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     set({ isSigningIn: true });
 
-    const client: Client = hostType === 'Gitlab' ? new GitlabClient(host, token) : new GiteaClient(host, token);
+    const client = getClient({ host, token, hostType });
 
     try {
       const user = await client.getCurrentUser();
@@ -106,9 +103,5 @@ export function getHostType(store: AuthStore) {
 }
 
 export function useClient(): Client {
-  return useAuthStore(getClient)!;
-}
-
-function getClient(store: AuthStore) {
-  return store.genericClient;
+  return useAuthStore((store) => store.genericClient)!;
 }

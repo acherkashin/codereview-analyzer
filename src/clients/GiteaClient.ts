@@ -8,18 +8,9 @@ import {
   Repository,
   TimelineComment,
 } from 'gitea-js';
-import {
-  User,
-  Client,
-  Comment,
-  Project,
-  AnalyzeParams,
-  PullRequest,
-  PullRequestStatus,
-  UserDiscussion,
-  ExportData,
-} from './types';
+import { User, Comment, Project, AnalyzeParams, PullRequest, PullRequestStatus, UserDiscussion, ExportData } from './types';
 import { groupBy, tidy } from '@tidyjs/tidy';
+import { Client } from './Client';
 
 export class GiteaClient implements Client {
   private api: GiteaApi<any>;
