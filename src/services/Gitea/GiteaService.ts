@@ -8,8 +8,8 @@ import {
   Repository,
   TimelineComment,
 } from 'gitea-js';
-import { User, Project, AnalyzeParams, PullRequest, PullRequestStatus, ExportData, RawData } from './types';
-import { GitService } from './GitService';
+import { User, Project, AnalyzeParams, PullRequest, PullRequestStatus, ExportData, RawData } from '../types';
+import { GitService } from '../GitService';
 import { convertToProject, convertToPullRequest, convertToUser } from './GiteaConverter';
 
 export class GiteaService implements GitService {

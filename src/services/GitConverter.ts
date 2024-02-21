@@ -1,5 +1,5 @@
-import { GiteaConverter } from './GiteaConverter';
-import { GitlabConverter } from './GitlabConverter';
+import { GiteaConverter } from './Gitea/GiteaConverter';
+import { GitlabConverter } from './Gitlab/GitlabConverter';
 import { ExportData, PullRequest, RawData, User } from './types';
 
 export interface GitConverter {

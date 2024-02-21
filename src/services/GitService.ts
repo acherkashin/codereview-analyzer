@@ -1,5 +1,5 @@
-import { GiteaService } from './GiteaService';
-import { GitlabService } from './GitlabService';
+import { GiteaService } from './Gitea/GiteaService';
+import { GitlabService } from './Gitlab/GitlabService';
 import { AnalyzeParams, ExportData, Project, PullRequest, RawData, User } from './types';
 
 export type HostingType = 'Gitlab' | 'Gitea';

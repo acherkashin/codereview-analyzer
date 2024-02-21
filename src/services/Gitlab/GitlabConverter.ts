@@ -1,6 +1,6 @@
-import { GitConverter } from './GitConverter';
+import { GitConverter } from '../GitConverter';
 import { GitlabRawDatum } from './GitlabService';
-import { RawData, PullRequest, User, Comment, UserDiscussion, Project } from './types';
+import { RawData, PullRequest, User, Comment, UserDiscussion, Project } from '../types';
 import {
   UserSchema,
   ProjectSchema,

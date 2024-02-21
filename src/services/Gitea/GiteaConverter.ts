@@ -9,8 +9,8 @@ import {
   TimelineComment,
 } from 'gitea-js';
 
-import { GitConverter } from './GitConverter';
-import { RawData, PullRequest, User, Project, UserDiscussion, Comment } from './types';
+import { GitConverter } from '../GitConverter';
+import { RawData, PullRequest, User, Project, UserDiscussion, Comment } from '../types';
 import { GiteaRawDatum } from './GiteaService';
 import { groupBy, tidy } from '@tidyjs/tidy';
 
