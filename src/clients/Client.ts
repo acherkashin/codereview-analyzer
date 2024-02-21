@@ -1,6 +1,6 @@
 import { GiteaClient } from './GiteaClient';
 import { GitlabClient } from './GitlabClient';
-import { AnalyzeParams, ExportData, Project, PullRequest, User } from './types';
+import { AnalyzeParams, ExportData, Project, PullRequest, RawData, User } from './types';
 
 export type HostingType = 'Gitlab' | 'Gitea';
 
@@ -15,8 +15,8 @@ export function getClient({ hostType, host, token }: Credentials): Client {
 }
 
 export interface Client {
-  analyze(params: AnalyzeParams): Promise<[PullRequest[], ExportData]>;
-  analyzeRawData(rawData: any[]): PullRequest[];
+  analyze(params: AnalyzeParams): Promise<[PullRequest[], User[], ExportData]>;
+  analyzeRawData(rawData: RawData): { pullRequests: PullRequest[]; users: User[] };
 
   getCurrentUser(): Promise<User>;
   searchUsers(searchText: string): Promise<User[]>;

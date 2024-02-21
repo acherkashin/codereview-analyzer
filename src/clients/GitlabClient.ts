@@ -1,4 +1,4 @@
-import { User, Project, AnalyzeParams, PullRequest, Comment, UserDiscussion, ExportData } from './types';
+import { User, Project, AnalyzeParams, PullRequest, Comment, UserDiscussion, ExportData, RawData } from './types';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema, ProjectSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
@@ -27,19 +27,22 @@ export class GitlabClient implements Client {
     return projects.map<Project>(convertToProject);
   }
 
-  async analyze(params: AnalyzeParams): Promise<[PullRequest[], ExportData]> {
-    const users = await this.getAllUsers();
-    const rawData = await this.requestRawData(params);
-    const result = this.analyzeRawData(rawData);
+  async analyze(params: AnalyzeParams): Promise<[PullRequest[], User[], ExportData]> {
+    const rawUsers = await this._getAllUsers();
+    const rawPullRequests = await this.requestRawData(params);
+
+    const { pullRequests, users } = this.analyzeRawData({ users: rawUsers, pullRequests: rawPullRequests });
 
     return [
-      result,
+      pullRequests,
+      users,
       {
         hostType: 'Gitlab',
         hostUrl: this.host,
-        data: rawData,
-        // TODO: users should be of raw type as well
-        users,
+        data: {
+          pullRequests: rawPullRequests,
+          users: rawUsers,
+        },
       },
     ];
   }
@@ -79,12 +82,18 @@ export class GitlabClient implements Client {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return this.api.Users.all({ perPage: 100 }).then((resp) => resp.map(convertToUser));
+    return this._getAllUsers().then((resp) => resp.map(convertToUser));
   }
 
-  analyzeRawData(rawData: GitlabRawDatum[]): PullRequest[] {
-    const allPrs = rawData.map(convertToPullRequest);
-    return allPrs;
+  analyzeRawData({ pullRequests, users }: RawData): { pullRequests: PullRequest[]; users: User[] } {
+    return {
+      pullRequests: pullRequests.map(convertToPullRequest),
+      users: users.map(convertToUser),
+    };
+  }
+
+  private async _getAllUsers(): Promise<UserSchema[]> {
+    return this.api.Users.all({ perPage: 100 });
   }
 }
 

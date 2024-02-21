@@ -8,7 +8,17 @@ import {
   Repository,
   TimelineComment,
 } from 'gitea-js';
-import { User, Comment, Project, AnalyzeParams, PullRequest, PullRequestStatus, UserDiscussion, ExportData } from './types';
+import {
+  User,
+  Comment,
+  Project,
+  AnalyzeParams,
+  PullRequest,
+  PullRequestStatus,
+  UserDiscussion,
+  ExportData,
+  RawData,
+} from './types';
 import { groupBy, tidy } from '@tidyjs/tidy';
 import { Client } from './Client';
 
@@ -48,16 +58,7 @@ export class GiteaClient implements Client {
   }
 
   async getAllUsers(): Promise<User[]> {
-    const all: GiteaUser[] = [];
-    let users: GiteaUser[] = [];
-
-    let page = 1;
-    do {
-      users = (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
-      all.push(...users);
-      page++;
-    } while (users.length === 50);
-
+    const all = await this._getAllUsers();
     return all.map((user) => convertToUser(this.host, user));
   }
 
@@ -70,18 +71,21 @@ export class GiteaClient implements Client {
     return (data.data ?? []).map((user) => convertToUser(this.host, user));
   }
 
-  async analyze(params: AnalyzeParams): Promise<[PullRequest[], ExportData]> {
-    const users = await this.getAllUsers();
-    const rawData = await this.requestRawData(params);
-    const allPrs = this.analyzeRawData(rawData);
+  async analyze(params: AnalyzeParams): Promise<[PullRequest[], User[], ExportData]> {
+    const rawUsers = await this._getAllUsers();
+    const rawPullRequests = await this.requestRawData(params);
+    const { pullRequests, users } = this.analyzeRawData({ pullRequests: rawPullRequests, users: rawUsers });
 
     return [
-      allPrs,
+      pullRequests,
+      users,
       {
         hostType: 'Gitea',
         hostUrl: this.host,
-        data: rawData,
-        users,
+        data: {
+          pullRequests: rawPullRequests,
+          users: rawUsers,
+        },
       },
     ];
   }
@@ -120,9 +124,25 @@ export class GiteaClient implements Client {
     return rawData;
   }
 
-  analyzeRawData(rawData: GiteaRawDatum[]): PullRequest[] {
-    const allPrs = rawData.map((datum) => convertToPullRequest(this.host, datum));
-    return allPrs;
+  analyzeRawData({ pullRequests, users }: RawData): { pullRequests: PullRequest[]; users: User[] } {
+    return {
+      pullRequests: pullRequests.map((datum) => convertToPullRequest(this.host, datum)),
+      users: users.map((user) => convertToUser(this.host, user)),
+    };
+  }
+
+  private async _getAllUsers(): Promise<GiteaUser[]> {
+    const all: GiteaUser[] = [];
+    let users: GiteaUser[] = [];
+
+    let page = 1;
+    do {
+      users = (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
+      all.push(...users);
+      page++;
+    } while (users.length === 50);
+
+    return all;
   }
 }
 

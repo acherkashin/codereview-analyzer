@@ -127,6 +127,10 @@ export type PullRequestStatus = 'closed' | 'open' | 'all';
 export interface ExportData {
   hostType: string;
   hostUrl: string;
-  data: any[];
-  users: User[];
+  data: RawData;
+}
+
+export interface RawData {
+  pullRequests: any[];
+  users: any[];
 }

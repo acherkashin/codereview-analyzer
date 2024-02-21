@@ -45,12 +45,12 @@ export function createChartsStore() {
     exportData: null,
     import(json: string) {
       const exportData: ExportData = JSON.parse(json);
-      const { data: rawData, users, hostType, hostUrl } = exportData;
+      const { data, hostType, hostUrl } = exportData;
 
       //TODO: need to refactor. We need a separate object that takes only host and analyzesRawData
       const client: Client = hostType === 'Gitlab' ? new GitlabClient(hostUrl, '') : new GiteaClient(hostUrl, '');
 
-      const pullRequests = client.analyzeRawData(rawData);
+      const { pullRequests, users } = client.analyzeRawData(data);
       set({
         exportData,
         pullRequests,
@@ -58,10 +58,10 @@ export function createChartsStore() {
       });
     },
     analyze: async (client: Client, params: AnalyzeParams) => {
-      const [pullRequests, exportData] = await client.analyze(params);
+      const [pullRequests, users, exportData] = await client.analyze(params);
 
       set({
-        users: exportData.users,
+        users: users,
         pullRequests: pullRequests,
         exportData: exportData,
       });
