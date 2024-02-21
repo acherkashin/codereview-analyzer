@@ -8,19 +8,9 @@ import {
   Repository,
   TimelineComment,
 } from 'gitea-js';
-import {
-  User,
-  Comment,
-  Project,
-  AnalyzeParams,
-  PullRequest,
-  PullRequestStatus,
-  UserDiscussion,
-  ExportData,
-  RawData,
-} from './types';
-import { groupBy, tidy } from '@tidyjs/tidy';
+import { User, Project, AnalyzeParams, PullRequest, PullRequestStatus, ExportData, RawData } from './types';
 import { GitService } from './GitService';
+import { convertToProject, convertToPullRequest, convertToUser } from './GiteaConverter';
 
 export class GiteaService implements GitService {
   private api: GiteaApi<any>;
@@ -153,117 +143,6 @@ export interface GiteaRawDatum {
   timeline: TimelineComment[];
 }
 
-function convertToPullRequest(hostUrl: string, { pullRequest: pr, reviews, comments, timeline }: GiteaRawDatum): PullRequest {
-  const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pr, review));
-  const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
-
-  const reviewedBy = reviews
-    .filter((item) => item.state && item.user && ['APPROVED', 'REQUEST_CHANGES', 'COMMENT'].includes(item.state))
-    .map((item) => item.user!.id!.toString());
-
-  const approvedBy = reviews
-    .filter((item) => item.state && item.user && item.state === 'APPROVED')
-    .map((item) => item.user!.id!.toString());
-
-  const requestedChangesBy = reviews
-    .filter((item) => item.state && item.user && item.state === 'REQUEST_CHANGES')
-    .map((item) => item.user!.id!.toString());
-
-  return {
-    id: pr.id!.toString(),
-    title: pr.title ?? 'unknown title',
-    targetBranch: pr.base?.label ?? 'unknown target branch',
-    branchName: pr.head?.label ?? 'unknown branch name',
-    url: pr.url!,
-    updatedAt: pr.updated_at ?? 'unknown updated at',
-    author: convertToUser(hostUrl, pr.user!),
-    requestedReviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user)),
-    comments: [...notEmptyReviews, ...prComments],
-    createdAt: pr.created_at ?? 'unknown created at',
-    reviewedByUserIds: [...new Set(reviewedBy)],
-    approvedByUserIds: [...new Set(approvedBy)],
-    requestedChangesByUserIds: [...new Set(requestedChangesBy)],
-    mergedAt: pr.merged_at,
-    discussions: convertToDiscussions(pr, comments),
-    readyAt: getReadyTime(pr, timeline),
-  };
-}
-
-function convertToProject(repository: Repository): Project {
-  return {
-    id: repository.id!.toString(),
-    name: /*repository.full_name || */ repository.name || 'unknown name',
-    avatarUrl: repository.avatar_url,
-    description: repository.description,
-    owner: repository.owner!.login!.toString(),
-  };
-}
-
-function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewComment | GiteaPullReview): Comment {
-  return {
-    id: item.id!.toString(),
-    prAuthorId: getUserId(pullRequest.user),
-    prAuthorName: getUserName(pullRequest.user),
-    prAuthorAvatarUrl: pullRequest.user?.avatar_url,
-
-    body: item.body!,
-    reviewerId: item.user?.id?.toString() || 'unknown reviewerId',
-    reviewerName: item.user?.full_name || item.user?.login || 'unknown reviewerName',
-    pullRequestId: pullRequest.id!.toString(),
-    pullRequestName: pullRequest.title!,
-    url: item.html_url ?? '#',
-    filePath: 'path' in item ? item.path ?? '' : '',
-    createdAt: 'created_at' in item ? item.created_at! : (item as GiteaPullReview).submitted_at!,
-  };
-}
-
-function getUserId(user: GiteaUser | undefined) {
-  return user?.id?.toString() || 'unknown authorId';
-}
-
-function getUserName(user: GiteaUser | undefined) {
-  return user?.full_name || user?.login || 'unknown authorname';
-}
-
-export function convertToUser(host: string, user: GiteaUser): User {
-  return {
-    id: user.id!.toString(),
-    fullName: user.full_name!,
-    userName: user.login ?? user.email ?? 'unknown userName',
-    // email: user.email!,
-    avatarUrl: user.avatar_url!,
-    webUrl: `${host}/${user.login}`,
-    active: !!user.active,
-  };
-}
-
-export function convertToDiscussions(pr: GiteaPullRequest, comments: GiteaPullReviewComment[]): UserDiscussion[] {
-  const discussions = tidy(
-    comments,
-    groupBy(['pull_request_review_id', 'path', 'position'], groupBy.values({ flat: true }))
-  ) as GiteaPullReviewComment[][];
-
-  const result = discussions.map<UserDiscussion>((groupedComments) => {
-    const comments = groupedComments.map((item) => convertToComment(pr, item));
-
-    return {
-      id: comments[0].id,
-      comments,
-      prAuthorId: comments[0].prAuthorId,
-      prAuthorName: comments[0].prAuthorName,
-
-      reviewerId: comments[0].reviewerId,
-      reviewerName: comments[0].reviewerName,
-      reviewerAvatarUrl: comments[0].reviewerAvatarUrl,
-
-      pullRequestName: comments[0].pullRequestName,
-      url: comments[0].url,
-    };
-  });
-
-  return result;
-}
-
 const pageSize = 50;
 
 async function getAllPullRequests(
@@ -292,18 +171,4 @@ async function getAllPullRequests(
   }
 
   return pullRequests;
-}
-
-function getReadyTime(pullRequest: GiteaPullRequest, timeline: TimelineComment[]): string | undefined {
-  let readyTime: string | undefined = undefined;
-
-  if (!pullRequest.title?.trim().startsWith('WIP:')) {
-    const markReady = timeline.findLast(
-      (item) =>
-        item.type === 'change_title' && item.old_title?.trim().startsWith('WIP:') && !item.new_title?.trim().startsWith('WIP:')
-    );
-    readyTime = markReady?.created_at ?? pullRequest.created_at;
-  }
-
-  return readyTime;
 }

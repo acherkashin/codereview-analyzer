@@ -25,6 +25,7 @@ import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/ti
 import { GitlabService } from '../services/GitlabService';
 import { GiteaService } from '../services/GiteaService';
 import { GitService } from '../services/GitService';
+import { convert } from '../services/GitConverter';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
@@ -45,12 +46,8 @@ export function createChartsStore() {
     exportData: null,
     import(json: string) {
       const exportData: ExportData = JSON.parse(json);
-      const { data, hostType, hostUrl } = exportData;
 
-      //TODO: need to refactor. We need a separate object that takes only host and analyzesRawData
-      const client: GitService = hostType === 'Gitlab' ? new GitlabService(hostUrl, '') : new GiteaService(hostUrl, '');
-
-      const { pullRequests, users } = client.analyzeRawData(data);
+      const { pullRequests, users } = convert(exportData);
       set({
         exportData,
         pullRequests,

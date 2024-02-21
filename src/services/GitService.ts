@@ -16,7 +16,6 @@ export function getGitService({ hostType, host, token }: Credentials): GitServic
 
 export interface GitService {
   analyze(params: AnalyzeParams): Promise<[PullRequest[], User[], ExportData]>;
-  analyzeRawData(rawData: RawData): { pullRequests: PullRequest[]; users: User[] };
 
   getCurrentUser(): Promise<User>;
   searchUsers(searchText: string): Promise<User[]>;
