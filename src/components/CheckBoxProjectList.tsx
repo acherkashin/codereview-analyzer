@@ -1,6 +1,6 @@
 import { Avatar, Checkbox, List, ListItem, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-import { Project } from '../clients/types';
+import { Project } from '../services/types';
 
 export interface CheckBoxProjectListProps {
   projects: Project[];

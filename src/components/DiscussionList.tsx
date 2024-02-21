@@ -4,7 +4,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { CommentList } from './CommentList';
 import { Avatar, Link } from '@mui/material';
-import { UserDiscussion } from '../clients/types';
+import { UserDiscussion } from '../services/types';
 
 export interface DiscussionListProps {
   discussions: UserDiscussion[];

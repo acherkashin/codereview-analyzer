@@ -10,7 +10,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useClient } from '../stores/AuthStore';
-import { User } from '../clients/types';
+import { User } from '../services/types';
 import { useDebounce } from '../hooks';
 
 export interface UserListProps {

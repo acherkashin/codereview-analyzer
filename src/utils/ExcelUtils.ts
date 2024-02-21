@@ -1,5 +1,5 @@
 import zipcelx, { ZipCelXConfig, ZipCelXRow } from 'zipcelx';
-import { Comment } from './../clients/types';
+import { Comment } from '../services/types';
 
 export function downloadComments(fileName: string, comments: Comment[]) {
   const exportEntries = comments.map<ZipCelXRow>((comment) => [

@@ -3,9 +3,9 @@ import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema, ProjectSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
 import { MergeRequestNoteSchema, MergeRequestSchema, DiscussionSchema, DiscussionNote } from '@gitbeaker/core/dist/types/types';
-import { Client } from './Client';
+import { GitService } from './GitService';
 
-export class GitlabClient implements Client {
+export class GitlabService implements GitService {
   private api: GitlabType;
 
   constructor(private host: string, private token: string) {

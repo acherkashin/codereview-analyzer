@@ -20,9 +20,9 @@ import {
   RawData,
 } from './types';
 import { groupBy, tidy } from '@tidyjs/tidy';
-import { Client } from './Client';
+import { GitService } from './GitService';
 
-export class GiteaClient implements Client {
+export class GiteaService implements GitService {
   private api: GiteaApi<any>;
 
   constructor(private host: string, private token: string) {

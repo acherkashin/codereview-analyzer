@@ -1,5 +1,5 @@
 import { groupBy, summarize, tidy, n } from '@tidyjs/tidy';
-import { Comment } from './../../../clients/types';
+import { Comment } from '../../../services/types';
 
 export function convertToCommentsLineChart(comments: Comment[], reviewerNames: string[] = []) {
   if (reviewerNames.length !== 0) {

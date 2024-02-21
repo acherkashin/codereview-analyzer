@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { ResponsiveChord } from '@nivo/chord';
 import { ChartContainer } from '../../ChartContainer';
-import { PullRequest, User } from '../../../clients/types';
+import { PullRequest, User } from '../../../services/types';
 
 export interface UsersConnectionChartProps {
   users: User[];

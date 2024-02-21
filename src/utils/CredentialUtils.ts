@@ -1,4 +1,4 @@
-import { Credentials } from '../clients/Client';
+import { Credentials } from '../services/GitService';
 
 export function getCredentials() {
   const strCredentials = localStorage.getItem('credentials');

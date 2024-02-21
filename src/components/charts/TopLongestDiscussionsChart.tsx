@@ -1,5 +1,5 @@
 import { Avatar, Stack } from '@mui/material';
-import { PullRequest, UserDiscussion } from '../../clients/types';
+import { PullRequest, UserDiscussion } from '../../services/types';
 import { BaseChartTooltip } from '../BaseChartTooltip';
 import { BarChart } from './BarChart';
 import { useMemo } from 'react';

@@ -20,11 +20,11 @@ import {
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
-import { AnalyzeParams, ExportData, PullRequest, User } from '../clients/types';
+import { AnalyzeParams, ExportData, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
-import { GitlabClient } from '../clients/GitlabClient';
-import { GiteaClient } from '../clients/GiteaClient';
-import { Client } from '../clients/Client';
+import { GitlabService } from '../services/GitlabService';
+import { GiteaService } from '../services/GiteaService';
+import { GitService } from '../services/GitService';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
@@ -32,7 +32,7 @@ export interface ChartsStore {
   exportData: ExportData | null;
   import: (json: string) => void;
 
-  analyze: (client: Client, params: AnalyzeParams) => Promise<void>;
+  analyze: (client: GitService, params: AnalyzeParams) => Promise<void>;
 }
 
 const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
@@ -48,7 +48,7 @@ export function createChartsStore() {
       const { data, hostType, hostUrl } = exportData;
 
       //TODO: need to refactor. We need a separate object that takes only host and analyzesRawData
-      const client: Client = hostType === 'Gitlab' ? new GitlabClient(hostUrl, '') : new GiteaClient(hostUrl, '');
+      const client: GitService = hostType === 'Gitlab' ? new GitlabService(hostUrl, '') : new GiteaService(hostUrl, '');
 
       const { pullRequests, users } = client.analyzeRawData(data);
       set({
@@ -57,7 +57,7 @@ export function createChartsStore() {
         users,
       });
     },
-    analyze: async (client: Client, params: AnalyzeParams) => {
+    analyze: async (client: GitService, params: AnalyzeParams) => {
       const [pullRequests, users, exportData] = await client.analyze(params);
 
       set({

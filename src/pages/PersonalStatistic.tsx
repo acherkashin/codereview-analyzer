@@ -13,7 +13,7 @@ import {
 import { useClient } from '../stores/AuthStore';
 import { useLocalStorage } from '../hooks';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, User } from '../clients/types';
+import { AnalyzeParams, User } from '../services/types';
 
 export function PersonalStatistic() {
   const analyze = useChartsStore(getAnalyze);

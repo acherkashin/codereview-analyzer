@@ -1,6 +1,6 @@
 import { LineChart } from '../LineChart';
 import { ChartContainer } from '../../ChartContainer';
-import { Comment } from '../../../clients/types';
+import { Comment } from '../../../services/types';
 import { useMemo, useReducer, useState } from 'react';
 import { convertToCommentsLineChart } from './CommentsPerMonthChartUtils';
 import { SquareMarker } from '../../BaseChartTooltip';

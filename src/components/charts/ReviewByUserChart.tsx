@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { PullRequest, User } from '../../clients/types';
+import { PullRequest, User } from '../../services/types';
 import { getReviewDataByUser } from '../../utils/ChartUtils';
 import { ChartContainer } from '../ChartContainer';
 import { BarChart } from './BarChart';

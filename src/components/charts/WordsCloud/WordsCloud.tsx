@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { Comment } from '../../../clients/types';
+import { Comment } from '../../../services/types';
 import { extractWords } from './WordsCloudUtils';
 import { ChartContainer } from '../../ChartContainer';
 import ReactWordcloud from 'react-wordcloud';

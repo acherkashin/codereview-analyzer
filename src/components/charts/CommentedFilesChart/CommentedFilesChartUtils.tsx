@@ -1,6 +1,6 @@
 import { arrange, asc, distinct, filter, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { getFileExtension } from '../../../utils/ChartUtils';
-import { Comment } from './../../../clients/types';
+import { Comment } from '../../../services/types';
 
 export function convertToFilesCommented(comments: Comment[]) {
   const paths = comments.filter((item) => !!item.filePath).map((item) => ({ filePath: item.filePath }));

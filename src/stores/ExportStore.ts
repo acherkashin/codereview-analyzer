@@ -1,14 +1,14 @@
 import create, { StoreApi } from 'zustand';
 import createContext from 'zustand/context';
-import { Project, PullRequest, User } from '../clients/types';
-import { Client } from '../clients/Client';
+import { Project, PullRequest, User } from '../services/types';
+import { GitService } from '../services/GitService';
 
 export interface ExportStore {
   exportData: ExportData | null;
   projectsToExport: string[] | null;
   allProjects: Project[] | null;
-  export: (client: Client) => Promise<void>;
-  fetchProjects: (client: Client) => Promise<void>;
+  export: (client: GitService) => Promise<void>;
+  fetchProjects: (client: GitService) => Promise<void>;
   setProjectsToExport: (projectIds: string[]) => void;
 }
 
@@ -30,14 +30,14 @@ export function createExportStore() {
     exportData: null,
     allProjects: null,
     projectsToExport: null,
-    fetchProjects: async (client: Client) => {
+    fetchProjects: async (client: GitService) => {
       const projects = await client.getAllProjects();
       set({ allProjects: projects });
     },
     setProjectsToExport: (ids: string[]) => {
       set({ projectsToExport: ids });
     },
-    export: async (client: Client) => {
+    export: async (client: GitService) => {
       const { projectsToExport, allProjects } = get();
       if (projectsToExport == null || projectsToExport.length === 0 || allProjects == null) {
         return;

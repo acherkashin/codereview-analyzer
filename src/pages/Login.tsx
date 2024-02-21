@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
 import { getCredentials } from '../utils/CredentialUtils';
 import { Logo } from '../components/Logo';
-import { HostingType } from '../clients/Client';
+import { HostingType } from '../services/GitService';
 
 export interface LoginProps {}
 

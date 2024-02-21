@@ -31,7 +31,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from './../clients/types';
+import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';

@@ -4,7 +4,7 @@ import { ProjectList } from '../ProjectList';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { useCallback, useState } from 'react';
 import { useLocalStorage, useRequest } from '../../hooks';
-import { AnalyzeParams, Project } from '../../clients/types';
+import { AnalyzeParams, Project } from '../../services/types';
 import { getHostType, useAuthStore } from '../../stores/AuthStore';
 
 export interface FilterPanelProps {

@@ -4,7 +4,7 @@ import { useLocalStorage, useRequest } from '../hooks';
 import { FullSizeProgress, ProjectList } from '../components';
 import { useClient } from '../stores/AuthStore';
 import { PageContainer } from './PageContainer';
-import { Project } from '../clients/types';
+import { Project } from '../services/types';
 import { timeSince } from '../utils/TimeSpanUtils';
 
 export interface ReadyMergeRequestsProps {}
