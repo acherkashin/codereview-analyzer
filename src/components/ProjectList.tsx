@@ -3,7 +3,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useDebounce } from '../hooks/useDebounce';
 import { Autocomplete, Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, TextField } from '@mui/material';
 import { useClient } from '../stores/AuthStore';
-import { Project } from '../clients/types';
+import { Project } from '../services/types';
 
 export interface ProjectListProps {
   project?: Project;

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Comment } from '../../../clients/types';
+import { Comment } from '../../../services/types';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { convertToFilesCommented } from './CommentedFilesChartUtils';

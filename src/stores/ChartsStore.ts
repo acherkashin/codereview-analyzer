@@ -20,14 +20,18 @@ import {
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
-import { AnalyzeParams, Client, PullRequest, User } from '../clients/types';
+import { AnalyzeParams, ExportData, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
+import { GitService } from '../services/GitService';
+import { convert } from '../services/GitConverter';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
   users: User[];
-  import: (options: Pick<ChartsStore, 'pullRequests' | 'users'>) => void;
-  analyze: (client: Client, params: AnalyzeParams) => Promise<void>;
+  exportData: ExportData | null;
+  import: (json: string) => void;
+
+  analyze: (client: GitService, params: AnalyzeParams) => Promise<void>;
 }
 
 const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
@@ -37,20 +41,33 @@ export function createChartsStore() {
   return create<ChartsStore>((set, get) => ({
     pullRequests: [],
     users: [],
-    import({ pullRequests, users }: Pick<ChartsStore, 'pullRequests' | 'users'>) {
+    exportData: null,
+    import(json: string) {
+      const exportData: ExportData = JSON.parse(json);
+
+      const { pullRequests, users } = convert(exportData);
       set({
+        exportData,
         pullRequests,
         users,
       });
     },
-    analyze: async (client: Client, params: AnalyzeParams) => {
-      const users = await client.getAllUsers();
-      const mergeRequests = await client.analyze(params);
+    analyze: async (client: GitService, params: AnalyzeParams) => {
+      const exportData = await client.fetch(params);
+      const { users, pullRequests } = convert(exportData);
 
       set({
-        users,
-        pullRequests: mergeRequests,
+        users: users,
+        pullRequests: pullRequests,
+        exportData: exportData,
       });
+    },
+    getExportData: () => {
+      const { users, exportData: rawData } = get();
+      return {
+        users,
+        rawData,
+      };
     },
   }));
 }
@@ -194,6 +211,10 @@ export function useChangedFilesCount() {
 
     return changedFiles.length;
   });
+}
+
+export function getExportData(state: ChartsStore) {
+  return state.exportData;
 }
 
 // export function useWhoApprovesMergeRequests(client: Resources.Gitlab, projectId?: number, userId?: number) {

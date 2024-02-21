@@ -5,7 +5,7 @@ import {
   MergeRequestLevelMergeRequestApprovalSchema,
 } from '@gitbeaker/core/dist/types/types';
 import { Resources } from '@gitbeaker/core';
-import { Comment, UserDiscussion, PullRequest } from './../clients/types';
+import { Comment, UserDiscussion, PullRequest } from '../services/types';
 
 export interface UserComment {
   mergeRequest: MergeRequestSchema;

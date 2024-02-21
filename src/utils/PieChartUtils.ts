@@ -6,7 +6,7 @@ import {
 } from './GitLabUtils';
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
 import { BarDatum } from '@nivo/bar';
-import { Comment, PullRequest, UserDiscussion } from './../clients/types';
+import { Comment, PullRequest, UserDiscussion } from '../services/types';
 
 export interface PieChartDatum extends BarDatum {
   id: string;

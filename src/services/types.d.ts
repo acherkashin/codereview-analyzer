@@ -124,11 +124,13 @@ export interface PullRequest {
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';
 
-export interface Client {
-  getCurrentUser(): Promise<User>;
-  analyze(params: AnalyzeParams): Promise<PullRequest[]>;
-  searchUsers(searchText: string): Promise<User[]>;
-  getAllUsers(): Promise<User[]>;
-  searchProjects(searchText: string): Promise<Project[]>;
-  getAllProjects(): Promise<Project[]>;
+export interface ExportData {
+  hostType: string;
+  hostUrl: string;
+  data: RawData;
+}
+
+export interface RawData {
+  pullRequests: any[];
+  users: any[];
 }

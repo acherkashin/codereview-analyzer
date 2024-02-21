@@ -4,8 +4,9 @@ import { useLocalStorage, useRequest } from '../hooks';
 import { FullSizeProgress, ProjectList } from '../components';
 import { useClient } from '../stores/AuthStore';
 import { PageContainer } from './PageContainer';
-import { Client, Project } from '../clients/types';
+import { Project } from '../services/types';
 import { timeSince } from '../utils/TimeSpanUtils';
+import { convert } from '../services/GitConverter';
 
 export interface ReadyMergeRequestsProps {}
 
@@ -13,13 +14,14 @@ export function ReadyMergeRequests(_: ReadyMergeRequestsProps) {
   const client = useClient();
   const requestMergeRequests = useCallback(
     async (project: Project) => {
-      const prs = await client.analyze({
+      const data = await client.fetch({
         project,
         state: 'open',
         pullRequestCount: Number.MAX_VALUE,
       });
+      const { pullRequests } = convert(data);
 
-      return prs.filter((item) => item.readyAt != null);
+      return pullRequests.filter((item) => item.readyAt != null);
     },
     [client]
   );

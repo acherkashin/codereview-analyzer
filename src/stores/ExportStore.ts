@@ -1,13 +1,15 @@
 import create, { StoreApi } from 'zustand';
 import createContext from 'zustand/context';
-import { Client, Project, PullRequest, User } from '../clients/types';
+import { Project, PullRequest, User } from '../services/types';
+import { GitService } from '../services/GitService';
+import { convert } from '../services/GitConverter';
 
 export interface ExportStore {
   exportData: ExportData | null;
   projectsToExport: string[] | null;
   allProjects: Project[] | null;
-  export: (client: Client) => Promise<void>;
-  fetchProjects: (client: Client) => Promise<void>;
+  export: (client: GitService) => Promise<void>;
+  fetchProjects: (client: GitService) => Promise<void>;
   setProjectsToExport: (projectIds: string[]) => void;
 }
 
@@ -18,7 +20,7 @@ export interface ExportData {
 
 export interface ProjectExport {
   project: Project;
-  mergeRequests: PullRequest[];
+  pullRequests: PullRequest[];
 }
 
 const { Provider: ExportStoreProvider, useStore: useExportsStore } = createContext<StoreApi<ExportStore>>();
@@ -29,14 +31,14 @@ export function createExportStore() {
     exportData: null,
     allProjects: null,
     projectsToExport: null,
-    fetchProjects: async (client: Client) => {
+    fetchProjects: async (client: GitService) => {
       const projects = await client.getAllProjects();
       set({ allProjects: projects });
     },
     setProjectsToExport: (ids: string[]) => {
       set({ projectsToExport: ids });
     },
-    export: async (client: Client) => {
+    export: async (client: GitService) => {
       const { projectsToExport, allProjects } = get();
       if (projectsToExport == null || projectsToExport.length === 0 || allProjects == null) {
         return;
@@ -47,16 +49,19 @@ export function createExportStore() {
       const projects = allProjects.filter((item) => projectsToExport.includes(item.id));
 
       const allPromises = projects.map(async (project) => {
-        const mergeRequests = await client.analyze({
+        //TODO: we should not fetch users here
+        const data = await client.fetch({
           project,
           createdAfter: new Date(0),
           createdBefore: new Date(),
           pullRequestCount: Number.MAX_VALUE,
         });
 
+        const { pullRequests } = convert(data);
+
         return {
           project,
-          mergeRequests,
+          pullRequests,
         };
       });
 

@@ -1,4 +1,4 @@
-import { PullRequest } from '../clients/types';
+import { PullRequest } from '../services/types';
 import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
 import { UserItem, UserItemProps, UserList } from './UserList';
 

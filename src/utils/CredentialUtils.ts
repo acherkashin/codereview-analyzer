@@ -1,10 +1,4 @@
-import { HostingType } from '../stores/AuthStore';
-
-export interface Credentials {
-  token: string;
-  host: string;
-  hostType: HostingType;
-}
+import { Credentials } from '../services/GitService';
 
 export function getCredentials() {
   const strCredentials = localStorage.getItem('credentials');

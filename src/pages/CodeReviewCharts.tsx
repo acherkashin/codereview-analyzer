@@ -18,6 +18,7 @@ import {
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
+  getExportData,
   useChartsStore,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -30,7 +31,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from './../clients/types';
+import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
@@ -50,6 +51,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const pullRequests = useChartsStore((state) => state.pullRequests);
   const users = useChartsStore((state) => state.users);
   const importData = useChartsStore((state) => state.import);
+  const dataToExport = useChartsStore(getExportData);
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
@@ -288,18 +290,18 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           startIcon={<FileDownloadIcon />}
           onClick={() => {
             // Need to specify Range <StartDate>-<EndDate> as a default name
-            downloadFile('newFile.json', JSON.stringify({ pullRequests, users }, null, 2));
+            downloadFile('newFile.json', JSON.stringify(dataToExport, null, 2));
           }}
         >
           Export as JSON
         </Button>
         <ImportTextButton
           label="Import as JSON"
-          onTextSelected={(text) => {
+          onTextSelected={(json) => {
             try {
-              const { pullRequests, users } = JSON.parse(text as string) as { pullRequests: PullRequest[]; users: User[] };
-              importData({ pullRequests, users });
+              importData(json);
             } catch (ex) {
+              //TODO: need to show error in UI
               console.error(ex);
             }
           }}
