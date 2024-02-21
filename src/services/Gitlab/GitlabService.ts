@@ -28,24 +28,18 @@ export class GitlabService implements GitService {
     return projects.map<Project>(convertToProject);
   }
 
-  async analyze(params: AnalyzeParams): Promise<[PullRequest[], User[], ExportData]> {
+  async fetch(params: AnalyzeParams): Promise<ExportData> {
     const rawUsers = await this._getAllUsers();
     const rawPullRequests = await this.requestRawData(params);
 
-    const { pullRequests, users } = this.analyzeRawData({ users: rawUsers, pullRequests: rawPullRequests });
-
-    return [
-      pullRequests,
-      users,
-      {
-        hostType: 'Gitlab',
-        hostUrl: this.host,
-        data: {
-          pullRequests: rawPullRequests,
-          users: rawUsers,
-        },
+    return {
+      hostType: 'Gitlab',
+      hostUrl: this.host,
+      data: {
+        pullRequests: rawPullRequests,
+        users: rawUsers,
       },
-    ];
+    };
   }
 
   async requestRawData(params: AnalyzeParams): Promise<GitlabRawDatum[]> {
@@ -84,13 +78,6 @@ export class GitlabService implements GitService {
 
   async getAllUsers(): Promise<User[]> {
     return this._getAllUsers().then((resp) => resp.map(convertToUser));
-  }
-
-  analyzeRawData({ pullRequests, users }: RawData): { pullRequests: PullRequest[]; users: User[] } {
-    return {
-      pullRequests: pullRequests.map(convertToPullRequest),
-      users: users.map(convertToUser),
-    };
   }
 
   private async _getAllUsers(): Promise<UserSchema[]> {

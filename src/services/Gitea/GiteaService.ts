@@ -61,23 +61,18 @@ export class GiteaService implements GitService {
     return (data.data ?? []).map((user) => convertToUser(this.host, user));
   }
 
-  async analyze(params: AnalyzeParams): Promise<[PullRequest[], User[], ExportData]> {
+  async fetch(params: AnalyzeParams): Promise<ExportData> {
     const rawUsers = await this._getAllUsers();
     const rawPullRequests = await this.requestRawData(params);
-    const { pullRequests, users } = this.analyzeRawData({ pullRequests: rawPullRequests, users: rawUsers });
 
-    return [
-      pullRequests,
-      users,
-      {
-        hostType: 'Gitea',
-        hostUrl: this.host,
-        data: {
-          pullRequests: rawPullRequests,
-          users: rawUsers,
-        },
+    return {
+      hostType: 'Gitea',
+      hostUrl: this.host,
+      data: {
+        pullRequests: rawPullRequests,
+        users: rawUsers,
       },
-    ];
+    };
   }
 
   async requestRawData({ project, pullRequestCount, state }: AnalyzeParams): Promise<GiteaRawDatum[]> {

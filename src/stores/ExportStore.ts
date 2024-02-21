@@ -2,6 +2,7 @@ import create, { StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { Project, PullRequest, User } from '../services/types';
 import { GitService } from '../services/GitService';
+import { convert } from '../services/GitConverter';
 
 export interface ExportStore {
   exportData: ExportData | null;
@@ -19,7 +20,7 @@ export interface ExportData {
 
 export interface ProjectExport {
   project: Project;
-  mergeRequests: PullRequest[];
+  pullRequests: PullRequest[];
 }
 
 const { Provider: ExportStoreProvider, useStore: useExportsStore } = createContext<StoreApi<ExportStore>>();
@@ -48,16 +49,18 @@ export function createExportStore() {
       const projects = allProjects.filter((item) => projectsToExport.includes(item.id));
 
       const allPromises = projects.map(async (project) => {
-        const [mergeRequests, _] = await client.analyze({
+        const data = await client.fetch({
           project,
           createdAfter: new Date(0),
           createdBefore: new Date(),
           pullRequestCount: Number.MAX_VALUE,
         });
 
+        const { users, pullRequests } = convert(data);
+
         return {
           project,
-          mergeRequests,
+          pullRequests,
         };
       });
 

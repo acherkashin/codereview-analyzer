@@ -55,7 +55,8 @@ export function createChartsStore() {
       });
     },
     analyze: async (client: GitService, params: AnalyzeParams) => {
-      const [pullRequests, users, exportData] = await client.analyze(params);
+      const exportData = await client.fetch(params);
+      const { users, pullRequests } = convert(exportData);
 
       set({
         users: users,
