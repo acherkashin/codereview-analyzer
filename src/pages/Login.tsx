@@ -39,7 +39,7 @@ export function Login(_: LoginProps) {
 
   const handleLoginAsGuest = () => {
     signInGuest();
-    navigate('/personal');
+    navigate('/charts');
   };
 
   //TODO: need to call client.Users.current() to make sure token and host are correct
@@ -47,7 +47,7 @@ export function Login(_: LoginProps) {
   const handleLoggedIn = useCallback(() => {
     signIn(host, token, hostType).then(
       () => {
-        navigate('/personal');
+        navigate('/charts');
       },
       (e) => {
         console.error(e);
