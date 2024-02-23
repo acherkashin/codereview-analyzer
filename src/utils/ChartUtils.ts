@@ -1,4 +1,4 @@
-import { BarDatum, BarSvgProps } from '@nivo/bar';
+import { BarDatum } from '@nivo/bar';
 import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions } from './GitLabUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest, User, UserDiscussion } from '../services/types';
@@ -205,7 +205,7 @@ export function getFileExtension(filename: string) {
 export function getLongestPullRequest(prs: PullRequest[]): PullRequest | null {
   const merged = prs.filter((item) => item.mergedAt != null);
 
-  if (merged.length == 0) {
+  if (merged.length === 0) {
     return null;
   }
 

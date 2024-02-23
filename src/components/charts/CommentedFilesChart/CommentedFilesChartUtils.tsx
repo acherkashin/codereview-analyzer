@@ -23,7 +23,7 @@ export function convertToFilesCommented(comments: Comment[]) {
     // only comments for current extension
     const extensionComments = tidy(
       comments,
-      filter((i) => getFileExtension(i.filePath) == extension)
+      filter((i) => getFileExtension(i.filePath) === extension)
     );
 
     const reviewerComments = tidy(

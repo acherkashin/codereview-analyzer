@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions } from './../utils/GitLabUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
@@ -31,7 +31,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from '../services/types';
+import { AnalyzeParams, Comment, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
@@ -277,7 +277,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartContainer title="Pull Requests Created">
             <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
           </ChartContainer>
-          {hostType == 'Gitea' && <CommentedFilesChart comments={comments} />}
+          {hostType === 'Gitea' && <CommentedFilesChart comments={comments} />}
         </div>
       </div>
       <Stack spacing={2} position="sticky" top={10}>

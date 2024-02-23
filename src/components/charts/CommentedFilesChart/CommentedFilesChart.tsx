@@ -4,11 +4,11 @@ import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { convertToFilesCommented } from './CommentedFilesChartUtils';
 
-export interface CommentedFilesChart {
+export interface CommentedFilesChartProps {
   comments: Comment[];
 }
 
-export function CommentedFilesChart({ comments }: CommentedFilesChart) {
+export function CommentedFilesChart({ comments }: CommentedFilesChartProps) {
   const { data, authors } = useMemo(() => convertToFilesCommented(comments), [comments]);
 
   return (

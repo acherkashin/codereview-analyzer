@@ -41,7 +41,7 @@ export function getFilteredComments(comments: Comment[], reviewerName: string | 
   let filteredComments = comments;
 
   if (!!reviewerName) {
-    filteredComments = filteredComments.filter(({ reviewerName }) => reviewerName === reviewerName);
+    filteredComments = filteredComments.filter((item) => item.reviewerName === reviewerName);
   }
 
   if (!!authorName) {

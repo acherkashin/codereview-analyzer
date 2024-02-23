@@ -1,4 +1,4 @@
-import { User, Project, AnalyzeParams, PullRequest, ExportData, RawData } from '../types';
+import { User, Project, AnalyzeParams, ExportData } from '../types';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';

@@ -5,7 +5,6 @@ import { FullSizeProgress, ProjectList } from '../components';
 import { useClient } from '../stores/AuthStore';
 import { PageContainer } from './PageContainer';
 import { Project } from '../services/types';
-import { timeSince } from '../utils/TimeSpanUtils';
 import { convert } from '../services/GitConverter';
 
 export interface ReadyMergeRequestsProps {}

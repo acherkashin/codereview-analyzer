@@ -1,7 +1,7 @@
 import { LineChart } from '../LineChart';
 import { ChartContainer } from '../../ChartContainer';
 import { Comment } from '../../../services/types';
-import { useMemo, useReducer, useState } from 'react';
+import { useMemo, useReducer } from 'react';
 import { convertToCommentsLineChart } from './CommentsPerMonthChartUtils';
 import { SquareMarker } from '../../BaseChartTooltip';
 import { SliceTooltipProps } from '@nivo/line';

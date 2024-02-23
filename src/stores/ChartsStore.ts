@@ -13,10 +13,10 @@ import {
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
-  getWhoApprovesUser,
+  // getWhoApprovesUser,
   getWhoAssignsToAuthorToReview,
   getWhomAuthorAssignsToReview as convertAssignedToReview,
-  getWhomUserApproves,
+  // getWhomUserApproves,
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';

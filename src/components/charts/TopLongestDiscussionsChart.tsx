@@ -46,7 +46,7 @@ export function TopLongestDiscussionsChart({ pullRequests, count, onClick }: Top
         margin={{ left: 350 }}
         borderRadius={4}
         tooltip={(props) => {
-          const { indexValue: pullRequestName, value: commentsCount, data } = props;
+          const { indexValue: pullRequestName, data } = props;
           const reviewerName = data.reviewerName as string;
 
           return (
