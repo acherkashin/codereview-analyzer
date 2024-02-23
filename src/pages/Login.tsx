@@ -21,6 +21,11 @@ import { getCredentials } from '../utils/CredentialUtils';
 import { Logo } from '../components/Logo';
 import { HostingType } from '../services/GitService';
 
+const tokenHelp: Record<HostingType, `https://${string}`> = {
+  Gitlab: 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token',
+  Gitea: 'https://docs.gitea.com/development/api-usage',
+};
+
 export interface LoginProps {}
 
 export function Login(_: LoginProps) {
@@ -107,17 +112,14 @@ export function Login(_: LoginProps) {
           type="password"
           onChange={(e) => setToken(e.target.value)}
           InputProps={{
-            endAdornment: (
-              <TooltipPrompt>
-                <a
-                  href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Personal Access Token
-                </a>
-              </TooltipPrompt>
-            ),
+            endAdornment:
+              tokenHelp[hostType] != null ? (
+                <TooltipPrompt>
+                  <a href={tokenHelp[hostType]} target="_blank" rel="noreferrer">
+                    Personal Access Token
+                  </a>
+                </TooltipPrompt>
+              ) : null,
           }}
         />
         <LoadingButton loading={isSigningIn} onClick={handleLoggedIn}>
