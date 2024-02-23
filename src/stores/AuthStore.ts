@@ -1,6 +1,6 @@
 import create from 'zustand';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
-import { clearCredentials, saveCredentials } from '../utils/CredentialUtils';
+import { clearCredentials, getCredentials, saveCredentials } from '../utils/CredentialUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
 import { User } from '../services/types';
 import { GitService, HostingType, getGitService } from '../services/GitService';
@@ -14,6 +14,7 @@ export interface AuthStore {
   genericClient: GitService | null;
   isSigningIn: boolean;
   signInError: string | null;
+  signInGuest: () => void;
   signIn: (host: string, token: string, hostType: HostingType) => Promise<void>;
   signOut: () => void;
 }
@@ -27,6 +28,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signInError: null,
   genericClient: null,
   hostType: null,
+  signInGuest: () => {
+    saveCredentials('guest');
+  },
   signIn: async (host: string, token: string, hostType: HostingType) => {
     if (!isValidHttpUrl(host)) {
       throw Error(`Incorrect url provided: ${host}`);
@@ -83,7 +87,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 }));
 
 export function getIsAuthenticated(store: AuthStore) {
-  return store.user != null;
+  return store.user != null || getCredentials() === 'guest';
 }
 
 export function getSignIn(store: AuthStore) {

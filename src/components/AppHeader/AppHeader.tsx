@@ -17,6 +17,7 @@ import {
 import { getCurrentUser, getSignOut, useAuthStore } from './../../stores/AuthStore';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useIsGuest } from '../../hooks/useIsGuest';
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -24,6 +25,7 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
 }));
 
 export function AppHeader() {
+  const isGuest = useIsGuest();
   const signOut = useAuthStore(getSignOut);
   const userCurrent = useAuthStore(getCurrentUser);
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -55,6 +57,7 @@ export function AppHeader() {
           </Typography>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
+              {/* TODO: need to show guest icon */}
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt={userCurrent?.fullName} src={userCurrent?.avatarUrl} />
               </IconButton>
@@ -75,12 +78,14 @@ export function AppHeader() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem onClick={handleViewAccount}>
-                <ListItemIcon>
-                  <OpenInNewIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>View account</ListItemText>
-              </MenuItem>
+              {!isGuest && (
+                <MenuItem onClick={handleViewAccount}>
+                  <ListItemIcon>
+                    <OpenInNewIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>View account</ListItemText>
+                </MenuItem>
+              )}
               <MenuItem onClick={handleCloseNavMenu}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />

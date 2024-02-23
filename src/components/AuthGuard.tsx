@@ -10,9 +10,7 @@ export interface AuthGuardProps {
 
 export function AuthGuard({ children }: AuthGuardProps): JSX.Element | null {
   const isAuthenticated = useAuthStore(getIsAuthenticated);
-  const { isSigningIn } = useAuthStore((store) => ({
-    isSigningIn: store.isSigningIn,
-  }));
+  const isSigningIn = useAuthStore((store) => store.isSigningIn);
   const navigate = useNavigate();
   const signIn = useAuthStore(getSignIn);
 
@@ -20,7 +18,11 @@ export function AuthGuard({ children }: AuthGuardProps): JSX.Element | null {
     if (!isAuthenticated) {
       const credentials = getCredentials();
       if (credentials) {
-        signIn(credentials.host, credentials.token, credentials.hostType);
+        if (credentials !== 'guest') {
+          signIn(credentials.host, credentials.token, credentials.hostType);
+        }
+
+        navigate('/personal');
         return;
       }
       console.log('Not authenticated, redirecting');

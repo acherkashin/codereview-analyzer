@@ -1,4 +1,5 @@
 import {
+  Button,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -34,8 +35,13 @@ export function Login(_: LoginProps) {
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
   //TODO: upgrade zustand and use shallowEquals
-  const { signIn, isSigningIn } = useAuthStore();
+  const { signIn, signInGuest, isSigningIn } = useAuthStore();
   const isAuthenticated = useAuthStore(getIsAuthenticated);
+
+  const handleLoginAsGuest = () => {
+    signInGuest();
+    navigate('/personal');
+  };
 
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
@@ -56,7 +62,10 @@ export function Login(_: LoginProps) {
     if (!isAuthenticated) {
       const credentials = getCredentials();
       if (credentials) {
-        signIn(credentials.host, credentials.token, credentials.hostType);
+        if (credentials !== 'guest') {
+          signIn(credentials.host, credentials.token, credentials.hostType);
+        }
+
         navigate('/personal');
         return;
       }
@@ -123,8 +132,9 @@ export function Login(_: LoginProps) {
           }}
         />
         <LoadingButton loading={isSigningIn} onClick={handleLoggedIn}>
-          Sign In
+          Login
         </LoadingButton>
+        <Button onClick={handleLoginAsGuest}>Login As Guest</Button>
       </Stack>
     </Box>
   );
