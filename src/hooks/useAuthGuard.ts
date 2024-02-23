@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { getCredentials } from '../utils/CredentialUtils';
+import { getUserContext } from '../utils/UserContextUtils';
 import { getIsAuthenticated, getSignIn, useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,9 +10,9 @@ export function useAuthGuard() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      const credentials = getCredentials();
+      const credentials = getUserContext();
       if (credentials) {
-        if (credentials !== 'guest') {
+        if (credentials.access === 'full') {
           signIn(credentials.host, credentials.token, credentials.hostType);
         }
 

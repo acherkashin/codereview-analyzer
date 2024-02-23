@@ -19,8 +19,8 @@ import { useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
 import { Logo } from '../components/Logo';
-import { HostingType } from '../services/GitService';
 import { useAuthGuard } from '../hooks/useAuthGuard';
+import { HostingType } from '../utils/UserContextUtils';
 
 const tokenHelp: Record<HostingType, `https://${string}`> = {
   Gitlab: 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token',

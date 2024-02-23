@@ -1,5 +1,5 @@
-import { getCredentials } from '../utils/CredentialUtils';
+import { getUserContext } from '../utils/UserContextUtils';
 
 export function useIsGuest() {
-  return getCredentials() === 'guest';
+  return getUserContext()?.access === 'guest';
 }

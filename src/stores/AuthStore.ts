@@ -1,16 +1,14 @@
 import create from 'zustand';
-import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
-import { clearCredentials, getCredentials, saveCredentials } from '../utils/CredentialUtils';
+import { HostingType, clearUserContext, getUserContext, saveUserContext } from '../utils/UserContextUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
 import { User } from '../services/types';
-import { GitService, HostingType, getGitService } from '../services/GitService';
+import { GitService, getGitService } from '../services/GitService';
 
 export interface AuthStore {
   host: string | null;
   hostType: HostingType | null;
   token: string | null;
   user: User | null;
-  client: GitlabType | null;
   genericClient: GitService | null;
   isSigningIn: boolean;
   signInError: string | null;
@@ -29,7 +27,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   genericClient: null,
   hostType: null,
   signInGuest: () => {
-    saveCredentials('guest');
+    saveUserContext({ access: 'guest' });
   },
   signIn: async (host: string, token: string, hostType: HostingType) => {
     if (!isValidHttpUrl(host)) {
@@ -46,13 +44,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const user = await client.getCurrentUser();
-      saveCredentials({ token, host, hostType });
+      saveUserContext({ token, host, hostType, access: 'full' });
 
       set({
         host,
         token,
         user,
-        client: null,
         genericClient: client,
         hostType,
       });
@@ -61,8 +58,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         host: null,
         token: null,
         user: null,
-        client: null,
-        genericClient: null,
         hostType: null,
       });
 
@@ -78,16 +73,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       host: null,
       token: null,
       user: null,
-      client: null,
       genericClient: null,
       hostType: null,
     });
-    clearCredentials();
+    clearUserContext();
   },
 }));
 
 export function getIsAuthenticated(store: AuthStore) {
-  return store.user != null || getCredentials() === 'guest';
+  return store.user != null || getUserContext()?.access === 'guest';
 }
 
 export function getSignIn(store: AuthStore) {
