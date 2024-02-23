@@ -7,29 +7,8 @@ import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import { Logo } from '../Logo';
-
-const items = [
-  {
-    href: '/charts',
-    icon: <BarChartRoundedIcon />,
-    title: 'Charts',
-  },
-  {
-    href: '/personal',
-    icon: <PersonRoundedIcon />,
-    title: 'Personal Statistic',
-  },
-  {
-    href: '/ready-mrs',
-    icon: <GppGoodRoundedIcon />,
-    title: 'Ready Merge Requests',
-  },
-  {
-    href: '/export',
-    icon: <ImportExportIcon />,
-    title: 'Export',
-  },
-];
+import { UserContext } from '../../utils/UserContextUtils';
+import { useAuthStore } from '../../stores/AuthStore';
 
 export interface SideBarProps {}
 
@@ -40,6 +19,10 @@ export function SideBar(_: SideBarProps) {
   // });
 
   // const lgUp = true;
+
+  const access = useAuthStore((store) => store.userContext?.access);
+
+  const items = getPageItems(access);
 
   const content = (
     <>
@@ -174,4 +157,46 @@ export function SideBar(_: SideBarProps) {
   //       {content}
   //     </Drawer>
   //   );
+}
+
+interface PageItem {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+}
+
+function getPageItems(access: UserContext['access'] | undefined) {
+  if (!access) {
+    return [];
+  }
+
+  const pages: PageItem[] = [
+    {
+      href: '/charts',
+      icon: <BarChartRoundedIcon />,
+      title: 'Charts',
+    },
+  ];
+
+  if (access === 'full') {
+    pages.push(
+      {
+        href: '/personal',
+        icon: <PersonRoundedIcon />,
+        title: 'Personal Statistic',
+      },
+      {
+        href: '/ready-mrs',
+        icon: <GppGoodRoundedIcon />,
+        title: 'Ready Merge Requests',
+      },
+      {
+        href: '/export',
+        icon: <ImportExportIcon />,
+        title: 'Export',
+      }
+    );
+  }
+
+  return pages;
 }

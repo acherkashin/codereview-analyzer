@@ -1,10 +1,10 @@
 import create from 'zustand';
 import {
+  GuestUserContext,
   HostingType,
   TokenUserContext,
   UserContext,
   clearUserContext,
-  getUserContext,
   saveUserContext,
 } from '../utils/UserContextUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
@@ -30,7 +30,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   genericClient: null,
   hostType: null,
   signInGuest: () => {
-    saveUserContext({ access: 'guest' });
+    const guestContext: GuestUserContext = { access: 'guest' };
+    saveUserContext(guestContext);
+    set({
+      userContext: guestContext,
+      user: null,
+      genericClient: null,
+    });
   },
   signIn: async (host: string, token: string, hostType: HostingType) => {
     if (!isValidHttpUrl(host)) {
@@ -80,11 +86,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 }));
 
 export function getIsAuthenticated(store: AuthStore) {
-  return store.user != null || getUserContext()?.access === 'guest';
+  return store.userContext != null;
 }
 
 export function getSignIn(store: AuthStore) {
   return store.signIn;
+}
+
+export function getSignInGuest(store: AuthStore) {
+  return store.signInGuest;
 }
 
 export function getSignOut(store: AuthStore) {
