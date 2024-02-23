@@ -1,13 +1,18 @@
 import create from 'zustand';
-import { HostingType, clearUserContext, getUserContext, saveUserContext } from '../utils/UserContextUtils';
+import {
+  HostingType,
+  TokenUserContext,
+  UserContext,
+  clearUserContext,
+  getUserContext,
+  saveUserContext,
+} from '../utils/UserContextUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
 import { User } from '../services/types';
 import { GitService, getGitService } from '../services/GitService';
 
 export interface AuthStore {
-  host: string | null;
-  hostType: HostingType | null;
-  token: string | null;
+  userContext: UserContext | null;
   user: User | null;
   genericClient: GitService | null;
   isSigningIn: boolean;
@@ -18,10 +23,8 @@ export interface AuthStore {
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
-  host: null,
-  token: null,
+  userContext: null,
   user: null,
-  client: null,
   isSigningIn: false,
   signInError: null,
   genericClient: null,
@@ -44,21 +47,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const user = await client.getCurrentUser();
-      saveUserContext({ token, host, hostType, access: 'full' });
+      const userContext: UserContext = { token, host, hostType, access: 'full' };
+      saveUserContext(userContext);
 
       set({
-        host,
-        token,
+        userContext,
         user,
         genericClient: client,
-        hostType,
       });
     } catch (e) {
       set({
-        host: null,
-        token: null,
+        userContext: null,
         user: null,
-        hostType: null,
+        genericClient: null,
       });
 
       set({ signInError: (e as any).toString() });
@@ -70,11 +71,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
   signOut() {
     set({
-      host: null,
-      token: null,
+      userContext: null,
       user: null,
       genericClient: null,
-      hostType: null,
     });
     clearUserContext();
   },
@@ -97,7 +96,7 @@ export function getCurrentUser(store: AuthStore) {
 }
 
 export function getHostType(store: AuthStore) {
-  return store.hostType;
+  return (store.userContext as TokenUserContext)?.hostType;
 }
 
 export function useClient(): GitService {
