@@ -18,6 +18,7 @@ import { getCurrentUser, getSignOut, useAuthStore } from './../../stores/AuthSto
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useIsGuest } from '../../hooks/useIsGuest';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -29,6 +30,7 @@ export function AppHeader() {
   const signOut = useAuthStore(getSignOut);
   const userCurrent = useAuthStore(getCurrentUser);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const navigate = useNavigate();
 
   const handleOpenUserMenu = (event: any) => {
     setAnchorElUser(event.currentTarget);
@@ -37,6 +39,7 @@ export function AppHeader() {
   const handleCloseNavMenu = () => {
     signOut();
     handleCloseUserMenu();
+    navigate('/login');
   };
 
   const handleCloseUserMenu = () => {
