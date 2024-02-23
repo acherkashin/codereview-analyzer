@@ -46,6 +46,7 @@
     "prepare": "husky install",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
+    "eslint-fix": "eslint --fix --ext .tsx,.ts src/",
     "cm": "cz"
   },
   "eslintConfig": {
@@ -99,7 +100,8 @@
     "webpack": "^5.74.0"
   },
   "resolutions": {
-    "**/fork-ts-checker-webpack-plugin": "^6.5.3"
+    "**/fork-ts-checker-webpack-plugin": "^6.5.3",
+    "@typescript-eslint/parser": "^6.7.5"
   },
   "lint-staged": {
     "*.{js,css,md,tsx,ts,jsx}": "prettier --write"
