@@ -52,7 +52,7 @@ export function AppHeader() {
     <DashboardNavbarRoot position="relative">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography variant="h6" noWrap component="div" sx={{ mr: 2, display: 'flex', flexGrow: 1 }}>
+          <Typography color="text.primary" variant="h6" noWrap component="div" sx={{ mr: 2, display: 'flex', flexGrow: 1 }}>
             Analyzer
           </Typography>
           <Box sx={{ flexGrow: 0 }}>
