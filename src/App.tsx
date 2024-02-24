@@ -22,7 +22,7 @@ const Main = styled('main')(() => ({
   flexGrow: 1,
 }));
 
-function App() {
+export function App() {
   return (
     <AuthGuard>
       <AppFrame>
@@ -37,5 +37,3 @@ function App() {
     </AuthGuard>
   );
 }
-
-export default App;
