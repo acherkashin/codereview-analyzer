@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { getFilteredComments, getFilteredDiscussions } from './../utils/GitLabUtils';
+import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';

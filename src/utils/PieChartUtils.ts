@@ -1,8 +1,4 @@
-import {
-  getAuthorReviewerFromComments,
-  getAuthorReviewerFromDiscussions,
-  getAuthorReviewerFromMergeRequests,
-} from './GitLabUtils';
+import { getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions, getAuthorReviewerFromMergeRequests } from './GitUtils';
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
 import { BarDatum } from '@nivo/bar';
 import { Comment, PullRequest, UserDiscussion } from '../services/types';

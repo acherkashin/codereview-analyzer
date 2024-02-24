@@ -1,5 +1,5 @@
 import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
-import { getAuthorReviewerFromComments } from '../../../utils/GitLabUtils';
+import { getAuthorReviewerFromComments } from '../../../utils/GitUtils';
 import { PieChartDatum } from '../../../utils/PieChartUtils';
 import { Comment } from '../../../services/types';
 

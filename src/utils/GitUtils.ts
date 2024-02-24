@@ -5,13 +5,6 @@ export interface AuthorReviewer {
   author: string;
 }
 
-export interface BaseRequestOptions {
-  projectId: number;
-  createdAfter?: string;
-  createdBefore?: string;
-}
-
-// TODO: move to appropriate place
 export function getFilteredComments(comments: Comment[], reviewerName: string | null, authorName: string | null): Comment[] {
   let filteredComments = comments;
 
