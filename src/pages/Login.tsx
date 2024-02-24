@@ -21,6 +21,8 @@ import { LoadingButton } from '@mui/lab';
 import { Logo } from '../components/Logo';
 import { useAuthGuard } from '../hooks/useAuthGuard';
 import { HostingType } from '../utils/UserContextUtils';
+import PersonIcon from '@mui/icons-material/Person';
+import LoginIcon from '@mui/icons-material/Login';
 
 const tokenHelp: Record<HostingType, `https://${string}`> = {
   Gitlab: 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token',
@@ -118,10 +120,12 @@ export function Login(_: LoginProps) {
               ) : null,
           }}
         />
-        <LoadingButton loading={isSigningIn} onClick={handleLoggedIn}>
+        <LoadingButton loading={isSigningIn} startIcon={<LoginIcon />} onClick={handleLoggedIn}>
           Login
         </LoadingButton>
-        <Button onClick={handleLoginAsGuest}>Login As Guest</Button>
+        <Button onClick={handleLoginAsGuest} startIcon={<PersonIcon />}>
+          Login As Guest
+        </Button>
       </Stack>
     </Box>
   );
