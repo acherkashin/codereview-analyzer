@@ -2,7 +2,6 @@ import {
   getAuthorReviewerFromComments,
   getAuthorReviewerFromDiscussions,
   getAuthorReviewerFromMergeRequests,
-  MergeRequestWithApprovals,
 } from './GitLabUtils';
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
 import { BarDatum } from '@nivo/bar';
@@ -83,17 +82,4 @@ export function getWhoAssignsToAuthorToReview(mrs: PullRequest[]): PieChartDatum
   );
 
   return data;
-}
-
-export function getWhoApprovesUser(mergeRequests: MergeRequestWithApprovals[], userId: number): PieChartDatum[] {
-  const authorMrs = mergeRequests.filter((item) => item.mergeRequest.author.id === userId);
-  const approvers = authorMrs.flatMap((mr) => (mr.approvals.approved_by ?? []).map((item) => item.user));
-
-  return tidy(approvers, groupBy('username', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
-    (item) => ({
-      id: item.username,
-      label: item.username,
-      value: item.total,
-    })
-  );
 }

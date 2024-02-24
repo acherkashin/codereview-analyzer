@@ -1,15 +1,4 @@
-import { Gitlab } from '@gitbeaker/core/dist/types';
-import {
-  MergeRequestNoteSchema,
-  MergeRequestSchema,
-  MergeRequestLevelMergeRequestApprovalSchema,
-} from '@gitbeaker/core/dist/types/types';
 import { Comment, UserDiscussion, PullRequest } from '../services/types';
-
-export interface UserComment {
-  mergeRequest: MergeRequestSchema;
-  comment: MergeRequestNoteSchema;
-}
 
 export interface AuthorReviewer {
   reviewer: string;
@@ -20,19 +9,6 @@ export interface BaseRequestOptions {
   projectId: number;
   createdAfter?: string;
   createdBefore?: string;
-}
-
-export async function getMergeRequestsToReview(
-  client: Gitlab,
-  { projectId, createdAfter, createdBefore, reviewer }: BaseRequestOptions & { reviewer: string }
-): Promise<MergeRequestSchema[]> {
-  return await client.MergeRequests.all({
-    projectId,
-    createdAfter,
-    createdBefore,
-    perPage: 100,
-    reviewerUsername: reviewer,
-  });
 }
 
 // TODO: move to appropriate place
@@ -99,30 +75,3 @@ export function getAuthorReviewerFromMergeRequests(mrs: PullRequest[]): AuthorRe
     }))
   );
 }
-
-export interface MergeRequestWithNotes {
-  mergeRequest: MergeRequestSchema;
-  notes: MergeRequestNoteSchema[];
-}
-
-export interface MergeRequestWithApprovals {
-  mergeRequest: MergeRequestSchema;
-  approvals: MergeRequestLevelMergeRequestApprovalSchema;
-}
-
-// export function getMergeRequestsWithApprovals(
-//   client: Resources.Gitlab,
-//   projectId: number,
-//   mrs: MergeRequestSchema[]
-// ): Promise<MergeRequestWithApprovals[]> {
-//   return Promise.all(
-//     mrs.map((mr) =>
-//       client.MergeRequestApprovals.configuration(projectId, {
-//         mergerequestIid: mr.iid,
-//       }).then((approvals) => ({
-//         mergeRequest: mr,
-//         approvals,
-//       }))
-//     )
-//   );
-// }

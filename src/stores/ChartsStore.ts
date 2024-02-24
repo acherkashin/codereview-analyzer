@@ -12,10 +12,8 @@ import {
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
-  // getWhoApprovesUser,
   getWhoAssignsToAuthorToReview,
   getWhomAuthorAssignsToReview as convertAssignedToReview,
-  // getWhomUserApproves,
   PieChartDatum,
 } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
@@ -211,24 +209,3 @@ export function useChangedFilesCount() {
 export function getExportData(state: ChartsStore) {
   return state.exportData;
 }
-
-// export function useWhoApprovesMergeRequests(client: Resources.Gitlab, projectId?: number, userId?: number) {
-//   const [whoApprovesUser, setWhoApprovesUser] = useState<PieChartDatum[]>([]);
-//   const [whomUserApproves, setWhomUserApproves] = useState<PieChartDatum[]>([]);
-
-//   useChartsStore((state) => {
-//     if (userId == null || state.mergeRequests.length === 0 || !projectId) {
-//       return [];
-//     }
-
-//     getMergeRequestsWithApprovals(client, projectId, state.mergeRequests).then((response) => {
-//       setWhoApprovesUser(getWhoApprovesUser(response, userId));
-//       setWhomUserApproves(getWhomUserApproves(response, userId));
-//     });
-//   });
-
-//   return {
-//     whoApprovesUser,
-//     whomUserApproves,
-//   };
-// }
