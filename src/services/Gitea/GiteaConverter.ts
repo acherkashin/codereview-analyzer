@@ -65,7 +65,8 @@ export function convertToUser(host: string, user: GiteaUser): User {
   return {
     id: user.id!.toString(),
     fullName: user.full_name!,
-    userName: user.login ?? user.email ?? 'unknown userName',
+    userName: user.login || user.email || 'unknown userName',
+    displayName: user.full_name || user.login || user.email || user.id!.toString(),
     // email: user.email!,
     avatarUrl: user.avatar_url!,
     webUrl: `${host}/${user.login}`,

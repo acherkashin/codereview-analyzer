@@ -92,6 +92,7 @@ export function convertToUser(user: Pick<UserSchema, 'id' | 'name' | 'username' 
     avatarUrl: user.avatar_url!,
     webUrl: user.web_url,
     active: user.state !== 'blocked',
+    displayName: user.name || user.username || user.id!.toString(),
   };
 }
 

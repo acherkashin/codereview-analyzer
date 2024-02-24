@@ -97,14 +97,3 @@ export function getWhoApprovesUser(mergeRequests: MergeRequestWithApprovals[], u
     })
   );
 }
-
-// export function getWhomUserApproves(mergeRequests: PullRequest[], userId: string): PieChartDatum[] {
-//   const approvedByUser = mergeRequests.filter((item) => (item.approvedByUserIds ?? []).some((id) => id === userId));
-//   const authors = approvedByUser.map((item) => item.author.userName).map((item) => item.mergeRequest.author);
-
-//   return tidy(authors, groupBy('username', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>((item) => ({
-//     id: item.username as string,
-//     label: item.username as string,
-//     value: item.total,
-//   }));
-// }

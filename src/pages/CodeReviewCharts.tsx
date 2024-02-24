@@ -41,6 +41,7 @@ import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
 import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
 import { useIsGuest } from '../hooks/useIsGuest';
 import { CommentsLeftChart } from '../components/charts/CommentsLeftChart/CommentsLeftChart';
+import { ApprovedByChart } from '../components/charts/ApprovedByChart/ApprovedByChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -156,6 +157,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               setFilteredDiscussions([discussion]);
             }}
           />
+          <ApprovedByChart pullRequests={pullRequests} users={users} />
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
               <PieChart

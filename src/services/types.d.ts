@@ -50,6 +50,7 @@ export interface User {
   //   email: string;
   fullName: string;
   userName: string;
+  displayName: string;
   avatarUrl: string;
   webUrl: string;
   active: boolean;
