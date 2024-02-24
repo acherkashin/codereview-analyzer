@@ -31,7 +31,7 @@ export function PersonalStatistic() {
   const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
   const commentsReceivedFromUsers = useCommentsReceivedFromUsers(selectedUser?.id);
   const commentsLeftToUsers = useCommentsLeftToUsers(selectedUser?.id);
-  //   const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, selectedUser?.id);
+  // const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, selectedUser?.id);
 
   return (
     <PageContainer>

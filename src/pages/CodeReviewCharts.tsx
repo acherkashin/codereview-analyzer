@@ -9,7 +9,6 @@ import {
   getAnalyze,
   getComments,
   getCommentsLeft,
-  getCommentsLeftPieChart,
   getCommentsReceived,
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
@@ -41,6 +40,7 @@ import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChar
 import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
 import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
 import { useIsGuest } from '../hooks/useIsGuest';
+import { CommentsLeftChart } from '../components/charts/CommentsLeftChart/CommentsLeftChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -62,7 +62,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const commentsLeft = useChartsStore(getCommentsLeft);
   const commentsReceived = useChartsStore(getCommentsReceived);
   const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
-  const commentsLeftByPieChart = useChartsStore(getCommentsLeftPieChart);
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
@@ -189,16 +188,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               />
             </ChartContainer>
           )}
-          {commentsLeftByPieChart && (
-            <ChartContainer title="Comments left by person">
-              <PieChart
-                data={commentsLeftByPieChart}
-                onClick={(e) => {
-                  showFilteredComments(e.id as string, null);
-                }}
-              />
-            </ChartContainer>
-          )}
+          <CommentsLeftChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
           <ChartContainer title="Comments left by person">
             <BarChart
               {...commentsLeft}

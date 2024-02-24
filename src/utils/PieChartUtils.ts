@@ -27,19 +27,6 @@ export function convertToCommentsReceivedPieChart(comments: Comment[]): PieChart
   return data;
 }
 
-export function convertToCommentsLeftPieChart(comments: Comment[]): PieChartDatum[] {
-  const rawData = getAuthorReviewerFromComments(comments);
-  const data = tidy(rawData, groupBy('reviewer', summarize({ total: n() })), arrange([asc('total')])).map<PieChartDatum>(
-    (item) => ({
-      id: item.reviewer,
-      label: item.reviewer,
-      value: item.total,
-    })
-  );
-
-  return data;
-}
-
 export function convertToDiscussionsReceivedPieChart(discussions: UserDiscussion[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromDiscussions(discussions);
   const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
@@ -111,15 +98,13 @@ export function getWhoApprovesUser(mergeRequests: MergeRequestWithApprovals[], u
   );
 }
 
-export function getWhomUserApproves(mergeRequests: MergeRequestWithApprovals[], userId: number): PieChartDatum[] {
-  const approvedByUser = mergeRequests.filter((item) =>
-    (item.approvals.approved_by ?? []).some(({ user }) => user.id === userId)
-  );
-  const authors = approvedByUser.filter((item) => item.mergeRequest.author).map((item) => item.mergeRequest.author);
+// export function getWhomUserApproves(mergeRequests: PullRequest[], userId: string): PieChartDatum[] {
+//   const approvedByUser = mergeRequests.filter((item) => (item.approvedByUserIds ?? []).some((id) => id === userId));
+//   const authors = approvedByUser.map((item) => item.author.userName).map((item) => item.mergeRequest.author);
 
-  return tidy(authors, groupBy('username', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>((item) => ({
-    id: item.username as string,
-    label: item.username as string,
-    value: item.total,
-  }));
-}
+//   return tidy(authors, groupBy('username', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>((item) => ({
+//     id: item.username as string,
+//     label: item.username as string,
+//     value: item.total,
+//   }));
+// }

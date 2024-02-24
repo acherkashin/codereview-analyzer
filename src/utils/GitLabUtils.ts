@@ -111,19 +111,19 @@ export interface MergeRequestWithApprovals {
   approvals: MergeRequestLevelMergeRequestApprovalSchema;
 }
 
-export function getMergeRequestsWithApprovals(
-  client: Resources.Gitlab,
-  projectId: number,
-  mrs: MergeRequestSchema[]
-): Promise<MergeRequestWithApprovals[]> {
-  return Promise.all(
-    mrs.map((mr) =>
-      client.MergeRequestApprovals.configuration(projectId, {
-        mergerequestIid: mr.iid,
-      }).then((approvals) => ({
-        mergeRequest: mr,
-        approvals,
-      }))
-    )
-  );
-}
+// export function getMergeRequestsWithApprovals(
+//   client: Resources.Gitlab,
+//   projectId: number,
+//   mrs: MergeRequestSchema[]
+// ): Promise<MergeRequestWithApprovals[]> {
+//   return Promise.all(
+//     mrs.map((mr) =>
+//       client.MergeRequestApprovals.configuration(projectId, {
+//         mergerequestIid: mr.iid,
+//       }).then((approvals) => ({
+//         mergeRequest: mr,
+//         approvals,
+//       }))
+//     )
+//   );
+// }
