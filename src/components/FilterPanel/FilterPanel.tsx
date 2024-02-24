@@ -36,7 +36,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   }, [analyze, createdAfter, createdBefore, prCount, project]);
 
   return (
-    <Stack className="App-users" spacing={2} position="sticky" top={0} style={style}>
+    <Stack spacing={2} position="sticky" top={0} style={style}>
       <ProjectList project={project} onSelected={setProject} />
       {hostType === 'Gitea' && (
         <TextField

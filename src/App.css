@@ -10,13 +10,6 @@ body {
   height: 100%;
 }
 
-.App-users {
-  overflow: auto;
-  flex-shrink: 0;
-  width: 300px;
-  padding: 10px;
-}
-
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

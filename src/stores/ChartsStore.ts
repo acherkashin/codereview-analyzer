@@ -23,23 +23,26 @@ import { GitService } from '../services/GitService';
 import { convert } from '../services/GitConverter';
 import { getEndDate, getStartDate } from '../utils/GitUtils';
 
-export interface ChartsStore {
-  pullRequests: PullRequest[];
-  users: User[];
-  exportData: ExportData | null;
-  import: (json: string) => void;
+const initialState = {
+  pullRequests: [] as PullRequest[],
+  users: [] as User[],
+  exportData: null as ExportData | null,
+};
 
+type ChartState = typeof initialState;
+
+export type ChartsStore = ChartState & {
+  import: (json: string) => void;
   analyze: (client: GitService, params: AnalyzeParams) => Promise<void>;
-}
+  closeAnalysis: () => void;
+};
 
 const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
 export { ChartsStoreProvider, useChartsStore };
 
 export function createChartsStore() {
   return create<ChartsStore>((set, get) => ({
-    pullRequests: [],
-    users: [],
-    exportData: null,
+    ...initialState,
     import(json: string) {
       const exportData: ExportData = JSON.parse(json);
 
@@ -66,6 +69,9 @@ export function createChartsStore() {
         users,
         rawData,
       };
+    },
+    closeAnalysis: () => {
+      set({ ...initialState });
     },
   }));
 }

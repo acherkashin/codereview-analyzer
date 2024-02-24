@@ -4,6 +4,7 @@ import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScre
 import { Button, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
+import CloseIcon from '@mui/icons-material/Close';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalysisInterval,
@@ -60,6 +61,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const pullRequests = useChartsStore((state) => state.pullRequests);
   const users = useChartsStore((state) => state.users);
   const importData = useChartsStore((state) => state.import);
+  const closeAnalysis = useChartsStore((state) => state.closeAnalysis);
   const dataToExport = useChartsStore(getExportData);
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
@@ -146,13 +148,61 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     [comments]
   );
 
+  if (pullRequests.length === 0) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+        <Stack spacing={2} position="sticky" style={{ width: 300 }}>
+          {!isGuest && <FilterPanel onAnalyze={handleAnalyze} />}
+          <ImportTextButton
+            label="Import as JSON"
+            onTextSelected={(json) => {
+              try {
+                importData(json);
+              } catch (ex) {
+                //TODO: need to show error in UI
+                console.error(ex);
+              }
+            }}
+          />
+        </Stack>
+      </div>
+    );
+  }
+
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <Typography variant="h3" textAlign="center">
-          {analysisInterval}
-        </Typography>
+        <Stack direction="row" spacing={2}>
+          <Typography variant="h3" textAlign="center">
+            {analysisInterval}
+          </Typography>
+          <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
+            Download as Excel
+          </Button>
+          <Button
+            startIcon={<FileDownloadIcon />}
+            onClick={() => {
+              // Need to specify Range <StartDate>-<EndDate> as a default name
+              downloadFile('newFile.json', JSON.stringify(dataToExport, null, 2));
+            }}
+          >
+            Export as JSON
+          </Button>
+          {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
+          <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
+            Close Analysis
+          </Button>
+          <InputDialog
+            title="Export comments to excel"
+            fieldName="File Name"
+            open={excelDialog.isOpen}
+            onClose={excelDialog.close}
+            onDownload={handleDownload}
+          />
+        </Stack>
+
         <CodeReviewTiles />
+
         <div className="charts">
           <CommentsPerMonthChart comments={comments} />
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
@@ -288,40 +338,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         </div>
       </div>
 
-      <Stack spacing={2} position="sticky" top={10} style={{ flex: '1 0 200px' }}>
-        {!isGuest && <FilterPanel onAnalyze={handleAnalyze} />}
-        <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
-          Download as Excel
-        </Button>
-        <Button
-          disabled={comments.length === 0 && discussions.length === 0}
-          startIcon={<FileDownloadIcon />}
-          onClick={() => {
-            // Need to specify Range <StartDate>-<EndDate> as a default name
-            downloadFile('newFile.json', JSON.stringify(dataToExport, null, 2));
-          }}
-        >
-          Export as JSON
-        </Button>
-        <ImportTextButton
-          label="Import as JSON"
-          onTextSelected={(json) => {
-            try {
-              importData(json);
-            } catch (ex) {
-              //TODO: need to show error in UI
-              console.error(ex);
-            }
-          }}
-        />
-        <InputDialog
-          title="Export comments to excel"
-          fieldName="File Name"
-          open={excelDialog.isOpen}
-          onClose={excelDialog.close}
-          onDownload={handleDownload}
-        />
-      </Stack>
       <FullScreenDialog
         icon={<SpeakerNotesOutlinedIcon />}
         title={title}
