@@ -15,7 +15,7 @@ import { useCallback, useState } from 'react';
 import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
 import { ReactComponent as GiteaIcon } from './../components/gitea.svg';
 import { TooltipPrompt } from '../components';
-import { useAuthStore } from '../stores/AuthStore';
+import { getSignIn, getSignInGuest, useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
 import { Logo } from '../components/Logo';
@@ -34,8 +34,10 @@ export function Login(_: LoginProps) {
   const [hostType, setHostType] = useState<HostingType>('Gitlab');
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
-  //TODO: upgrade zustand and use shallowEquals
-  const { signIn, signInGuest, isSigningIn } = useAuthStore();
+
+  const signIn = useAuthStore(getSignIn);
+  const signInGuest = useAuthStore(getSignInGuest);
+  const isSigningIn = useAuthStore((state) => state.isSigningIn);
 
   const handleLoginAsGuest = () => {
     signInGuest();

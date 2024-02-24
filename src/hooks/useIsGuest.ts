@@ -1,5 +1,5 @@
-import { getUserContext } from '../utils/UserContextUtils';
+import { useAuthStore } from '../stores/AuthStore';
 
 export function useIsGuest() {
-  return getUserContext()?.access === 'guest';
+  return useAuthStore((store) => store.userContext?.access) === 'guest';
 }
