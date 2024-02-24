@@ -1,25 +1,25 @@
 import { useMemo } from 'react';
 import { PullRequest, User } from '../../../services/types';
-import { getWhomUserApproves } from './ApprovedByChartUtils';
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
+import { getWhomUserApproves } from './ApprovalRecipientsUtils';
 
-export interface ApprovedByChartProps {
+export interface ApprovalRecipientsProps {
   users: User[];
   pullRequests: PullRequest[];
 }
 
 /**
- * Represents who gives approvals
+ * Represents who receive approvals
  */
-export function ApprovedByChart({ users, pullRequests }: ApprovedByChartProps) {
+export function ApprovalRecipients({ users, pullRequests }: ApprovalRecipientsProps) {
   const { data, authors } = useMemo(() => {
-    return getBarChartData(pullRequests, users, getWhomUserApproves);
+    return getBarChartData(pullRequests, users, (prs, userId) => getWhomUserApproves(prs, users, userId));
   }, [users, pullRequests]);
 
   return (
-    <ChartContainer title="Approvals Given By">
+    <ChartContainer title="Approvals Received By">
       <BarChart
         margin={{ left: 100, bottom: 50, right: 30 }}
         // axisBottom={{}}

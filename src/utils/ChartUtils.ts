@@ -224,3 +224,28 @@ export function getLongestDiscussions(prs: PullRequest[], count: number): UserDi
 export function getInProgressTime(pr1: PullRequest): TimeSpan {
   return timeSince(new Date(pr1.createdAt), new Date(pr1.mergedAt!));
 }
+
+export type BarDataProvider = (prs: PullRequest[], userId: string) => Record<string, number>;
+
+export function getBarChartData(pullRequests: PullRequest[], users: User[], provider: BarDataProvider) {
+  const data = users
+    .map((item) => {
+      const approves = provider(pullRequests, item.id);
+      const total = Object.values(approves).reduce((acc, value) => acc + value, 0);
+
+      return {
+        ...approves,
+        total,
+        approverName: item.displayName,
+      };
+    })
+    .filter((item) => item.total > 0)
+    .toSorted((a, b) => a.total - b.total);
+
+  const authors = users.map((item) => item.displayName);
+
+  return {
+    data,
+    authors,
+  };
+}

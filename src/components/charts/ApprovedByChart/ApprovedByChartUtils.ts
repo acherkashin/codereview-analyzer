@@ -1,28 +1,5 @@
 import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
-import { PullRequest, User } from '../../../services/types';
-
-export function getChartData(pullRequests: PullRequest[], users: User[]) {
-  const data = users
-    .map((item) => {
-      const approves = getWhomUserApproves(pullRequests, item.id);
-      const total = Object.values(approves).reduce((acc, value) => acc + value, 0);
-
-      return {
-        ...approves,
-        total,
-        approverName: item.displayName,
-      };
-    })
-    .filter((item) => item.total > 0)
-    .toSorted((a, b) => a.total - b.total);
-
-  const authors = users.map((item) => item.displayName);
-
-  return {
-    data,
-    authors,
-  };
-}
+import { PullRequest } from '../../../services/types';
 
 export function getWhomUserApproves(mergeRequests: PullRequest[], userId: string): Record<string, number> {
   const approvedByUser = mergeRequests.filter((item) => item.approvedByUserIds.includes(userId));

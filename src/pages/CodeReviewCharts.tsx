@@ -42,6 +42,7 @@ import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscu
 import { useIsGuest } from '../hooks/useIsGuest';
 import { CommentsLeftChart } from '../components/charts/CommentsLeftChart/CommentsLeftChart';
 import { ApprovedByChart } from '../components/charts/ApprovedByChart/ApprovedByChart';
+import { ApprovalRecipients } from '../components/charts/ApprovalRecipients/ApprovalRecipients';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -158,6 +159,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             }}
           />
           <ApprovedByChart pullRequests={pullRequests} users={users} />
+          <ApprovalRecipients pullRequests={pullRequests} users={users} />
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
               <PieChart
