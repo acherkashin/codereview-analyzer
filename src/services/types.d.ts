@@ -105,6 +105,7 @@ export interface PullRequest {
   reviewedByUserIds: string[];
   /**
    * Users who approved the pull request
+   * TODO: probably it is better to assign "User[]" instead of "string[]" to be consistent
    */
   approvedByUserIds: string[];
   /**
