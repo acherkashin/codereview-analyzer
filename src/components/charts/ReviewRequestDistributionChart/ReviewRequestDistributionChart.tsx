@@ -5,7 +5,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestsReview } from './ReviewRequestDistributionUtils';
 
-export interface ReviewRequestDistributionProps {
+export interface ReviewRequestDistributionChartProps {
   users: User[];
   pullRequests: PullRequest[];
 }
@@ -13,7 +13,7 @@ export interface ReviewRequestDistributionProps {
 /**
  * Represents who requests review
  */
-export function ReviewRequestDistribution({ users, pullRequests }: ReviewRequestDistributionProps) {
+export function ReviewRequestDistributionChart({ users, pullRequests }: ReviewRequestDistributionChartProps) {
   const { data, authors } = useMemo(() => {
     return getBarChartData(pullRequests, users, getWhoRequestsReview);
   }, [users, pullRequests]);

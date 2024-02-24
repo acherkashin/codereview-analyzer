@@ -41,9 +41,12 @@ import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
 import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
 import { useIsGuest } from '../hooks/useIsGuest';
 import { CommentsLeftChart } from '../components/charts/CommentsLeftChart/CommentsLeftChart';
-import { ApprovedByChart } from '../components/charts/ApprovedByChart/ApprovedByChart';
-import { ApprovalRecipients } from '../components/charts/ApprovalRecipients/ApprovalRecipients';
-import { ReviewRequestRecipients, ReviewRequestDistribution } from '../components/charts';
+import {
+  ReviewRequestRecipients,
+  ReviewRequestDistributionChart,
+  ApprovalDistributionChart,
+  ApprovalRecipientsChart,
+} from '../components/charts';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -159,10 +162,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               setFilteredDiscussions([discussion]);
             }}
           />
-          <ApprovedByChart pullRequests={pullRequests} users={users} />
-          <ApprovalRecipients pullRequests={pullRequests} users={users} />
+          <ApprovalDistributionChart pullRequests={pullRequests} users={users} />
+          <ApprovalRecipientsChart pullRequests={pullRequests} users={users} />
           <ReviewRequestRecipients pullRequests={pullRequests} users={users} />
-          <ReviewRequestDistribution pullRequests={pullRequests} users={users} />
+          <ReviewRequestDistributionChart pullRequests={pullRequests} users={users} />
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
               <PieChart

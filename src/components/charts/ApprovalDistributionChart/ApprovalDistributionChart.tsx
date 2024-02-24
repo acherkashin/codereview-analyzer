@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { PullRequest, User } from '../../../services/types';
-import { getWhomUserApproves } from './ApprovedByChartUtils';
+import { getWhomUserApproves } from './ApprovalDistributionUtils';
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 
-export interface ApprovedByChartProps {
+export interface ApprovalDistributionProps {
   users: User[];
   pullRequests: PullRequest[];
 }
@@ -13,7 +13,7 @@ export interface ApprovedByChartProps {
 /**
  * Represents who gives approvals
  */
-export function ApprovedByChart({ users, pullRequests }: ApprovedByChartProps) {
+export function ApprovalDistributionChart({ users, pullRequests }: ApprovalDistributionProps) {
   const { data, authors } = useMemo(() => {
     return getBarChartData(pullRequests, users, getWhomUserApproves);
   }, [users, pullRequests]);

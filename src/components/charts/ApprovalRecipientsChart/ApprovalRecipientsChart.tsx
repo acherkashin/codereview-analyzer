@@ -5,7 +5,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhomUserApproves } from './ApprovalRecipientsUtils';
 
-export interface ApprovalRecipientsProps {
+export interface ApprovalRecipientsChartProps {
   users: User[];
   pullRequests: PullRequest[];
 }
@@ -13,7 +13,7 @@ export interface ApprovalRecipientsProps {
 /**
  * Represents who receive approvals
  */
-export function ApprovalRecipients({ users, pullRequests }: ApprovalRecipientsProps) {
+export function ApprovalRecipientsChart({ users, pullRequests }: ApprovalRecipientsChartProps) {
   const { data, authors } = useMemo(() => {
     return getBarChartData(pullRequests, users, (prs, userId) => getWhomUserApproves(prs, users, userId));
   }, [users, pullRequests]);
