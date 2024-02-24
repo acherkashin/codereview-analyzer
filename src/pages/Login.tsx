@@ -1,4 +1,5 @@
 import {
+  Button,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -10,16 +11,18 @@ import {
   Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
 import { ReactComponent as GiteaIcon } from './../components/gitea.svg';
 import { TooltipPrompt } from '../components';
-import { getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
+import { getSignIn, getSignInGuest, useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
-import { getCredentials } from '../utils/CredentialUtils';
 import { Logo } from '../components/Logo';
-import { HostingType } from '../services/GitService';
+import { useAuthGuard } from '../hooks/useAuthGuard';
+import { HostingType } from '../utils/UserContextUtils';
+import PersonIcon from '@mui/icons-material/Person';
+import LoginIcon from '@mui/icons-material/Login';
 
 const tokenHelp: Record<HostingType, `https://${string}`> = {
   Gitlab: 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token',
@@ -33,16 +36,22 @@ export function Login(_: LoginProps) {
   const [hostType, setHostType] = useState<HostingType>('Gitlab');
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
-  //TODO: upgrade zustand and use shallowEquals
-  const { signIn, isSigningIn } = useAuthStore();
-  const isAuthenticated = useAuthStore(getIsAuthenticated);
+
+  const signIn = useAuthStore(getSignIn);
+  const signInGuest = useAuthStore(getSignInGuest);
+  const isSigningIn = useAuthStore((state) => state.isSigningIn);
+
+  const handleLoginAsGuest = () => {
+    signInGuest();
+    navigate('/charts');
+  };
 
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
   const handleLoggedIn = useCallback(() => {
     signIn(host, token, hostType).then(
       () => {
-        navigate('/personal');
+        navigate('/charts');
       },
       (e) => {
         console.error(e);
@@ -51,19 +60,8 @@ export function Login(_: LoginProps) {
     );
   }, [host, hostType, navigate, signIn, token]);
 
-  //TODO: refactor, it is duplicated with AuthGuard
-  useEffect(() => {
-    if (!isAuthenticated) {
-      const credentials = getCredentials();
-      if (credentials) {
-        signIn(credentials.host, credentials.token, credentials.hostType);
-        navigate('/personal');
-        return;
-      }
-      console.log('Not authenticated, redirecting');
-      navigate('/login');
-    }
-  }, [isAuthenticated, navigate, signIn]);
+  // redirects to login if not authenticated
+  useAuthGuard();
 
   const handleChange = (event: SelectChangeEvent<string>) => {
     setHostType(event.target.value as HostingType);
@@ -122,9 +120,12 @@ export function Login(_: LoginProps) {
               ) : null,
           }}
         />
-        <LoadingButton loading={isSigningIn} onClick={handleLoggedIn}>
-          Sign In
+        <LoadingButton loading={isSigningIn} startIcon={<LoginIcon />} onClick={handleLoggedIn}>
+          Login
         </LoadingButton>
+        <Button onClick={handleLoginAsGuest} startIcon={<PersonIcon />}>
+          Login As Guest
+        </Button>
       </Stack>
     </Box>
   );

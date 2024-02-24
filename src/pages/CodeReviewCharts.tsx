@@ -40,6 +40,7 @@ import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/Co
 import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChart/CommentsPerMonthChart';
 import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
 import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
+import { useIsGuest } from '../hooks/useIsGuest';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -47,6 +48,7 @@ export interface CodeReviewChartsProps {}
 export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const excelDialog = useOpen();
+  const isGuest = useIsGuest();
 
   const pullRequests = useChartsStore((state) => state.pullRequests);
   const users = useChartsStore((state) => state.users);
@@ -280,8 +282,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           {hostType === 'Gitea' && <CommentedFilesChart comments={comments} />}
         </div>
       </div>
-      <Stack spacing={2} position="sticky" top={10}>
-        <FilterPanel onAnalyze={handleAnalyze} />
+
+      <Stack spacing={2} position="sticky" top={10} style={{ flex: '1 0 200px' }}>
+        {!isGuest && <FilterPanel onAnalyze={handleAnalyze} />}
         <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
           Download as Excel
         </Button>

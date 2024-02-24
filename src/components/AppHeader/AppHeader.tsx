@@ -17,6 +17,8 @@ import {
 import { getCurrentUser, getSignOut, useAuthStore } from './../../stores/AuthStore';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useIsGuest } from '../../hooks/useIsGuest';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -24,9 +26,11 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
 }));
 
 export function AppHeader() {
+  const isGuest = useIsGuest();
   const signOut = useAuthStore(getSignOut);
   const userCurrent = useAuthStore(getCurrentUser);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const navigate = useNavigate();
 
   const handleOpenUserMenu = (event: any) => {
     setAnchorElUser(event.currentTarget);
@@ -35,6 +39,7 @@ export function AppHeader() {
   const handleCloseNavMenu = () => {
     signOut();
     handleCloseUserMenu();
+    navigate('/login');
   };
 
   const handleCloseUserMenu = () => {
@@ -50,11 +55,12 @@ export function AppHeader() {
     <DashboardNavbarRoot position="relative">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography variant="h6" noWrap component="div" sx={{ mr: 2, display: 'flex', flexGrow: 1 }}>
+          <Typography color="text.primary" variant="h6" noWrap component="div" sx={{ mr: 2, display: 'flex', flexGrow: 1 }}>
             Analyzer
           </Typography>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
+              {/* TODO: need to show guest icon */}
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt={userCurrent?.fullName} src={userCurrent?.avatarUrl} />
               </IconButton>
@@ -75,12 +81,14 @@ export function AppHeader() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem onClick={handleViewAccount}>
-                <ListItemIcon>
-                  <OpenInNewIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>View account</ListItemText>
-              </MenuItem>
+              {!isGuest && (
+                <MenuItem onClick={handleViewAccount}>
+                  <ListItemIcon>
+                    <OpenInNewIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>View account</ListItemText>
+                </MenuItem>
+              )}
               <MenuItem onClick={handleCloseNavMenu}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
