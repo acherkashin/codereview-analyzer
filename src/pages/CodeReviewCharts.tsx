@@ -283,7 +283,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         </div>
       </div>
 
-      <Stack spacing={2} position="sticky" top={10}>
+      <Stack spacing={2} position="sticky" top={10} style={{ flex: '1 0 200px' }}>
         {!isGuest && <FilterPanel onAnalyze={handleAnalyze} />}
         <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
           Download as Excel
