@@ -68,3 +68,15 @@ export function getAuthorReviewerFromMergeRequests(mrs: PullRequest[]): AuthorRe
     }))
   );
 }
+
+export function getStartDate(prs: PullRequest[]) {
+  const sorted = prs.toSorted((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  return sorted[0]?.createdAt;
+}
+
+export function getEndDate(prs: PullRequest[]) {
+  const sorted = prs.toSorted((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  return sorted[0]?.createdAt;
+}

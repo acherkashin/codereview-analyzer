@@ -21,6 +21,7 @@ import { AnalyzeParams, ExportData, PullRequest, User } from '../services/types'
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { GitService } from '../services/GitService';
 import { convert } from '../services/GitConverter';
+import { getEndDate, getStartDate } from '../utils/GitUtils';
 
 export interface ChartsStore {
   pullRequests: PullRequest[];
@@ -121,6 +122,19 @@ export function getDiscussionsReceivedPieChart(state: ChartsStore) {
 
 export function getDiscussionsStartedPieChart(state: ChartsStore) {
   return convertToDiscussionsStartedPieChart(getDiscussions(state));
+}
+
+export function getAnalysisInterval(state: ChartsStore) {
+  if (state.pullRequests.length === 0) {
+    return null;
+  }
+
+  const startDate = getStartDate(state.pullRequests);
+  const endDate = getEndDate(state.pullRequests);
+
+  const interval = new Date(startDate).toISOString().substring(0, 10) + ' - ' + new Date(endDate).toISOString().substring(0, 10);
+
+  return interval;
 }
 
 export function getAnalyze(state: ChartsStore) {
