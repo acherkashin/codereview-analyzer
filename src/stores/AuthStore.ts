@@ -5,6 +5,7 @@ import {
   TokenUserContext,
   UserContext,
   clearUserContext,
+  getUserContext,
   saveUserContext,
 } from '../utils/UserContextUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
@@ -12,7 +13,8 @@ import { User } from '../services/types';
 import { GitService, getGitService } from '../services/GitService';
 
 const initialState = {
-  userContext: null as UserContext | null,
+  // setup user context on page loading
+  userContext: getUserContext(),
   user: null as User | null,
   isSigningIn: false,
   signInError: null as string | null,
