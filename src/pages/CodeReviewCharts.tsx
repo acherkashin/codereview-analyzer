@@ -211,7 +211,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         <CodeReviewTiles />
 
         <div className="charts">
-          <CommentsPerMonthChart comments={comments} />
+          <CommentsPerMonthChart user={filterUser} comments={comments} />
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
           <WordsCloud comments={comments} onClick={handleWordClick} />
           <TopPullRequestsChart pullRequests={pullRequests} count={10} />
