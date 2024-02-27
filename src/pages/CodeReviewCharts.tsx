@@ -235,7 +235,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ApprovalDistributionChart pullRequests={pullRequests} users={users} />
           <ApprovalRecipientsChart pullRequests={pullRequests} users={users} />
           <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
-          <ReviewRequestDistributionChart pullRequests={pullRequests} users={users} />
+          <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
 
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
