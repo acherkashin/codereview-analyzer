@@ -3,10 +3,11 @@ import { Autocomplete, CircularProgress, TextField } from '@mui/material';
 import { User } from '../../services/types';
 import { useDebounce } from '../../hooks';
 import { UserListItem } from './UserListItem';
+import { styled } from '@mui/system';
 
 export interface UsersListProps {
   label: string;
-  user?: User;
+  user?: User | null;
   users: ((value: string) => Promise<User[]>) | User[];
   onSelected: (user: User | undefined) => void;
   style?: React.CSSProperties | undefined;
@@ -34,7 +35,7 @@ export function UsersList({ user, label, style, users, onSelected }: UsersListPr
   }, [debouncedValue, isSearchMode, open, users]);
 
   return (
-    <Autocomplete
+    <UsersListAutocomplete
       style={style}
       getOptionLabel={(option) => option.fullName}
       open={open}
@@ -46,7 +47,7 @@ export function UsersList({ user, label, style, users, onSelected }: UsersListPr
       onChange={(_, newValue) => onSelected(newValue ?? undefined)}
       onInputChange={(_, newInputValue) => setValue(newInputValue)}
       // reset client side filtering
-      filterOptions={(x) => x}
+      filterOptions={isSearchMode ? (x) => x : undefined}
       renderOption={(props, item) => <UserListItem key={item.id} user={item} selected={item.id === user?.id} {...props} />}
       renderInput={(params) => (
         <TextField
@@ -66,3 +67,7 @@ export function UsersList({ user, label, style, users, onSelected }: UsersListPr
     />
   );
 }
+
+const UsersListAutocomplete = styled(Autocomplete)({
+  minWidth: 300,
+}) as any as typeof Autocomplete;

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
-import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
+import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
 import { Button, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
@@ -32,7 +32,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, UserDiscussion } from '../services/types';
+import { AnalyzeParams, Comment, User, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
@@ -57,6 +57,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const excelDialog = useOpen();
   const isGuest = useIsGuest();
+  const [filterUser, setFilterUser] = useState<User | undefined>(undefined);
 
   const pullRequests = useChartsStore((state) => state.pullRequests);
   const users = useChartsStore((state) => state.users);
@@ -172,33 +173,39 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <Stack direction="row" spacing={2}>
-          <Typography variant="h3" textAlign="center">
-            {analysisInterval}
-          </Typography>
-          <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
-            Download as Excel
-          </Button>
-          <Button
-            startIcon={<FileDownloadIcon />}
-            onClick={() => {
-              // Need to specify Range <StartDate>-<EndDate> as a default name
-              downloadFile('newFile.json', JSON.stringify(dataToExport, null, 2));
-            }}
-          >
-            Export as JSON
-          </Button>
-          {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
-          <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
-            Close Analysis
-          </Button>
-          <InputDialog
-            title="Export comments to excel"
-            fieldName="File Name"
-            open={excelDialog.isOpen}
-            onClose={excelDialog.close}
-            onDownload={handleDownload}
-          />
+        <Stack direction="column" spacing={2}>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="h3" textAlign="center">
+              {analysisInterval}
+            </Typography>
+
+            <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
+              Download as Excel
+            </Button>
+            <Button
+              startIcon={<FileDownloadIcon />}
+              onClick={() => {
+                // Need to specify Range <StartDate>-<EndDate> as a default name
+                downloadFile('newFile.json', JSON.stringify(dataToExport, null, 2));
+              }}
+            >
+              Export as JSON
+            </Button>
+            {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
+            <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
+              Close Analysis
+            </Button>
+            <InputDialog
+              title="Export comments to excel"
+              fieldName="File Name"
+              open={excelDialog.isOpen}
+              onClose={excelDialog.close}
+              onDownload={handleDownload}
+            />
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            <UsersList label="Users" user={filterUser} users={users} onSelected={setFilterUser} />
+          </Stack>
         </Stack>
 
         <CodeReviewTiles />
