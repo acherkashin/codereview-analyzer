@@ -6,6 +6,7 @@ import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestReviews } from './ReviewRequestRecipientsUtils';
 
 export interface ReviewRequestRecipientsProps {
+  user?: User | null;
   users: User[];
   pullRequests: PullRequest[];
 }
@@ -15,7 +16,13 @@ export interface ReviewRequestRecipientsProps {
  * On y-axis it shows who get review requests.
  * On x-axis it shows number of pull requests that user asked to review.
  */
-export function ReviewRequestRecipients({ users, pullRequests }: ReviewRequestRecipientsProps) {
+export function ReviewRequestRecipients(props: ReviewRequestRecipientsProps) {
+  if (props.user) return <ReviewRequestForUser {...props} />;
+
+  return <ReviewRequestForAll {...props} />;
+}
+
+function ReviewRequestForAll({ users, pullRequests }: ReviewRequestRecipientsProps) {
   const { data, authors } = useMemo(() => {
     // we will build data that shows who request review from every user
     return getBarChartData(pullRequests, users, getWhoRequestReviews);
@@ -31,6 +38,20 @@ export function ReviewRequestRecipients({ users, pullRequests }: ReviewRequestRe
         data={data}
         onClick={() => {}}
       />
+    </ChartContainer>
+  );
+}
+
+function ReviewRequestForUser({ user, pullRequests }: ReviewRequestRecipientsProps) {
+  const data = useMemo(() => {
+    const obj = getWhoRequestReviews(pullRequests, user!.id);
+    const array = Object.entries(obj).map((item) => ({ id: item[0], label: item[0], value: item[1] }));
+    return array;
+  }, [pullRequests, user]);
+
+  return (
+    <ChartContainer title={`Following people ask ${user!.userName} to review their changes`}>
+      <BarChart data={data} />
     </ChartContainer>
   );
 }

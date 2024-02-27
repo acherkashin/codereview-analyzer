@@ -6,7 +6,6 @@ import {
   useChartsStore,
   useCommentsLeftToUsers,
   useCommentsReceivedFromUsers,
-  useWhoAssignsToAuthorToReviewPieChart,
   useWhomAssignedToReviewPieChart,
 } from '../stores/ChartsStore';
 import { useClient } from '../stores/AuthStore';
@@ -27,7 +26,6 @@ export function PersonalStatistic() {
 
   const [selectedUser, selectUser] = useLocalStorage<User | undefined>('personal-statistic-user', undefined);
   const assignedToReviewPieChart = useWhomAssignedToReviewPieChart(selectedUser?.id);
-  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
   const commentsReceivedFromUsers = useCommentsReceivedFromUsers(selectedUser?.id);
   const commentsLeftToUsers = useCommentsLeftToUsers(selectedUser?.id);
 
@@ -37,11 +35,6 @@ export function PersonalStatistic() {
         {selectedUser && assignedToReviewPieChart && (
           <ChartContainer title={`${selectedUser?.userName} asks following people to review his changes`}>
             <PieChart data={assignedToReviewPieChart} />
-          </ChartContainer>
-        )}
-        {selectedUser && whoAssignsToReviewPieChart && (
-          <ChartContainer title={`Following people ask ${selectedUser?.userName} to review their changes`}>
-            <PieChart data={whoAssignsToReviewPieChart} />
           </ChartContainer>
         )}
         {selectedUser && commentsLeftToUsers && (

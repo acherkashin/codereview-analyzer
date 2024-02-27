@@ -21,7 +21,6 @@ import {
   getDiscussionsStartedPieChart,
   getExportData,
   useChartsStore,
-  useWhoAssignsToAuthorToReviewPieChart,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { BarChart } from '../components/charts/BarChart';
@@ -88,8 +87,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const userComments = useMemo(() => {
     return comments.filter((item) => item.reviewerId === filterUser?.id);
   }, [comments, filterUser?.id]);
-
-  const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(filterUser?.id);
 
   const showFilteredComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
@@ -237,13 +234,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           />
           <ApprovalDistributionChart pullRequests={pullRequests} users={users} />
           <ApprovalRecipientsChart pullRequests={pullRequests} users={users} />
-          <ReviewRequestRecipients pullRequests={pullRequests} users={users} />
-          {!filterUser && <ReviewRequestDistributionChart pullRequests={pullRequests} users={users} />}
-          {filterUser && whoAssignsToReviewPieChart && (
-            <ChartContainer title={`Following people ask ${filterUser.userName} to review their changes`}>
-              <PieChart data={whoAssignsToReviewPieChart} />
-            </ChartContainer>
-          )}
+          <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
+          <ReviewRequestDistributionChart pullRequests={pullRequests} users={users} />
+
           {discussionsReceivedPieChart && (
             <ChartContainer title="Discussions started with person">
               <PieChart
