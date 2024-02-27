@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
 import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
 import { Button, Stack, Typography } from '@mui/material';
@@ -57,7 +57,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const excelDialog = useOpen();
   const isGuest = useIsGuest();
-  const [filterUser, setFilterUser] = useState<User | undefined>(undefined);
 
   const pullRequests = useChartsStore((state) => state.pullRequests);
   const users = useChartsStore((state) => state.users);
@@ -82,6 +81,11 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const [filteredDiscussions, setFilteredDiscussions] = useState<UserDiscussion[]>([]);
 
   const hostType = useAuthStore(getHostType);
+
+  const [filterUser, setFilterUser] = useState<User | undefined>(undefined);
+  const userComments = useMemo(() => {
+    return comments.filter((item) => item.reviewerId === filterUser?.id);
+  }, [comments, filterUser?.id]);
 
   const showFilteredComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
@@ -213,7 +217,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         <div className="charts">
           <CommentsPerMonthChart user={filterUser} comments={comments} />
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
-          <WordsCloud comments={comments} onClick={handleWordClick} />
+          <WordsCloud comments={filterUser ? userComments : comments} onClick={handleWordClick} />
           <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
           {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
           <TopLongestDiscussionsChart
