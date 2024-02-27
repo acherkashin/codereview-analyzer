@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { ChartContainer, FilterPanel, UserSelect } from '../components';
+import { ChartContainer, FilterPanel, UserSearchBox } from '../components';
 import { BarChart, PieChart } from '../components/charts';
 import {
   getAnalyze,
@@ -78,7 +78,7 @@ export function PersonalStatistic() {
         )}
       </div>
       <FilterPanel onAnalyze={handleAnalyze} style={{ position: 'sticky', top: 10 }}>
-        <UserSelect label="Author" user={selectedUser} onSelected={selectUser} />
+        <UserSearchBox label="Author" user={selectedUser} search={(value) => client.searchUsers(value)} onSelected={selectUser} />
       </FilterPanel>
     </PageContainer>
   );

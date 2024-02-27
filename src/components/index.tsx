@@ -3,7 +3,7 @@ export { CommentList } from './CommentList';
 export { TooltipPrompt } from './TooltipPrompt';
 export { Login } from '../pages/Login';
 export { ProjectList } from './ProjectList';
-export { UserSelect } from './UserSelect';
+export { UserSearchBox } from './UserSearchBox/UserSearchBox';
 export { BaseChartTooltip } from './BaseChartTooltip';
 export { DiscussionList } from './DiscussionList';
 export { MergeRequest } from './MergeRequest';

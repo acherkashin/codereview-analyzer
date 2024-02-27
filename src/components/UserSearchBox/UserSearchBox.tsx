@@ -9,18 +9,20 @@ import {
   ListItemText,
   TextField,
 } from '@mui/material';
-import { useClient } from '../stores/AuthStore';
-import { User } from '../services/types';
-import { useDebounce } from '../hooks';
+import { useClient } from '../../stores/AuthStore';
+import { User } from '../../services/types';
+import { useDebounce } from '../../hooks';
+import { UserListItem } from './UserListItem';
 
-export interface UserListProps {
+export interface UserSearchBoxProps {
   label: string;
   user?: User;
+  search: (value: string) => Promise<User[]>;
   onSelected: (user: User | undefined) => void;
+  style?: React.CSSProperties | undefined;
 }
 
-export function UserSelect({ user, label, onSelected }: UserListProps) {
-  const client = useClient();
+export function UserSearchBox({ user, label, style, search, onSelected }: UserSearchBoxProps) {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -29,18 +31,18 @@ export function UserSelect({ user, label, onSelected }: UserListProps) {
   const debouncedValue = useDebounce(value, 300);
 
   useEffect(() => {
-    if (client && open && debouncedValue) {
+    if (open && debouncedValue) {
       setLoading(true);
 
-      client
-        .searchUsers(debouncedValue)
+      search(debouncedValue)
         .then(setOptions)
         .finally(() => setLoading(false));
     }
-  }, [client, debouncedValue, open]);
+  }, [debouncedValue, open, search]);
 
   return (
     <Autocomplete
+      style={style}
       getOptionLabel={(option) => option.fullName}
       open={open}
       onOpen={() => setOpen(true)}
@@ -52,20 +54,11 @@ export function UserSelect({ user, label, onSelected }: UserListProps) {
       onInputChange={(_, newInputValue) => setValue(newInputValue)}
       // reset client side filtering
       filterOptions={(x) => x}
-      renderOption={(props, item) => (
-        <ListItem key={item.id} alignItems="flex-start" /*disabled={item.state === 'blocked'}*/ {...props}>
-          <ListItemButton selected={user?.id === item.id}>
-            <ListItemAvatar>
-              <Avatar alt={item.fullName} src={item.avatarUrl} />
-            </ListItemAvatar>
-            <ListItemText primary={item.fullName} secondary={item.userName} />
-          </ListItemButton>
-        </ListItem>
-      )}
+      renderOption={(props, item) => <UserListItem key={item.id} user={item} selected={item.id === user?.id} {...props} />}
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Users"
+          label={label}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
