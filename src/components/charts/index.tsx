@@ -5,3 +5,6 @@ export { ReviewRequestRecipients } from './ReviewRequestRecipients/ReviewRequest
 export { ApprovalDistributionChart } from './ApprovalDistributionChart/ApprovalDistributionChart';
 export { ApprovalRecipientsChart } from './ApprovalRecipientsChart/ApprovalRecipientsChart';
 export { TopCommentedPullRequestsChart } from './TopCommentedPullRequests';
+export { TopLongestDiscussionsChart } from './TopLongestDiscussionsChart';
+export { CommentsPerMonthChart } from './CommentsPerMonthChart/CommentsPerMonthChart';
+export { CommentedFilesChart } from './CommentedFilesChart/CommentedFilesChart';

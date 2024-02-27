@@ -16,8 +16,13 @@ import ForumIcon from '@mui/icons-material/Forum';
 import { BranchIcon } from '../icons/BranchIcon';
 import { getLongestDiscussions, getLongestPullRequest } from '../utils/ChartUtils';
 import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
+import { User } from '../services/types';
 
-export function CodeReviewTiles() {
+export interface CodeReviewTilesProps {
+  user?: User | null;
+}
+
+export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
   const pullRequests = useChartsStore((state) => state.pullRequests);
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
@@ -33,7 +38,7 @@ export function CodeReviewTiles() {
   const commentedFilesCount = useCommentedFilesCount();
 
   const longestPullRequest = useMemo(() => getLongestPullRequest(pullRequests), [pullRequests]);
-  const longestDiscussion = useMemo(() => getLongestDiscussions(pullRequests, 1)[0], [pullRequests]);
+  const longestDiscussion = useMemo(() => getLongestDiscussions(pullRequests, 1, user)[0], [pullRequests, user]);
 
   const noDiscussionsPr = useMemo(() => {
     const noComments = pullRequests.filter((item) => item.discussions.length === 0);

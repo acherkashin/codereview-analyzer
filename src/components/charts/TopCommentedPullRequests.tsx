@@ -5,7 +5,7 @@ import { BarChart } from './BarChart';
 import { useMemo } from 'react';
 import { ChartContainer } from '../ChartContainer';
 
-export interface ITopCommentedPullRequestsChartProps {
+export interface TopCommentedPullRequestsChartProps {
   user?: User | null;
   count: number;
   pullRequests: PullRequest[];
@@ -15,7 +15,7 @@ export interface ITopCommentedPullRequestsChartProps {
  * Shows top most commented pull requests.
  * Shows only pull requests created by the user if @param user is provided.
  */
-export function TopCommentedPullRequestsChart({ user, pullRequests, count }: ITopCommentedPullRequestsChartProps) {
+export function TopCommentedPullRequestsChart({ user, pullRequests, count }: TopCommentedPullRequestsChartProps) {
   const data = useMemo(() => {
     const data = getMostCommentedPrs({ user, pullRequests, count })
       .map((item) => ({
@@ -59,7 +59,7 @@ export function TopCommentedPullRequestsChart({ user, pullRequests, count }: ITo
   );
 }
 
-function getMostCommentedPrs({ user, pullRequests, count }: ITopCommentedPullRequestsChartProps) {
+function getMostCommentedPrs({ user, pullRequests, count }: TopCommentedPullRequestsChartProps) {
   const filteredPrs = !user ? pullRequests : pullRequests.filter((pr) => pr.author.id === user.id);
   const sorted = filteredPrs.toSorted((a, b) => b.comments.length - a.comments.length);
   const topPrs = sorted.slice(0, count);

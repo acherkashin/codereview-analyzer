@@ -214,8 +214,14 @@ export function getLongestPullRequest(prs: PullRequest[]): PullRequest | null {
   return mergedSorted[0];
 }
 
-export function getLongestDiscussions(prs: PullRequest[], count: number): UserDiscussion[] {
-  const longestDiscussions = prs.flatMap((item) => item.discussions).sort((a, b) => b.comments.length - a.comments.length);
+export function getLongestDiscussions(prs: PullRequest[], count: number, user?: User | null): UserDiscussion[] {
+  let discussions = prs.flatMap((item) => item.discussions);
+
+  if (user) {
+    discussions = discussions.filter((item) => item.reviewerId === user?.id);
+  }
+
+  const longestDiscussions = discussions.sort((a, b) => b.comments.length - a.comments.length);
   const topN = longestDiscussions.slice(0, count);
 
   return topN;

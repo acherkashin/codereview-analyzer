@@ -36,10 +36,7 @@ import { AnalyzeParams, Comment, User, UserDiscussion } from '../services/types'
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
-import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/CommentedFilesChart';
-import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChart/CommentsPerMonthChart';
 import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
-import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
 import { useIsGuest } from '../hooks/useIsGuest';
 import { CommentsLeftChart } from '../components/charts/CommentsLeftChart/CommentsLeftChart';
 import {
@@ -48,6 +45,9 @@ import {
   ApprovalDistributionChart,
   ApprovalRecipientsChart,
   TopCommentedPullRequestsChart,
+  TopLongestDiscussionsChart,
+  CommentsPerMonthChart,
+  CommentedFilesChart,
 } from '../components/charts';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
@@ -212,7 +212,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           </Stack>
         </Stack>
 
-        <CodeReviewTiles />
+        <CodeReviewTiles user={filterUser} />
 
         <div className="charts">
           <CommentsPerMonthChart user={filterUser} comments={comments} />
@@ -221,6 +221,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
           {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
           <TopLongestDiscussionsChart
+            user={filterUser}
             pullRequests={pullRequests}
             count={10}
             onClick={(discussion) => {

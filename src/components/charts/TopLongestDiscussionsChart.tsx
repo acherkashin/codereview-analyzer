@@ -1,5 +1,5 @@
 import { Avatar, Stack } from '@mui/material';
-import { PullRequest, UserDiscussion } from '../../services/types';
+import { PullRequest, User, UserDiscussion } from '../../services/types';
 import { BaseChartTooltip } from '../BaseChartTooltip';
 import { BarChart } from './BarChart';
 import { useMemo } from 'react';
@@ -8,16 +8,17 @@ import { getLongestDiscussions } from '../../utils/ChartUtils';
 import { shortenText } from '../../utils/StringUtils';
 
 export interface TopLongestDiscussionsChartProps {
+  user?: User | null;
   count: number;
   pullRequests: PullRequest[];
   onClick: (discussion: UserDiscussion) => void;
 }
 
-export function TopLongestDiscussionsChart({ pullRequests, count, onClick }: TopLongestDiscussionsChartProps) {
+export function TopLongestDiscussionsChart({ pullRequests, count, user, onClick }: TopLongestDiscussionsChartProps) {
   const topDiscussions = useMemo(() => {
-    const topN = getLongestDiscussions(pullRequests, count);
+    const topN = getLongestDiscussions(pullRequests, count, user);
     return topN;
-  }, [pullRequests, count]);
+  }, [pullRequests, user, count]);
 
   const data = useMemo(() => {
     const data = topDiscussions
@@ -37,8 +38,10 @@ export function TopLongestDiscussionsChart({ pullRequests, count, onClick }: Top
     return data;
   }, [topDiscussions]);
 
+  const title = !user ? `Top ${count} Longest Discussions` : `Top ${count} Longest Discussions started by ${user.displayName}`;
+
   return (
-    <ChartContainer title={`Top ${count} Longest Discussions`}>
+    <ChartContainer title={title}>
       <BarChart
         indexBy="pullRequest"
         keys={['commentsCount']}
