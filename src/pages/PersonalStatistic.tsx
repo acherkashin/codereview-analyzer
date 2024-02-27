@@ -6,7 +6,6 @@ import {
   useChartsStore,
   useCommentsLeftToUsers,
   useCommentsReceivedFromUsers,
-  // useWhoApprovesMergeRequests,
   useWhoAssignsToAuthorToReviewPieChart,
   useWhomAssignedToReviewPieChart,
 } from '../stores/ChartsStore';
@@ -31,7 +30,6 @@ export function PersonalStatistic() {
   const whoAssignsToReviewPieChart = useWhoAssignsToAuthorToReviewPieChart(selectedUser?.id);
   const commentsReceivedFromUsers = useCommentsReceivedFromUsers(selectedUser?.id);
   const commentsLeftToUsers = useCommentsLeftToUsers(selectedUser?.id);
-  // const { whoApprovesUser, whomUserApproves } = useWhoApprovesMergeRequests(client, project?.id, selectedUser?.id);
 
   return (
     <PageContainer>
@@ -46,16 +44,6 @@ export function PersonalStatistic() {
             <PieChart data={whoAssignsToReviewPieChart} />
           </ChartContainer>
         )}
-        {/*  {selectedUser && whoApprovesUser && (
-           <ChartContainer title={`Following people approves ${selectedUser?.name} changes`}>
-             <PieChart data={whoApprovesUser} />
-           </ChartContainer>
-         )}
-         {selectedUser && whomUserApproves && (
-           <ChartContainer title={`${selectedUser?.name} approves changes of following people`}>
-             <PieChart data={whomUserApproves} />
-           </ChartContainer>
-         )} */}
         {selectedUser && commentsLeftToUsers && (
           <ChartContainer title={`${selectedUser?.fullName} leaves comments to following people`}>
             <BarChart
