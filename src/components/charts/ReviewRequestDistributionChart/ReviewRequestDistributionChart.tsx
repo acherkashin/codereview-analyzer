@@ -11,7 +11,7 @@ export interface ReviewRequestDistributionChartProps {
 }
 
 /**
- * Represents who requests review
+ * Represents who requests review from
  */
 export function ReviewRequestDistributionChart({ users, pullRequests }: ReviewRequestDistributionChartProps) {
   const { data, authors } = useMemo(() => {

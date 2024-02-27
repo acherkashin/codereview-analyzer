@@ -3,7 +3,7 @@ import { PullRequest, User } from '../../../services/types';
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
-import { getWhoGetReviewRequests } from './ReviewRequestRecipientsUtils';
+import { getWhoRequestReviews } from './ReviewRequestRecipientsUtils';
 
 export interface ReviewRequestRecipientsProps {
   users: User[];
@@ -11,11 +11,14 @@ export interface ReviewRequestRecipientsProps {
 }
 
 /**
- * Represents who receive review requests
+ * Represents who receive review requests.
+ * On y-axis it shows who get review requests.
+ * On x-axis it shows number of pull requests that user asked to review.
  */
 export function ReviewRequestRecipients({ users, pullRequests }: ReviewRequestRecipientsProps) {
   const { data, authors } = useMemo(() => {
-    return getBarChartData(pullRequests, users, getWhoGetReviewRequests);
+    // we will build data that shows who request review from every user
+    return getBarChartData(pullRequests, users, getWhoRequestReviews);
   }, [users, pullRequests]);
 
   return (

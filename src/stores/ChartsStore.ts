@@ -12,7 +12,6 @@ import {
   convertToCommentsReceivedPieChart,
   convertToDiscussionsReceivedPieChart,
   convertToDiscussionsStartedPieChart,
-  getWhoAssignsToAuthorToReview,
   getWhomAuthorAssignsToReview as convertAssignedToReview,
   PieChartDatum,
 } from '../utils/PieChartUtils';
@@ -22,6 +21,7 @@ import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/ti
 import { GitService } from '../services/GitService';
 import { convert } from '../services/GitConverter';
 import { getEndDate, getStartDate } from '../utils/GitUtils';
+import { getWhoRequestReviews } from '../components/charts/ReviewRequestRecipients/ReviewRequestRecipientsUtils';
 
 const initialState = {
   pullRequests: [] as PullRequest[],
@@ -164,10 +164,9 @@ export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieCha
       return [];
     }
 
-    const reviewerMrs = state.pullRequests.filter((item) =>
-      (item.requestedReviewers ?? []).map((item) => item.id).includes(authorId)
-    );
-    return getWhoAssignsToAuthorToReview(reviewerMrs);
+    const obj = getWhoRequestReviews(state.pullRequests, authorId);
+    const array = Object.entries(obj).map((item) => ({ id: item[0], label: item[0], value: item[1] }));
+    return array;
   });
 }
 
