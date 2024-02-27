@@ -1,44 +1,37 @@
 import { useEffect, useState } from 'react';
-import {
-  Autocomplete,
-  Avatar,
-  CircularProgress,
-  ListItem,
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
-  TextField,
-} from '@mui/material';
-import { useClient } from '../../stores/AuthStore';
+import { Autocomplete, CircularProgress, TextField } from '@mui/material';
 import { User } from '../../services/types';
 import { useDebounce } from '../../hooks';
 import { UserListItem } from './UserListItem';
 
-export interface UserSearchBoxProps {
+export interface UsersListProps {
   label: string;
   user?: User;
-  search: (value: string) => Promise<User[]>;
+  users: ((value: string) => Promise<User[]>) | User[];
   onSelected: (user: User | undefined) => void;
   style?: React.CSSProperties | undefined;
 }
 
-export function UserSearchBox({ user, label, style, search, onSelected }: UserSearchBoxProps) {
+export function UsersList({ user, label, style, users, onSelected }: UsersListProps) {
   const [open, setOpen] = useState(false);
-  const [options, setOptions] = useState<User[]>([]);
+  const isSearchMode = typeof users === 'function';
+  const [options, setOptions] = useState<User[]>(isSearchMode ? [] : users);
   const [loading, setLoading] = useState(false);
 
   const [value, setValue] = useState<string>('');
   const debouncedValue = useDebounce(value, 300);
 
   useEffect(() => {
+    if (!isSearchMode) return;
+
     if (open && debouncedValue) {
       setLoading(true);
 
-      search(debouncedValue)
+      users(debouncedValue)
         .then(setOptions)
         .finally(() => setLoading(false));
     }
-  }, [debouncedValue, open, search]);
+  }, [debouncedValue, isSearchMode, open, users]);
 
   return (
     <Autocomplete

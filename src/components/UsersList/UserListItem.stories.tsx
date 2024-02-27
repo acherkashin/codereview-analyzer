@@ -3,7 +3,7 @@ import { UserListItem } from './UserListItem';
 import { User } from '../../services/types';
 
 export default {
-  title: 'Components/UserListItem',
+  title: 'Components/UsersListItem',
   component: UserListItem,
   parameters: {
     // More on Story layout: https://storybook.js.org/docs/react/configure/story-layout

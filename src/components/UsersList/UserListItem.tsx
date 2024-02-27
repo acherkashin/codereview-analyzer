@@ -1,4 +1,4 @@
-import { Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material';
+import { Avatar, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material';
 import { User } from '../../services/types';
 
 export interface UserListItemProps extends React.HTMLAttributes<HTMLLIElement> {

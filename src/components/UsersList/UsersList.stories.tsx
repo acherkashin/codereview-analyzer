@@ -1,23 +1,23 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { UserSearchBox } from './UserSearchBox';
+import { UsersList } from './UsersList';
 import { User } from '../../services/types';
 
 export default {
-  title: 'Components/UserSearchBox',
-  component: UserSearchBox,
+  title: 'Components/UsersList',
+  component: UsersList,
   parameters: {
     // More on Story layout: https://storybook.js.org/docs/react/configure/story-layout
     layout: 'centered',
   },
-} as Meta<typeof UserSearchBox>;
+} as Meta<typeof UsersList>;
 
-type Story = StoryObj<typeof UserSearchBox>;
+type Story = StoryObj<typeof UsersList>;
 
 export const Default: Story = {
   args: {
     style: { width: 300 },
     user: undefined,
-    search: () => Promise.resolve(users),
+    users: () => Promise.resolve(users),
     onSelected: (user) => {
       console.log(user);
     },
