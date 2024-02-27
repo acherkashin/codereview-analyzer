@@ -1,21 +1,23 @@
 import { Avatar } from '@mui/material';
-import { PullRequest } from '../../services/types';
+import { PullRequest, User } from '../../services/types';
 import { BaseChartTooltip } from '../BaseChartTooltip';
 import { BarChart } from './BarChart';
 import { useMemo } from 'react';
 import { ChartContainer } from '../ChartContainer';
 
-export interface ITopPullRequestsChart {
+export interface ITopCommentedPullRequestsChartProps {
+  user?: User | null;
   count: number;
   pullRequests: PullRequest[];
 }
 
-export function TopPullRequestsChart({ pullRequests, count }: ITopPullRequestsChart) {
+/**
+ * Shows top most commented pull requests.
+ * Shows only pull requests created by the user if @param user is provided.
+ */
+export function TopCommentedPullRequestsChart({ user, pullRequests, count }: ITopCommentedPullRequestsChartProps) {
   const data = useMemo(() => {
-    const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
-    const top10 = sorted.slice(0, count);
-
-    const data = top10
+    const data = getMostCommentedPrs({ user, pullRequests, count })
       .map((item) => ({
         // Unicode for ellipsis character
         pullRequest: item.title.length > 50 ? item.title.substring(0, 50) + '\u2026' : item.title,
@@ -26,10 +28,14 @@ export function TopPullRequestsChart({ pullRequests, count }: ITopPullRequestsCh
       .reverse();
 
     return data;
-  }, [pullRequests, count]);
+  }, [user, pullRequests, count]);
+
+  const title = !user
+    ? `Top ${count} Most commented Pull Requests`
+    : `Top ${count} Most commented Pull Requests created by ${user.displayName}`;
 
   return (
-    <ChartContainer title={`Top ${count} Pull Requests by Comments`}>
+    <ChartContainer title={title}>
       <BarChart
         indexBy="pullRequest"
         keys={['commentsCount']}
@@ -42,7 +48,7 @@ export function TopPullRequestsChart({ pullRequests, count }: ITopPullRequestsCh
           const authorName = data.authorName as string;
 
           return (
-            <BaseChartTooltip {...props}>
+            <BaseChartTooltip {...props} color={null}>
               <Avatar src={authorAvatarUrl} alt={`${authorName}'s avatar`} />
               <div>{data.authorName}</div> got <strong>{commentsCount}</strong> comments for <strong>{pullRequestName}</strong>
             </BaseChartTooltip>
@@ -51,4 +57,12 @@ export function TopPullRequestsChart({ pullRequests, count }: ITopPullRequestsCh
       />
     </ChartContainer>
   );
+}
+
+function getMostCommentedPrs({ user, pullRequests, count }: ITopCommentedPullRequestsChartProps) {
+  const filteredPrs = !user ? pullRequests : pullRequests.filter((pr) => pr.author.id === user.id);
+  const sorted = filteredPrs.toSorted((a, b) => b.comments.length - a.comments.length);
+  const topPrs = sorted.slice(0, count);
+
+  return topPrs;
 }

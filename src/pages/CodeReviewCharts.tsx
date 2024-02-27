@@ -35,7 +35,6 @@ import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, User, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
-import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
 import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
 import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/CommentedFilesChart';
 import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChart/CommentsPerMonthChart';
@@ -48,6 +47,7 @@ import {
   ReviewRequestDistributionChart,
   ApprovalDistributionChart,
   ApprovalRecipientsChart,
+  TopCommentedPullRequestsChart,
 } from '../components/charts';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
@@ -214,7 +214,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <CommentsPerMonthChart user={filterUser} comments={comments} />
           <ReviewByUserChart pullRequests={pullRequests} users={users} />
           <WordsCloud comments={comments} onClick={handleWordClick} />
-          <TopPullRequestsChart pullRequests={pullRequests} count={10} />
+          <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
           {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
           <TopLongestDiscussionsChart
             pullRequests={pullRequests}
