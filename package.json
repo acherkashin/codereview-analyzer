@@ -87,7 +87,7 @@
     "@storybook/preset-create-react-app": "^7.6.17",
     "@storybook/react": "^7.6.17",
     "@storybook/react-webpack5": "^7.6.17",
-    "@storybook/testing-library": "^0.0.13",
+    "@storybook/testing-library": "^0.2.2",
     "@types/zipcelx": "^1.5.0",
     "babel-plugin-named-exports-order": "^0.0.2",
     "commitizen": "^4.3.0",
