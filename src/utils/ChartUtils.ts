@@ -4,7 +4,7 @@ import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from
 import { Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { TimeSpan, timeSince } from './TimeSpanUtils';
 
-interface ReviewBarDatum extends BarDatum {
+export interface ReviewBarDatum extends BarDatum {
   userName: string;
   total: number;
 }
@@ -13,11 +13,6 @@ export interface ReviewBarChartSettings<T = BarDatum> {
   indexBy: string;
   keys: string[];
   data: T[];
-}
-
-export function convertToDiscussionsLeft(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  return convertToItemsLeft(rawData);
 }
 
 export function convertToDiscussionsReceived(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
@@ -148,7 +143,7 @@ function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 're
   return barDatum;
 }
 
-function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
   const reviewers = tidy(items, distinct(['reviewer'])).map((item) => item.reviewer);
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 

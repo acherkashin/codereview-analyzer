@@ -15,7 +15,6 @@ import {
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
   getDiscussions,
-  getDiscussionsLeft,
   getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
@@ -48,6 +47,7 @@ import {
   ReviewRequestDistributionChart,
   ApprovalDistributionChart,
   ApprovalRecipientsChart,
+  StartedByDiscussionsChart,
 } from '../components/charts';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
@@ -66,7 +66,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
-  const discussionsLeft = useChartsStore(getDiscussionsLeft);
   const discussionsReceived = useChartsStore(getDiscussionsReceived);
   const commentsLeft = useChartsStore(getCommentsLeft);
   const commentsReceived = useChartsStore(getCommentsReceived);
@@ -293,25 +292,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               }}
             />
           </ChartContainer>
-          <ChartContainer title="Discussions started by person">
-            <BarChart
-              {...discussionsLeft}
-              tooltip={(props) => {
-                const { indexValue, value, id } = props;
-
-                return (
-                  <BaseChartTooltip {...props}>
-                    <strong>{indexValue}</strong> started <strong>{value}</strong> discussions with <strong>{id}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-              onClick={(e) => {
-                const authorName = e.id as string;
-                const reviewerName = e.indexValue as string;
-                showFilteredDiscussions(reviewerName, authorName);
-              }}
-            />
-          </ChartContainer>
+          <StartedByDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           <ChartContainer title="Discussions started with person">
             <BarChart
               {...discussionsReceived}

@@ -4,3 +4,4 @@ export { ReviewRequestDistributionChart } from './ReviewRequestDistributionChart
 export { ReviewRequestRecipients } from './ReviewRequestRecipients/ReviewRequestRecipients';
 export { ApprovalDistributionChart } from './ApprovalDistributionChart/ApprovalDistributionChart';
 export { ApprovalRecipientsChart } from './ApprovalRecipientsChart/ApprovalRecipientsChart';
+export { StartedByDiscussionsChart } from './StartedByDiscussionsChart/StartedByDiscussionsChart';
