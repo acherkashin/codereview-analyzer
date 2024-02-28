@@ -1,20 +1,10 @@
 import create, { StoreApi } from 'zustand';
 import {
   convertToPullRequestCreated,
-  convertToCommentsLeft,
   convertToCommentsLeftToUsers,
-  convertToCommentsReceived,
   convertToCommentsReceivedFromUsers,
-  convertToDiscussionsLeft,
-  convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
-import {
-  convertToCommentsReceivedPieChart,
-  convertToDiscussionsReceivedPieChart,
-  convertToDiscussionsStartedPieChart,
-  getWhomAuthorAssignsToReview as convertAssignedToReview,
-  PieChartDatum,
-} from '../utils/PieChartUtils';
+import { getWhomAuthorAssignsToReview as convertAssignedToReview, PieChartDatum } from '../utils/PieChartUtils';
 import createContext from 'zustand/context';
 import { AnalyzeParams, ExportData, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
@@ -97,36 +87,8 @@ export function getDiscussions(state: ChartsStore) {
   return discussions;
 }
 
-export function getDiscussionsLeft(state: ChartsStore) {
-  return convertToDiscussionsLeft(getDiscussions(state));
-}
-
-export function getDiscussionsReceived(state: ChartsStore) {
-  return convertToDiscussionsReceived(getDiscussions(state));
-}
-
-export function getCommentsLeft(state: ChartsStore) {
-  return convertToCommentsLeft(getComments(state));
-}
-
-export function getCommentsReceived(state: ChartsStore) {
-  return convertToCommentsReceived(getComments(state));
-}
-
 export function getCreatedPullRequestsPieChart(state: ChartsStore) {
   return convertToPullRequestCreated(state.pullRequests);
-}
-
-export function getCommentsReceivedPieChart(state: ChartsStore) {
-  return convertToCommentsReceivedPieChart(getComments(state));
-}
-
-export function getDiscussionsReceivedPieChart(state: ChartsStore) {
-  return convertToDiscussionsReceivedPieChart(getDiscussions(state));
-}
-
-export function getDiscussionsStartedPieChart(state: ChartsStore) {
-  return convertToDiscussionsStartedPieChart(getDiscussions(state));
 }
 
 export function getAnalysisInterval(state: ChartsStore) {

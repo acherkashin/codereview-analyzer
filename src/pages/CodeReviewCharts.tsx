@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
-import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
+import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
 import { Button, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
@@ -10,21 +10,13 @@ import {
   getAnalysisInterval,
   getAnalyze,
   getComments,
-  getCommentsLeft,
-  getCommentsReceived,
-  getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
   getDiscussions,
-  getDiscussionsLeft,
-  getDiscussionsReceived,
-  getDiscussionsReceivedPieChart,
-  getDiscussionsStartedPieChart,
   getExportData,
   useChartsStore,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { BarChart } from '../components/charts/BarChart';
-import { PieChart } from '../components/charts/PieChart';
 import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
@@ -35,19 +27,26 @@ import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, User, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
-import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
-import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
 import { useIsGuest } from '../hooks/useIsGuest';
-import { CommentsLeftChart } from '../components/charts/CommentsLeftChart/CommentsLeftChart';
 import {
   ReviewRequestRecipients,
   ReviewRequestDistributionChart,
   ApprovalDistributionChart,
   ApprovalRecipientsChart,
-  TopCommentedPullRequestsChart,
-  TopLongestDiscussionsChart,
-  CommentsPerMonthChart,
+  StartedWithDiscussionsChart,
+  StartedWithDiscussionsPieChart,
+  CommentsLeftPieChart,
+  CommentsReceivedPieChart,
+  StartedByDiscussionsPieChart,
+  CommentsLeftBarChart,
+  CommentsReceivedBarChart,
+  ReviewByUserChart,
   CommentedFilesChart,
+  CommentsPerMonthChart,
+  WordsCloud,
+  TopLongestDiscussionsChart,
+  TopCommentedPullRequestsChart,
+  StartedByDiscussionsChart,
 } from '../components/charts';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
@@ -66,13 +65,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
-  const discussionsLeft = useChartsStore(getDiscussionsLeft);
-  const discussionsReceived = useChartsStore(getDiscussionsReceived);
-  const commentsLeft = useChartsStore(getCommentsLeft);
-  const commentsReceived = useChartsStore(getCommentsReceived);
-  const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
-  const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
-  const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
   const analysisInterval = useChartsStore(getAnalysisInterval);
 
@@ -236,117 +228,22 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ApprovalRecipientsChart user={filterUser} pullRequests={pullRequests} users={users} />
           <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
           <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
+          <StartedWithDiscussionsPieChart
+            discussions={discussions}
+            onClick={(authorName) => showFilteredDiscussions(null, authorName)}
+          />
+          <StartedByDiscussionsPieChart
+            discussions={discussions}
+            onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
+          />
+          <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
+          <CommentsLeftBarChart comments={comments} onClick={showFilteredComments} />
 
-          {discussionsReceivedPieChart && (
-            <ChartContainer title="Discussions started with person">
-              <PieChart
-                data={discussionsReceivedPieChart}
-                onClick={(e) => {
-                  const authorName = e.id as string;
-                  showFilteredDiscussions(null, authorName);
-                }}
-              />
-            </ChartContainer>
-          )}
-          {discussionsStartedPieChart && (
-            <ChartContainer title="Discussions started by person">
-              <PieChart
-                data={discussionsStartedPieChart}
-                onClick={(e) => {
-                  const reviewerName = e.id as string;
-                  showFilteredDiscussions(reviewerName, null);
-                }}
-              />
-            </ChartContainer>
-          )}
-          {commentsReceivedPieChart && (
-            <ChartContainer title="Comments received by person">
-              <PieChart
-                data={commentsReceivedPieChart}
-                onClick={(e) => {
-                  showFilteredComments(null, e.id as string);
-                }}
-              />
-            </ChartContainer>
-          )}
-          <CommentsLeftChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
-          <ChartContainer title="Comments left by person">
-            <BarChart
-              {...commentsLeft}
-              tooltip={(props) => {
-                const { indexValue, value, id } = props;
+          <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
+          <CommentsReceivedBarChart comments={comments} onClick={showFilteredComments} />
 
-                return (
-                  <BaseChartTooltip {...props}>
-                    <strong>{indexValue}</strong> left <strong>{value}</strong> comments to <strong>{id}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-              onClick={(e) => {
-                const reviewerName = e.indexValue as string;
-
-                showFilteredComments(reviewerName, e.id as string);
-              }}
-            />
-          </ChartContainer>
-
-          <ChartContainer title="Comments received by person">
-            <BarChart
-              {...commentsReceived}
-              tooltip={(props) => {
-                const { indexValue, value, id } = props;
-
-                return (
-                  <BaseChartTooltip {...props}>
-                    <strong>{id}</strong> left <strong>{value}</strong> comments to <strong>{indexValue}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-              onClick={(e) => {
-                const authorName = e.indexValue as string;
-
-                showFilteredComments(e.id as string, authorName);
-              }}
-            />
-          </ChartContainer>
-          <ChartContainer title="Discussions started by person">
-            <BarChart
-              {...discussionsLeft}
-              tooltip={(props) => {
-                const { indexValue, value, id } = props;
-
-                return (
-                  <BaseChartTooltip {...props}>
-                    <strong>{indexValue}</strong> started <strong>{value}</strong> discussions with <strong>{id}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-              onClick={(e) => {
-                const authorName = e.id as string;
-                const reviewerName = e.indexValue as string;
-                showFilteredDiscussions(reviewerName, authorName);
-              }}
-            />
-          </ChartContainer>
-          <ChartContainer title="Discussions started with person">
-            <BarChart
-              {...discussionsReceived}
-              tooltip={(props) => {
-                const { indexValue, value, id } = props;
-
-                return (
-                  <BaseChartTooltip {...props}>
-                    <strong>{id}</strong> started <strong>{value}</strong> discussions with <strong>{indexValue}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-              onClick={(e) => {
-                const authorName = e.indexValue as string;
-                const reviewerName = e.id as string;
-                showFilteredDiscussions(reviewerName, authorName);
-              }}
-            />
-          </ChartContainer>
+          <StartedByDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
+          <StartedWithDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           <ChartContainer title="Pull Requests Created">
             <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
           </ChartContainer>

@@ -1,10 +1,10 @@
-import { BarDatum } from '@nivo/bar';
-import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions } from './GitUtils';
+import type { BarDatum } from '@nivo/bar';
+import { AuthorReviewer, getAuthorReviewerFromComments } from './GitUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { TimeSpan, timeSince } from './TimeSpanUtils';
 
-interface ReviewBarDatum extends BarDatum {
+export interface ReviewBarDatum extends BarDatum {
   userName: string;
   total: number;
 }
@@ -13,26 +13,6 @@ export interface ReviewBarChartSettings<T = BarDatum> {
   indexBy: string;
   keys: string[];
   data: T[];
-}
-
-export function convertToDiscussionsLeft(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  return convertToItemsLeft(rawData);
-}
-
-export function convertToDiscussionsReceived(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  return convertToItemsReceived(rawData);
-}
-
-export function convertToCommentsLeft(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
-  return convertToItemsLeft(rawData);
-}
-
-export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
-  return convertToItemsReceived(rawData);
 }
 
 export function convertToPullRequestCreated(pullRequests: PullRequest[]) {
@@ -148,7 +128,7 @@ function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 're
   return barDatum;
 }
 
-function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
   const reviewers = tidy(items, distinct(['reviewer'])).map((item) => item.reviewer);
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 
@@ -174,7 +154,7 @@ function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<Rev
   };
 }
 
-function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
   const reviewers = tidy(items, distinct(['reviewer'])).map((item) => item.reviewer);
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 

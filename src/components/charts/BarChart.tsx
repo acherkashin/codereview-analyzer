@@ -1,5 +1,5 @@
-import { Bar, BarSvgProps } from '@nivo/bar';
-import { BarDatum } from '@nivo/bar';
+import { Bar } from '@nivo/bar';
+import type { BarDatum, BarSvgProps } from '@nivo/bar';
 
 export interface BarChartProps extends Partial<BarSvgProps<BarDatum>> {}
 
