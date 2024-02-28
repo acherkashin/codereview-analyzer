@@ -10,7 +10,6 @@ import {
   getAnalysisInterval,
   getAnalyze,
   getComments,
-  getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
   getDiscussions,
   getExportData,
@@ -18,7 +17,6 @@ import {
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { BarChart } from '../components/charts/BarChart';
-import { PieChart } from '../components/charts/PieChart';
 import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
@@ -29,12 +27,6 @@ import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
-import { TopPullRequestsChart } from '../components/charts/TopPullRequests';
-import { ReviewByUserChart } from '../components/charts/ReviewByUserChart';
-import { CommentedFilesChart } from '../components/charts/CommentedFilesChart/CommentedFilesChart';
-import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChart/CommentsPerMonthChart';
-import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
-import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
 import { useIsGuest } from '../hooks/useIsGuest';
 import {
   ReviewRequestRecipients,
@@ -45,10 +37,17 @@ import {
   StartedWithDiscussionsChart,
   StartedWithDiscussionsPieChart,
   CommentsLeftPieChart,
+  CommentsReceivedPieChart,
+  StartedByDiscussionsPieChart,
+  CommentsLeftBarChart,
+  CommentsReceivedBarChart,
+  TopPullRequestsChart,
+  ReviewByUserChart,
+  CommentedFilesChart,
+  CommentsPerMonthChart,
+  WordsCloud,
+  TopLongestDiscussionsChart,
 } from '../components/charts';
-import { StartedByDiscussionsPieChart } from '../components/charts/StartedByDiscussionsChart/StartedByDiscussionsPieChart';
-import { CommentsLeftBarChart } from '../components/charts/CommentsLeftChart/CommentsLeftBarChart';
-import { CommentsReceivedBarChart } from '../components/charts/CommentsReceivedChart/CommentsReceivedBarChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -66,7 +65,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
-  const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
   const analysisInterval = useChartsStore(getAnalysisInterval);
 
@@ -226,18 +224,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
           <CommentsLeftBarChart comments={comments} onClick={showFilteredComments} />
 
-          {commentsReceivedPieChart && (
-            <ChartContainer title="Comments received by person">
-              <PieChart
-                data={commentsReceivedPieChart}
-                onClick={(e) => {
-                  showFilteredComments(null, e.id as string);
-                }}
-              />
-            </ChartContainer>
-          )}
-
+          <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
           <CommentsReceivedBarChart comments={comments} onClick={showFilteredComments} />
+
           <StartedByDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           <StartedWithDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           <ChartContainer title="Pull Requests Created">

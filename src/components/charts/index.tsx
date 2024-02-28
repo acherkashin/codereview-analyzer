@@ -8,3 +8,13 @@ export { StartedByDiscussionsChart } from './StartedByDiscussionsChart/StartedBy
 export { StartedWithDiscussionsChart } from './StartedWithDiscussionsChart/StartedWithDiscussionsChart';
 export { StartedWithDiscussionsPieChart } from './StartedWithDiscussionsChart/StartedWithDiscussionsPieChart';
 export { CommentsLeftPieChart } from './CommentsLeftChart/CommentsLeftPieChart';
+export { CommentsReceivedPieChart } from './CommentsReceivedChart/CommentsReceivedPieChart';
+export { CommentsReceivedBarChart } from './CommentsReceivedChart/CommentsReceivedBarChart';
+export { StartedByDiscussionsPieChart } from './StartedByDiscussionsChart/StartedByDiscussionsPieChart';
+export { CommentsLeftBarChart } from './CommentsLeftChart/CommentsLeftBarChart';
+export { TopPullRequestsChart } from './TopPullRequests';
+export { ReviewByUserChart } from './ReviewByUserChart';
+export { CommentedFilesChart } from './CommentedFilesChart/CommentedFilesChart';
+export { CommentsPerMonthChart } from './CommentsPerMonthChart/CommentsPerMonthChart';
+export { WordsCloud } from './WordsCloud/WordsCloud';
+export { TopLongestDiscussionsChart } from './TopLongestDiscussionsChart';

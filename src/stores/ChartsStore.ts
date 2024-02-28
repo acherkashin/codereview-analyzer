@@ -5,7 +5,6 @@ import {
   convertToCommentsReceivedFromUsers,
 } from '../utils/ChartUtils';
 import {
-  convertToCommentsReceivedPieChart,
   getWhoAssignsToAuthorToReview,
   getWhomAuthorAssignsToReview as convertAssignedToReview,
   PieChartDatum,
@@ -94,10 +93,6 @@ export function getDiscussions(state: ChartsStore) {
 
 export function getCreatedPullRequestsPieChart(state: ChartsStore) {
   return convertToPullRequestCreated(state.pullRequests);
-}
-
-export function getCommentsReceivedPieChart(state: ChartsStore) {
-  return convertToCommentsReceivedPieChart(getComments(state));
 }
 
 export function getAnalysisInterval(state: ChartsStore) {
