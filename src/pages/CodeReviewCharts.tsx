@@ -38,7 +38,6 @@ import { CommentsPerMonthChart } from '../components/charts/CommentsPerMonthChar
 import { WordsCloud } from '../components/charts/WordsCloud/WordsCloud';
 import { TopLongestDiscussionsChart } from '../components/charts/TopLongestDiscussionsChart';
 import { useIsGuest } from '../hooks/useIsGuest';
-import { CommentsLeftChart } from '../components/charts/CommentsLeftChart/CommentsLeftChart';
 import {
   ReviewRequestRecipients,
   ReviewRequestDistributionChart,
@@ -47,6 +46,7 @@ import {
   StartedByDiscussionsChart,
   StartedWithDiscussionsChart,
   StartedWithDiscussionsPieChart,
+  CommentsLeftPieChart,
 } from '../components/charts';
 import { StartedByDiscussionsPieChart } from '../components/charts/StartedByDiscussionsChart/StartedByDiscussionsPieChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
@@ -235,7 +235,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               />
             </ChartContainer>
           )}
-          <CommentsLeftChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
+          <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
           <ChartContainer title="Comments left by person">
             <BarChart
               {...commentsLeft}

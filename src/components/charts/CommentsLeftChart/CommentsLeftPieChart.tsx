@@ -4,12 +4,12 @@ import { Comment } from '../../../services/types';
 import { convertToCommentsLeftPieChart } from './CommentsLeftChartUtils';
 import { useMemo } from 'react';
 
-export interface CommentsLeftChartProps {
+export interface CommentsLeftPieChartProps {
   comments: Comment[];
   onClick: (userId: string) => void;
 }
 
-export function CommentsLeftChart({ comments, onClick }: CommentsLeftChartProps) {
+export function CommentsLeftPieChart({ comments, onClick }: CommentsLeftPieChartProps) {
   const data = useMemo(() => {
     return convertToCommentsLeftPieChart(comments);
   }, [comments]);

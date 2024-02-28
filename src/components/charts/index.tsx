@@ -7,3 +7,4 @@ export { ApprovalRecipientsChart } from './ApprovalRecipientsChart/ApprovalRecip
 export { StartedByDiscussionsChart } from './StartedByDiscussionsChart/StartedByDiscussionsChart';
 export { StartedWithDiscussionsChart } from './StartedWithDiscussionsChart/StartedWithDiscussionsChart';
 export { StartedWithDiscussionsPieChart } from './StartedWithDiscussionsChart/StartedWithDiscussionsPieChart';
+export { CommentsLeftPieChart } from './CommentsLeftChart/CommentsLeftPieChart';
