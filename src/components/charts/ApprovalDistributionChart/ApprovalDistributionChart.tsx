@@ -6,6 +6,8 @@ import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 
 export interface ApprovalDistributionProps {
+  user?: User | null;
+
   users: User[];
   pullRequests: PullRequest[];
 }
@@ -13,7 +15,13 @@ export interface ApprovalDistributionProps {
 /**
  * Represents who gives approvals
  */
-export function ApprovalDistributionChart({ users, pullRequests }: ApprovalDistributionProps) {
+export function ApprovalDistributionChart(props: ApprovalDistributionProps) {
+  if (props.user) return <ApprovalDistributionForUser {...props} />;
+
+  return <ApprovalDistributionForAll {...props} />;
+}
+
+function ApprovalDistributionForAll({ pullRequests, users }: ApprovalDistributionProps) {
   const { data, authors } = useMemo(() => {
     return getBarChartData(pullRequests, users, getWhomUserApproves);
   }, [users, pullRequests]);
@@ -28,6 +36,20 @@ export function ApprovalDistributionChart({ users, pullRequests }: ApprovalDistr
         data={data}
         onClick={() => {}}
       />
+    </ChartContainer>
+  );
+}
+
+function ApprovalDistributionForUser({ pullRequests, user }: ApprovalDistributionProps) {
+  const data = useMemo(() => {
+    const obj = getWhomUserApproves(pullRequests, user!.id);
+    const array = Object.entries(obj).map((item) => ({ id: item[0], label: item[0], value: item[1] }));
+    return array;
+  }, [pullRequests, user]);
+
+  return (
+    <ChartContainer title={`${user!.userName} gives approvals to`}>
+      <BarChart data={data} />
     </ChartContainer>
   );
 }

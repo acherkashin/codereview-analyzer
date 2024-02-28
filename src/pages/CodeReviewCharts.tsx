@@ -232,7 +232,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               setFilteredDiscussions([discussion]);
             }}
           />
-          <ApprovalDistributionChart pullRequests={pullRequests} users={users} />
+          <ApprovalDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
           <ApprovalRecipientsChart pullRequests={pullRequests} users={users} />
           <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
           <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
