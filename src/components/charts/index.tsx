@@ -9,6 +9,7 @@ export { StartedWithDiscussionsPieChart } from './StartedWithDiscussionsChart/St
 export { CommentsLeftPieChart } from './CommentsLeftChart/CommentsLeftPieChart';
 export { CommentsReceivedPieChart } from './CommentsReceivedChart/CommentsReceivedPieChart';
 export { CommentsReceivedBarChart } from './CommentsReceivedChart/CommentsReceivedBarChart';
+export { StartedByDiscussionsChart } from './StartedByDiscussionsChart/StartedByDiscussionsChart';
 export { StartedByDiscussionsPieChart } from './StartedByDiscussionsChart/StartedByDiscussionsPieChart';
 export { CommentsLeftBarChart } from './CommentsLeftChart/CommentsLeftBarChart';
 export { ReviewByUserChart } from './ReviewByUserChart';
