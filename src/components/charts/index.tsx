@@ -6,3 +6,4 @@ export { ApprovalDistributionChart } from './ApprovalDistributionChart/ApprovalD
 export { ApprovalRecipientsChart } from './ApprovalRecipientsChart/ApprovalRecipientsChart';
 export { StartedByDiscussionsChart } from './StartedByDiscussionsChart/StartedByDiscussionsChart';
 export { StartedWithDiscussionsChart } from './StartedWithDiscussionsChart/StartedWithDiscussionsChart';
+export { StartedWithDiscussionsPieChart } from './StartedWithDiscussionsChart/StartedWithDiscussionsPieChart';

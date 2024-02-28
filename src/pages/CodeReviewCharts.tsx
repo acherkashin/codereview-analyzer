@@ -15,7 +15,6 @@ import {
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
   getDiscussions,
-  getDiscussionsReceivedPieChart,
   getExportData,
   useChartsStore,
 } from '../stores/ChartsStore';
@@ -47,6 +46,7 @@ import {
   ApprovalRecipientsChart,
   StartedByDiscussionsChart,
   StartedWithDiscussionsChart,
+  StartedWithDiscussionsPieChart,
 } from '../components/charts';
 import { StartedByDiscussionsPieChart } from '../components/charts/StartedByDiscussionsChart/StartedByDiscussionsPieChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
@@ -69,7 +69,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const commentsLeft = useChartsStore(getCommentsLeft);
   const commentsReceived = useChartsStore(getCommentsReceived);
   const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
-  const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
   const analysisInterval = useChartsStore(getAnalysisInterval);
 
@@ -218,17 +217,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ApprovalRecipientsChart pullRequests={pullRequests} users={users} />
           <ReviewRequestRecipients pullRequests={pullRequests} users={users} />
           <ReviewRequestDistributionChart pullRequests={pullRequests} users={users} />
-          {discussionsReceivedPieChart && (
-            <ChartContainer title="Discussions started with person">
-              <PieChart
-                data={discussionsReceivedPieChart}
-                onClick={(e) => {
-                  const authorName = e.id as string;
-                  showFilteredDiscussions(null, authorName);
-                }}
-              />
-            </ChartContainer>
-          )}
+          <StartedWithDiscussionsPieChart
+            discussions={discussions}
+            onClick={(authorName) => showFilteredDiscussions(null, authorName)}
+          />
           <StartedByDiscussionsPieChart
             discussions={discussions}
             onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
