@@ -35,19 +35,6 @@ export function convertToDiscussionsReceivedPieChart(discussions: UserDiscussion
   return data;
 }
 
-export function convertToDiscussionsStartedPieChart(discussions: UserDiscussion[]): PieChartDatum[] {
-  const rawData = getAuthorReviewerFromDiscussions(discussions);
-  const data = tidy(rawData, groupBy('reviewer', summarize({ total: n() })), arrange([asc('total')])).map<PieChartDatum>(
-    (item) => ({
-      id: item.reviewer,
-      label: item.reviewer,
-      value: item.total,
-    })
-  );
-
-  return data;
-}
-
 /**
  * Methods calculates whom author of merge requests assign merge requests to review
  */

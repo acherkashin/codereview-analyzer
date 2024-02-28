@@ -16,7 +16,6 @@ import {
   getCreatedPullRequestsPieChart,
   getDiscussions,
   getDiscussionsReceivedPieChart,
-  getDiscussionsStartedPieChart,
   getExportData,
   useChartsStore,
 } from '../stores/ChartsStore';
@@ -49,6 +48,7 @@ import {
   StartedByDiscussionsChart,
   StartedWithDiscussionsChart,
 } from '../components/charts';
+import { StartedByDiscussionsPieChart } from '../components/charts/StartedByDiscussionsChart/StartedByDiscussionsPieChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -70,7 +70,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const commentsReceived = useChartsStore(getCommentsReceived);
   const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
   const discussionsReceivedPieChart = useChartsStore(getDiscussionsReceivedPieChart);
-  const discussionsStartedPieChart = useChartsStore(getDiscussionsStartedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
   const analysisInterval = useChartsStore(getAnalysisInterval);
 
@@ -230,17 +229,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               />
             </ChartContainer>
           )}
-          {discussionsStartedPieChart && (
-            <ChartContainer title="Discussions started by person">
-              <PieChart
-                data={discussionsStartedPieChart}
-                onClick={(e) => {
-                  const reviewerName = e.id as string;
-                  showFilteredDiscussions(reviewerName, null);
-                }}
-              />
-            </ChartContainer>
-          )}
+          <StartedByDiscussionsPieChart
+            discussions={discussions}
+            onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
+          />
           {commentsReceivedPieChart && (
             <ChartContainer title="Comments received by person">
               <PieChart
