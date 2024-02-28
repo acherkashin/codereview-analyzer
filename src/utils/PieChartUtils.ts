@@ -1,6 +1,6 @@
 import { getAuthorReviewerFromMergeRequests } from './GitUtils';
 import { arrange, asc, groupBy, summarize, tidy, n } from '@tidyjs/tidy';
-import { BarDatum } from '@nivo/bar';
+import type { BarDatum } from '@nivo/bar';
 import { PullRequest } from '../services/types';
 
 export interface PieChartDatum extends BarDatum {

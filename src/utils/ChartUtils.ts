@@ -1,5 +1,5 @@
-import { BarDatum } from '@nivo/bar';
-import { AuthorReviewer, getAuthorReviewerFromComments, getAuthorReviewerFromDiscussions } from './GitUtils';
+import type { BarDatum } from '@nivo/bar';
+import { AuthorReviewer, getAuthorReviewerFromComments } from './GitUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { TimeSpan, timeSince } from './TimeSpanUtils';
