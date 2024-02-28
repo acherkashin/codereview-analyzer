@@ -15,11 +15,6 @@ export interface ReviewBarChartSettings<T = BarDatum> {
   data: T[];
 }
 
-export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
-  return convertToItemsReceived(rawData);
-}
-
 export function convertToPullRequestCreated(pullRequests: PullRequest[]) {
   const rawData = pullRequests.map((item) => ({ userName: item.author.fullName || item.author.userName }));
 

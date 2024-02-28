@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
-import { BaseChartTooltip, ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
+import { ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
 import { Button, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
@@ -10,7 +10,6 @@ import {
   getAnalysisInterval,
   getAnalyze,
   getComments,
-  getCommentsReceived,
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
   getDiscussions,
@@ -49,6 +48,7 @@ import {
 } from '../components/charts';
 import { StartedByDiscussionsPieChart } from '../components/charts/StartedByDiscussionsChart/StartedByDiscussionsPieChart';
 import { CommentsLeftBarChart } from '../components/charts/CommentsLeftChart/CommentsLeftBarChart';
+import { CommentsReceivedBarChart } from '../components/charts/CommentsReceivedChart/CommentsReceivedBarChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -66,7 +66,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
-  const commentsReceived = useChartsStore(getCommentsReceived);
   const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
   const analysisInterval = useChartsStore(getAnalysisInterval);
@@ -224,6 +223,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             discussions={discussions}
             onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
           />
+          <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
+          <CommentsLeftBarChart comments={comments} onClick={showFilteredComments} />
+
           {commentsReceivedPieChart && (
             <ChartContainer title="Comments received by person">
               <PieChart
@@ -235,28 +237,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             </ChartContainer>
           )}
 
-          <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
-          <CommentsLeftBarChart comments={comments} onClick={showFilteredComments} />
-
-          <ChartContainer title="Comments received by person">
-            <BarChart
-              {...commentsReceived}
-              tooltip={(props) => {
-                const { indexValue, value, id } = props;
-
-                return (
-                  <BaseChartTooltip {...props}>
-                    <strong>{id}</strong> left <strong>{value}</strong> comments to <strong>{indexValue}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-              onClick={(e) => {
-                const authorName = e.indexValue as string;
-
-                showFilteredComments(e.id as string, authorName);
-              }}
-            />
-          </ChartContainer>
+          <CommentsReceivedBarChart comments={comments} onClick={showFilteredComments} />
           <StartedByDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           <StartedWithDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           <ChartContainer title="Pull Requests Created">
