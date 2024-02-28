@@ -233,7 +233,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             }}
           />
           <ApprovalDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
-          <ApprovalRecipientsChart pullRequests={pullRequests} users={users} />
+          <ApprovalRecipientsChart user={filterUser} pullRequests={pullRequests} users={users} />
           <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
           <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
 

@@ -6,6 +6,8 @@ import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhomUserApproves } from './ApprovalRecipientsUtils';
 
 export interface ApprovalRecipientsChartProps {
+  user?: User | null;
+
   users: User[];
   pullRequests: PullRequest[];
 }
@@ -13,7 +15,13 @@ export interface ApprovalRecipientsChartProps {
 /**
  * Represents who receive approvals
  */
-export function ApprovalRecipientsChart({ users, pullRequests }: ApprovalRecipientsChartProps) {
+export function ApprovalRecipientsChart(props: ApprovalRecipientsChartProps) {
+  if (props.user) return <ApprovalRecipientsForUser {...props} />;
+
+  return <ApprovalRecipientsForAll {...props} />;
+}
+
+function ApprovalRecipientsForAll({ users, pullRequests }: ApprovalRecipientsChartProps) {
   const { data, authors } = useMemo(() => {
     return getBarChartData(pullRequests, users, (prs, userId) => getWhomUserApproves(prs, users, userId));
   }, [users, pullRequests]);
@@ -28,6 +36,20 @@ export function ApprovalRecipientsChart({ users, pullRequests }: ApprovalRecipie
         data={data}
         onClick={() => {}}
       />
+    </ChartContainer>
+  );
+}
+
+function ApprovalRecipientsForUser({ user, users, pullRequests }: ApprovalRecipientsChartProps) {
+  const data = useMemo(() => {
+    const obj = getWhomUserApproves(pullRequests, users, user!.id);
+    const array = Object.entries(obj).map((item) => ({ id: item[0], label: item[0], value: item[1] }));
+    return array;
+  }, [pullRequests, user, users]);
+
+  return (
+    <ChartContainer title={`${user!.userName} receives approvals from`}>
+      <BarChart data={data} />
     </ChartContainer>
   );
 }
