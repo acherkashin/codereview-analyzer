@@ -15,11 +15,6 @@ export interface ReviewBarChartSettings<T = BarDatum> {
   data: T[];
 }
 
-export function convertToDiscussionsReceived(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  return convertToItemsReceived(rawData);
-}
-
 export function convertToCommentsLeft(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
   const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
   return convertToItemsLeft(rawData);
@@ -169,7 +164,7 @@ export function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSetti
   };
 }
 
-function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
   const reviewers = tidy(items, distinct(['reviewer'])).map((item) => item.reviewer);
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 

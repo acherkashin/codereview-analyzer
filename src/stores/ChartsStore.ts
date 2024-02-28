@@ -5,7 +5,6 @@ import {
   convertToCommentsLeftToUsers,
   convertToCommentsReceived,
   convertToCommentsReceivedFromUsers,
-  convertToDiscussionsReceived,
 } from '../utils/ChartUtils';
 import {
   convertToCommentsReceivedPieChart,
@@ -95,10 +94,6 @@ export function getComments(state: ChartsStore) {
 export function getDiscussions(state: ChartsStore) {
   const discussions = state.pullRequests.flatMap((item) => item.discussions);
   return discussions;
-}
-
-export function getDiscussionsReceived(state: ChartsStore) {
-  return convertToDiscussionsReceived(getDiscussions(state));
 }
 
 export function getCommentsLeft(state: ChartsStore) {

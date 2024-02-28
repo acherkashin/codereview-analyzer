@@ -15,7 +15,6 @@ import {
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
   getDiscussions,
-  getDiscussionsReceived,
   getDiscussionsReceivedPieChart,
   getDiscussionsStartedPieChart,
   getExportData,
@@ -48,6 +47,7 @@ import {
   ApprovalDistributionChart,
   ApprovalRecipientsChart,
   StartedByDiscussionsChart,
+  StartedWithDiscussionsChart,
 } from '../components/charts';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
@@ -66,7 +66,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
-  const discussionsReceived = useChartsStore(getDiscussionsReceived);
   const commentsLeft = useChartsStore(getCommentsLeft);
   const commentsReceived = useChartsStore(getCommentsReceived);
   const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
@@ -293,25 +292,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             />
           </ChartContainer>
           <StartedByDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
-          <ChartContainer title="Discussions started with person">
-            <BarChart
-              {...discussionsReceived}
-              tooltip={(props) => {
-                const { indexValue, value, id } = props;
-
-                return (
-                  <BaseChartTooltip {...props}>
-                    <strong>{id}</strong> started <strong>{value}</strong> discussions with <strong>{indexValue}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-              onClick={(e) => {
-                const authorName = e.indexValue as string;
-                const reviewerName = e.id as string;
-                showFilteredDiscussions(reviewerName, authorName);
-              }}
-            />
-          </ChartContainer>
+          <StartedWithDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           <ChartContainer title="Pull Requests Created">
             <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
           </ChartContainer>

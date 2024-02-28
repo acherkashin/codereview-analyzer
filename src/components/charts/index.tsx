@@ -5,3 +5,4 @@ export { ReviewRequestRecipients } from './ReviewRequestRecipients/ReviewRequest
 export { ApprovalDistributionChart } from './ApprovalDistributionChart/ApprovalDistributionChart';
 export { ApprovalRecipientsChart } from './ApprovalRecipientsChart/ApprovalRecipientsChart';
 export { StartedByDiscussionsChart } from './StartedByDiscussionsChart/StartedByDiscussionsChart';
+export { StartedWithDiscussionsChart } from './StartedWithDiscussionsChart/StartedWithDiscussionsChart';
