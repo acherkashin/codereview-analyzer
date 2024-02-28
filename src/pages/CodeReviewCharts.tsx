@@ -10,7 +10,6 @@ import {
   getAnalysisInterval,
   getAnalyze,
   getComments,
-  getCommentsLeft,
   getCommentsReceived,
   getCommentsReceivedPieChart,
   getCreatedPullRequestsPieChart,
@@ -49,6 +48,7 @@ import {
   CommentsLeftPieChart,
 } from '../components/charts';
 import { StartedByDiscussionsPieChart } from '../components/charts/StartedByDiscussionsChart/StartedByDiscussionsPieChart';
+import { CommentsLeftBarChart } from '../components/charts/CommentsLeftChart/CommentsLeftBarChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -66,7 +66,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
-  const commentsLeft = useChartsStore(getCommentsLeft);
   const commentsReceived = useChartsStore(getCommentsReceived);
   const commentsReceivedPieChart = useChartsStore(getCommentsReceivedPieChart);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
@@ -235,26 +234,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               />
             </ChartContainer>
           )}
+
           <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
-          <ChartContainer title="Comments left by person">
-            <BarChart
-              {...commentsLeft}
-              tooltip={(props) => {
-                const { indexValue, value, id } = props;
-
-                return (
-                  <BaseChartTooltip {...props}>
-                    <strong>{indexValue}</strong> left <strong>{value}</strong> comments to <strong>{id}</strong>
-                  </BaseChartTooltip>
-                );
-              }}
-              onClick={(e) => {
-                const reviewerName = e.indexValue as string;
-
-                showFilteredComments(reviewerName, e.id as string);
-              }}
-            />
-          </ChartContainer>
+          <CommentsLeftBarChart comments={comments} onClick={showFilteredComments} />
 
           <ChartContainer title="Comments received by person">
             <BarChart

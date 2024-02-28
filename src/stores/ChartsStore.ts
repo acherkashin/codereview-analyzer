@@ -1,7 +1,6 @@
 import create, { StoreApi } from 'zustand';
 import {
   convertToPullRequestCreated,
-  convertToCommentsLeft,
   convertToCommentsLeftToUsers,
   convertToCommentsReceived,
   convertToCommentsReceivedFromUsers,
@@ -92,10 +91,6 @@ export function getComments(state: ChartsStore) {
 export function getDiscussions(state: ChartsStore) {
   const discussions = state.pullRequests.flatMap((item) => item.discussions);
   return discussions;
-}
-
-export function getCommentsLeft(state: ChartsStore) {
-  return convertToCommentsLeft(getComments(state));
 }
 
 export function getCommentsReceived(state: ChartsStore) {
