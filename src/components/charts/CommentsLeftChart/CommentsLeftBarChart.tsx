@@ -3,7 +3,7 @@ import { Comment } from '../../../services/types';
 import { BaseChartTooltip } from '../../BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
-import { convertToCommentsLeftBarChart } from './CommentsLeftChartUtils';
+import { getCommentsLeftData } from './CommentsLeftChartUtils';
 
 export interface CommentsLeftBarChartProps {
   comments: Comment[];
@@ -11,12 +11,14 @@ export interface CommentsLeftBarChartProps {
 }
 
 export function CommentsLeftBarChart({ comments, onClick }: CommentsLeftBarChartProps) {
-  const data = useMemo(() => convertToCommentsLeftBarChart(comments), [comments]);
+  const { authors, data } = useMemo(() => getCommentsLeftData(comments), [comments]);
 
   return (
     <ChartContainer title="Comments left by person">
       <BarChart
-        {...data}
+        keys={authors}
+        data={data}
+        indexBy="userName"
         tooltip={(props) => {
           const { indexValue, value, id } = props;
 

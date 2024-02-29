@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { UserDiscussion } from '../../../services/types';
-import { ReviewBarChartSettings, ReviewBarDatum, convertToItemsLeft } from '../../../utils/ChartUtils';
+import { getItemsLeft } from '../../../utils/ChartUtils';
 import { getAuthorReviewerFromDiscussions } from '../../../utils/GitUtils';
 import { BaseChartTooltip } from '../../BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
@@ -12,12 +12,14 @@ export interface StartedByDiscussionsChartProps {
 }
 
 export function StartedByDiscussionsChart({ discussions, onClick }: StartedByDiscussionsChartProps) {
-  const data = useMemo(() => convertToDiscussionsLeft(discussions), [discussions]);
+  const { data, authors } = useMemo(() => convertToDiscussionsLeft(discussions), [discussions]);
 
   return (
     <ChartContainer title="Discussions started by person">
       <BarChart
-        {...data}
+        data={data}
+        keys={authors}
+        indexBy="userName"
         tooltip={(props) => {
           const { indexValue, value, id } = props;
 
@@ -37,7 +39,7 @@ export function StartedByDiscussionsChart({ discussions, onClick }: StartedByDis
   );
 }
 
-export function convertToDiscussionsLeft(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function convertToDiscussionsLeft(discussions: UserDiscussion[]) {
   const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  return convertToItemsLeft(rawData);
+  return getItemsLeft(rawData);
 }

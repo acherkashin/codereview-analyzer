@@ -2,7 +2,7 @@ import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { getAuthorReviewerFromComments } from '../../../utils/GitUtils';
 import { PieChartDatum } from '../../../utils/PieChartUtils';
 import { Comment } from '../../../services/types';
-import { ReviewBarChartSettings, ReviewBarDatum, convertToItemsLeft } from '../../../utils/ChartUtils';
+import { getItemsLeft } from '../../../utils/ChartUtils';
 
 export function convertToCommentsLeftPieChart(comments: Comment[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromComments(comments);
@@ -17,7 +17,7 @@ export function convertToCommentsLeftPieChart(comments: Comment[]): PieChartDatu
   return data;
 }
 
-export function convertToCommentsLeftBarChart(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function getCommentsLeftData(comments: Comment[]) {
   const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
-  return convertToItemsLeft(rawData);
+  return getItemsLeft(rawData);
 }

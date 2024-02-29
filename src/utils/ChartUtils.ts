@@ -128,29 +128,28 @@ function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 're
   return barDatum;
 }
 
-export function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
+/**
+ * return array (data) that consist of the following objects
+ * [{
+ *   "Alexander Cherkashin": 1, //several authors
+ *   "Natasha Petrova": 2,
+ *   total: 3,
+ *   userName: "Vasya Pupkin",
+ * }, ...]
+ */
+export function getItemsLeft(items: AuthorReviewer[]): { data: ReviewBarDatum[]; authors: string[] } {
   const reviewers = tidy(items, distinct(['reviewer'])).map((item) => item.reviewer);
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 
-  let barData = reviewers.map((userName) => {
+  let data = reviewers.map((userName) => {
     return getStatisticForUser(items, 'reviewer', userName);
   });
 
-  /**
-   * Array consist of the following objects
-   * [{
-   *   "Alexander Cherkashin": 1, //several authors
-   *   "Natasha Petrova": 2,
-   *   total: 3,
-   *   userName: "Vasya Pupkin",
-   * }, ...]
-   */
-  barData = tidy(barData, arrange([asc('total')]));
+  data = tidy(data, arrange([asc('total')]));
 
   return {
-    indexBy: 'userName',
-    keys: authors,
-    data: barData,
+    authors,
+    data,
   };
 }
 
