@@ -96,7 +96,24 @@ export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) 
  * @param userName name of the user to get data for
  * @returns statistic for the user
  */
-function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 'reviewer', userName: string): ReviewBarDatum {
+export function getStatisticForUser(
+  rawData: AuthorReviewer[],
+  userType: 'author' | 'reviewer',
+  userName: string
+): ReviewBarDatum {
+  const { datum, commentsPerUser } = getStatisticForUserDatum(rawData, userType, userName);
+  const commentsSum = tidy(
+    commentsPerUser,
+    summarize({
+      total: sum('total'),
+    })
+  );
+  const barDatum: ReviewBarDatum = { ...datum, userName, total: commentsSum[0].total };
+
+  return barDatum;
+}
+
+export function getStatisticForUserDatum(rawData: AuthorReviewer[], userType: 'author' | 'reviewer', userName: string) {
   // get only data for specified user
   const commentsReceived = tidy(
     rawData,
@@ -113,19 +130,13 @@ function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 're
     filter((data) => data.total !== 0)
   );
 
-  const commentsSum = tidy(
-    commentsPerUser,
-    summarize({
-      total: sum('total'),
-    })
-  );
-  const barDatum: ReviewBarDatum = { userName, total: commentsSum[0].total };
+  const barDatum: BarDatum = {};
 
   commentsPerUser.forEach((comment) => {
     barDatum[comment[groupByUserType]] = comment.total;
   });
 
-  return barDatum;
+  return { datum: barDatum, commentsPerUser };
 }
 
 /**

@@ -1,18 +1,38 @@
 import { useMemo } from 'react';
-import { UserDiscussion } from '../../../services/types';
-import { getItemsLeft } from '../../../utils/ChartUtils';
-import { getAuthorReviewerFromDiscussions } from '../../../utils/GitUtils';
+import { User, UserDiscussion } from '../../../services/types';
 import { BaseChartTooltip } from '../../BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
+import { getDiscussionStartedByUserData, getDiscussionsStarted } from './StartedByDiscussionsChartUtils';
 
 export interface StartedByDiscussionsChartProps {
+  user?: User | null;
   discussions: UserDiscussion[];
   onClick: (reviewerName: string, authorName: string) => void;
 }
 
-export function StartedByDiscussionsChart({ discussions, onClick }: StartedByDiscussionsChartProps) {
-  const { data, authors } = useMemo(() => convertToDiscussionsLeft(discussions), [discussions]);
+export function StartedByDiscussionsChart(props: StartedByDiscussionsChartProps) {
+  if (props.user) return <StartedByDiscussionsForUser {...props} />;
+
+  return <StartedByDiscussionsForAll {...props} />;
+}
+
+function StartedByDiscussionsForUser({ user, discussions, onClick }: StartedByDiscussionsChartProps) {
+  const data = useMemo(() => getDiscussionStartedByUserData(discussions, user!), [discussions, user]);
+
+  return (
+    <ChartContainer title={`${user!.displayName} starts discussions with`}>
+      <BarChart
+        data={data}
+
+        //TODO: fix tooltip
+      />
+    </ChartContainer>
+  );
+}
+
+function StartedByDiscussionsForAll({ discussions, onClick }: StartedByDiscussionsChartProps) {
+  const { data, authors } = useMemo(() => getDiscussionsStarted(discussions), [discussions]);
 
   return (
     <ChartContainer title="Discussions started by person">
@@ -37,9 +57,4 @@ export function StartedByDiscussionsChart({ discussions, onClick }: StartedByDis
       />
     </ChartContainer>
   );
-}
-
-export function convertToDiscussionsLeft(discussions: UserDiscussion[]) {
-  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  return getItemsLeft(rawData);
 }

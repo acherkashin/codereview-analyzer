@@ -249,7 +249,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           )}
           <CommentsReceivedBarChart comments={comments} onClick={showFilteredComments} />
 
-          <StartedByDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
+          <StartedByDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
           <StartedWithDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           {filterUser == null && (
             <ChartContainer title="Pull Requests Created">
