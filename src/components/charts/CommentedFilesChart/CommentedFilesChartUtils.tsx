@@ -21,30 +21,32 @@ export function getCommentedFilesData(comments: Comment[]) {
     distinct(['extension'])
   );
 
-  const data = extensions.map(({ extension }) => {
-    // only comments for current extension
-    const extensionComments = tidy(
-      comments,
-      filter((i) => getFileExtension(i.filePath) === extension)
-    );
+  const data = extensions
+    .map(({ extension }) => {
+      // only comments for current extension
+      const extensionComments = tidy(
+        comments,
+        filter((i) => getFileExtension(i.filePath) === extension)
+      );
 
-    const reviewerComments = tidy(
-      extensionComments,
-      groupBy('reviewerName', [summarize({ total: n() })]),
-      arrange([asc('total')])
-    );
+      const reviewerComments = tidy(
+        extensionComments,
+        groupBy('reviewerName', [summarize({ total: n() })]),
+        arrange([asc('total')])
+      );
 
-    const result = reviewerComments.reduce((acc, { reviewerName, total }) => {
-      acc[reviewerName] = total;
-      return acc;
-    }, {} as Record<string, number>);
+      const result = reviewerComments.reduce((acc, { reviewerName, total }) => {
+        acc[reviewerName] = total;
+        return acc;
+      }, {} as Record<string, number>);
 
-    return {
-      ...result,
-      extension: extension,
-      total: extensionComments.length,
-    };
-  });
+      return {
+        ...result,
+        extension: extension,
+        total: extensionComments.length,
+      };
+    })
+    .sort((a, b) => a.total - b.total);
 
   return {
     authors,
