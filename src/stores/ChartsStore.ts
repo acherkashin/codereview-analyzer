@@ -177,3 +177,7 @@ export function useChangedFilesCount() {
 export function getExportData(state: ChartsStore) {
   return state.exportData;
 }
+
+export function getHostType(state: ChartState) {
+  return state.exportData?.hostType;
+}

@@ -13,6 +13,7 @@ import {
   getCreatedPullRequestsPieChart,
   getDiscussions,
   getExportData,
+  getHostType,
   useChartsStore,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -21,7 +22,7 @@ import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
 import { ImportTextButton } from '../components/FileUploadButton';
-import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
+import { useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
 import { AnalyzeParams, Comment, User, UserDiscussion } from '../services/types';
@@ -72,7 +73,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
   const [filteredDiscussions, setFilteredDiscussions] = useState<UserDiscussion[]>([]);
 
-  const hostType = useAuthStore(getHostType);
+  const hostType = useChartsStore(getHostType);
 
   //TODO: probably need to move to ChartsStore
   const [filterUser, setFilterUser] = useState<User | undefined>(undefined);
@@ -247,7 +248,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartContainer title="Pull Requests Created">
             <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
           </ChartContainer>
-          {hostType === 'Gitea' && <CommentedFilesChart comments={comments} />}
+          {hostType === 'Gitea' && <CommentedFilesChart user={filterUser} comments={comments} />}
         </div>
       </div>
 
