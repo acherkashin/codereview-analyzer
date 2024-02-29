@@ -229,25 +229,33 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ApprovalRecipientsChart user={filterUser} pullRequests={pullRequests} users={users} />
           <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
           <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
-          <StartedWithDiscussionsPieChart
-            discussions={discussions}
-            onClick={(authorName) => showFilteredDiscussions(null, authorName)}
-          />
-          <StartedByDiscussionsPieChart
-            discussions={discussions}
-            onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
-          />
-          <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
+          {filterUser == null && (
+            <StartedWithDiscussionsPieChart
+              discussions={discussions}
+              onClick={(authorName) => showFilteredDiscussions(null, authorName)}
+            />
+          )}
+          {filterUser == null && (
+            <StartedByDiscussionsPieChart
+              discussions={discussions}
+              onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
+            />
+          )}
+          {filterUser == null && <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />}
           <CommentsLeftBarChart comments={comments} onClick={showFilteredComments} />
 
-          <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
+          {filterUser == null && (
+            <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
+          )}
           <CommentsReceivedBarChart comments={comments} onClick={showFilteredComments} />
 
           <StartedByDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
           <StartedWithDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
-          <ChartContainer title="Pull Requests Created">
-            <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
-          </ChartContainer>
+          {filterUser == null && (
+            <ChartContainer title="Pull Requests Created">
+              <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
+            </ChartContainer>
+          )}
           {hostType === 'Gitea' && <CommentedFilesChart user={filterUser} comments={comments} />}
         </div>
       </div>
