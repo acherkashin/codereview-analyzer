@@ -1,16 +1,24 @@
 import { useMemo } from 'react';
-import { Comment } from '../../../services/types';
+import { Comment, User } from '../../../services/types';
 import { BaseChartTooltip } from '../../BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
-import { getCommentsLeftData } from './CommentsLeftChartUtils';
+import { getCommentsLeftByUserData, getCommentsLeftData } from './CommentsLeftChartUtils';
 
 export interface CommentsLeftBarChartProps {
+  user?: User | null;
+
   comments: Comment[];
   onClick: (reviewerName: string, authorName: string) => void;
 }
 
-export function CommentsLeftBarChart({ comments, onClick }: CommentsLeftBarChartProps) {
+export function CommentsLeftBarChart(props: CommentsLeftBarChartProps) {
+  if (props.user) return <CommentsLeftChartForUser {...props} />;
+
+  return <CommentsLeftChartForAll {...props} />;
+}
+
+function CommentsLeftChartForAll({ comments, onClick }: CommentsLeftBarChartProps) {
   const { authors, data } = useMemo(() => getCommentsLeftData(comments), [comments]);
 
   return (
@@ -33,6 +41,27 @@ export function CommentsLeftBarChart({ comments, onClick }: CommentsLeftBarChart
 
           onClick(reviewerName, e.id as string);
         }}
+      />
+    </ChartContainer>
+  );
+}
+
+function CommentsLeftChartForUser({ user, comments, onClick }: CommentsLeftBarChartProps) {
+  const data = useMemo(() => getCommentsLeftByUserData(comments, user!), [comments, user]);
+
+  return (
+    <ChartContainer title={`Comments left by ${user!.displayName}`}>
+      <BarChart
+        data={data}
+        //TODO: fix onClick, fix tooltip
+        // tooltip={(props) => {
+
+        // }}
+        // onClick={(e) => {
+        //   const reviewerName = e.indexValue as string;
+
+        //   onClick(reviewerName, e.id as string);
+        // }}
       />
     </ChartContainer>
   );

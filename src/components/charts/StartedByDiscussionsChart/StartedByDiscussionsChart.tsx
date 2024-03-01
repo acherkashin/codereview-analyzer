@@ -25,6 +25,7 @@ function StartedByDiscussionsForUser({ user, discussions, onClick }: StartedByDi
       <BarChart
         data={data}
 
+        //TODO: fix onClick
         //TODO: fix tooltip
       />
     </ChartContainer>
