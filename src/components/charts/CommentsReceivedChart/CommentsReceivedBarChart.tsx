@@ -1,16 +1,24 @@
 import { BaseChartTooltip } from '../../BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
-import { Comment } from '../../../services/types';
+import { Comment, User } from '../../../services/types';
 import { useMemo } from 'react';
-import { convertToCommentsReceived } from './CommentsReceivedChartUtils';
+import { convertToCommentsReceived, getDiscussionStartedByUserData } from './CommentsReceivedChartUtils';
 
 export interface CommentsReceivedBarChartProps {
+  user?: User | null;
+
   comments: Comment[];
   onClick: (reviewerName: string, authorName: string) => void;
 }
 
-export function CommentsReceivedBarChart({ comments, onClick }: CommentsReceivedBarChartProps) {
+export function CommentsReceivedBarChart(props: CommentsReceivedBarChartProps) {
+  if (props.user) return <CommentsReceivedChartForUser {...props} />;
+
+  return <CommentsReceivedChartForAll {...props} />;
+}
+
+function CommentsReceivedChartForAll({ comments, onClick }: CommentsReceivedBarChartProps) {
   const data = useMemo(() => convertToCommentsReceived(comments), [comments]);
 
   return (
@@ -31,6 +39,20 @@ export function CommentsReceivedBarChart({ comments, onClick }: CommentsReceived
 
           onClick(e.id as string, authorName);
         }}
+      />
+    </ChartContainer>
+  );
+}
+
+function CommentsReceivedChartForUser({ user, comments, onClick }: CommentsReceivedBarChartProps) {
+  const data = useMemo(() => getDiscussionStartedByUserData(comments, user!), [comments, user]);
+
+  return (
+    <ChartContainer title={`${user!.displayName} received comments from`}>
+      <BarChart
+        data={data}
+        //TODO: fix onClick
+        //TODO: fix tooltip
       />
     </ChartContainer>
   );

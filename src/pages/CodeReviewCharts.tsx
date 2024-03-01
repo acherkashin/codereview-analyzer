@@ -247,7 +247,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           {filterUser == null && (
             <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
           )}
-          <CommentsReceivedBarChart comments={comments} onClick={showFilteredComments} />
+          <CommentsReceivedBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
 
           <StartedByDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
           <StartedWithDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />

@@ -4,7 +4,7 @@ import { BaseChartTooltip } from '../../BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { getAuthorReviewerFromDiscussions } from '../../../utils/GitUtils';
-import { ReviewBarChartSettings, ReviewBarDatum, convertToItemsReceived } from '../../../utils/ChartUtils';
+import { ReviewBarChartSettings, ReviewBarDatum, getItemsReceived } from '../../../utils/ChartUtils';
 
 export interface StartedWithDiscussionsChartProps {
   discussions: UserDiscussion[];
@@ -39,5 +39,5 @@ export function StartedWithDiscussionsChart({ discussions, onClick }: StartedWit
 
 export function convertToDiscussionsReceived(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
   const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  return convertToItemsReceived(rawData);
+  return getItemsReceived(rawData);
 }

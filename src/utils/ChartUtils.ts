@@ -164,7 +164,7 @@ export function getItemsLeft(items: AuthorReviewer[]): { data: ReviewBarDatum[];
   };
 }
 
-export function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function getItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
   const reviewers = tidy(items, distinct(['reviewer'])).map((item) => item.reviewer);
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 
