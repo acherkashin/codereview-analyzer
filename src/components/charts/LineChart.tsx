@@ -24,7 +24,7 @@ export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick, ...
       xFormat="time:%Y-%m-%d"
       yScale={{
         type: 'linear',
-        min: 'auto',
+        min: 0,
         max: 'auto',
       }}
       yFormat=" >-.0r"
