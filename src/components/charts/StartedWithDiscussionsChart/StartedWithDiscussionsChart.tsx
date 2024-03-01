@@ -1,17 +1,23 @@
 import { useMemo } from 'react';
-import { UserDiscussion } from '../../../services/types';
+import { User, UserDiscussion } from '../../../services/types';
 import { BaseChartTooltip } from '../../BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
-import { getAuthorReviewerFromDiscussions } from '../../../utils/GitUtils';
-import { ReviewBarChartSettings, ReviewBarDatum, getItemsReceived } from '../../../utils/ChartUtils';
+import { convertToDiscussionsReceived, getDiscussionStartedWithUserData } from './StartedWithDiscussionsChartUtils';
 
 export interface StartedWithDiscussionsChartProps {
+  user?: User | null;
   discussions: UserDiscussion[];
   onClick: (reviewerName: string, authorName: string) => void;
 }
 
-export function StartedWithDiscussionsChart({ discussions, onClick }: StartedWithDiscussionsChartProps) {
+export function StartedWithDiscussionsChart(props: StartedWithDiscussionsChartProps) {
+  if (props.user) return <DiscussionsChartForUser {...props} />;
+
+  return <DiscussionsChartForAll {...props} />;
+}
+
+export function DiscussionsChartForAll({ discussions, onClick }: StartedWithDiscussionsChartProps) {
   const data = useMemo(() => convertToDiscussionsReceived(discussions), [discussions]);
 
   return (
@@ -37,7 +43,17 @@ export function StartedWithDiscussionsChart({ discussions, onClick }: StartedWit
   );
 }
 
-export function convertToDiscussionsReceived(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  return getItemsReceived(rawData);
+export function DiscussionsChartForUser({ user, discussions, onClick }: StartedWithDiscussionsChartProps) {
+  const data = useMemo(() => getDiscussionStartedWithUserData(discussions, user!), [discussions, user]);
+
+  return (
+    <ChartContainer title={`Following people start discussions with ${user!.displayName}`}>
+      <BarChart
+        data={data}
+
+        //TODO: fix onClick
+        //TODO: fix tooltip
+      />
+    </ChartContainer>
+  );
 }
