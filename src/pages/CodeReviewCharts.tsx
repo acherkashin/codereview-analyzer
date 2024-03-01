@@ -212,7 +212,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         <div className="charts">
           <CommentsPerMonthChart user={filterUser} comments={comments} />
           {/* TODO: need to hide ReviewByUserChart and show different chart when user is selected */}
-          <ReviewByUserChart pullRequests={pullRequests} users={users} />
+          <ReviewByUserChart user={filterUser} pullRequests={pullRequests} users={users} />
           <WordsCloud comments={filterUser ? userComments : comments} onClick={handleWordClick} />
           <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
           {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
