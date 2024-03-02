@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Autocomplete, CircularProgress, FilterOptionsState, TextField } from '@mui/material';
+import { Autocomplete, CircularProgress, FilterOptionsState, TextField, createFilterOptions } from '@mui/material';
 import { User } from '../../services/types';
 import { useDebounce } from '../../hooks';
 import { UserListItem } from './UserListItem';
@@ -86,17 +86,10 @@ function filterOptions(isApiSearchMode: boolean, users: User[]) {
     // search happens on backend, so we don't need to do anything on frontend
     return (x: User[], state: FilterOptionsState<User>) => x;
   } else {
-    return (x: User[], { inputValue }: FilterOptionsState<User>) => {
-      const searchValue = (inputValue || '').toLowerCase();
-      const filtered = x.filter(
-        (item) =>
-          item.displayName?.toLocaleLowerCase().includes(searchValue) ||
-          item.fullName?.toLocaleLowerCase().includes(searchValue) ||
-          item.userName?.toLocaleLowerCase().includes(searchValue)
-      );
-
-      return filtered;
-    };
+    return createFilterOptions<User>({
+      ignoreCase: true,
+      stringify: (user) => (user.displayName || '') + (user.fullName || '') + (user.userName || ''),
+    });
   }
 }
 
