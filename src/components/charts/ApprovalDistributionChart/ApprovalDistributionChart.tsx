@@ -37,7 +37,6 @@ function ApprovalDistributionForAll({ pullRequests, users }: ApprovalDistributio
     <ChartContainer title="Approved By">
       <BarChart
         margin={{ left: 100, bottom: 50, right: 30 }}
-        // axisBottom={{}}
         indexBy="approverName"
         keys={authors}
         data={data}
@@ -48,15 +47,11 @@ function ApprovalDistributionForAll({ pullRequests, users }: ApprovalDistributio
   );
 }
 
-const ApprovalsAllTooltip: Parameters<typeof BarChart>[0]['tooltip'] = (props: BarTooltipProps<BarDatum>) => {
+function ApprovalsAllTooltip(props: BarTooltipProps<BarDatum>) {
   const { indexValue: approver, id: author, value: approvesCount } = props;
 
-  return (
-    <BaseChartTooltip>
-      <strong>{approver}</strong> approved <strong>{approvesCount}</strong> pull requests of <strong>{author}</strong>
-    </BaseChartTooltip>
-  );
-};
+  return <BaseApprovalsTooltip approver={approver as string} author={author as string} count={approvesCount} />;
+}
 
 /**
  * On y-axis - who receives approvals from @user
@@ -71,7 +66,26 @@ function ApprovalDistributionForUser({ pullRequests, user }: ApprovalDistributio
 
   return (
     <ChartContainer title={`${user!.userName} gives approvals to`}>
-      <BarChart data={data} />
+      <BarChart
+        data={data}
+        tooltip={(props) => {
+          return <BaseApprovalsTooltip approver={user!.displayName} author={props.indexValue as string} count={props.value} />;
+        }}
+      />
     </ChartContainer>
+  );
+}
+
+interface BaseApprovalsTooltipProps {
+  approver: string;
+  author: string;
+  count: number;
+}
+
+function BaseApprovalsTooltip({ approver, author, count }: BaseApprovalsTooltipProps) {
+  return (
+    <BaseChartTooltip>
+      <strong>{approver}</strong> approved <strong>{count}</strong> pull requests of <strong>{author}</strong>
+    </BaseChartTooltip>
   );
 }
