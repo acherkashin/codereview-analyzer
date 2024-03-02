@@ -35,9 +35,7 @@ function ApprovalRecipientsForAll({ users, pullRequests }: ApprovalRecipientsCha
         keys={authors}
         data={data}
         tooltip={(props) => {
-          const { indexValue: author, id: approver, value: approvesCount } = props;
-
-          return <BaseApprovalsTooltip approver={approver as string} author={author as string} count={approvesCount} />;
+          return <BaseApprovalsTooltip approver={props.indexValue as string} author={props.id as string} count={props.value} />;
         }}
         onClick={() => {}}
       />
@@ -57,7 +55,18 @@ function ApprovalRecipientsForUser({ user, users, pullRequests }: ApprovalRecipi
 
   return (
     <ChartContainer title={`${user!.userName} receives approvals from`}>
-      <BarChart data={data} />
+      <BarChart
+        data={data}
+        tooltip={(props) => {
+          return (
+            <BaseApprovalsTooltip
+              approver={props.indexValue as string}
+              author={user!.displayName as string}
+              count={props.value}
+            />
+          );
+        }}
+      />
     </ChartContainer>
   );
 }
