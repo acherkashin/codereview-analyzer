@@ -77,13 +77,13 @@ function ApprovalDistributionForUser({ pullRequests, user }: ApprovalDistributio
   );
 }
 
-interface BaseApprovalsTooltipProps {
+export interface BaseApprovalsTooltipProps {
   approver: string;
   author: string;
   count: number;
 }
 
-function BaseApprovalsTooltip({ approver, author, count }: BaseApprovalsTooltipProps) {
+export function BaseApprovalsTooltip({ approver, author, count }: BaseApprovalsTooltipProps) {
   return (
     <BaseChartTooltip>
       <strong>{approver}</strong> approved <strong>{count}</strong> pull requests of <strong>{author}</strong>
