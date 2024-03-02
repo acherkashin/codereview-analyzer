@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Autocomplete, CircularProgress, TextField } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
+import { Autocomplete, CircularProgress, FilterOptionsState, TextField } from '@mui/material';
 import { User } from '../../services/types';
 import { useDebounce } from '../../hooks';
 import { UserListItem } from './UserListItem';
@@ -13,17 +13,31 @@ export interface UsersListProps {
   style?: React.CSSProperties | undefined;
 }
 
-export function UsersList({ user, label, style, users, onSelected }: UsersListProps) {
+export function UsersList({
+  /**
+   * null should be used instead of "undefined" to prevent Autocomplete warning about
+   * switching between controlled and uncontrolled value state
+   * */
+  user = null,
+  label,
+  style,
+  users,
+  onSelected,
+}: UsersListProps) {
   const [open, setOpen] = useState(false);
-  const isSearchMode = typeof users === 'function';
-  const [options, setOptions] = useState<User[]>(isSearchMode ? [] : users);
+  const isApiSearchMode = typeof users === 'function';
+  const [options, setOptions] = useState<User[]>(isApiSearchMode ? [] : users);
   const [loading, setLoading] = useState(false);
 
   const [value, setValue] = useState<string>('');
   const debouncedValue = useDebounce(value, 300);
 
+  const filter = useMemo(() => {
+    return filterOptions(isApiSearchMode, options);
+  }, [isApiSearchMode, options]);
+
   useEffect(() => {
-    if (!isSearchMode) return;
+    if (!isApiSearchMode) return;
 
     if (open && debouncedValue) {
       setLoading(true);
@@ -32,12 +46,12 @@ export function UsersList({ user, label, style, users, onSelected }: UsersListPr
         .then(setOptions)
         .finally(() => setLoading(false));
     }
-  }, [debouncedValue, isSearchMode, open, users]);
+  }, [debouncedValue, isApiSearchMode, open, users]);
 
   return (
     <UsersListAutocomplete
       style={style}
-      getOptionLabel={(option) => option.fullName}
+      getOptionLabel={(option) => option.displayName}
       open={open}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
@@ -46,8 +60,7 @@ export function UsersList({ user, label, style, users, onSelected }: UsersListPr
       value={user}
       onChange={(_, newValue) => onSelected(newValue ?? undefined)}
       onInputChange={(_, newInputValue) => setValue(newInputValue)}
-      // reset client side filtering
-      filterOptions={isSearchMode ? (x) => x : undefined}
+      filterOptions={filter}
       renderOption={(props, item) => <UserListItem key={item.id} user={item} selected={item.id === user?.id} {...props} />}
       renderInput={(params) => (
         <TextField
@@ -66,6 +79,25 @@ export function UsersList({ user, label, style, users, onSelected }: UsersListPr
       )}
     />
   );
+}
+
+function filterOptions(isApiSearchMode: boolean, users: User[]) {
+  if (isApiSearchMode) {
+    // search happens on backend, so we don't need to do anything on frontend
+    return (x: User[], state: FilterOptionsState<User>) => x;
+  } else {
+    return (x: User[], { inputValue }: FilterOptionsState<User>) => {
+      const searchValue = (inputValue || '').toLowerCase();
+      const filtered = x.filter(
+        (item) =>
+          item.displayName?.toLocaleLowerCase().includes(searchValue) ||
+          item.fullName?.toLocaleLowerCase().includes(searchValue) ||
+          item.userName?.toLocaleLowerCase().includes(searchValue)
+      );
+
+      return filtered;
+    };
+  }
 }
 
 const UsersListAutocomplete = styled(Autocomplete)({
