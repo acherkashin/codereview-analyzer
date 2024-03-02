@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { PullRequest, User } from '../../../services/types';
-import { getWhomUserApproves } from './ApprovalDistributionUtils';
+import { getWhoUserApprovesArray, getWhomUserApproves } from './ApprovalDistributionUtils';
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
@@ -59,9 +59,10 @@ function ApprovalsAllTooltip(props: BarTooltipProps<BarDatum>) {
  */
 function ApprovalDistributionForUser({ pullRequests, user }: ApprovalDistributionProps) {
   const data = useMemo(() => {
-    const obj = getWhomUserApproves(pullRequests, user!.id);
-    const array = Object.entries(obj).map((item) => ({ id: item[0], label: item[0], value: item[1] }));
-    return array;
+    return getWhoUserApprovesArray(pullRequests, user!.id).map(({ displayName, total }) => ({
+      id: displayName,
+      value: total,
+    }));
   }, [pullRequests, user]);
 
   return (
