@@ -3,7 +3,7 @@ import { PullRequest, User } from '../../services/types';
 import { getReviewDataByUser } from '../../utils/ChartUtils';
 import { ChartContainer } from '../ChartContainer';
 import { BarChart } from './BarChart';
-import { BaseChartTooltip } from '../BaseChartTooltip';
+import { BaseChartTooltip } from '../tooltips/BaseChartTooltip';
 import { Avatar, Stack } from '@mui/material';
 import { BarDatum, BarTooltipProps } from '@nivo/bar';
 

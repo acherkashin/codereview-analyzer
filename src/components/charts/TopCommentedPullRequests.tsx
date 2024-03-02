@@ -1,6 +1,6 @@
 import { Avatar } from '@mui/material';
 import { PullRequest, User } from '../../services/types';
-import { BaseChartTooltip } from '../BaseChartTooltip';
+import { BaseChartTooltip } from '../tooltips/BaseChartTooltip';
 import { BarChart } from './BarChart';
 import { useMemo } from 'react';
 import { ChartContainer } from '../ChartContainer';

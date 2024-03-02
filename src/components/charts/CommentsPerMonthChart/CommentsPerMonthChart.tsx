@@ -3,7 +3,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { Comment, User } from '../../../services/types';
 import { useMemo } from 'react';
 import { convertToCommentsLineChart } from './CommentsPerMonthChartUtils';
-import { SquareMarker } from '../../BaseChartTooltip';
+import { SquareMarker } from '../../tooltips/BaseChartTooltip';
 import { SliceTooltipProps } from '@nivo/line';
 
 export interface CommentsPerMonthChartProps {

@@ -1,4 +1,4 @@
-import { BaseChartTooltip } from '../../BaseChartTooltip';
+import { BaseChartTooltip } from '../../tooltips/BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { Comment, User } from '../../../services/types';

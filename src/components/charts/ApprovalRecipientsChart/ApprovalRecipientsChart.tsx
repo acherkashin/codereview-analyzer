@@ -4,7 +4,7 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhomUserApproves, getWhomUserApprovesArray } from './ApprovalRecipientsUtils';
-import { BaseApprovalsTooltip } from '../ApprovalDistributionChart/ApprovalDistributionChart';
+import { BaseApprovalsTooltip } from '../../tooltips/BaseApprovalsTooltip';
 
 export interface ApprovalRecipientsChartProps {
   user?: User | null;
@@ -35,7 +35,7 @@ function ApprovalRecipientsForAll({ users, pullRequests }: ApprovalRecipientsCha
         keys={authors}
         data={data}
         tooltip={(props) => {
-          return <BaseApprovalsTooltip approver={props.indexValue as string} author={props.id as string} count={props.value} />;
+          return <BaseApprovalsTooltip approver={props.id as string} author={props.indexValue as string} count={props.value} />;
         }}
         onClick={() => {}}
       />

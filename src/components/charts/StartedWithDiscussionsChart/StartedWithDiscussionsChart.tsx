@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { User, UserDiscussion } from '../../../services/types';
-import { BaseChartTooltip } from '../../BaseChartTooltip';
+import { BaseChartTooltip } from '../../tooltips/BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { convertToDiscussionsReceived, getDiscussionStartedWithUserData } from './StartedWithDiscussionsChartUtils';

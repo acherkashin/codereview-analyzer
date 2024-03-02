@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
+import { BarDatum, BarTooltipProps } from '@nivo/bar';
 import { PullRequest, User } from '../../../services/types';
 import { getWhoUserApprovesArray, getWhomUserApproves } from './ApprovalDistributionUtils';
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
-import { BarDatum, BarTooltipProps } from '@nivo/bar';
-import { BaseChartTooltip } from '../../BaseChartTooltip';
+import { BaseApprovalsTooltip } from '../../tooltips/BaseApprovalsTooltip';
 
 export interface ApprovalDistributionProps {
   user?: User | null;
@@ -74,19 +74,5 @@ function ApprovalDistributionForUser({ pullRequests, user }: ApprovalDistributio
         }}
       />
     </ChartContainer>
-  );
-}
-
-export interface BaseApprovalsTooltipProps {
-  approver: string;
-  author: string;
-  count: number;
-}
-
-export function BaseApprovalsTooltip({ approver, author, count }: BaseApprovalsTooltipProps) {
-  return (
-    <BaseChartTooltip>
-      <strong>{approver}</strong> approved <strong>{count}</strong> pull requests of <strong>{author}</strong>
-    </BaseChartTooltip>
   );
 }
