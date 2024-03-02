@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Comment, User } from '../../../services/types';
-import { BaseChartTooltip } from '../../tooltips/BaseChartTooltip';
+import { BaseChartTooltip, BaseChartTooltipProps } from '../../tooltips/BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { getCommentsLeftByUserData, getCommentsLeftData } from './CommentsLeftChartUtils';
@@ -28,13 +28,7 @@ function CommentsLeftChartForAll({ comments, onClick }: CommentsLeftBarChartProp
         data={data}
         indexBy="userName"
         tooltip={(props) => {
-          const { indexValue, value, id } = props;
-
-          return (
-            <BaseChartTooltip {...props}>
-              <strong>{indexValue}</strong> left <strong>{value}</strong> comments to <strong>{id}</strong>
-            </BaseChartTooltip>
-          );
+          return <BaseCommentsTooltip reviewer={props.indexValue as string} author={props.id as string} count={props.value} />;
         }}
         onClick={(e) => {
           const reviewerName = e.indexValue as string;
@@ -53,16 +47,34 @@ function CommentsLeftChartForUser({ user, comments, onClick }: CommentsLeftBarCh
     <ChartContainer title={`Comments left by ${user!.displayName}`}>
       <BarChart
         data={data}
-        //TODO: fix onClick, fix tooltip
-        // tooltip={(props) => {
-
-        // }}
-        // onClick={(e) => {
-        //   const reviewerName = e.indexValue as string;
-
-        //   onClick(reviewerName, e.id as string);
-        // }}
+        tooltip={(props) => {
+          return (
+            <BaseCommentsTooltip
+              reviewer={user!.displayName}
+              author={props.indexValue as string}
+              count={props.value}
+              {...props}
+            />
+          );
+        }}
+        onClick={(e) => {
+          onClick(user!.displayName, e.indexValue as string);
+        }}
       />
     </ChartContainer>
+  );
+}
+
+export interface BaseCommentsTooltipProps extends BaseChartTooltipProps {
+  reviewer: string;
+  author: string;
+  count: number;
+}
+
+export function BaseCommentsTooltip({ reviewer: commenter, author, count, ...otherProps }: BaseCommentsTooltipProps) {
+  return (
+    <BaseChartTooltip {...otherProps}>
+      <strong>{commenter}</strong> left <strong>{count}</strong> comments to <strong>{author}</strong>
+    </BaseChartTooltip>
   );
 }
