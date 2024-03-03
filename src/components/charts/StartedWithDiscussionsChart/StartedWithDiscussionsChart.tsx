@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { User, UserDiscussion } from '../../../services/types';
-import { BaseChartTooltip } from '../../tooltips';
+import { BaseChartTooltip, BaseDiscussionsTooltip } from '../../tooltips';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { convertToDiscussionsReceived, getDiscussionStartedWithUserData } from './StartedWithDiscussionsChartUtils';
@@ -27,11 +27,7 @@ export function DiscussionsChartForAll({ discussions, onClick }: StartedWithDisc
         tooltip={(props) => {
           const { indexValue, value, id } = props;
 
-          return (
-            <BaseChartTooltip {...props}>
-              <strong>{id}</strong> started <strong>{value}</strong> discussions with <strong>{indexValue}</strong>
-            </BaseChartTooltip>
-          );
+          return <BaseDiscussionsTooltip reviewer={id as string} author={indexValue as string} count={value} />;
         }}
         onClick={(e) => {
           const authorName = e.indexValue as string;
@@ -47,12 +43,16 @@ export function DiscussionsChartForUser({ user, discussions, onClick }: StartedW
   const data = useMemo(() => getDiscussionStartedWithUserData(discussions, user!), [discussions, user]);
 
   return (
-    <ChartContainer title={`Following people start discussions with ${user!.displayName}`}>
+    <ChartContainer title={`Discussions started with ${user!.displayName}`}>
       <BarChart
         data={data}
-
-        //TODO: fix onClick
-        //TODO: fix tooltip
+        tooltip={(props) => {
+          return <BaseDiscussionsTooltip reviewer={props.indexValue as string} author={user!.displayName} count={props.value} />;
+        }}
+        onClick={(e) => {
+          const reviewerName = e.indexValue as string;
+          onClick(reviewerName, user!.displayName);
+        }}
       />
     </ChartContainer>
   );
