@@ -4,6 +4,7 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestsReview, getWhoRequestsReviewArray } from './ReviewRequestDistributionUtils';
+import { BaseReviewTooltip } from '../../tooltips/BaseReviewTooltip';
 
 export interface ReviewRequestDistributionChartProps {
   user?: User | null;
@@ -36,6 +37,9 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestDistributionC
         indexBy="approverName"
         keys={authors}
         data={data}
+        tooltip={(props) => {
+          return <BaseReviewTooltip author={props.indexValue as string} count={props.value} reviewer={props.id as string} />;
+        }}
         onClick={() => {}}
       />
     </ChartContainer>
@@ -51,8 +55,15 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestDistributionC
   }, [pullRequests, user]);
 
   return (
-    <ChartContainer title={`${user!.userName} asks following people to review his changes`}>
-      <BarChart data={data} />
+    <ChartContainer title={`${user!.userName} asks to review`}>
+      <BarChart
+        data={data}
+        tooltip={(props) => {
+          return (
+            <BaseReviewTooltip author={user!.userName as string} count={props.value} reviewer={props.indexValue as string} />
+          );
+        }}
+      />
     </ChartContainer>
   );
 }
