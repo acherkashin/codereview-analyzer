@@ -3,7 +3,7 @@ import { PullRequest, User } from '../../../services/types';
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
-import { getWhoRequestReviews } from './ReviewRequestRecipientsUtils';
+import { getWhoRequestReviews, getWhoRequestReviewsArray } from './ReviewRequestRecipientsUtils';
 import { BaseReviewTooltip } from '../../tooltips/BaseReviewTooltip';
 
 export interface ReviewRequestRecipientsProps {
@@ -37,7 +37,6 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestRecipientsPro
         keys={authors}
         data={data}
         tooltip={(props) => {
-          console.log(props);
           return <BaseReviewTooltip reviewer={props.indexValue as string} count={props.value} author={props.id as string} />;
         }}
         onClick={() => {}}
@@ -48,9 +47,7 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestRecipientsPro
 
 function ReviewRequestForUser({ user, pullRequests }: ReviewRequestRecipientsProps) {
   const data = useMemo(() => {
-    const obj = getWhoRequestReviews(pullRequests, user!.id);
-    const array = Object.entries(obj).map((item) => ({ id: item[0], label: item[0], value: item[1] }));
-    return array;
+    return getWhoRequestReviewsArray(pullRequests, user!.id).map((item) => ({ id: item.displayName, value: item.total }));
   }, [pullRequests, user]);
 
   return (
