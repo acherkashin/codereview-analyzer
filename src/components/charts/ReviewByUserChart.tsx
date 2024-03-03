@@ -5,7 +5,6 @@ import { ChartContainer } from '../ChartContainer';
 import { BarChart } from './BarChart';
 import { BaseChartTooltip } from '../tooltips/BaseChartTooltip';
 import { Avatar, Stack } from '@mui/material';
-import { BarDatum, BarTooltipProps } from '@nivo/bar';
 
 export interface ReviewByUserChartProps {
   user?: User | null;
@@ -60,16 +59,30 @@ function ReviewChartForAll({ users, pullRequests }: ReviewByUserChartProps) {
             symbolShape: 'circle',
           },
         ]}
-        tooltip={ReviewByUserTooltip}
+        tooltip={(props) => {
+          const barData = props.data as ReviewDataByUser;
+          const { userAvatarUrl, userName, Reviewed = 0, Assigned = 0, Approved = 0 } = barData;
+          const requestedChanges = barData['Requested Changes'] || 0;
+
+          return (
+            <ReviewByUserTooltip
+              userAvatarUrl={userAvatarUrl}
+              userName={userName}
+              reviewedCount={Reviewed}
+              assignedCount={Assigned}
+              approvedCount={Approved}
+              requestedChangesCount={requestedChanges}
+            />
+          );
+        }}
       />
     </ChartContainer>
   );
 }
 
-function ReviewChartForUser({ user, users, pullRequests }: ReviewByUserChartProps) {
+function ReviewChartForUser({ user, pullRequests }: ReviewByUserChartProps) {
+  const reviewByUser = useMemo(() => getReviewDataByUser([user!], pullRequests)[0], [pullRequests, user]);
   const data = useMemo(() => {
-    const reviewByUser = getReviewDataByUser([user!], pullRequests)[0];
-
     return [
       {
         id: 'Assigned',
@@ -88,7 +101,7 @@ function ReviewChartForUser({ user, users, pullRequests }: ReviewByUserChartProp
         value: reviewByUser['Requested Changes'],
       },
     ];
-  }, [user, pullRequests]);
+  }, [reviewByUser]);
 
   const width = 500;
   const title = `Pull Requests reviews by ${user!.displayName}`;
@@ -108,19 +121,44 @@ function ReviewChartForUser({ user, users, pullRequests }: ReviewByUserChartProp
           tickRotation: 90,
         }}
         legends={undefined}
-        tooltip={user ? undefined : ReviewByUserTooltip}
+        tooltip={() => {
+          return (
+            <ReviewByUserTooltip
+              userAvatarUrl={user!.avatarUrl}
+              userName={user!.userName}
+              reviewedCount={reviewByUser.Reviewed}
+              assignedCount={reviewByUser.Assigned}
+              approvedCount={reviewByUser.Approved}
+              requestedChangesCount={reviewByUser['Requested Changes']}
+            />
+          );
+        }}
       />
     </ChartContainer>
   );
 }
 
-function ReviewByUserTooltip({ data }: BarTooltipProps<BarDatum>) {
-  const barData = data as ReviewDataByUser;
-  const { userAvatarUrl, userName, Reviewed = 0, Assigned = 0, Approved = 0 } = barData;
-  const requestedChanges = barData['Requested Changes'] || 0;
-  const reviewedPercent = Math.ceil((Reviewed / Assigned) * 100) + '%';
-  const approvedPercent = Math.ceil((Approved / Assigned) * 100) + '%';
-  const requestChangesPercent = Math.ceil((requestedChanges / Assigned) * 100) + '%';
+interface ReviewByUserTooltipProps {
+  userAvatarUrl: string;
+  userName: string;
+  reviewedCount: number;
+  assignedCount: number;
+  approvedCount: number;
+  requestedChangesCount?: number;
+}
+
+function ReviewByUserTooltip({
+  userAvatarUrl,
+  userName,
+  approvedCount,
+  reviewedCount,
+  assignedCount,
+  requestedChangesCount,
+}: ReviewByUserTooltipProps) {
+  const requestedChanges = requestedChangesCount || 0;
+  const reviewedPercent = Math.ceil((reviewedCount / assignedCount) * 100) + '%';
+  const approvedPercent = Math.ceil((approvedCount / assignedCount) * 100) + '%';
+  const requestChangesPercent = Math.ceil((requestedChanges / assignedCount) * 100) + '%';
 
   return (
     <BaseChartTooltip>
@@ -131,15 +169,15 @@ function ReviewByUserTooltip({ data }: BarTooltipProps<BarDatum>) {
         </Stack>
         <Stack direction="row" alignItems="center">
           <ul>
-            <li>Pull Requests assigned - {Assigned}</li>
+            <li>Pull Requests assigned - {assignedCount}</li>
             <li>
-              Reviewed - {Reviewed}/{Assigned} - <strong>{reviewedPercent}</strong>
+              Reviewed - {reviewedCount}/{assignedCount} - <strong>{reviewedPercent}</strong>
             </li>
             <li>
-              Approved - {Approved}/{Assigned} - <strong>{approvedPercent}</strong>
+              Approved - {approvedCount}/{assignedCount} - <strong>{approvedPercent}</strong>
             </li>
             <li>
-              Request Changes - {requestedChanges}/{Assigned} - <strong>{requestChangesPercent}</strong>
+              Request Changes - {requestedChanges}/{assignedCount} - <strong>{requestChangesPercent}</strong>
             </li>
           </ul>
         </Stack>
