@@ -168,6 +168,8 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     );
   }
 
+  const defaultFileName = `analysis-${analysisInterval}`;
+
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
@@ -184,8 +186,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               startIcon={<FileDownloadIcon />}
               onClick={() => {
                 // TODO: probably need to export selected user
-                // TODO: Need to specify Range <StartDate>-<EndDate> as a default name
-                downloadFile('newFile.json', JSON.stringify(dataToExport, null, 2));
+                downloadFile(`${defaultFileName}.json`, JSON.stringify(dataToExport, null, 2));
               }}
             >
               Export as JSON
@@ -197,6 +198,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <InputDialog
               title="Export comments to excel"
               fieldName="File Name"
+              defaultFileName={`${defaultFileName}.xlsx`}
               open={excelDialog.isOpen}
               onClose={excelDialog.close}
               onDownload={handleDownload}
@@ -211,7 +213,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
         <div className="charts">
           <CommentsPerMonthChart user={filterUser} comments={comments} />
-          {/* TODO: need to hide ReviewByUserChart and show different chart when user is selected */}
           <ReviewByUserChart user={filterUser} pullRequests={pullRequests} users={users} />
           <WordsCloud comments={filterUser ? userComments : comments} onClick={handleWordClick} />
           <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
