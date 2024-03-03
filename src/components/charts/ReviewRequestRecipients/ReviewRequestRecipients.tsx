@@ -4,6 +4,7 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestReviews } from './ReviewRequestRecipientsUtils';
+import { BaseReviewTooltip } from '../../tooltips/BaseReviewTooltip';
 
 export interface ReviewRequestRecipientsProps {
   user?: User | null;
@@ -32,10 +33,13 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestRecipientsPro
     <ChartContainer title="Review Requested From">
       <BarChart
         margin={{ left: 100, bottom: 50, right: 30 }}
-        // axisBottom={{}}
         indexBy="approverName"
         keys={authors}
         data={data}
+        tooltip={(props) => {
+          console.log(props);
+          return <BaseReviewTooltip reviewer={props.indexValue as string} count={props.value} author={props.id as string} />;
+        }}
         onClick={() => {}}
       />
     </ChartContainer>
@@ -50,8 +54,13 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestRecipientsPro
   }, [pullRequests, user]);
 
   return (
-    <ChartContainer title={`Following people ask ${user!.userName} to review their changes`}>
-      <BarChart data={data} />
+    <ChartContainer title={`Review requested from ${user!.userName} `}>
+      <BarChart
+        data={data}
+        tooltip={(props) => (
+          <BaseReviewTooltip reviewer={user!.userName} count={props.value} author={props.indexValue as string} />
+        )}
+      />
     </ChartContainer>
   );
 }
