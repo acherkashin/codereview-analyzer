@@ -4,7 +4,6 @@ export { TooltipPrompt } from './TooltipPrompt';
 export { Login } from '../pages/Login';
 export { ProjectList } from './ProjectList';
 export { UsersList } from './UsersList/UsersList';
-export { BaseChartTooltip } from './BaseChartTooltip';
 export { DiscussionList } from './DiscussionList';
 export { MergeRequest } from './MergeRequest';
 export { UserList, UserItem } from './UserList';

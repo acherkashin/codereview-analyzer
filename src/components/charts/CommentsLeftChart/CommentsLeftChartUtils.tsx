@@ -1,8 +1,8 @@
 import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { getAuthorReviewerFromComments } from '../../../utils/GitUtils';
 import { PieChartDatum } from '../../../utils/PieChartUtils';
-import { Comment } from '../../../services/types';
-import { ReviewBarChartSettings, ReviewBarDatum, convertToItemsLeft } from '../../../utils/ChartUtils';
+import { Comment, User } from '../../../services/types';
+import { getItemsLeft, getCommentsLeftByUser } from '../../../utils/ChartUtils';
 
 export function convertToCommentsLeftPieChart(comments: Comment[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromComments(comments);
@@ -17,7 +17,16 @@ export function convertToCommentsLeftPieChart(comments: Comment[]): PieChartDatu
   return data;
 }
 
-export function convertToCommentsLeftBarChart(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function getCommentsLeftData(comments: Comment[]) {
   const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
-  return convertToItemsLeft(rawData);
+  return getItemsLeft(rawData);
+}
+
+export function getCommentsLeftByUserData(comments: Comment[], user: User) {
+  const items = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
+  const commentsPerUser = getCommentsLeftByUser(items, user.userName);
+
+  const data = commentsPerUser.map((item) => ({ id: item.author, value: item.total })).sort((a, b) => a.value - b.value);
+
+  return data;
 }

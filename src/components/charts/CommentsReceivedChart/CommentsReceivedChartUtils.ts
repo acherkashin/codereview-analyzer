@@ -1,6 +1,6 @@
 import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
-import { Comment } from '../../../services/types';
-import { ReviewBarChartSettings, ReviewBarDatum, convertToItemsReceived } from '../../../utils/ChartUtils';
+import { Comment, User } from '../../../services/types';
+import { ReviewBarChartSettings, ReviewBarDatum, getCommentsReceivedByUser, getItemsReceived } from '../../../utils/ChartUtils';
 import { getAuthorReviewerFromComments } from '../../../utils/GitUtils';
 import { PieChartDatum } from '../../../utils/PieChartUtils';
 
@@ -19,5 +19,14 @@ export function convertToCommentsReceivedPieChart(comments: Comment[]): PieChart
 
 export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
   const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
-  return convertToItemsReceived(rawData);
+  return getItemsReceived(rawData);
+}
+
+export function getDiscussionStartedByUserData(comments: Comment[], user: User) {
+  const items = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
+  const commentsPerUser = getCommentsReceivedByUser(items, user.userName);
+
+  const data = commentsPerUser.map((item) => ({ id: item.reviewer, value: item.total })).sort((a, b) => a.value - b.value);
+
+  return data;
 }

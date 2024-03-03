@@ -3,9 +3,12 @@ import { PullRequest, User } from '../../../services/types';
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
-import { getWhomUserApproves } from './ApprovalRecipientsUtils';
+import { getWhomUserApproves, getWhomUserApprovesArray } from './ApprovalRecipientsUtils';
+import { BaseApprovalsTooltip } from '../../tooltips';
 
 export interface ApprovalRecipientsChartProps {
+  user?: User | null;
+
   users: User[];
   pullRequests: PullRequest[];
 }
@@ -13,7 +16,13 @@ export interface ApprovalRecipientsChartProps {
 /**
  * Represents who receive approvals
  */
-export function ApprovalRecipientsChart({ users, pullRequests }: ApprovalRecipientsChartProps) {
+export function ApprovalRecipientsChart(props: ApprovalRecipientsChartProps) {
+  if (props.user) return <ApprovalRecipientsForUser {...props} />;
+
+  return <ApprovalRecipientsForAll {...props} />;
+}
+
+function ApprovalRecipientsForAll({ users, pullRequests }: ApprovalRecipientsChartProps) {
   const { data, authors } = useMemo(() => {
     return getBarChartData(pullRequests, users, (prs, userId) => getWhomUserApproves(prs, users, userId));
   }, [users, pullRequests]);
@@ -22,11 +31,41 @@ export function ApprovalRecipientsChart({ users, pullRequests }: ApprovalRecipie
     <ChartContainer title="Approvals Received By">
       <BarChart
         margin={{ left: 100, bottom: 50, right: 30 }}
-        // axisBottom={{}}
         indexBy="approverName"
         keys={authors}
         data={data}
+        tooltip={(props) => {
+          return <BaseApprovalsTooltip approver={props.id as string} author={props.indexValue as string} count={props.value} />;
+        }}
         onClick={() => {}}
+      />
+    </ChartContainer>
+  );
+}
+
+function ApprovalRecipientsForUser({ user, users, pullRequests }: ApprovalRecipientsChartProps) {
+  const data = useMemo(
+    () =>
+      getWhomUserApprovesArray(pullRequests, users, user!.id).map(({ displayName, total }) => ({
+        id: displayName,
+        value: total,
+      })),
+    [pullRequests, user, users]
+  );
+
+  return (
+    <ChartContainer title={`${user!.userName} receives approvals from`}>
+      <BarChart
+        data={data}
+        tooltip={(props) => {
+          return (
+            <BaseApprovalsTooltip
+              approver={props.indexValue as string}
+              author={user!.displayName as string}
+              count={props.value}
+            />
+          );
+        }}
       />
     </ChartContainer>
   );

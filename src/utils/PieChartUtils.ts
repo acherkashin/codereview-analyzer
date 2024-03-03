@@ -24,19 +24,3 @@ export function getWhomAuthorAssignsToReview(mrs: PullRequest[]): PieChartDatum[
 
   return data;
 }
-
-/**
- * Methods calculates who authors of merge requests assign their merge requests to review
- */
-export function getWhoAssignsToAuthorToReview(mrs: PullRequest[]): PieChartDatum[] {
-  const rawData = getAuthorReviewerFromMergeRequests(mrs);
-  const data = tidy(rawData, groupBy('author', [summarize({ total: n() })]), arrange([asc('total')])).map<PieChartDatum>(
-    (item) => ({
-      id: item.author,
-      label: item.author,
-      value: item.total,
-    })
-  );
-
-  return data;
-}

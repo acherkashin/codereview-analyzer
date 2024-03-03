@@ -1,14 +1,5 @@
 import create, { StoreApi } from 'zustand';
-import {
-  convertToPullRequestCreated,
-  convertToCommentsLeftToUsers,
-  convertToCommentsReceivedFromUsers,
-} from '../utils/ChartUtils';
-import {
-  getWhoAssignsToAuthorToReview,
-  getWhomAuthorAssignsToReview as convertAssignedToReview,
-  PieChartDatum,
-} from '../utils/PieChartUtils';
+import { convertToPullRequestCreated } from '../utils/ChartUtils';
 import createContext from 'zustand/context';
 import { AnalyzeParams, ExportData, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
@@ -112,50 +103,6 @@ export function getAnalyze(state: ChartsStore) {
   return state.analyze;
 }
 
-export function useWhomAssignedToReviewPieChart(authorId?: string): PieChartDatum[] {
-  return useChartsStore((state) => {
-    if (!authorId) {
-      return [];
-    }
-
-    const authorMrs = state.pullRequests.filter((item) => item.author.id === authorId);
-    return convertAssignedToReview(authorMrs);
-  });
-}
-
-export function useWhoAssignsToAuthorToReviewPieChart(authorId?: string): PieChartDatum[] {
-  return useChartsStore((state) => {
-    if (authorId == null) {
-      return [];
-    }
-
-    const reviewerMrs = state.pullRequests.filter((item) =>
-      (item.requestedReviewers ?? []).map((item) => item.id).includes(authorId)
-    );
-    return getWhoAssignsToAuthorToReview(reviewerMrs);
-  });
-}
-
-export function useCommentsReceivedFromUsers(userId?: string) {
-  return useChartsStore((state) => {
-    if (userId == null) {
-      return null;
-    }
-
-    return convertToCommentsReceivedFromUsers(getComments(state), userId);
-  });
-}
-
-export function useCommentsLeftToUsers(userId?: string) {
-  return useChartsStore((state) => {
-    if (userId == null) {
-      return null;
-    }
-
-    return convertToCommentsLeftToUsers(getComments(state), userId);
-  });
-}
-
 export function useMostCommentsLeft() {
   return useChartsStore((state) => {
     const comments = getComments(state);
@@ -193,4 +140,8 @@ export function useChangedFilesCount() {
 
 export function getExportData(state: ChartsStore) {
   return state.exportData;
+}
+
+export function getHostType(state: ChartState) {
+  return state.exportData?.hostType;
 }

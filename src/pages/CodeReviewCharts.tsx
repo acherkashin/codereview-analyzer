@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
-import { ChartContainer, CommentList, DiscussionList, FullScreenDialog } from '../components';
+import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
 import { Button, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
@@ -13,6 +13,7 @@ import {
   getCreatedPullRequestsPieChart,
   getDiscussions,
   getExportData,
+  getHostType,
   useChartsStore,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -21,10 +22,10 @@ import { useOpen } from '../hooks/useOpen';
 import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
 import { downloadFile } from '../utils/FileUtils';
 import { ImportTextButton } from '../components/FileUploadButton';
-import { getHostType, useAuthStore, useClient } from '../stores/AuthStore';
+import { useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, UserDiscussion } from '../services/types';
+import { AnalyzeParams, Comment, User, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { useIsGuest } from '../hooks/useIsGuest';
@@ -33,7 +34,6 @@ import {
   ReviewRequestDistributionChart,
   ApprovalDistributionChart,
   ApprovalRecipientsChart,
-  StartedByDiscussionsChart,
   StartedWithDiscussionsChart,
   StartedWithDiscussionsPieChart,
   CommentsLeftPieChart,
@@ -41,12 +41,13 @@ import {
   StartedByDiscussionsPieChart,
   CommentsLeftBarChart,
   CommentsReceivedBarChart,
-  TopPullRequestsChart,
   ReviewByUserChart,
   CommentedFilesChart,
   CommentsPerMonthChart,
   WordsCloud,
   TopLongestDiscussionsChart,
+  TopCommentedPullRequestsChart,
+  StartedByDiscussionsChart,
 } from '../components/charts';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
@@ -72,7 +73,13 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
   const [filteredDiscussions, setFilteredDiscussions] = useState<UserDiscussion[]>([]);
 
-  const hostType = useAuthStore(getHostType);
+  const hostType = useChartsStore(getHostType);
+
+  //TODO: probably need to move to ChartsStore
+  const [filterUser, setFilterUser] = useState<User | undefined>(undefined);
+  const userComments = useMemo(() => {
+    return comments.filter((item) => item.reviewerId === filterUser?.id);
+  }, [comments, filterUser?.id]);
 
   const showFilteredComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
@@ -161,47 +168,57 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     );
   }
 
+  const defaultFileName = `analysis-${analysisInterval}`;
+
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <Stack direction="row" spacing={2}>
-          <Typography variant="h3" textAlign="center">
-            {analysisInterval}
-          </Typography>
-          <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
-            Download as Excel
-          </Button>
-          <Button
-            startIcon={<FileDownloadIcon />}
-            onClick={() => {
-              // Need to specify Range <StartDate>-<EndDate> as a default name
-              downloadFile('newFile.json', JSON.stringify(dataToExport, null, 2));
-            }}
-          >
-            Export as JSON
-          </Button>
-          {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
-          <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
-            Close Analysis
-          </Button>
-          <InputDialog
-            title="Export comments to excel"
-            fieldName="File Name"
-            open={excelDialog.isOpen}
-            onClose={excelDialog.close}
-            onDownload={handleDownload}
-          />
+        <Stack direction="column" spacing={2}>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="h3" textAlign="center">
+              {analysisInterval}
+            </Typography>
+
+            <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
+              Download as Excel
+            </Button>
+            <Button
+              startIcon={<FileDownloadIcon />}
+              onClick={() => {
+                // TODO: probably need to export selected user
+                downloadFile(`${defaultFileName}.json`, JSON.stringify(dataToExport, null, 2));
+              }}
+            >
+              Export as JSON
+            </Button>
+            {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
+            <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
+              Close Analysis
+            </Button>
+            <InputDialog
+              title="Export comments to excel"
+              fieldName="File Name"
+              defaultFileName={`${defaultFileName}.xlsx`}
+              open={excelDialog.isOpen}
+              onClose={excelDialog.close}
+              onDownload={handleDownload}
+            />
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            <UsersList label="Users" user={filterUser} users={users} onSelected={setFilterUser} />
+          </Stack>
         </Stack>
 
-        <CodeReviewTiles />
+        <CodeReviewTiles user={filterUser} />
 
         <div className="charts">
-          <CommentsPerMonthChart comments={comments} />
-          <ReviewByUserChart pullRequests={pullRequests} users={users} />
-          <WordsCloud comments={comments} onClick={handleWordClick} />
-          <TopPullRequestsChart pullRequests={pullRequests} count={10} />
+          <CommentsPerMonthChart user={filterUser} comments={comments} />
+          <ReviewByUserChart user={filterUser} pullRequests={pullRequests} users={users} />
+          <WordsCloud comments={filterUser ? userComments : comments} onClick={handleWordClick} />
+          <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
           {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
           <TopLongestDiscussionsChart
+            user={filterUser}
             pullRequests={pullRequests}
             count={10}
             onClick={(discussion) => {
@@ -209,30 +226,38 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               setFilteredDiscussions([discussion]);
             }}
           />
-          <ApprovalDistributionChart pullRequests={pullRequests} users={users} />
-          <ApprovalRecipientsChart pullRequests={pullRequests} users={users} />
-          <ReviewRequestRecipients pullRequests={pullRequests} users={users} />
-          <ReviewRequestDistributionChart pullRequests={pullRequests} users={users} />
-          <StartedWithDiscussionsPieChart
-            discussions={discussions}
-            onClick={(authorName) => showFilteredDiscussions(null, authorName)}
-          />
-          <StartedByDiscussionsPieChart
-            discussions={discussions}
-            onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
-          />
-          <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
-          <CommentsLeftBarChart comments={comments} onClick={showFilteredComments} />
+          <ApprovalDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
+          <ApprovalRecipientsChart user={filterUser} pullRequests={pullRequests} users={users} />
+          <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
+          <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
+          {filterUser == null && (
+            <StartedWithDiscussionsPieChart
+              discussions={discussions}
+              onClick={(authorName) => showFilteredDiscussions(null, authorName)}
+            />
+          )}
+          {filterUser == null && (
+            <StartedByDiscussionsPieChart
+              discussions={discussions}
+              onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
+            />
+          )}
+          {filterUser == null && <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />}
+          <CommentsLeftBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
 
-          <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
-          <CommentsReceivedBarChart comments={comments} onClick={showFilteredComments} />
+          {filterUser == null && (
+            <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
+          )}
+          <CommentsReceivedBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
 
-          <StartedByDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
-          <StartedWithDiscussionsChart discussions={discussions} onClick={showFilteredDiscussions} />
-          <ChartContainer title="Pull Requests Created">
-            <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
-          </ChartContainer>
-          {hostType === 'Gitea' && <CommentedFilesChart comments={comments} />}
+          <StartedByDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
+          <StartedWithDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
+          {filterUser == null && (
+            <ChartContainer title="Pull Requests Created">
+              <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
+            </ChartContainer>
+          )}
+          {hostType === 'Gitea' && <CommentedFilesChart user={filterUser} comments={comments} />}
         </div>
       </div>
 

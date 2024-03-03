@@ -4,7 +4,6 @@ import { Link as RouterLink } from 'react-router-dom';
 import { NavItem } from './NavItem';
 import GppGoodRoundedIcon from '@mui/icons-material/GppGoodRounded';
 import BarChartRoundedIcon from '@mui/icons-material/BarChartRounded';
-import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import { Logo } from '../Logo';
 import { UserContext } from '../../utils/UserContextUtils';
@@ -180,11 +179,6 @@ function getPageItems(access: UserContext['access'] | undefined) {
 
   if (access === 'full') {
     pages.push(
-      {
-        href: '/personal',
-        icon: <PersonRoundedIcon />,
-        title: 'Personal Statistic',
-      },
       {
         href: '/ready-mrs',
         icon: <GppGoodRoundedIcon />,

@@ -96,7 +96,43 @@ export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) 
  * @param userName name of the user to get data for
  * @returns statistic for the user
  */
-function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 'reviewer', userName: string): ReviewBarDatum {
+export function getStatisticForUser(
+  rawData: AuthorReviewer[],
+  userType: 'author' | 'reviewer',
+  userName: string
+): ReviewBarDatum {
+  const { datum, commentsPerUser } = getStatisticForUserDatum(rawData, userType, userName);
+  const commentsSum = tidy(
+    commentsPerUser,
+    summarize({
+      total: sum('total'),
+    })
+  );
+  const barDatum: ReviewBarDatum = { ...datum, userName, total: commentsSum[0].total };
+
+  return barDatum;
+}
+
+/**
+ * Returns how many comments left by user
+ */
+export function getCommentsLeftByUser(rawData: AuthorReviewer[], userName: string): Array<{ author: string; total: number }> {
+  const { commentsPerUser } = getStatisticForUserDatum(rawData, 'reviewer', userName);
+  return commentsPerUser;
+}
+
+/**
+ * Returns how many comments received by user
+ */
+export function getCommentsReceivedByUser(
+  rawData: AuthorReviewer[],
+  userName: string
+): Array<{ reviewer: string; total: number }> {
+  const { commentsPerUser } = getStatisticForUserDatum(rawData, 'author', userName);
+  return commentsPerUser;
+}
+
+export function getStatisticForUserDatum(rawData: AuthorReviewer[], userType: 'author' | 'reviewer', userName: string) {
   // get only data for specified user
   const commentsReceived = tidy(
     rawData,
@@ -104,6 +140,7 @@ function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 're
   );
 
   const groupByUserType = userType === 'author' ? 'reviewer' : 'author';
+
   // group either by "review" or "author" and summarize how many comments user left/received
   // we will get either {reviewer: string, total: number}[] or {author: string, total: number}[]
   // it depends on what userType we passed
@@ -113,48 +150,41 @@ function getStatisticForUser(rawData: AuthorReviewer[], userType: 'author' | 're
     filter((data) => data.total !== 0)
   );
 
-  const commentsSum = tidy(
-    commentsPerUser,
-    summarize({
-      total: sum('total'),
-    })
-  );
-  const barDatum: ReviewBarDatum = { userName, total: commentsSum[0].total };
+  const barDatum: BarDatum = {};
 
   commentsPerUser.forEach((comment) => {
     barDatum[comment[groupByUserType]] = comment.total;
   });
 
-  return barDatum;
+  return { datum: barDatum, commentsPerUser };
 }
 
-export function convertToItemsLeft(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
+/**
+ * return array (data) that consist of the following objects
+ * [{
+ *   "Alexander Cherkashin": 1, //several authors
+ *   "Natasha Petrova": 2,
+ *   total: 3,
+ *   userName: "Vasya Pupkin",
+ * }, ...]
+ */
+export function getItemsLeft(items: AuthorReviewer[]): { data: ReviewBarDatum[]; authors: string[] } {
   const reviewers = tidy(items, distinct(['reviewer'])).map((item) => item.reviewer);
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 
-  let barData = reviewers.map((userName) => {
+  let data = reviewers.map((userName) => {
     return getStatisticForUser(items, 'reviewer', userName);
   });
 
-  /**
-   * Array consist of the following objects
-   * [{
-   *   "Alexander Cherkashin": 1, //several authors
-   *   "Natasha Petrova": 2,
-   *   total: 3,
-   *   userName: "Vasya Pupkin",
-   * }, ...]
-   */
-  barData = tidy(barData, arrange([asc('total')]));
+  data = tidy(data, arrange([asc('total')]));
 
   return {
-    indexBy: 'userName',
-    keys: authors,
-    data: barData,
+    authors,
+    data,
   };
 }
 
-export function convertToItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
+export function getItemsReceived(items: AuthorReviewer[]): ReviewBarChartSettings<ReviewBarDatum> {
   const reviewers = tidy(items, distinct(['reviewer'])).map((item) => item.reviewer);
   const authors = tidy(items, distinct(['author'])).map((item) => item.author);
 
@@ -194,8 +224,14 @@ export function getLongestPullRequest(prs: PullRequest[]): PullRequest | null {
   return mergedSorted[0];
 }
 
-export function getLongestDiscussions(prs: PullRequest[], count: number): UserDiscussion[] {
-  const longestDiscussions = prs.flatMap((item) => item.discussions).sort((a, b) => b.comments.length - a.comments.length);
+export function getLongestDiscussions(prs: PullRequest[], count: number, user?: User | null): UserDiscussion[] {
+  let discussions = prs.flatMap((item) => item.discussions);
+
+  if (user) {
+    discussions = discussions.filter((item) => item.reviewerId === user?.id);
+  }
+
+  const longestDiscussions = discussions.sort((a, b) => b.comments.length - a.comments.length);
   const topN = longestDiscussions.slice(0, count);
 
   return topN;

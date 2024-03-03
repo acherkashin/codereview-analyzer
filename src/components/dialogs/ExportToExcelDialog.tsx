@@ -1,8 +1,9 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface ExportToExcelDialogProps {
+  defaultFileName: string;
   title: string;
   fieldName: string;
   open: boolean;
@@ -10,8 +11,12 @@ export interface ExportToExcelDialogProps {
   onDownload: (fileName: string) => void;
 }
 
-export function InputDialog({ open, title, fieldName, onClose, onDownload }: ExportToExcelDialogProps) {
-  const [fileName, setFileName] = useState('');
+export function InputDialog({ open, title, fieldName, defaultFileName, onClose, onDownload }: ExportToExcelDialogProps) {
+  const [fileName, setFileName] = useState(defaultFileName);
+
+  useEffect(() => {
+    setFileName(defaultFileName);
+  }, [defaultFileName]);
 
   return (
     <Dialog open={open} onClose={onClose}>
