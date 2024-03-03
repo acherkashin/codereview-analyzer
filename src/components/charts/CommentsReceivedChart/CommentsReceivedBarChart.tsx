@@ -1,9 +1,9 @@
-import { BaseChartTooltip } from '../../tooltips/BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { Comment, User } from '../../../services/types';
 import { useMemo } from 'react';
 import { convertToCommentsReceived, getDiscussionStartedByUserData } from './CommentsReceivedChartUtils';
+import { BaseCommentsTooltip } from '../../tooltips/BaseCommentsTooltip';
 
 export interface CommentsReceivedBarChartProps {
   user?: User | null;
@@ -26,13 +26,7 @@ function CommentsReceivedChartForAll({ comments, onClick }: CommentsReceivedBarC
       <BarChart
         {...data}
         tooltip={(props) => {
-          const { indexValue, value, id } = props;
-
-          return (
-            <BaseChartTooltip {...props}>
-              <strong>{id}</strong> left <strong>{value}</strong> comments to <strong>{indexValue}</strong>
-            </BaseChartTooltip>
-          );
+          return <BaseCommentsTooltip reviewer={props.id as string} author={props.indexValue as string} count={props.value} />;
         }}
         onClick={(e) => {
           const authorName = e.indexValue as string;
@@ -51,8 +45,12 @@ function CommentsReceivedChartForUser({ user, comments, onClick }: CommentsRecei
     <ChartContainer title={`${user!.displayName} received comments from`}>
       <BarChart
         data={data}
-        //TODO: fix onClick
-        //TODO: fix tooltip
+        tooltip={(props) => {
+          return <BaseCommentsTooltip reviewer={props.indexValue as string} author={user!.displayName} count={props.value} />;
+        }}
+        onClick={(e) => {
+          onClick(e.indexValue as string, user!.displayName);
+        }}
       />
     </ChartContainer>
   );

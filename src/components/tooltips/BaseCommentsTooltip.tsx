@@ -6,10 +6,10 @@ export interface BaseCommentsTooltipProps extends BaseChartTooltipProps {
   count: number;
 }
 
-export function BaseCommentsTooltip({ reviewer: commenter, author, count, ...otherProps }: BaseCommentsTooltipProps) {
+export function BaseCommentsTooltip({ reviewer, author, count, ...otherProps }: BaseCommentsTooltipProps) {
   return (
     <BaseChartTooltip {...otherProps}>
-      <strong>{commenter}</strong> left <strong>{count}</strong> comments to <strong>{author}</strong>
+      <strong>{reviewer}</strong> left <strong>{count}</strong> comments to <strong>{author}</strong>
     </BaseChartTooltip>
   );
 }
