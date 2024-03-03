@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { PersonalStatistic, CodeReviewCharts, ReadyMergeRequests, ErrorPage, Login, ExportPage } from './';
-import { ChartsStoreProvider, createCommonChartsStore, createPersonalPageStore } from './../stores/ChartsStore';
+import { CodeReviewCharts, ReadyMergeRequests, ErrorPage, Login, ExportPage } from './';
+import { ChartsStoreProvider, createPersonalPageStore } from './../stores/ChartsStore';
 import { createExportStore, ExportStoreProvider } from './../stores/ExportStore';
 import { App } from './../App';
 
@@ -29,14 +29,6 @@ export const router = createBrowserRouter(
         {
           path: '/ready-mrs',
           element: <ReadyMergeRequests />,
-        },
-        {
-          path: '/personal',
-          element: (
-            <ChartsStoreProvider key="personal" createStore={createCommonChartsStore}>
-              <PersonalStatistic />
-            </ChartsStoreProvider>
-          ),
         },
         {
           path: '/export',

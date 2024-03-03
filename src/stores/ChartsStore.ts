@@ -1,10 +1,5 @@
 import create, { StoreApi } from 'zustand';
-import {
-  convertToPullRequestCreated,
-  convertToCommentsLeftToUsers,
-  convertToCommentsReceivedFromUsers,
-} from '../utils/ChartUtils';
-import { getWhomAuthorAssignsToReview as convertAssignedToReview, PieChartDatum } from '../utils/PieChartUtils';
+import { convertToPullRequestCreated } from '../utils/ChartUtils';
 import createContext from 'zustand/context';
 import { AnalyzeParams, ExportData, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
@@ -106,37 +101,6 @@ export function getAnalysisInterval(state: ChartsStore) {
 
 export function getAnalyze(state: ChartsStore) {
   return state.analyze;
-}
-
-export function useWhomAssignedToReviewPieChart(authorId?: string): PieChartDatum[] {
-  return useChartsStore((state) => {
-    if (!authorId) {
-      return [];
-    }
-
-    const authorMrs = state.pullRequests.filter((item) => item.author.id === authorId);
-    return convertAssignedToReview(authorMrs);
-  });
-}
-
-export function useCommentsReceivedFromUsers(userId?: string) {
-  return useChartsStore((state) => {
-    if (userId == null) {
-      return null;
-    }
-
-    return convertToCommentsReceivedFromUsers(getComments(state), userId);
-  });
-}
-
-export function useCommentsLeftToUsers(userId?: string) {
-  return useChartsStore((state) => {
-    if (userId == null) {
-      return null;
-    }
-
-    return convertToCommentsLeftToUsers(getComments(state), userId);
-  });
 }
 
 export function useMostCommentsLeft() {
