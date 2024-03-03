@@ -121,6 +121,17 @@ export function getCommentsLeftByUser(rawData: AuthorReviewer[], userName: strin
   return commentsPerUser;
 }
 
+/**
+ * Returns how many comments received by user
+ */
+export function getCommentsReceivedByUser(
+  rawData: AuthorReviewer[],
+  userName: string
+): Array<{ reviewer: string; total: number }> {
+  const { commentsPerUser } = getStatisticForUserDatum(rawData, 'author', userName);
+  return commentsPerUser;
+}
+
 export function getStatisticForUserDatum(rawData: AuthorReviewer[], userType: 'author' | 'reviewer', userName: string) {
   // get only data for specified user
   const commentsReceived = tidy(
