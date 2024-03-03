@@ -50,16 +50,11 @@ export function TopLongestDiscussionsChart({ pullRequests, count, user, onClick 
           const discussion = props.data as typeof data[0];
 
           return (
-            <BaseChartTooltip {...props} color={null}>
-              <Stack direction="column">
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div>{discussion.reviewerName}</div> started discussion with <strong>{discussion.authorName as string}</strong>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  in <strong>{discussion.pullRequest}</strong>
-                </div>
-              </Stack>
-            </BaseChartTooltip>
+            <DiscussionTooltip
+              pullRequest={discussion.pullRequest}
+              reviewer={discussion.reviewerName}
+              author={discussion.authorName}
+            />
           );
         }}
         onClick={(datum) => {
@@ -67,5 +62,26 @@ export function TopLongestDiscussionsChart({ pullRequests, count, user, onClick 
         }}
       />
     </ChartContainer>
+  );
+}
+
+interface DiscussionTooltipProps {
+  reviewer: string;
+  author: string;
+  pullRequest: string;
+}
+
+function DiscussionTooltip({ reviewer, author, pullRequest }: DiscussionTooltipProps) {
+  return (
+    <BaseChartTooltip>
+      <Stack direction="column">
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div>{reviewer}</div> started discussion with <strong>{author}</strong>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          in <strong>{pullRequest}</strong>
+        </div>
+      </Stack>
+    </BaseChartTooltip>
   );
 }
