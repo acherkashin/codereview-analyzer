@@ -1,4 +1,4 @@
-import { Avatar, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import { PullRequest, User, UserDiscussion } from '../../services/types';
 import { BaseChartTooltip } from '../tooltips/BaseChartTooltip';
 import { BarChart } from './BarChart';
@@ -23,48 +23,40 @@ export function TopLongestDiscussionsChart({ pullRequests, count, user, onClick 
   const data = useMemo(() => {
     const data = topDiscussions
       .map((item) => {
-        const title = `${item.reviewerName} in ${item.pullRequestName}`;
+        const title = user ? item.pullRequestName : `${item.reviewerName} in ${item.pullRequestName}`;
+        const maxLength = user ? 40 : 60;
         return {
-          pullRequest: shortenText(title, 70),
-          commentsCount: item.comments.length,
+          id: shortenText(title, maxLength),
+          value: item.comments.length,
+          pullRequest: item.pullRequestName,
           reviewerName: item.reviewerName,
-          reviewerAvatarUrl: item.reviewerAvatarUrl ?? '',
           authorName: item.prAuthorName,
-          //   authorAvatarUrl: item.prAvatarUrl ?? '',
         };
       })
       .reverse();
 
     return data;
-  }, [topDiscussions]);
+  }, [topDiscussions, user]);
 
   const title = !user ? `Top ${count} Longest Discussions` : `Top ${count} Longest Discussions started by ${user.displayName}`;
 
   return (
     <ChartContainer title={title}>
       <BarChart
-        indexBy="pullRequest"
-        keys={['commentsCount']}
         data={data}
-        margin={{ left: 350 }}
+        margin={{ left: user ? 250 : 350 }}
         borderRadius={4}
         tooltip={(props) => {
-          const { indexValue: pullRequestName, data } = props;
-          const reviewerName = data.reviewerName as string;
+          const discussion = props.data as typeof data[0];
 
           return (
             <BaseChartTooltip {...props} color={null}>
               <Stack direction="column">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Avatar src={data.reviewerAvatarUrl as string} alt={`${reviewerName}'s avatar`} />
-                  <div>{data.reviewerName}</div> started discussion with <br />
+                  <div>{discussion.reviewerName}</div> started discussion with <strong>{discussion.authorName as string}</strong>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  {/* <Avatar src={reviewerAvatarUrl} alt={`${reviewerName}'s avatar`} /> */}
-                  <div>{data.authorName as string}</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  in <strong>{pullRequestName}</strong>
+                  in <strong>{discussion.pullRequest}</strong>
                 </div>
               </Stack>
             </BaseChartTooltip>
