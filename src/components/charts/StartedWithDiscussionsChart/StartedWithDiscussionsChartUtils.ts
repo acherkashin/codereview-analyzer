@@ -2,7 +2,7 @@ import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { User, UserDiscussion } from '../../../services/types';
 import { getAuthorReviewerFromDiscussions } from '../../../utils/GitUtils';
 import { PieChartDatum } from '../../../utils/PieChartUtils';
-import { ReviewBarChartSettings, ReviewBarDatum, getItemsReceived, getStatisticForUserDatum } from '../../../utils/ChartUtils';
+import { ReviewBarChartSettings, ReviewBarDatum, getCommentsReceivedByUser, getItemsReceived } from '../../../utils/ChartUtils';
 
 export function convertToDiscussionsReceivedPieChart(discussions: UserDiscussion[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromDiscussions(discussions);
@@ -19,10 +19,10 @@ export function convertToDiscussionsReceivedPieChart(discussions: UserDiscussion
 
 export function getDiscussionStartedWithUserData(discussions: UserDiscussion[], user: User) {
   const items = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  const { datum } = getStatisticForUserDatum(items, 'author', user.userName);
+  const commentsPerUser = getCommentsReceivedByUser(items, user.userName);
 
-  const data = Object.entries(datum)
-    .map((item) => ({ id: item[0], label: item[0], value: item[1] as number }))
+  const data = commentsPerUser
+    .map((item) => ({ id: item.reviewer, value: item.total as number }))
     .sort((a, b) => a.value - b.value);
 
   return data;

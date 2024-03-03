@@ -2,7 +2,7 @@ import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { getAuthorReviewerFromDiscussions } from '../../../utils/GitUtils';
 import { PieChartDatum } from '../../../utils/PieChartUtils';
 import { User, UserDiscussion } from '../../../services/types';
-import { getItemsLeft, getStatisticForUserDatum } from '../../../utils/ChartUtils';
+import { getCommentsLeftByUser, getItemsLeft } from '../../../utils/ChartUtils';
 
 export function convertToDiscussionsStartedPieChart(discussions: UserDiscussion[]): PieChartDatum[] {
   const rawData = getAuthorReviewerFromDiscussions(discussions);
@@ -24,11 +24,9 @@ export function getDiscussionsStarted(discussions: UserDiscussion[]) {
 
 export function getDiscussionStartedByUserData(discussions: UserDiscussion[], user: User) {
   const items = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
-  const { datum } = getStatisticForUserDatum(items, 'reviewer', user.userName);
+  const commentsByUser = getCommentsLeftByUser(items, user.userName);
 
-  const data = Object.entries(datum)
-    .map((item) => ({ id: item[0], label: item[0], value: item[1] as number }))
-    .sort((a, b) => a.value - b.value);
+  const data = commentsByUser.map((item) => ({ id: item.author, value: item.total })).sort((a, b) => a.value - b.value);
 
   return data;
 }
