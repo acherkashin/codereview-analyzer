@@ -4,7 +4,7 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhomUserApproves, getWhomUserApprovesArray } from './ApprovalRecipientsUtils';
-import { BaseApprovalsTooltip } from '../../tooltips/BaseApprovalsTooltip';
+import { BaseApprovalsTooltip } from '../../tooltips';
 
 export interface ApprovalRecipientsChartProps {
   user?: User | null;

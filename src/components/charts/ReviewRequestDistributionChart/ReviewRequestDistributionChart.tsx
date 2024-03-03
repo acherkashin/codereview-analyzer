@@ -4,7 +4,7 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestsReview, getWhoRequestsReviewArray } from './ReviewRequestDistributionUtils';
-import { BaseReviewTooltip } from '../../tooltips/BaseReviewTooltip';
+import { BaseReviewTooltip } from '../../tooltips';
 
 export interface ReviewRequestDistributionChartProps {
   user?: User | null;

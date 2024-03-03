@@ -5,7 +5,7 @@ import { getWhoUserApprovesArray, getWhomUserApproves } from './ApprovalDistribu
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
-import { BaseApprovalsTooltip } from '../../tooltips/BaseApprovalsTooltip';
+import { BaseApprovalsTooltip } from '../../tooltips';
 
 export interface ApprovalDistributionProps {
   user?: User | null;

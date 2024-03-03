@@ -3,7 +3,7 @@ import { BarChart } from '../BarChart';
 import { Comment, User } from '../../../services/types';
 import { useMemo } from 'react';
 import { convertToCommentsReceived, getDiscussionStartedByUserData } from './CommentsReceivedChartUtils';
-import { BaseCommentsTooltip } from '../../tooltips/BaseCommentsTooltip';
+import { BaseCommentsTooltip } from '../../tooltips';
 
 export interface CommentsReceivedBarChartProps {
   user?: User | null;

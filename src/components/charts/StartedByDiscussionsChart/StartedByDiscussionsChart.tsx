@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { User, UserDiscussion } from '../../../services/types';
-import { BaseChartTooltip, BaseChartTooltipProps } from '../../tooltips/BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { getDiscussionStartedByUserData, getDiscussionsStarted } from './StartedByDiscussionsChartUtils';
+import { BaseDiscussionsTooltip } from '../../tooltips';
 
 export interface StartedByDiscussionsChartProps {
   user?: User | null;
@@ -54,19 +54,5 @@ function StartedByDiscussionsForAll({ discussions, onClick }: StartedByDiscussio
         }}
       />
     </ChartContainer>
-  );
-}
-
-interface BaseDiscussionsTooltipProps extends BaseChartTooltipProps {
-  reviewer: string;
-  author: string;
-  count: number;
-}
-
-function BaseDiscussionsTooltip({ reviewer, author, count, ...props }: BaseDiscussionsTooltipProps) {
-  return (
-    <BaseChartTooltip {...props}>
-      <strong>{reviewer}</strong> started <strong>{count}</strong> discussions with <strong>{author}</strong>
-    </BaseChartTooltip>
   );
 }
