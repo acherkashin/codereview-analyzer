@@ -3,7 +3,7 @@ import { PullRequest, User } from '../../../services/types';
 import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
-import { getWhoRequestsReview } from './ReviewRequestDistributionUtils';
+import { getWhoRequestsReview, getWhoRequestsReviewArray } from './ReviewRequestDistributionUtils';
 
 export interface ReviewRequestDistributionChartProps {
   user?: User | null;
@@ -44,9 +44,10 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestDistributionC
 
 function ReviewRequestForUser({ user, pullRequests }: ReviewRequestDistributionChartProps) {
   const data = useMemo(() => {
-    const obj = getWhoRequestsReview(pullRequests, user!.id);
-    const array = Object.entries(obj).map((item) => ({ id: item[0], label: item[0], value: item[1] }));
-    return array;
+    return getWhoRequestsReviewArray(pullRequests, user!.id).map(({ displayName, total }) => ({
+      id: displayName,
+      value: total,
+    }));
   }, [pullRequests, user]);
 
   return (
