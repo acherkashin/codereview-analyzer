@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { User, UserDiscussion } from '../../../services/types';
-import { BaseChartTooltip } from '../../tooltips/BaseChartTooltip';
+import { BaseChartTooltip, BaseChartTooltipProps } from '../../tooltips/BaseChartTooltip';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { getDiscussionStartedByUserData, getDiscussionsStarted } from './StartedByDiscussionsChartUtils';
@@ -24,9 +24,12 @@ function StartedByDiscussionsForUser({ user, discussions, onClick }: StartedByDi
     <ChartContainer title={`${user!.displayName} starts discussions with`}>
       <BarChart
         data={data}
-
-        //TODO: fix onClick
-        //TODO: fix tooltip
+        tooltip={(props) => {
+          return <BaseDiscussionsTooltip reviewer={user!.displayName} author={props.indexValue as string} count={props.value} />;
+        }}
+        onClick={(e) => {
+          onClick(user!.displayName, e.indexValue as string);
+        }}
       />
     </ChartContainer>
   );
@@ -42,13 +45,7 @@ function StartedByDiscussionsForAll({ discussions, onClick }: StartedByDiscussio
         keys={authors}
         indexBy="userName"
         tooltip={(props) => {
-          const { indexValue, value, id } = props;
-
-          return (
-            <BaseChartTooltip {...props}>
-              <strong>{indexValue}</strong> started <strong>{value}</strong> discussions with <strong>{id}</strong>
-            </BaseChartTooltip>
-          );
+          return <BaseDiscussionsTooltip reviewer={props.indexValue as string} author={props.id as string} count={props.value} />;
         }}
         onClick={(e) => {
           const authorName = e.id as string;
@@ -57,5 +54,19 @@ function StartedByDiscussionsForAll({ discussions, onClick }: StartedByDiscussio
         }}
       />
     </ChartContainer>
+  );
+}
+
+interface BaseDiscussionsTooltipProps extends BaseChartTooltipProps {
+  reviewer: string;
+  author: string;
+  count: number;
+}
+
+function BaseDiscussionsTooltip({ reviewer, author, count, ...props }: BaseDiscussionsTooltipProps) {
+  return (
+    <BaseChartTooltip {...props}>
+      <strong>{reviewer}</strong> started <strong>{count}</strong> discussions with <strong>{author}</strong>
+    </BaseChartTooltip>
   );
 }
