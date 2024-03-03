@@ -1,4 +1,3 @@
-import { Avatar } from '@mui/material';
 import { PullRequest, User } from '../../services/types';
 import { BaseChartTooltip } from '../tooltips/BaseChartTooltip';
 import { BarChart } from './BarChart';
@@ -20,10 +19,10 @@ export function TopCommentedPullRequestsChart({ user, pullRequests, count }: Top
     const data = getMostCommentedPrs({ user, pullRequests, count })
       .map((item) => ({
         // Unicode for ellipsis character
-        pullRequest: item.title.length > 50 ? item.title.substring(0, 50) + '\u2026' : item.title,
-        commentsCount: item.comments.length,
+        id: item.title.length > 50 ? item.title.substring(0, 50) + '\u2026' : item.title,
+        pullRequestName: item.title,
+        value: item.comments.length,
         authorName: item.author.fullName || item.author.userName,
-        authorAvatarUrl: item.author.avatarUrl,
       }))
       .reverse();
 
@@ -37,25 +36,30 @@ export function TopCommentedPullRequestsChart({ user, pullRequests, count }: Top
   return (
     <ChartContainer title={title}>
       <BarChart
-        indexBy="pullRequest"
-        keys={['commentsCount']}
         data={data}
         margin={{ left: 300 }}
         borderRadius={4}
         tooltip={(props) => {
-          const { indexValue: pullRequestName, value: commentsCount, data } = props;
-          const authorAvatarUrl = data.authorAvatarUrl as string;
-          const authorName = data.authorName as string;
+          const comment = props.data as typeof data[0];
 
-          return (
-            <BaseChartTooltip {...props} color={null}>
-              <Avatar src={authorAvatarUrl} alt={`${authorName}'s avatar`} />
-              <div>{data.authorName}</div> got <strong>{commentsCount}</strong> comments for <strong>{pullRequestName}</strong>
-            </BaseChartTooltip>
-          );
+          return <CommentedTooltip author={comment.authorName} count={comment.value} pullRequest={comment.pullRequestName} />;
         }}
       />
     </ChartContainer>
+  );
+}
+
+interface CommentedTooltipProps {
+  author: string;
+  count: number;
+  pullRequest: string;
+}
+
+function CommentedTooltip({ author, count, pullRequest }: CommentedTooltipProps) {
+  return (
+    <BaseChartTooltip color={null}>
+      <div>{author}</div> got <strong>{count}</strong> comments for <strong>{pullRequest}</strong>
+    </BaseChartTooltip>
   );
 }
 
