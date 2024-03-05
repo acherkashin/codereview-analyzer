@@ -1,7 +1,7 @@
 import { groupBy, summarize, tidy, n } from '@tidyjs/tidy';
 import { Comment } from '../../../services/types';
 
-export function convertToCommentsLineChart(comments: Comment[], reviewerNames: string[] = []) {
+export function getCommentsLineChartData(comments: Comment[], reviewerNames: string[] = []) {
   if (reviewerNames.length !== 0) {
     comments = comments.filter((item) => reviewerNames.includes(item.reviewerName));
   }
@@ -15,6 +15,15 @@ export function convertToCommentsLineChart(comments: Comment[], reviewerNames: s
     };
   });
 
+  return convertToLineChartData(data);
+}
+
+export function convertToLineChartData(
+  data: {
+    id: string;
+    x: Date;
+  }[]
+) {
   const grouped = tidy(data, groupBy(['id', 'x'], [summarize({ y: n() })]));
 
   const transformedData = grouped.reduce((result, item) => {

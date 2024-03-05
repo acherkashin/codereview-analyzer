@@ -48,6 +48,7 @@ import {
   TopLongestDiscussionsChart,
   TopCommentedPullRequestsChart,
   StartedByDiscussionsChart,
+  DiscussionsPerMonthChart,
 } from '../components/charts';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
@@ -213,6 +214,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
         <div className="charts">
           <CommentsPerMonthChart user={filterUser} comments={comments} />
+          <DiscussionsPerMonthChart user={filterUser} discussions={discussions} />
           <ReviewByUserChart user={filterUser} pullRequests={pullRequests} users={users} />
           <WordsCloud comments={filterUser ? userComments : comments} onClick={handleWordClick} />
           <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
