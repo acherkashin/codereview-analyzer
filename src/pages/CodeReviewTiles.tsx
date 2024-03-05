@@ -2,21 +2,24 @@ import { useMemo } from 'react';
 import { Stack } from '@mui/material';
 import {
   getComments,
-  useChangedFilesCount as useCommentedFilesCount,
+  useCommentedFilesCount,
   useChartsStore,
   useMostCommentsLeft,
   useMostCommentsReceived,
   getDiscussions,
 } from '../stores/ChartsStore';
-import { Avatar } from '@mui/material';
-import { Tile } from '../components/Tile/Tile';
+import { Tile } from '../components/tiles/Tile';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
 import ForumIcon from '@mui/icons-material/Forum';
 import { BranchIcon } from '../icons/BranchIcon';
 import { getLongestDiscussions, getLongestPullRequest } from '../utils/ChartUtils';
-import { timeSince, timeSinceString } from '../utils/TimeSpanUtils';
 import { User } from '../services/types';
+import { MostCommentsPullRequestTile } from '../components/tiles/MostCommentsPullRequestTile';
+import { MostCommentsLeftByTile } from '../components/tiles/MostCommentsLeftByTile';
+import { MostCommentsReceivedTile } from '../components/tiles/MostCommentsReceivedTile';
+import { LongestPullRequestTile } from '../components/tiles/LongestPullRequestTile';
+import { LongestDiscussionTile } from '../components/tiles/LongestDiscussionTile';
 
 export interface CodeReviewTilesProps {
   user?: User | null;
@@ -56,94 +59,16 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
       <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
       <Tile count={discussions.length} title="Discussions" icon={<ForumIcon fontSize="large" sx={{ color: 'white' }} />} />
       <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
-      {mostCommentedPRs != null && (
-        <Tile
-          count={mostCommentedPRs.comments.length}
-          title="Most comments for PR"
-          details={
-            <a href={mostCommentedPRs.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
-              {mostCommentedPRs.title}
-            </a>
-          }
-          icon={
-            <Avatar
-              alt={`${mostCommentedPRs.author.fullName}'s avatar`}
-              sizes="40px"
-              title={mostCommentedPRs.author.fullName}
-              src={mostCommentedPRs.author.avatarUrl}
-            />
-          }
-        />
-      )}
-      {mostCommentsLeftUser && (
-        <Tile
-          count={mostCommentsLeftTotal}
-          title={`Most comments left by ${mostCommentsLeftUser.fullName}`}
-          icon={
-            <Avatar
-              alt={`${mostCommentsLeftUser.fullName}'s avatar`}
-              sizes="40px"
-              title={mostCommentsLeftUser.fullName}
-              src={mostCommentsLeftUser.avatarUrl}
-            />
-          }
-        />
-      )}
-      {mostCommentsReceivedUser && (
-        <Tile
-          count={mostCommentsReceivedTotal}
-          title={`Most comments received by ${mostCommentsReceivedUser.fullName}`}
-          icon={
-            <Avatar
-              alt={`${mostCommentsReceivedUser.fullName}'s avatar`}
-              sizes="40px"
-              title={mostCommentsReceivedUser.fullName}
-              src={mostCommentsReceivedUser.avatarUrl}
-            />
-          }
-        />
-      )}
-      {longestPullRequest && (
-        <Tile
-          count={timeSinceString(timeSince(new Date(longestPullRequest.createdAt), new Date(longestPullRequest.mergedAt!)))}
-          title="Longest pull request"
-          details={
-            <a href={longestPullRequest.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
-              {longestPullRequest.title}
-            </a>
-          }
-          icon={
-            <Avatar
-              alt={`${longestPullRequest.author.fullName}'s avatar`}
-              sizes="40px"
-              title={longestPullRequest.author.fullName}
-              src={longestPullRequest.author.avatarUrl}
-            />
-          }
-        />
-      )}
+      {mostCommentedPRs != null && <MostCommentsPullRequestTile pullRequest={mostCommentedPRs} />}
+      {mostCommentsLeftUser && <MostCommentsLeftByTile user={mostCommentsLeftUser} count={mostCommentsLeftTotal} />}
+      {mostCommentsReceivedUser && <MostCommentsReceivedTile user={mostCommentsReceivedUser} count={mostCommentsReceivedTotal} />}
+      {longestPullRequest && <LongestPullRequestTile pullRequest={longestPullRequest} />}
       <Tile
         count={commentedFilesCount}
         title="Commented files"
         icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />}
       />
-      <Tile
-        count={longestDiscussion.comments.length}
-        title="Longest Discussion"
-        details={
-          <a href={longestDiscussion.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
-            {longestDiscussion.pullRequestName}
-          </a>
-        }
-        icon={
-          <Avatar
-            alt={`${longestDiscussion.reviewerName}'s avatar`}
-            sizes="40px"
-            title={longestDiscussion.reviewerName}
-            src={longestDiscussion.reviewerAvatarUrl}
-          />
-        }
-      />
+      <LongestDiscussionTile discussion={longestDiscussion} />
       <Tile count={noDiscussionsPr} title={'PRs merged without comments'} icon={<BranchIcon />} />
     </Stack>
   );

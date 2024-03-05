@@ -129,7 +129,7 @@ export function useMostCommentsReceived() {
   });
 }
 
-export function useChangedFilesCount() {
+export function useCommentedFilesCount() {
   return useChartsStore((state) => {
     const comments = getComments(state);
     const changedFiles = tidy(comments, distinct(['filePath'])).map((item) => item.filePath);
