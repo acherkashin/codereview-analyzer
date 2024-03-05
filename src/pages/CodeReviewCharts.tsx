@@ -210,56 +210,90 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           </Stack>
         </Stack>
 
+        <Typography variant="h4" component="h2">
+          Highlights
+        </Typography>
         <CodeReviewTiles user={filterUser} />
 
-        <div className="charts">
-          <CommentsPerMonthChart user={filterUser} comments={comments} />
-          <DiscussionsPerMonthChart user={filterUser} discussions={discussions} />
-          <ReviewByUserChart user={filterUser} pullRequests={pullRequests} users={users} />
-          <WordsCloud comments={filterUser ? userComments : comments} onClick={handleWordClick} />
-          <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
-          {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
-          <TopLongestDiscussionsChart
-            user={filterUser}
-            pullRequests={pullRequests}
-            count={10}
-            onClick={(discussion) => {
-              setTitle(`Discussion started by ${discussion.reviewerName} in ${discussion.pullRequestName}`);
-              setFilteredDiscussions([discussion]);
-            }}
-          />
-          <ApprovalDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
-          <ApprovalRecipientsChart user={filterUser} pullRequests={pullRequests} users={users} />
-          <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
-          <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
-          {filterUser == null && (
-            <StartedWithDiscussionsPieChart
-              discussions={discussions}
-              onClick={(authorName) => showFilteredDiscussions(null, authorName)}
+        <div className="charts-container">
+          <Typography variant="h4" component="h2">
+            Discussions
+          </Typography>
+          <div className="charts">
+            <DiscussionsPerMonthChart user={filterUser} discussions={discussions} />
+            <TopLongestDiscussionsChart
+              user={filterUser}
+              pullRequests={pullRequests}
+              count={10}
+              onClick={(discussion) => {
+                setTitle(`Discussion started by ${discussion.reviewerName} in ${discussion.pullRequestName}`);
+                setFilteredDiscussions([discussion]);
+              }}
             />
-          )}
-          {filterUser == null && (
-            <StartedByDiscussionsPieChart
-              discussions={discussions}
-              onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
-            />
-          )}
-          {filterUser == null && <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />}
-          <CommentsLeftBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
+            {filterUser == null && (
+              <StartedWithDiscussionsPieChart
+                discussions={discussions}
+                onClick={(authorName) => showFilteredDiscussions(null, authorName)}
+              />
+            )}
+            {filterUser == null && (
+              <StartedByDiscussionsPieChart
+                discussions={discussions}
+                onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
+              />
+            )}
+            <StartedByDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
+            <StartedWithDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
+          </div>
+          <Typography variant="h4" component="h2">
+            Comments
+          </Typography>
+          <div className="charts">
+            <CommentsPerMonthChart user={filterUser} comments={comments} />
+            <WordsCloud comments={filterUser ? userComments : comments} onClick={handleWordClick} />
+            <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
+            <ReviewByUserChart user={filterUser} pullRequests={pullRequests} users={users} />
+            {filterUser == null && <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />}
+            <CommentsLeftBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
 
-          {filterUser == null && (
-            <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
-          )}
-          <CommentsReceivedBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
+            {filterUser == null && (
+              <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
+            )}
+            <CommentsReceivedBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
+            {hostType === 'Gitea' && <CommentedFilesChart user={filterUser} comments={comments} />}
 
-          <StartedByDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
-          <StartedWithDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
-          {filterUser == null && (
-            <ChartContainer title="Pull Requests Created">
-              <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
-            </ChartContainer>
-          )}
-          {hostType === 'Gitea' && <CommentedFilesChart user={filterUser} comments={comments} />}
+            {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
+          </div>
+
+          <Typography variant="h4" component="h2">
+            Approvals
+          </Typography>
+
+          <div className="charts">
+            <ApprovalDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
+            <ApprovalRecipientsChart user={filterUser} pullRequests={pullRequests} users={users} />
+          </div>
+
+          <Typography variant="h4" component="h2">
+            Review Requests
+          </Typography>
+
+          <div className="charts">
+            <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
+            <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
+          </div>
+
+          <Typography variant="h4" component="h2">
+            Other
+          </Typography>
+
+          <div className="charts">
+            {filterUser == null && (
+              <ChartContainer title="Pull Requests Created">
+                <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
+              </ChartContainer>
+            )}
+          </div>
         </div>
       </div>
 
