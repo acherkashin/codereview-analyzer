@@ -2,11 +2,14 @@ import { useMemo } from 'react';
 import { Stack } from '@mui/material';
 import {
   getComments,
-  useCommentedFilesCount,
   useChartsStore,
   useMostCommentsLeft,
   useMostCommentsReceived,
   getDiscussions,
+  getUserComments,
+  getUserDiscussions,
+  getUserPullRequests,
+  getCommentedFilesCount,
 } from '../stores/ChartsStore';
 import { Tile } from '../components/tiles/Tile';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -26,9 +29,17 @@ export interface CodeReviewTilesProps {
 }
 
 export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
-  const pullRequests = useChartsStore((state) => state.pullRequests);
-  const comments = useChartsStore(getComments);
-  const discussions = useChartsStore(getDiscussions);
+  const allPullRequests = useChartsStore((state) => state.pullRequests);
+  const allComments = useChartsStore(getComments);
+  const allDiscussions = useChartsStore(getDiscussions);
+
+  const userComments = useChartsStore(getUserComments);
+  const userDiscussions = useChartsStore(getUserDiscussions);
+  const userPullRequests = useChartsStore(getUserPullRequests);
+
+  const comments = user ? userComments : allComments;
+  const discussions = user ? userDiscussions : allDiscussions;
+  const pullRequests = user ? userPullRequests : allPullRequests;
 
   const mostCommentedPRs = useMemo(() => {
     const sorted = pullRequests.toSorted((a, b) => b.comments.length - a.comments.length);
@@ -38,10 +49,10 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
   const { user: mostCommentsLeftUser, total: mostCommentsLeftTotal } = useMostCommentsLeft();
   const { user: mostCommentsReceivedUser, total: mostCommentsReceivedTotal } = useMostCommentsReceived();
 
-  const commentedFilesCount = useCommentedFilesCount();
+  const commentedFilesCount = useMemo(() => getCommentedFilesCount(comments), [comments]);
 
-  const longestPullRequest = useMemo(() => getLongestPullRequest(pullRequests), [pullRequests]);
-  const longestDiscussion = useMemo(() => getLongestDiscussions(pullRequests, 1, user)[0], [pullRequests, user]);
+  const longestPullRequest = useMemo(() => getLongestPullRequest(userPullRequests), [userPullRequests]);
+  const longestDiscussion = useMemo(() => getLongestDiscussions(allPullRequests, 1, user)[0], [allPullRequests, user]);
 
   const noDiscussionsPr = useMemo(() => {
     const noComments = pullRequests.filter((item) => item.discussions.length === 0);
@@ -50,7 +61,7 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
     return `${percent}%`;
   }, [pullRequests]);
 
-  if (pullRequests == null || pullRequests.length === 0) {
+  if (allPullRequests == null || allPullRequests.length === 0) {
     return null;
   }
 
@@ -60,8 +71,12 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
       <Tile count={discussions.length} title="Discussions" icon={<ForumIcon fontSize="large" sx={{ color: 'white' }} />} />
       <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
       {mostCommentedPRs != null && <MostCommentsPullRequestTile pullRequest={mostCommentedPRs} />}
-      {mostCommentsLeftUser && <MostCommentsLeftByTile user={mostCommentsLeftUser} count={mostCommentsLeftTotal} />}
-      {mostCommentsReceivedUser && <MostCommentsReceivedTile user={mostCommentsReceivedUser} count={mostCommentsReceivedTotal} />}
+      {mostCommentsLeftUser && user == null && (
+        <MostCommentsLeftByTile user={mostCommentsLeftUser} count={mostCommentsLeftTotal} />
+      )}
+      {mostCommentsReceivedUser && user == null && (
+        <MostCommentsReceivedTile user={mostCommentsReceivedUser} count={mostCommentsReceivedTotal} />
+      )}
       {longestPullRequest && <LongestPullRequestTile pullRequest={longestPullRequest} />}
       <Tile
         count={commentedFilesCount}

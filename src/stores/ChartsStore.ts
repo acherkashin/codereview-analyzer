@@ -1,7 +1,7 @@
 import create, { StoreApi } from 'zustand';
 import { convertToPullRequestCreated } from '../utils/ChartUtils';
 import createContext from 'zustand/context';
-import { AnalyzeParams, ExportData, PullRequest, User } from '../services/types';
+import { AnalyzeParams, Comment, ExportData, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { GitService } from '../services/GitService';
 import { convert } from '../services/GitConverter';
@@ -11,6 +11,7 @@ const initialState = {
   pullRequests: [] as PullRequest[],
   users: [] as User[],
   exportData: null as ExportData | null,
+  user: undefined as User | undefined,
 };
 
 type ChartState = typeof initialState;
@@ -19,6 +20,7 @@ export type ChartsStore = ChartState & {
   import: (json: string) => void;
   analyze: (client: GitService, params: AnalyzeParams) => Promise<void>;
   closeAnalysis: () => void;
+  setUser: (user: User | undefined) => void;
 };
 
 const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
@@ -57,6 +59,9 @@ export function createChartsStore() {
     closeAnalysis: () => {
       set({ ...initialState });
     },
+    setUser(user: User | undefined) {
+      set({ ...get(), user });
+    },
   }));
 }
 
@@ -72,21 +77,21 @@ export function createCommonChartsStore() {
   return chartsStore;
 }
 
-export function getComments(state: ChartsStore) {
+export function getComments(state: ChartState) {
   const comments = state.pullRequests.flatMap((item) => item.comments);
   return comments;
 }
 
-export function getDiscussions(state: ChartsStore) {
+export function getDiscussions(state: ChartState) {
   const discussions = state.pullRequests.flatMap((item) => item.discussions);
   return discussions;
 }
 
-export function getCreatedPullRequestsPieChart(state: ChartsStore) {
+export function getCreatedPullRequestsPieChart(state: ChartState) {
   return convertToPullRequestCreated(state.pullRequests);
 }
 
-export function getAnalysisInterval(state: ChartsStore) {
+export function getAnalysisInterval(state: ChartState) {
   if (state.pullRequests.length === 0) {
     return null;
   }
@@ -129,13 +134,10 @@ export function useMostCommentsReceived() {
   });
 }
 
-export function useCommentedFilesCount() {
-  return useChartsStore((state) => {
-    const comments = getComments(state);
-    const changedFiles = tidy(comments, distinct(['filePath'])).map((item) => item.filePath);
+export function getCommentedFilesCount(comments: Comment[]) {
+  const changedFiles = tidy(comments, distinct(['filePath'])).map((item) => item.filePath);
 
-    return changedFiles.length;
-  });
+  return changedFiles.length;
 }
 
 export function getExportData(state: ChartsStore) {
@@ -144,4 +146,35 @@ export function getExportData(state: ChartsStore) {
 
 export function getHostType(state: ChartState) {
   return state.exportData?.hostType;
+}
+
+export function getUserPullRequests(state: ChartState) {
+  if (state.user) {
+    const userPrs = state.pullRequests.filter((item) => item.author.id === state.user!.id);
+    return userPrs;
+  }
+
+  return [];
+}
+
+export function getUserComments(state: ChartState) {
+  if (state.user) {
+    const comments = getComments(state);
+    const userComments = comments.filter((item) => item.reviewerId === state.user!.id);
+
+    return userComments;
+  }
+
+  return [];
+}
+
+export function getUserDiscussions(state: ChartState) {
+  if (state.user) {
+    const comments = getDiscussions(state);
+    const userDiscussions = comments.filter((item) => item.reviewerId === state.user!.id);
+
+    return userDiscussions;
+  }
+
+  return [];
 }

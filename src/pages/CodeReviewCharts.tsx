@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
 import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
 import { Button, Stack, Typography } from '@mui/material';
@@ -14,6 +14,7 @@ import {
   getDiscussions,
   getExportData,
   getHostType,
+  getUserComments,
   useChartsStore,
 } from '../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -25,7 +26,7 @@ import { ImportTextButton } from '../components/FileUploadButton';
 import { useClient } from '../stores/AuthStore';
 import { FilterPanel } from '../components/FilterPanel/FilterPanel';
 import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, User, UserDiscussion } from '../services/types';
+import { AnalyzeParams, Comment, UserDiscussion } from '../services/types';
 import { CommentItemProps } from '../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { useIsGuest } from '../hooks/useIsGuest';
@@ -59,10 +60,12 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const excelDialog = useOpen();
   const isGuest = useIsGuest();
 
+  const user = useChartsStore((state) => state.user);
   const pullRequests = useChartsStore((state) => state.pullRequests);
   const users = useChartsStore((state) => state.users);
   const importData = useChartsStore((state) => state.import);
   const closeAnalysis = useChartsStore((state) => state.closeAnalysis);
+  const setUser = useChartsStore((state) => state.setUser);
   const dataToExport = useChartsStore(getExportData);
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
@@ -75,12 +78,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const [filteredDiscussions, setFilteredDiscussions] = useState<UserDiscussion[]>([]);
 
   const hostType = useChartsStore(getHostType);
-
-  //TODO: probably need to move to ChartsStore
-  const [filterUser, setFilterUser] = useState<User | undefined>(undefined);
-  const userComments = useMemo(() => {
-    return comments.filter((item) => item.reviewerId === filterUser?.id);
-  }, [comments, filterUser?.id]);
+  const userComments = useChartsStore(getUserComments);
 
   const showFilteredComments = useCallback(
     (reviewerName: string | null, authorName: string | null) => {
@@ -206,23 +204,23 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             />
           </Stack>
           <Stack direction="row" spacing={2}>
-            <UsersList label="Users" user={filterUser} users={users} onSelected={setFilterUser} />
+            <UsersList label="Users" user={user} users={users} onSelected={setUser} />
           </Stack>
         </Stack>
 
         <Typography variant="h4" component="h2">
           Highlights
         </Typography>
-        <CodeReviewTiles user={filterUser} />
+        <CodeReviewTiles user={user} />
 
         <div className="charts-container">
           <Typography variant="h4" component="h2">
             Discussions
           </Typography>
           <div className="charts">
-            <DiscussionsPerMonthChart user={filterUser} discussions={discussions} />
+            <DiscussionsPerMonthChart user={user} discussions={discussions} />
             <TopLongestDiscussionsChart
-              user={filterUser}
+              user={user}
               pullRequests={pullRequests}
               count={10}
               onClick={(discussion) => {
@@ -230,37 +228,35 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
                 setFilteredDiscussions([discussion]);
               }}
             />
-            {filterUser == null && (
+            {user == null && (
               <StartedWithDiscussionsPieChart
                 discussions={discussions}
                 onClick={(authorName) => showFilteredDiscussions(null, authorName)}
               />
             )}
-            {filterUser == null && (
+            {user == null && (
               <StartedByDiscussionsPieChart
                 discussions={discussions}
                 onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
               />
             )}
-            <StartedByDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
-            <StartedWithDiscussionsChart user={filterUser} discussions={discussions} onClick={showFilteredDiscussions} />
+            <StartedByDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
+            <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
           </div>
           <Typography variant="h4" component="h2">
             Comments
           </Typography>
           <div className="charts">
-            <CommentsPerMonthChart user={filterUser} comments={comments} />
-            <WordsCloud comments={filterUser ? userComments : comments} onClick={handleWordClick} />
-            <TopCommentedPullRequestsChart user={filterUser} pullRequests={pullRequests} count={10} />
-            <ReviewByUserChart user={filterUser} pullRequests={pullRequests} users={users} />
-            {filterUser == null && <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />}
-            <CommentsLeftBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
+            <CommentsPerMonthChart user={user} comments={comments} />
+            <WordsCloud comments={user ? userComments : comments} onClick={handleWordClick} />
+            <TopCommentedPullRequestsChart user={user} pullRequests={pullRequests} count={10} />
+            <ReviewByUserChart user={user} pullRequests={pullRequests} users={users} />
+            {user == null && <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />}
+            <CommentsLeftBarChart user={user} comments={comments} onClick={showFilteredComments} />
 
-            {filterUser == null && (
-              <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
-            )}
-            <CommentsReceivedBarChart user={filterUser} comments={comments} onClick={showFilteredComments} />
-            {hostType === 'Gitea' && <CommentedFilesChart user={filterUser} comments={comments} />}
+            {user == null && <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />}
+            <CommentsReceivedBarChart user={user} comments={comments} onClick={showFilteredComments} />
+            {hostType === 'Gitea' && <CommentedFilesChart user={user} comments={comments} />}
 
             {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
           </div>
@@ -270,8 +266,8 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           </Typography>
 
           <div className="charts">
-            <ApprovalDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
-            <ApprovalRecipientsChart user={filterUser} pullRequests={pullRequests} users={users} />
+            <ApprovalDistributionChart user={user} pullRequests={pullRequests} users={users} />
+            <ApprovalRecipientsChart user={user} pullRequests={pullRequests} users={users} />
           </div>
 
           <Typography variant="h4" component="h2">
@@ -279,8 +275,8 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           </Typography>
 
           <div className="charts">
-            <ReviewRequestRecipients user={filterUser} pullRequests={pullRequests} users={users} />
-            <ReviewRequestDistributionChart user={filterUser} pullRequests={pullRequests} users={users} />
+            <ReviewRequestRecipients user={user} pullRequests={pullRequests} users={users} />
+            <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
           </div>
 
           <Typography variant="h4" component="h2">
@@ -288,7 +284,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           </Typography>
 
           <div className="charts">
-            {filterUser == null && (
+            {user == null && (
               <ChartContainer title="Pull Requests Created">
                 <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
               </ChartContainer>
