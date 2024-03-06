@@ -11,6 +11,7 @@ import {
 import { User, Project, AnalyzeParams, PullRequest, PullRequestStatus, ExportData, RawData } from '../types';
 import { GitService } from '../GitService';
 import { convertToProject, convertToPullRequest, convertToUser } from './GiteaConverter';
+import { requestAllChunked } from '../../utils/PromiseUtils';
 
 export class GiteaService implements GitService {
   private api: GiteaApi<any>;
@@ -84,7 +85,7 @@ export class GiteaService implements GitService {
 
     const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state);
 
-    const rawDataPromises = giteaPrs.map(async (pullRequest) => {
+    const rawDataPromises = giteaPrs.map((pullRequest) => async () => {
       // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
       // So, we need:
       // 1. Get all pull requests
@@ -95,16 +96,16 @@ export class GiteaService implements GitService {
       const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
       const { data: timeline } = await this.api.repos.issueGetCommentsAndTimeline(owner, name, pullRequest.number!);
 
-      const commentsPromise = reviews
+      const commentsFns = reviews
         .filter((review) => (review.comments_count ?? 0) > 0)
-        .map((review) => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!));
+        .map((review) => () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!));
 
-      const commentsResp = await Promise.all(commentsPromise);
+      const commentsResp = await requestAllChunked(commentsFns);
       const prComments = commentsResp.flatMap((item) => item.data);
       return { pullRequest, comments: prComments, reviews, timeline };
     });
 
-    const rawData = await Promise.all(rawDataPromises);
+    const rawData = await requestAllChunked(rawDataPromises);
 
     return rawData;
   }
