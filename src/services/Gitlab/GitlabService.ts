@@ -46,9 +46,15 @@ export class GitlabService implements GitService {
     const allMrs = await getMergeRequests(this.api, params);
     const projectId = parseInt(params.project.id);
 
-    const mrs = allMrs.filter((item) => item.user_notes_count !== 0);
+    const promises = allMrs.map<Promise<GitlabRawDatum>>(async (mrItem) => {
+      if (mrItem.user_notes_count === 0) {
+        return {
+          mergeRequest: mrItem,
+          notes: [],
+          discussions: [],
+        };
+      }
 
-    const promises = mrs.map<Promise<GitlabRawDatum>>(async (mrItem) => {
       //TODO: most probably it is enough to get only discussions and get the user notes from it, so we can optimize it later
       const userNotes = await this.api.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
       const discussions = await this.api.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 });
@@ -108,5 +114,6 @@ function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefor
     createdBefore: createdBefore?.toISOString(),
     perPage: 100,
     state: gitlabState,
+    scope: 'all',
   });
 }
