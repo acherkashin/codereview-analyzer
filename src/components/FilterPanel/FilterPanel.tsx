@@ -6,6 +6,10 @@ import { useCallback, useState } from 'react';
 import { useLocalStorage, useRequest } from '../../hooks';
 import { AnalyzeParams, Project } from '../../services/types';
 import { getHostType, useAuthStore } from '../../stores/AuthStore';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 export interface FilterPanelProps {
   onAnalyze: (state: AnalyzeParams) => Promise<any>;
@@ -14,8 +18,8 @@ export interface FilterPanelProps {
 }
 
 export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
-  const [createdBefore, setCreatedBefore] = useState<Date>(new Date());
-  const [createdAfter, setCreatedAfter] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() - 1)));
+  const [createdBefore, setCreatedBefore] = useState<Dayjs | null>(dayjs(new Date()));
+  const [createdAfter, setCreatedAfter] = useState<Dayjs | null>(dayjs().subtract(1, 'month'));
   const [project, setProject] = useLocalStorage<Project | undefined>('project', undefined);
   const [prCount, setPrCount] = useState(100);
 
@@ -23,63 +27,57 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   const hostType = useAuthStore(getHostType);
 
   const handleAnalyze = useCallback(() => {
-    if (!project) {
+    if (!project || !createdAfter || !createdBefore) {
+      alert('Please select project and time frame');
       return;
     }
 
     analyze({
-      createdAfter,
-      createdBefore,
+      createdAfter: createdAfter.toDate(),
+      createdBefore: createdBefore.toDate(),
       project,
       pullRequestCount: prCount,
+      state: 'all',
     });
   }, [analyze, createdAfter, createdBefore, prCount, project]);
 
   return (
-    <Stack spacing={2} position="sticky" top={0} style={style}>
-      <ProjectList project={project} onSelected={setProject} />
-      {hostType === 'Gitea' && (
-        <TextField
-          type="number"
-          label="Pull Requests Count"
-          value={prCount}
-          onChange={(e) => setPrCount(parseInt(e.target.value))}
-        />
-      )}
-      {hostType === 'Gitlab' && (
-        <>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Stack spacing={2} position="sticky" top={0} style={style}>
+        <ProjectList project={project} onSelected={setProject} />
+        {hostType === 'Gitea' && (
           <TextField
-            label="Created After"
-            type="date"
-            value={createdAfter?.toISOString().substring(0, 10)}
-            onChange={(newValue) => {
-              const newDate = new Date(newValue.target.value);
-              setCreatedAfter(newDate);
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            fullWidth
+            type="number"
+            label="Pull Requests Count"
+            value={prCount}
+            onChange={(e) => setPrCount(parseInt(e.target.value))}
           />
-          <TextField
-            label="Created Before"
-            type="date"
-            value={createdBefore?.toISOString().substring(0, 10)}
-            onChange={(newValue) => {
-              const newDate = new Date(newValue.target.value);
-              setCreatedBefore(newDate);
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            fullWidth
-          />
-        </>
-      )}
-      {children}
-      <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
-        Analyze
-      </LoadingButton>
-    </Stack>
+        )}
+        {hostType === 'Gitlab' && (
+          <>
+            <DatePicker
+              label="Created After"
+              format="DD/MM/YYYY"
+              value={createdAfter}
+              onChange={(newValue) => {
+                setCreatedAfter(newValue);
+              }}
+            />
+            <DatePicker
+              label="Created Before"
+              format="DD/MM/YYYY"
+              value={createdBefore}
+              onChange={(newValue) => {
+                setCreatedBefore(newValue);
+              }}
+            />
+          </>
+        )}
+        {children}
+        <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
+          Analyze
+        </LoadingButton>
+      </Stack>
+    </LocalizationProvider>
   );
 }
