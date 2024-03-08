@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../../utils/GitUtils';
-import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../../components';
+import { CommentList, DiscussionList, FullScreenDialog, UsersList } from '../../components';
 import { Button, Divider, Stack, Tooltip, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
@@ -10,7 +10,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {
   getAnalyze,
   getComments,
-  getCreatedPullRequestsPieChart,
   getDiscussions,
   getFilteredPullRequests,
   getHostType,
@@ -18,7 +17,6 @@ import {
   useChartsStore,
 } from '../../stores/ChartsStore';
 
-import { BarChart } from '../../components/charts/BarChart';
 import { ImportTextButton } from '../../components/FileUploadButton';
 import { useClient } from '../../stores/AuthStore';
 import { FilterPanel } from '../../components/FilterPanel/FilterPanel';
@@ -47,6 +45,7 @@ import {
   TopCommentedPullRequestsChart,
   StartedByDiscussionsChart,
   DiscussionsPerMonthChart,
+  PullRequestsCreatedChart,
 } from '../../components/charts';
 import dayjs from 'dayjs';
 import ExportButton from './ExportButton';
@@ -70,7 +69,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
-  const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -267,13 +265,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             Other
           </Typography>
 
-          <div className="charts">
-            {user == null && (
-              <ChartContainer title="Pull Requests Created">
-                <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
-              </ChartContainer>
-            )}
-          </div>
+          <div className="charts">{user == null && <PullRequestsCreatedChart pullRequests={pullRequests} />}</div>
         </div>
       </div>
 
