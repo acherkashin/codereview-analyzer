@@ -6,24 +6,19 @@ import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { downloadComments } from '../../utils/ExcelUtils';
+
 import {
   getAnalyze,
   getComments,
   getCreatedPullRequestsPieChart,
-  getDefaultFileName,
   getDiscussions,
-  getExportData,
   getFilteredPullRequests,
   getHostType,
   getUserComments,
   useChartsStore,
 } from '../../stores/ChartsStore';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+
 import { BarChart } from '../../components/charts/BarChart';
-import { useOpen } from '../../hooks/useOpen';
-import { InputDialog } from '../../components/dialogs/ExportToExcelDialog';
-import { downloadFile } from '../../utils/FileUtils';
 import { ImportTextButton } from '../../components/FileUploadButton';
 import { useClient } from '../../stores/AuthStore';
 import { FilterPanel } from '../../components/FilterPanel/FilterPanel';
@@ -54,13 +49,13 @@ import {
   DiscussionsPerMonthChart,
 } from '../../components/charts';
 import dayjs from 'dayjs';
+import ExportButton from './ExportButton';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
 
 export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
-  const excelDialog = useOpen();
   const isGuest = useIsGuest();
 
   const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests)));
@@ -72,12 +67,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const importData = useChartsStore((state) => state.import);
   const closeAnalysis = useChartsStore((state) => state.closeAnalysis);
   const setUser = useChartsStore((state) => state.setUser);
-  const dataToExport = useChartsStore(getExportData);
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
-  const defaultFileName = useChartsStore(getDefaultFileName);
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -126,15 +119,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     },
     [discussions]
   );
-
-  const handleDownload = (fileName: string) => {
-    if (filteredComments != null && filteredComments.length !== 0) {
-      downloadComments(fileName, filteredComments);
-    }
-    if (comments != null && comments.length !== 0) {
-      downloadComments(fileName, comments);
-    }
-  };
 
   const handleAnalyze = useCallback(
     (params: AnalyzeParams) => {
@@ -196,30 +180,12 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
           <UsersList label="Users" user={user} users={users} onSelected={setUser} />
 
-          <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
-            Export as Excel
-          </Button>
-          <Button
-            startIcon={<FileDownloadIcon />}
-            onClick={() => {
-              // TODO: probably need to export selected user
-              downloadFile(`${defaultFileName}.json`, JSON.stringify(dataToExport, null, 2));
-            }}
-          >
-            Export as JSON
-          </Button>
+          <ExportButton />
+
           {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
           <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
             Close Analysis
           </Button>
-          <InputDialog
-            title="Export comments to excel"
-            fieldName="File Name"
-            defaultFileName={`${defaultFileName}.xlsx`}
-            open={excelDialog.isOpen}
-            onClose={excelDialog.close}
-            onDownload={handleDownload}
-          />
         </Stack>
 
         <Typography variant="h4" component="h2">
