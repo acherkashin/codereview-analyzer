@@ -109,7 +109,7 @@ export function getCreatedPullRequestsPieChart(state: ChartState) {
   return convertToPullRequestCreated(prs);
 }
 
-export function getAnalysisInterval(state: ChartState) {
+export function getDefaultFileName(state: ChartState) {
   if (state.pullRequests.length === 0) {
     return null;
   }
@@ -118,8 +118,9 @@ export function getAnalysisInterval(state: ChartState) {
   const endDate = getEndDate(state.pullRequests);
 
   const interval = new Date(startDate).toISOString().substring(0, 10) + ' - ' + new Date(endDate).toISOString().substring(0, 10);
+  const hostType = state.exportData!.hostType;
 
-  return interval;
+  return `${hostType}-${interval}`;
 }
 
 export function getAnalyze(state: ChartsStore) {

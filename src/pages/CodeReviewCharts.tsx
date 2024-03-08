@@ -8,10 +8,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
-  getAnalysisInterval,
   getAnalyze,
   getComments,
   getCreatedPullRequestsPieChart,
+  getDefaultFileName,
   getDiscussions,
   getExportData,
   getFilteredPullRequests,
@@ -73,7 +73,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
   const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
-  const analysisInterval = useChartsStore(getAnalysisInterval);
+  const defaultFileName = useChartsStore(getDefaultFileName);
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -169,48 +169,39 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     );
   }
 
-  const defaultFileName = `analysis-${analysisInterval}`;
-
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <Stack direction="column" spacing={2}>
-          <Stack direction="row" spacing={2}>
-            <Typography variant="h3" textAlign="center">
-              {analysisInterval}
-            </Typography>
+        <Stack direction="row" spacing={2}>
+          <DatePicker label="Created After" format="DD/MM/YYYY" value={startDate} onChange={setStartDate} />
+          <DatePicker label="Created Before" format="DD/MM/YYYY" value={endDate} onChange={setEndDate} />
 
-            <DatePicker label="Created After" format="DD/MM/YYYY" value={startDate} onChange={setStartDate} />
-            <DatePicker label="Created Before" format="DD/MM/YYYY" value={endDate} onChange={setEndDate} />
+          <UsersList label="Users" user={user} users={users} onSelected={setUser} />
 
-            <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
-              Download as Excel
-            </Button>
-            <Button
-              startIcon={<FileDownloadIcon />}
-              onClick={() => {
-                // TODO: probably need to export selected user
-                downloadFile(`${defaultFileName}.json`, JSON.stringify(dataToExport, null, 2));
-              }}
-            >
-              Export as JSON
-            </Button>
-            {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
-            <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
-              Close Analysis
-            </Button>
-            <InputDialog
-              title="Export comments to excel"
-              fieldName="File Name"
-              defaultFileName={`${defaultFileName}.xlsx`}
-              open={excelDialog.isOpen}
-              onClose={excelDialog.close}
-              onDownload={handleDownload}
-            />
-          </Stack>
-          <Stack direction="row" spacing={2}>
-            <UsersList label="Users" user={user} users={users} onSelected={setUser} />
-          </Stack>
+          <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
+            Export as Excel
+          </Button>
+          <Button
+            startIcon={<FileDownloadIcon />}
+            onClick={() => {
+              // TODO: probably need to export selected user
+              downloadFile(`${defaultFileName}.json`, JSON.stringify(dataToExport, null, 2));
+            }}
+          >
+            Export as JSON
+          </Button>
+          {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
+          <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
+            Close Analysis
+          </Button>
+          <InputDialog
+            title="Export comments to excel"
+            fieldName="File Name"
+            defaultFileName={`${defaultFileName}.xlsx`}
+            open={excelDialog.isOpen}
+            onClose={excelDialog.close}
+            onDownload={handleDownload}
+          />
         </Stack>
 
         <Typography variant="h4" component="h2">

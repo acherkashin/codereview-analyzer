@@ -10,6 +10,7 @@ import {
   getUserDiscussions,
   getUserPullRequests,
   getCommentedFilesCount,
+  getFilteredPullRequests,
 } from '../stores/ChartsStore';
 import { Tile } from '../components/tiles/Tile';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -29,7 +30,7 @@ export interface CodeReviewTilesProps {
 }
 
 export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
-  const allPullRequests = useChartsStore((state) => state.pullRequests);
+  const allPullRequests = useChartsStore(getFilteredPullRequests);
   const allComments = useChartsStore(getComments);
   const allDiscussions = useChartsStore(getDiscussions);
 
