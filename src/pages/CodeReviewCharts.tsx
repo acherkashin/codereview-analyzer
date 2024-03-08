@@ -5,6 +5,7 @@ import { Button, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import CloseIcon from '@mui/icons-material/Close';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { downloadComments } from '../utils/ExcelUtils';
 import {
   getAnalysisInterval,
@@ -13,6 +14,7 @@ import {
   getCreatedPullRequestsPieChart,
   getDiscussions,
   getExportData,
+  getFilteredPullRequests,
   getHostType,
   getUserComments,
   useChartsStore,
@@ -60,9 +62,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const excelDialog = useOpen();
   const isGuest = useIsGuest();
 
-  const user = useChartsStore((state) => state.user);
-  const pullRequests = useChartsStore((state) => state.pullRequests);
-  const users = useChartsStore((state) => state.users);
+  const { user, pullRequests: allPrs, users, startDate, endDate, setStartDate, setEndDate } = useChartsStore();
+  const pullRequests = useChartsStore(getFilteredPullRequests);
+
   const importData = useChartsStore((state) => state.import);
   const closeAnalysis = useChartsStore((state) => state.closeAnalysis);
   const setUser = useChartsStore((state) => state.setUser);
@@ -146,7 +148,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     [comments]
   );
 
-  if (pullRequests.length === 0) {
+  if (allPrs.length === 0) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
         <Stack spacing={2} position="sticky" style={{ width: 300 }}>
@@ -177,6 +179,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <Typography variant="h3" textAlign="center">
               {analysisInterval}
             </Typography>
+
+            <DatePicker label="Created After" format="DD/MM/YYYY" value={startDate} onChange={setStartDate} />
+            <DatePicker label="Created Before" format="DD/MM/YYYY" value={endDate} onChange={setEndDate} />
 
             <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
               Download as Excel

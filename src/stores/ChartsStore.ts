@@ -6,12 +6,17 @@ import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/ti
 import { GitService } from '../services/GitService';
 import { convert } from '../services/GitConverter';
 import { getEndDate, getStartDate } from '../utils/GitUtils';
+import dayjs, { Dayjs } from 'dayjs';
 
 const initialState = {
   pullRequests: [] as PullRequest[],
   users: [] as User[],
   exportData: null as ExportData | null,
+
+  // filtering options
   user: undefined as User | undefined,
+  startDate: null as Dayjs | null,
+  endDate: null as Dayjs | null,
 };
 
 type ChartState = typeof initialState;
@@ -21,6 +26,8 @@ export type ChartsStore = ChartState & {
   analyze: (client: GitService, params: AnalyzeParams) => Promise<void>;
   closeAnalysis: () => void;
   setUser: (user: User | undefined) => void;
+  setStartDate: (start: Dayjs | null) => void;
+  setEndDate: (end: Dayjs | null) => void;
 };
 
 const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
@@ -37,6 +44,8 @@ export function createChartsStore() {
         exportData,
         pullRequests,
         users,
+        startDate: dayjs(getStartDate(pullRequests)),
+        endDate: dayjs(getEndDate(pullRequests)),
       });
     },
     analyze: async (client: GitService, params: AnalyzeParams) => {
@@ -44,9 +53,11 @@ export function createChartsStore() {
       const { users, pullRequests } = convert(exportData);
 
       set({
-        users: users,
-        pullRequests: pullRequests,
-        exportData: exportData,
+        users,
+        pullRequests,
+        exportData,
+        startDate: dayjs(getStartDate(pullRequests)),
+        endDate: dayjs(getEndDate(pullRequests)),
       });
     },
     getExportData: () => {
@@ -61,6 +72,12 @@ export function createChartsStore() {
     },
     setUser(user: User | undefined) {
       set({ ...get(), user });
+    },
+    setStartDate(start: Dayjs | null) {
+      set({ ...get(), startDate: start });
+    },
+    setEndDate(end: Dayjs | null) {
+      set({ ...get(), startDate: end });
     },
   }));
 }
@@ -78,17 +95,18 @@ export function createCommonChartsStore() {
 }
 
 export function getComments(state: ChartState) {
-  const comments = state.pullRequests.flatMap((item) => item.comments);
+  const comments = getFilteredPullRequests(state).flatMap((item) => item.comments);
   return comments;
 }
 
 export function getDiscussions(state: ChartState) {
-  const discussions = state.pullRequests.flatMap((item) => item.discussions);
+  const discussions = getFilteredPullRequests(state).flatMap((item) => item.discussions);
   return discussions;
 }
 
 export function getCreatedPullRequestsPieChart(state: ChartState) {
-  return convertToPullRequestCreated(state.pullRequests);
+  const prs = getFilteredPullRequests(state);
+  return convertToPullRequestCreated(prs);
 }
 
 export function getAnalysisInterval(state: ChartState) {
@@ -150,7 +168,8 @@ export function getHostType(state: ChartState) {
 
 export function getUserPullRequests(state: ChartState) {
   if (state.user) {
-    const userPrs = state.pullRequests.filter((item) => item.author.id === state.user!.id);
+    const filtered = getFilteredPullRequests(state);
+    const userPrs = filtered.filter((item) => item.author.id === state.user!.id);
     return userPrs;
   }
 
@@ -177,4 +196,18 @@ export function getUserDiscussions(state: ChartState) {
   }
 
   return [];
+}
+
+export function getFilteredPullRequests(state: ChartState) {
+  const start = dayjs(state.startDate ?? new Date()).subtract(1, 'day');
+  const end = dayjs(state.endDate ?? new Date()).add(1, 'day');
+
+  const filtered = state.pullRequests.filter((pr) => {
+    const isAfter = state.startDate == null || dayjs(pr.createdAt).isAfter(start, 'day');
+    const isBefore = state.endDate == null || dayjs(pr.createdAt).isBefore(end, 'day');
+
+    return isAfter && isBefore;
+  });
+
+  return filtered;
 }
