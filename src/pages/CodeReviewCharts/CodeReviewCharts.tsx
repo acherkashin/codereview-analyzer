@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
-import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../utils/GitUtils';
-import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
+import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../../utils/GitUtils';
+import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../../components';
 import { Button, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { downloadComments } from '../utils/ExcelUtils';
+import { downloadComments } from '../../utils/ExcelUtils';
 import {
   getAnalyze,
   getComments,
@@ -18,20 +18,20 @@ import {
   getHostType,
   getUserComments,
   useChartsStore,
-} from '../stores/ChartsStore';
+} from '../../stores/ChartsStore';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { BarChart } from '../components/charts/BarChart';
-import { useOpen } from '../hooks/useOpen';
-import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
-import { downloadFile } from '../utils/FileUtils';
-import { ImportTextButton } from '../components/FileUploadButton';
-import { useClient } from '../stores/AuthStore';
-import { FilterPanel } from '../components/FilterPanel/FilterPanel';
-import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, UserDiscussion } from '../services/types';
-import { CommentItemProps } from '../components/CommentList';
+import { BarChart } from '../../components/charts/BarChart';
+import { useOpen } from '../../hooks/useOpen';
+import { InputDialog } from '../../components/dialogs/ExportToExcelDialog';
+import { downloadFile } from '../../utils/FileUtils';
+import { ImportTextButton } from '../../components/FileUploadButton';
+import { useClient } from '../../stores/AuthStore';
+import { FilterPanel } from '../../components/FilterPanel/FilterPanel';
+import { PageContainer } from '../shared/PageContainer';
+import { AnalyzeParams, Comment, UserDiscussion } from '../../services/types';
+import { CommentItemProps } from '../../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
-import { useIsGuest } from '../hooks/useIsGuest';
+import { useIsGuest } from '../../hooks/useIsGuest';
 import {
   ReviewRequestRecipients,
   ReviewRequestDistributionChart,
@@ -52,7 +52,7 @@ import {
   TopCommentedPullRequestsChart,
   StartedByDiscussionsChart,
   DiscussionsPerMonthChart,
-} from '../components/charts';
+} from '../../components/charts';
 import dayjs from 'dayjs';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
