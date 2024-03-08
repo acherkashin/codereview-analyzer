@@ -1,5 +1,4 @@
 import create, { StoreApi } from 'zustand';
-import { convertToPullRequestCreated } from '../utils/ChartUtils';
 import createContext from 'zustand/context';
 import { AnalyzeParams, Comment, ExportData, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
@@ -104,10 +103,6 @@ export function getDiscussions(state: ChartState) {
   return discussions;
 }
 
-export function getCreatedPullRequestsPieChart(state: ChartState) {
-  const prs = getFilteredPullRequests(state);
-  return convertToPullRequestCreated(prs);
-}
 export function getDefaultFileName(state: ChartState) {
   if (state.pullRequests.length === 0) {
     return null;
