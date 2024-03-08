@@ -13,7 +13,11 @@ import { downloadComments } from '../../utils/ExcelUtils';
 import { useOpen } from '../../hooks/useOpen';
 import { getComments, useChartsStore, getDefaultFileName, getExportData } from '../../stores/ChartsStore';
 
-export default function ExportButton() {
+export interface ExportButtonProps {
+  style?: React.CSSProperties;
+}
+
+export default function ExportButton({ style }: ExportButtonProps) {
   const excelDialog = useOpen();
   const comments = useChartsStore(getComments);
   const dataToExport = useChartsStore(getExportData);
@@ -45,9 +49,8 @@ export default function ExportButton() {
 
   return (
     <React.Fragment>
-      <Button ref={anchorRef} size="small" variant="contained" onClick={handleToggle}>
+      <Button ref={anchorRef} size="small" variant="contained" style={style} onClick={handleToggle}>
         <FileDownloadIcon />
-        {/* <ArrowDropDownIcon /> */}
       </Button>
       <Popper
         sx={{

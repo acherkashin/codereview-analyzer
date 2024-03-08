@@ -7,4 +7,5 @@ export const PageContainer = styled('div')(({ theme }) => ({
   overflowY: 'auto',
   overflowX: 'hidden',
   padding: theme.spacing(2),
+  boxSizing: 'border-box',
 }));

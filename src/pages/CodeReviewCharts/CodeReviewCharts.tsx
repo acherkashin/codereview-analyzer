@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../../utils/GitUtils';
 import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../../components';
-import { Button, Stack, Typography } from '@mui/material';
+import { Button, Divider, Stack, Tooltip, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import CloseIcon from '@mui/icons-material/Close';
@@ -178,14 +178,18 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             onChange={setEndDate}
           />
 
+          <Divider aria-hidden="true" orientation="vertical" variant="middle" />
+
           <UsersList label="Users" user={user} users={users} onSelected={setUser} />
 
-          <ExportButton />
+          <ExportButton style={{ marginLeft: 'auto' }} />
 
           {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
-          <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
-            Close Analysis
-          </Button>
+          <Tooltip title="Close Analysis">
+            <Button size="small" variant="contained" onClick={closeAnalysis}>
+              <CloseIcon />
+            </Button>
+          </Tooltip>
         </Stack>
 
         <Typography variant="h4" component="h2">
