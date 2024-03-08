@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
+import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../utils/GitUtils';
 import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
 import { Button, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
@@ -53,6 +53,7 @@ import {
   StartedByDiscussionsChart,
   DiscussionsPerMonthChart,
 } from '../components/charts';
+import dayjs from 'dayjs';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -61,6 +62,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const excelDialog = useOpen();
   const isGuest = useIsGuest();
+
+  const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests)));
+  const maxDate = useChartsStore((state) => dayjs(getEndDate(state.pullRequests)));
 
   const { user, pullRequests: allPrs, users, startDate, endDate, setStartDate, setEndDate } = useChartsStore();
   const pullRequests = useChartsStore(getFilteredPullRequests);
@@ -173,8 +177,22 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <Stack direction="row" spacing={2}>
-          <DatePicker label="Created After" format="DD/MM/YYYY" value={startDate} onChange={setStartDate} />
-          <DatePicker label="Created Before" format="DD/MM/YYYY" value={endDate} onChange={setEndDate} />
+          <DatePicker
+            label="Created After"
+            format="DD/MM/YYYY"
+            value={startDate}
+            minDate={minDate}
+            maxDate={maxDate}
+            onChange={setStartDate}
+          />
+          <DatePicker
+            label="Created Before"
+            format="DD/MM/YYYY"
+            value={endDate}
+            minDate={startDate || undefined}
+            maxDate={maxDate}
+            onChange={setEndDate}
+          />
 
           <UsersList label="Users" user={user} users={users} onSelected={setUser} />
 

@@ -108,7 +108,6 @@ export function getCreatedPullRequestsPieChart(state: ChartState) {
   const prs = getFilteredPullRequests(state);
   return convertToPullRequestCreated(prs);
 }
-
 export function getDefaultFileName(state: ChartState) {
   if (state.pullRequests.length === 0) {
     return null;
