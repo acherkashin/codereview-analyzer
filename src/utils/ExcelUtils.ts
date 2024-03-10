@@ -127,7 +127,7 @@ export function downloadDiscussions(fileName: string, discussions: UserDiscussio
   });
 
   const config: ZipCelXConfig = {
-    filename: fileName ?? `Comments - ${new Date().toLocaleString()}`,
+    filename: fileName ?? `Discussions - ${new Date().toLocaleString()}`,
     sheet: {
       data: [headerRow, ...discussionRows],
     },
