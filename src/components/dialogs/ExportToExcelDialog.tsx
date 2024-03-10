@@ -16,7 +16,7 @@ export function ExportToExcelDialog({ open, title, fieldName, defaultFileName, o
 
   useEffect(() => {
     setFileName(defaultFileName);
-  }, [defaultFileName]);
+  }, [defaultFileName, open /** reset filename when dialog opens */]);
 
   return (
     <Dialog open={open} onClose={onClose}>

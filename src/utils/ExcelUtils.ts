@@ -35,7 +35,7 @@ export function downloadComments(fileName: string, comments: Comment[]) {
             type: 'string',
           },
           {
-            value: 'Comment Author - Reviewer',
+            value: 'Comment Left By',
             type: 'string',
           },
           {
@@ -92,8 +92,7 @@ export function downloadDiscussions(fileName: string, discussions: UserDiscussio
   ];
 
   const discussionRows = discussions.map<ZipCelXRow>((discussion) => {
-    //TODO: add who left comment after dash
-    const fullDiscussion = discussion.comments.map((item) => `— ${item.body}\n\n`).join('');
+    const fullDiscussion = discussion.comments.map((item) => `— (${item.reviewerName}): ${item.body}`).join('\n');
 
     return [
       {

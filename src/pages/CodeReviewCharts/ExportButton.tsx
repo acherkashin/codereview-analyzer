@@ -21,7 +21,7 @@ export default function ExportButton({ style }: ExportButtonProps) {
   const excelDialog = useOpen();
   const discussions = useChartsStore(getDiscussions);
   const dataToExport = useChartsStore(getExportData);
-  const defaultFileName = useChartsStore(getDefaultFileName);
+  const defaultFileName = useChartsStore(getDefaultFileName)!;
 
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLButtonElement>(null);
@@ -85,7 +85,7 @@ export default function ExportButton({ style }: ExportButtonProps) {
       <ExportToExcelDialog
         title="Export discussions to excel"
         fieldName="File Name"
-        defaultFileName={`${defaultFileName}.xlsx`}
+        defaultFileName={defaultFileName}
         open={excelDialog.isOpen}
         onClose={excelDialog.close}
         onDownload={handleDownloadComments}
