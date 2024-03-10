@@ -10,26 +10,27 @@ import {
   getUserDiscussions,
   getUserPullRequests,
   getCommentedFilesCount,
-} from '../stores/ChartsStore';
-import { Tile } from '../components/tiles/Tile';
+  getFilteredPullRequests,
+} from '../../stores/ChartsStore';
+import { Tile } from '../../components/tiles/Tile';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
 import ForumIcon from '@mui/icons-material/Forum';
-import { BranchIcon } from '../icons/BranchIcon';
-import { getLongestDiscussions, getLongestPullRequest } from '../utils/ChartUtils';
-import { User } from '../services/types';
-import { MostCommentsPullRequestTile } from '../components/tiles/MostCommentsPullRequestTile';
-import { MostCommentsLeftByTile } from '../components/tiles/MostCommentsLeftByTile';
-import { MostCommentsReceivedTile } from '../components/tiles/MostCommentsReceivedTile';
-import { LongestPullRequestTile } from '../components/tiles/LongestPullRequestTile';
-import { LongestDiscussionTile } from '../components/tiles/LongestDiscussionTile';
+import { BranchIcon } from '../../icons/BranchIcon';
+import { getLongestDiscussions, getLongestPullRequest } from '../../utils/ChartUtils';
+import { User } from '../../services/types';
+import { MostCommentsPullRequestTile } from '../../components/tiles/MostCommentsPullRequestTile';
+import { MostCommentsLeftByTile } from '../../components/tiles/MostCommentsLeftByTile';
+import { MostCommentsReceivedTile } from '../../components/tiles/MostCommentsReceivedTile';
+import { LongestPullRequestTile } from '../../components/tiles/LongestPullRequestTile';
+import { LongestDiscussionTile } from '../../components/tiles/LongestDiscussionTile';
 
 export interface CodeReviewTilesProps {
   user?: User | null;
 }
 
 export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
-  const allPullRequests = useChartsStore((state) => state.pullRequests);
+  const allPullRequests = useChartsStore(getFilteredPullRequests);
   const allComments = useChartsStore(getComments);
   const allDiscussions = useChartsStore(getDiscussions);
 

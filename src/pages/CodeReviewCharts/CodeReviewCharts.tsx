@@ -1,35 +1,30 @@
 import { useCallback, useState } from 'react';
-import { getFilteredComments, getFilteredDiscussions } from '../utils/GitUtils';
-import { ChartContainer, CommentList, DiscussionList, FullScreenDialog, UsersList } from '../components';
-import { Button, Stack, Typography } from '@mui/material';
+import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../../utils/GitUtils';
+import { CommentList, DiscussionList, FullScreenDialog, UsersList } from '../../components';
+import { Button, Divider, Stack, Tooltip, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import CloseIcon from '@mui/icons-material/Close';
-import { downloadComments } from '../utils/ExcelUtils';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 import {
-  getAnalysisInterval,
   getAnalyze,
   getComments,
-  getCreatedPullRequestsPieChart,
   getDiscussions,
-  getExportData,
+  getFilteredPullRequests,
   getHostType,
   getUserComments,
   useChartsStore,
-} from '../stores/ChartsStore';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { BarChart } from '../components/charts/BarChart';
-import { useOpen } from '../hooks/useOpen';
-import { InputDialog } from '../components/dialogs/ExportToExcelDialog';
-import { downloadFile } from '../utils/FileUtils';
-import { ImportTextButton } from '../components/FileUploadButton';
-import { useClient } from '../stores/AuthStore';
-import { FilterPanel } from '../components/FilterPanel/FilterPanel';
-import { PageContainer } from './PageContainer';
-import { AnalyzeParams, Comment, UserDiscussion } from '../services/types';
-import { CommentItemProps } from '../components/CommentList';
+} from '../../stores/ChartsStore';
+
+import { ImportTextButton } from '../../components/FileUploadButton';
+import { useClient } from '../../stores/AuthStore';
+import { FilterPanel } from '../../components/FilterPanel/FilterPanel';
+import { PageContainer } from '../shared/PageContainer';
+import { AnalyzeParams, Comment, UserDiscussion } from '../../services/types';
+import { CommentItemProps } from '../../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
-import { useIsGuest } from '../hooks/useIsGuest';
+import { useIsGuest } from '../../hooks/useIsGuest';
 import {
   ReviewRequestRecipients,
   ReviewRequestDistributionChart,
@@ -50,28 +45,30 @@ import {
   TopCommentedPullRequestsChart,
   StartedByDiscussionsChart,
   DiscussionsPerMonthChart,
-} from '../components/charts';
+  PullRequestsCreatedChart,
+} from '../../components/charts';
+import dayjs from 'dayjs';
+import ExportButton from './ExportButton';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
 
 export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
-  const excelDialog = useOpen();
   const isGuest = useIsGuest();
 
-  const user = useChartsStore((state) => state.user);
-  const pullRequests = useChartsStore((state) => state.pullRequests);
-  const users = useChartsStore((state) => state.users);
+  const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests)));
+  const maxDate = useChartsStore((state) => dayjs(getEndDate(state.pullRequests)));
+
+  const { user, pullRequests: allPrs, users, startDate, endDate, setStartDate, setEndDate } = useChartsStore();
+  const pullRequests = useChartsStore(getFilteredPullRequests);
+
   const importData = useChartsStore((state) => state.import);
   const closeAnalysis = useChartsStore((state) => state.closeAnalysis);
   const setUser = useChartsStore((state) => state.setUser);
-  const dataToExport = useChartsStore(getExportData);
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
-  const createdPullRequestsPieChart = useChartsStore(getCreatedPullRequestsPieChart);
-  const analysisInterval = useChartsStore(getAnalysisInterval);
 
   const [title, setTitle] = useState('');
   const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
@@ -121,15 +118,6 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     [discussions]
   );
 
-  const handleDownload = (fileName: string) => {
-    if (filteredComments != null && filteredComments.length !== 0) {
-      downloadComments(fileName, filteredComments);
-    }
-    if (comments != null && comments.length !== 0) {
-      downloadComments(fileName, comments);
-    }
-  };
-
   const handleAnalyze = useCallback(
     (params: AnalyzeParams) => {
       return analyze(client, params);
@@ -146,7 +134,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     [comments]
   );
 
-  if (pullRequests.length === 0) {
+  if (allPrs.length === 0) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
         <Stack spacing={2} position="sticky" style={{ width: 300 }}>
@@ -167,45 +155,39 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     );
   }
 
-  const defaultFileName = `analysis-${analysisInterval}`;
-
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <Stack direction="column" spacing={2}>
-          <Stack direction="row" spacing={2}>
-            <Typography variant="h3" textAlign="center">
-              {analysisInterval}
-            </Typography>
+        <Stack direction="row" spacing={2}>
+          <DatePicker
+            label="Created After"
+            format="DD/MM/YYYY"
+            value={startDate}
+            minDate={minDate}
+            maxDate={maxDate}
+            onChange={setStartDate}
+          />
+          <DatePicker
+            label="Created Before"
+            format="DD/MM/YYYY"
+            value={endDate}
+            minDate={startDate || undefined}
+            maxDate={maxDate}
+            onChange={setEndDate}
+          />
 
-            <Button disabled={comments.length === 0} startIcon={<FileDownloadIcon />} onClick={excelDialog.open}>
-              Download as Excel
+          <Divider aria-hidden="true" orientation="vertical" variant="middle" />
+
+          <UsersList label="Users" user={user} users={users} onSelected={setUser} />
+
+          <ExportButton style={{ marginLeft: 'auto' }} />
+
+          {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
+          <Tooltip title="Close Analysis">
+            <Button size="small" variant="contained" onClick={closeAnalysis}>
+              <CloseIcon />
             </Button>
-            <Button
-              startIcon={<FileDownloadIcon />}
-              onClick={() => {
-                // TODO: probably need to export selected user
-                downloadFile(`${defaultFileName}.json`, JSON.stringify(dataToExport, null, 2));
-              }}
-            >
-              Export as JSON
-            </Button>
-            {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
-            <Button startIcon={<CloseIcon />} onClick={closeAnalysis}>
-              Close Analysis
-            </Button>
-            <InputDialog
-              title="Export comments to excel"
-              fieldName="File Name"
-              defaultFileName={`${defaultFileName}.xlsx`}
-              open={excelDialog.isOpen}
-              onClose={excelDialog.close}
-              onDownload={handleDownload}
-            />
-          </Stack>
-          <Stack direction="row" spacing={2}>
-            <UsersList label="Users" user={user} users={users} onSelected={setUser} />
-          </Stack>
+          </Tooltip>
         </Stack>
 
         <Typography variant="h4" component="h2">
@@ -283,13 +265,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             Other
           </Typography>
 
-          <div className="charts">
-            {user == null && (
-              <ChartContainer title="Pull Requests Created">
-                <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
-              </ChartContainer>
-            )}
-          </div>
+          <div className="charts">{user == null && <PullRequestsCreatedChart pullRequests={pullRequests} />}</div>
         </div>
       </div>
 

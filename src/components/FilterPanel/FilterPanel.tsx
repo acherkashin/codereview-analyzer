@@ -7,8 +7,6 @@ import { useLocalStorage, useRequest } from '../../hooks';
 import { AnalyzeParams, Project } from '../../services/types';
 import { getHostType, useAuthStore } from '../../stores/AuthStore';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 
 export interface FilterPanelProps {
@@ -42,42 +40,40 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   }, [analyze, createdAfter, createdBefore, prCount, project]);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Stack spacing={2} position="sticky" top={0} style={style}>
-        <ProjectList project={project} onSelected={setProject} />
-        {hostType === 'Gitea' && (
-          <TextField
-            type="number"
-            label="Pull Requests Count"
-            value={prCount}
-            onChange={(e) => setPrCount(parseInt(e.target.value))}
+    <Stack spacing={2} position="sticky" top={0} style={style}>
+      <ProjectList project={project} onSelected={setProject} />
+      {hostType === 'Gitea' && (
+        <TextField
+          type="number"
+          label="Pull Requests Count"
+          value={prCount}
+          onChange={(e) => setPrCount(parseInt(e.target.value))}
+        />
+      )}
+      {hostType === 'Gitlab' && (
+        <>
+          <DatePicker
+            label="Created After"
+            format="DD/MM/YYYY"
+            value={createdAfter}
+            onChange={(newValue) => {
+              setCreatedAfter(newValue);
+            }}
           />
-        )}
-        {hostType === 'Gitlab' && (
-          <>
-            <DatePicker
-              label="Created After"
-              format="DD/MM/YYYY"
-              value={createdAfter}
-              onChange={(newValue) => {
-                setCreatedAfter(newValue);
-              }}
-            />
-            <DatePicker
-              label="Created Before"
-              format="DD/MM/YYYY"
-              value={createdBefore}
-              onChange={(newValue) => {
-                setCreatedBefore(newValue);
-              }}
-            />
-          </>
-        )}
-        {children}
-        <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
-          Analyze
-        </LoadingButton>
-      </Stack>
-    </LocalizationProvider>
+          <DatePicker
+            label="Created Before"
+            format="DD/MM/YYYY"
+            value={createdBefore}
+            onChange={(newValue) => {
+              setCreatedBefore(newValue);
+            }}
+          />
+        </>
+      )}
+      {children}
+      <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
+        Analyze
+      </LoadingButton>
+    </Stack>
   );
 }

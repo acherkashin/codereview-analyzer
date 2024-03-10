@@ -4,6 +4,8 @@ import { Outlet } from 'react-router-dom';
 import { SideBar } from './components/SideBar';
 import { AuthGuard } from './components/AuthGuard';
 import { AppHeader } from './components/AppHeader/AppHeader';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 export interface Credentials {
   token: string;
@@ -24,16 +26,18 @@ const Main = styled('main')(() => ({
 
 export function App() {
   return (
-    <AuthGuard>
-      <AppFrame>
-        <SideBar />
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-          <AppHeader />
-          <Main>
-            <Outlet />
-          </Main>
-        </div>
-      </AppFrame>
-    </AuthGuard>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <AuthGuard>
+        <AppFrame>
+          <SideBar />
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+            <AppHeader />
+            <Main>
+              <Outlet />
+            </Main>
+          </div>
+        </AppFrame>
+      </AuthGuard>
+    </LocalizationProvider>
   );
 }

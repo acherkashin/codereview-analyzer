@@ -3,7 +3,7 @@ import { MergeRequest } from '../components/MergeRequest';
 import { useLocalStorage, useRequest } from '../hooks';
 import { FullSizeProgress, ProjectList } from '../components';
 import { useClient } from '../stores/AuthStore';
-import { PageContainer } from './PageContainer';
+import { PageContainer } from './shared/PageContainer';
 import { Project } from '../services/types';
 import { convert } from '../services/GitConverter';
 

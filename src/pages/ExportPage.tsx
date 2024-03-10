@@ -2,7 +2,7 @@ import { Button, CircularProgress, Typography } from '@mui/material';
 import { useRequest } from '../hooks';
 import { useClient } from '../stores/AuthStore';
 import { useExportsStore } from '../stores/ExportStore';
-import { PageContainer } from './PageContainer';
+import { PageContainer } from './shared/PageContainer';
 import { LoadingButton } from '@mui/lab';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { downloadFile } from '../utils/FileUtils';

@@ -15,18 +15,6 @@ export interface ReviewBarChartSettings<T = BarDatum> {
   data: T[];
 }
 
-export function convertToPullRequestCreated(pullRequests: PullRequest[]) {
-  const rawData = pullRequests.map((item) => ({ userName: item.author.fullName || item.author.userName }));
-
-  const data = tidy(rawData, groupBy('userName', [summarize({ total: n() })]), arrange([asc('total')]));
-
-  return {
-    indexBy: 'userName',
-    keys: ['total'],
-    data,
-  };
-}
-
 export function convertToCommentsReceivedFromUsers(comments: Comment[], userId: string): ReviewBarChartSettings {
   const commentsToAuthor = comments.filter((item) => item.prAuthorId === userId);
   const rawData = getAuthorReviewerFromComments(commentsToAuthor).filter((item) => item.reviewer !== item.author);
