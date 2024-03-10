@@ -36,28 +36,15 @@ export function createChartsStore() {
   return create<ChartsStore>((set, get) => ({
     ...initialState,
     import(json: string) {
+      // TODO: add json validation
       const exportData: ExportData = JSON.parse(json);
 
-      const { pullRequests, users } = convert(exportData);
-      set({
-        exportData,
-        pullRequests,
-        users,
-        startDate: dayjs(getStartDate(pullRequests)),
-        endDate: dayjs(getEndDate(pullRequests)),
-      });
+      initStore(set, exportData);
     },
     analyze: async (client: GitService, params: AnalyzeParams) => {
       const exportData = await client.fetch(params);
-      const { users, pullRequests } = convert(exportData);
 
-      set({
-        users,
-        pullRequests,
-        exportData,
-        startDate: dayjs(getStartDate(pullRequests)),
-        endDate: dayjs(getEndDate(pullRequests)),
-      });
+      initStore(set, exportData);
     },
     getExportData: () => {
       const { users, exportData: rawData } = get();
@@ -91,6 +78,18 @@ const chartsStore = createChartsStore();
 
 export function createCommonChartsStore() {
   return chartsStore;
+}
+
+function initStore(set: StoreApi<ChartsStore>['setState'], exportData: ExportData) {
+  const { users, pullRequests } = convert(exportData);
+
+  set({
+    users,
+    pullRequests,
+    exportData,
+    startDate: dayjs(getStartDate(pullRequests)),
+    endDate: dayjs(getEndDate(pullRequests)),
+  });
 }
 
 export function getComments(state: ChartState) {
