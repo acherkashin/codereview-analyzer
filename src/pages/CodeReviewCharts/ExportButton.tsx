@@ -9,9 +9,9 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import { downloadFile } from '../../utils/FileUtils';
 import { InputDialog } from '../../components/dialogs/ExportToExcelDialog';
-import { downloadComments } from '../../utils/ExcelUtils';
+import { downloadDiscussions } from '../../utils/ExcelUtils';
 import { useOpen } from '../../hooks/useOpen';
-import { getComments, useChartsStore, getDefaultFileName, getExportData } from '../../stores/ChartsStore';
+import { useChartsStore, getDefaultFileName, getExportData, getDiscussions } from '../../stores/ChartsStore';
 
 export interface ExportButtonProps {
   style?: React.CSSProperties;
@@ -19,7 +19,7 @@ export interface ExportButtonProps {
 
 export default function ExportButton({ style }: ExportButtonProps) {
   const excelDialog = useOpen();
-  const comments = useChartsStore(getComments);
+  const discussions = useChartsStore(getDiscussions);
   const dataToExport = useChartsStore(getExportData);
   const defaultFileName = useChartsStore(getDefaultFileName);
 
@@ -39,7 +39,8 @@ export default function ExportButton({ style }: ExportButtonProps) {
   };
 
   const handleDownloadComments = (fileName: string) => {
-    downloadComments(fileName, comments);
+    downloadDiscussions(fileName, discussions);
+    excelDialog.close();
   };
 
   const handleDownloadJson = () => {
@@ -72,7 +73,8 @@ export default function ExportButton({ style }: ExportButtonProps) {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
-                  <MenuItem onClick={excelDialog.open}>Export Comments as Excel</MenuItem>
+                  {/* <MenuItem onClick={excelDialog.open}>Export Comments as Excel</MenuItem> */}
+                  <MenuItem onClick={excelDialog.open}>Export Discussions as Excel</MenuItem>
                   <MenuItem onClick={handleDownloadJson}>Export as JSON</MenuItem>
                 </MenuList>
               </ClickAwayListener>

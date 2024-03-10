@@ -37,6 +37,7 @@ export function InputDialog({ open, title, fieldName, defaultFileName, onClose, 
           fullWidth
           variant="standard"
           required
+          value={defaultFileName}
           onChange={(e) => setFileName(e.target.value)}
         />
       </DialogContent>

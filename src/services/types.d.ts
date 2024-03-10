@@ -36,6 +36,7 @@ export interface UserDiscussion {
   reviewerName: string;
   reviewerAvatarUrl?: string;
 
+  pullRequestId: string;
   pullRequestName: string;
   /**
    * Link to discussion
