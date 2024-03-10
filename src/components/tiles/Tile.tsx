@@ -29,8 +29,8 @@ const Title = styled('div')(({ theme }) => ({
   marginBottom: 10 /*theme.spacing(2)*/,
   overflow: 'hidden',
   display: '-webkit-box',
-  '-webkit-line-clamp': '2',
-  '-webkit-box-orient': 'vertical',
+  WebkitLineClamp: '2',
+  WebkitBoxOrient: 'vertical',
 }));
 
 const Details = styled('div')(({ theme }) => ({
