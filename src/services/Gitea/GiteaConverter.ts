@@ -129,6 +129,7 @@ export function convertToDiscussions(pr: GiteaPullRequest, comments: GiteaPullRe
       reviewerName: comments[0].reviewerName,
       reviewerAvatarUrl: comments[0].reviewerAvatarUrl,
 
+      pullRequestId: comments[0].pullRequestId,
       pullRequestName: comments[0].pullRequestName,
       url: comments[0].url,
     };

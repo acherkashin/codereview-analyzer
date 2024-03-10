@@ -66,6 +66,7 @@ export function convertToComment(mr: MergeRequestSchema, comment: MergeRequestNo
 export function convertToDiscussion(mr: MergeRequestSchema, discussion: DiscussionSchema): UserDiscussion {
   return {
     id: discussion.id.toString(),
+    pullRequestId: mr.id.toString(),
     prAuthorId: (mr.author.id as string).toString(),
     prAuthorName: mr.author.name as string,
     reviewerId: (discussion.notes ?? []).length > 0 ? (discussion.notes![0].author.id as string) : 'unknown reviewerId',

@@ -1,5 +1,5 @@
 import zipcelx, { ZipCelXConfig, ZipCelXRow } from 'zipcelx';
-import { Comment } from '../services/types';
+import { Comment, UserDiscussion } from '../services/types';
 
 export function downloadComments(fileName: string, comments: Comment[]) {
   const exportEntries = comments.map<ZipCelXRow>((comment) => [
@@ -31,11 +31,11 @@ export function downloadComments(fileName: string, comments: Comment[]) {
       data: [
         [
           {
-            value: 'PR Author',
+            value: 'Pull Request Author',
             type: 'string',
           },
           {
-            value: 'Comment Author - Reviewer',
+            value: 'Comment Left By',
             type: 'string',
           },
           {
@@ -56,5 +56,82 @@ export function downloadComments(fileName: string, comments: Comment[]) {
     },
   };
 
-  zipcelx(config);
+  return zipcelx(config);
+}
+
+export function downloadDiscussions(fileName: string, discussions: UserDiscussion[]) {
+  const headerRow: ZipCelXRow = [
+    {
+      value: 'Pull Request Id',
+      type: 'string',
+    },
+    {
+      value: 'Pull Request Title',
+      type: 'string',
+    },
+    {
+      value: 'Pull Request Author',
+      type: 'string',
+    },
+    {
+      value: 'Discussion Started By',
+      type: 'string',
+    },
+    {
+      value: 'Started At',
+      type: 'string',
+    },
+    {
+      value: 'Full Discussion',
+      type: 'string',
+    },
+    {
+      value: 'Discussion Link',
+      type: 'string',
+    },
+  ];
+
+  const discussionRows = discussions.map<ZipCelXRow>((discussion) => {
+    const fullDiscussion = discussion.comments.map((item) => `— (${item.reviewerName}): ${item.body}`).join('\n');
+
+    return [
+      {
+        value: discussion.pullRequestId,
+        type: 'string',
+      },
+      {
+        value: discussion.pullRequestName,
+        type: 'string',
+      },
+      {
+        value: discussion.prAuthorName,
+        type: 'string',
+      },
+      {
+        value: discussion.reviewerName,
+        type: 'string',
+      },
+      {
+        value: discussion.comments[0].createdAt,
+        type: 'string',
+      },
+      {
+        value: fullDiscussion,
+        type: 'string',
+      },
+      {
+        value: discussion.url,
+        type: 'string',
+      },
+    ];
+  });
+
+  const config: ZipCelXConfig = {
+    filename: fileName ?? `Discussions - ${new Date().toLocaleString()}`,
+    sheet: {
+      data: [headerRow, ...discussionRows],
+    },
+  };
+
+  return zipcelx(config);
 }

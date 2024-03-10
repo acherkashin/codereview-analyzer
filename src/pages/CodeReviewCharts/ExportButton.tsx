@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useRef } from 'react';
 import Button from '@mui/material/Button';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -8,23 +8,27 @@ import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import { downloadFile } from '../../utils/FileUtils';
-import { InputDialog } from '../../components/dialogs/ExportToExcelDialog';
-import { downloadComments } from '../../utils/ExcelUtils';
-import { useOpen } from '../../hooks/useOpen';
-import { getComments, useChartsStore, getDefaultFileName, getExportData } from '../../stores/ChartsStore';
+import { ExportToExcelDialog } from '../../components/dialogs/ExportToExcelDialog';
+import { downloadDiscussions } from '../../utils/ExcelUtils';
+import { getDiscussions, useChartsStore, getDefaultFileName, getExportData } from '../../stores/ChartsStore';
 
 export interface ExportButtonProps {
   style?: React.CSSProperties;
 }
 
-export default function ExportButton({ style }: ExportButtonProps) {
-  const excelDialog = useOpen();
-  const comments = useChartsStore(getComments);
-  const dataToExport = useChartsStore(getExportData);
-  const defaultFileName = useChartsStore(getDefaultFileName);
+enum ExportType {
+  ExcelDiscussions,
+  Json,
+}
 
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef<HTMLButtonElement>(null);
+export default function ExportButton({ style }: ExportButtonProps) {
+  const discussions = useChartsStore(getDiscussions);
+  const [exportType, setExportType] = useState<ExportType | null>();
+  const dataToExport = useChartsStore(getExportData);
+  const defaultFileName = useChartsStore(getDefaultFileName)!;
+
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef<HTMLButtonElement>(null);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -38,17 +42,21 @@ export default function ExportButton({ style }: ExportButtonProps) {
     setOpen(false);
   };
 
-  const handleDownloadComments = (fileName: string) => {
-    downloadComments(fileName, comments);
-  };
-
-  const handleDownloadJson = () => {
-    // TODO: probably need to export selected user
-    downloadFile(`${defaultFileName}.json`, JSON.stringify(dataToExport, null, 2));
+  const handleExport = (fileName: string) => {
+    switch (exportType) {
+      case ExportType.ExcelDiscussions:
+        downloadDiscussions(fileName, discussions);
+        break;
+      case ExportType.Json:
+        downloadFile(`${fileName}.json`, JSON.stringify(dataToExport, null, 2));
+        break;
+      default:
+        alert('unknown export type');
+    }
   };
 
   return (
-    <React.Fragment>
+    <>
       <Button ref={anchorRef} size="small" variant="contained" style={style} onClick={handleToggle}>
         <FileDownloadIcon />
       </Button>
@@ -72,22 +80,23 @@ export default function ExportButton({ style }: ExportButtonProps) {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
-                  <MenuItem onClick={excelDialog.open}>Export Comments as Excel</MenuItem>
-                  <MenuItem onClick={handleDownloadJson}>Export as JSON</MenuItem>
+                  {/* <MenuItem onClick={excelDialog.open}>Export Comments as Excel</MenuItem> */}
+                  <MenuItem onClick={() => setExportType(ExportType.ExcelDiscussions)}>Export Discussions as Excel</MenuItem>
+                  <MenuItem onClick={() => setExportType(ExportType.Json)}>Export as JSON</MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>
           </Grow>
         )}
       </Popper>
-      <InputDialog
-        title="Export comments to excel"
+      <ExportToExcelDialog
+        title="Export discussions to excel"
         fieldName="File Name"
-        defaultFileName={`${defaultFileName}.xlsx`}
-        open={excelDialog.isOpen}
-        onClose={excelDialog.close}
-        onDownload={handleDownloadComments}
+        defaultFileName={defaultFileName}
+        open={exportType != null}
+        onClose={() => setExportType(null)}
+        onDownload={handleExport}
       />
-    </React.Fragment>
+    </>
   );
 }

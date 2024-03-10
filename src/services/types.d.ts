@@ -1,5 +1,11 @@
 export interface Comment {
+  /**
+   * Comment id
+   */
   id: string;
+  /**
+   * Id of user who created pull request where comment is left
+   */
   prAuthorId: string;
   prAuthorName: string;
   prAuthorAvatarUrl?: string;
@@ -36,6 +42,7 @@ export interface UserDiscussion {
   reviewerName: string;
   reviewerAvatarUrl?: string;
 
+  pullRequestId: string;
   pullRequestName: string;
   /**
    * Link to discussion
