@@ -11,7 +11,7 @@ export interface ExportToExcelDialogProps {
   onDownload: (fileName: string) => void;
 }
 
-export function InputDialog({ open, title, fieldName, defaultFileName, onClose, onDownload }: ExportToExcelDialogProps) {
+export function ExportToExcelDialog({ open, title, fieldName, defaultFileName, onClose, onDownload }: ExportToExcelDialogProps) {
   const [fileName, setFileName] = useState(defaultFileName);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export function InputDialog({ open, title, fieldName, defaultFileName, onClose, 
           fullWidth
           variant="standard"
           required
-          value={defaultFileName}
+          value={fileName}
           onChange={(e) => setFileName(e.target.value)}
         />
       </DialogContent>

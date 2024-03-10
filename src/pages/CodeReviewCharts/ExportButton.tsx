@@ -8,7 +8,7 @@ import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import { downloadFile } from '../../utils/FileUtils';
-import { InputDialog } from '../../components/dialogs/ExportToExcelDialog';
+import { ExportToExcelDialog } from '../../components/dialogs/ExportToExcelDialog';
 import { downloadDiscussions } from '../../utils/ExcelUtils';
 import { useOpen } from '../../hooks/useOpen';
 import { useChartsStore, getDefaultFileName, getExportData, getDiscussions } from '../../stores/ChartsStore';
@@ -82,8 +82,8 @@ export default function ExportButton({ style }: ExportButtonProps) {
           </Grow>
         )}
       </Popper>
-      <InputDialog
-        title="Export comments to excel"
+      <ExportToExcelDialog
+        title="Export discussions to excel"
         fieldName="File Name"
         defaultFileName={`${defaultFileName}.xlsx`}
         open={excelDialog.isOpen}
