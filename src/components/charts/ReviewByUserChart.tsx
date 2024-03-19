@@ -5,6 +5,7 @@ import { ChartContainer } from '../ChartContainer';
 import { BarChart } from './BarChart';
 import { BaseChartTooltip } from '../tooltips/BaseChartTooltip';
 import { Avatar, Stack } from '@mui/material';
+import { getHostType, useChartsStore } from '../../stores/ChartsStore';
 
 export interface ReviewByUserChartProps {
   user?: User | null;
@@ -14,7 +15,8 @@ export interface ReviewByUserChartProps {
 }
 
 type ReviewDataByUser = ReturnType<typeof getReviewDataByUser>[0];
-const keys: (keyof ReviewDataByUser)[] = ['Assigned', 'Reviewed', 'Approved', 'Requested Changes'];
+const giteaKeys: (keyof ReviewDataByUser)[] = ['Assigned', 'Reviewed', 'Approved', 'Requested Changes'];
+const gitlabKeys: (keyof ReviewDataByUser)[] = ['Assigned', 'Reviewed', 'Approved'];
 
 export function ReviewByUserChart(props: ReviewByUserChartProps) {
   if (props.user) return <ReviewChartForUser {...props} />;
@@ -23,8 +25,10 @@ export function ReviewByUserChart(props: ReviewByUserChartProps) {
 }
 
 function ReviewChartForAll({ users, pullRequests }: ReviewByUserChartProps) {
-  const data = useMemo(() => getReviewDataByUser(users, pullRequests), [users, pullRequests]);
   const width = 1020;
+  const hostType = useChartsStore(getHostType);
+  const data = useMemo(() => getReviewDataByUser(users, pullRequests), [users, pullRequests]);
+  const keys = hostType === 'Gitea' ? giteaKeys : gitlabKeys;
 
   return (
     <ChartContainer title={'Pull Requests reviews by user'} style={{ width }}>
@@ -155,6 +159,7 @@ function ReviewByUserTooltip({
   assignedCount,
   requestedChangesCount,
 }: ReviewByUserTooltipProps) {
+  const hostType = useChartsStore(getHostType);
   const requestedChanges = requestedChangesCount || 0;
   const reviewedPercent = Math.ceil((reviewedCount / assignedCount) * 100) + '%';
   const approvedPercent = Math.ceil((approvedCount / assignedCount) * 100) + '%';
@@ -176,9 +181,11 @@ function ReviewByUserTooltip({
             <li>
               Approved - {approvedCount}/{assignedCount} - <strong>{approvedPercent}</strong>
             </li>
-            <li>
-              Request Changes - {requestedChanges}/{assignedCount} - <strong>{requestChangesPercent}</strong>
-            </li>
+            {hostType !== 'Gitlab' && (
+              <li>
+                Request Changes - {requestedChanges}/{assignedCount} - <strong>{requestChangesPercent}</strong>
+              </li>
+            )}
           </ul>
         </Stack>
       </Stack>

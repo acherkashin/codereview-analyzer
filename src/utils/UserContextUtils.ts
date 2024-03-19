@@ -1,8 +1,8 @@
+import { HostingType } from '../services/types';
+
 export interface GuestUserContext {
   access: 'guest';
 }
-
-export type HostingType = 'Gitlab' | 'Gitea';
 
 export interface Credentials {
   token: string;

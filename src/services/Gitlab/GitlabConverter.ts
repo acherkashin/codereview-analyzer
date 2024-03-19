@@ -25,9 +25,12 @@ export function convertToPullRequest({
   discussions,
   approvalsConfiguration,
 }: GitlabRawDatum): PullRequest {
-  //   // some notes are left by gitlab, so we need to filter them out
+  // some notes are left by gitlab, so we need to filter them out
   const notSystemComments = comments.filter((item) => !item.system);
   const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
+
+  const discussionAuthorIds = notSystemComments.map((item) => item.author.id.toString());
+  const approvedByIds = (approvalsConfiguration.approved_by ?? []).map((item) => item.user.id.toString());
 
   return {
     id: mr.id.toString(),
@@ -40,9 +43,9 @@ export function convertToPullRequest({
     author: convertToUser(mr.author as any),
     requestedReviewers: (mr.reviewers ?? []).map((item) => convertToUser(item as any)),
     comments: notSystemComments.map<Comment>((item) => convertToComment(mr, item)),
-    //TODO: implement
-    reviewedByUserIds: [],
-    approvedByUserIds: (approvalsConfiguration.approved_by ?? []).map((item) => item.user.id.toString()),
+    reviewedByUserIds: [...new Set([...discussionAuthorIds, ...approvedByIds])],
+    approvedByUserIds: approvedByIds,
+    // In Gitlab there is no special state for "Requested Changes"
     requestedChangesByUserIds: [],
     mergedAt: mr.merged_at,
     discussions: notSystemDiscussions.map((item) => convertToDiscussion(mr, item)),
