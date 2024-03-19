@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
 import { Logo } from '../components/Logo';
 import { useAuthGuard } from '../hooks/useAuthGuard';
-import { HostingType } from '../utils/UserContextUtils';
+import { HostingType } from '../services/types';
 import PersonIcon from '@mui/icons-material/Person';
 import LoginIcon from '@mui/icons-material/Login';
 

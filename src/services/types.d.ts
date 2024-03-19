@@ -1,3 +1,5 @@
+export type HostingType = 'Gitlab' | 'Gitea';
+
 export interface Comment {
   /**
    * Comment id
@@ -134,7 +136,7 @@ export interface PullRequest {
 export type PullRequestStatus = 'closed' | 'open' | 'all';
 
 export interface ExportData {
-  hostType: string;
+  hostType: HostingType;
   hostUrl: string;
   data: RawData;
 }

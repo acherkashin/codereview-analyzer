@@ -1,7 +1,6 @@
 import create, { StoreApi } from 'zustand';
 import {
   GuestUserContext,
-  HostingType,
   TokenUserContext,
   UserContext,
   clearUserContext,
@@ -9,7 +8,7 @@ import {
   saveUserContext,
 } from '../utils/UserContextUtils';
 import { isValidHttpUrl } from '../utils/UrlUtils';
-import { User } from '../services/types';
+import { HostingType, User } from '../services/types';
 import { GitService, getGitService } from '../services/GitService';
 
 const initialState = {
