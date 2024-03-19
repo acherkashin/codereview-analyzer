@@ -2,7 +2,12 @@ import { User, Project, AnalyzeParams, ExportData } from '../types';
 import { Gitlab } from '@gitbeaker/browser';
 import { UserSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
 import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
-import { MergeRequestNoteSchema, MergeRequestSchema, DiscussionSchema } from '@gitbeaker/core/dist/types/types';
+import {
+  MergeRequestNoteSchema,
+  MergeRequestSchema,
+  DiscussionSchema,
+  MergeRequestLevelMergeRequestApprovalSchema,
+} from '@gitbeaker/core/dist/types/types';
 import { GitService } from '../GitService';
 import { convertToProject, convertToUser } from './GitlabConverter';
 
@@ -47,23 +52,19 @@ export class GitlabService implements GitService {
     const projectId = parseInt(params.project.id);
 
     const promises = allMrs.map<Promise<GitlabRawDatum>>(async (mrItem) => {
-      if (mrItem.user_notes_count === 0) {
-        return {
-          mergeRequest: mrItem,
-          notes: [],
-          discussions: [],
-        };
-      }
-
       //TODO: most probably it is enough to get only discussions and get the user notes from it, so we can optimize it later
       const userNotes = await this.api.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
       const discussions = await this.api.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 });
+      const approvalsConfiguration = await this.api.MergeRequestApprovals.configuration(projectId, {
+        mergerequestIid: mrItem.iid,
+      });
 
       return {
         mergeRequest: mrItem,
         notes: userNotes,
         discussions,
-      };
+        approvalsConfiguration,
+      } as GitlabRawDatum;
     });
 
     const allComments = await Promise.allSettled(promises);
@@ -95,6 +96,7 @@ export interface GitlabRawDatum {
   mergeRequest: MergeRequestSchema;
   notes: MergeRequestNoteSchema[];
   discussions: DiscussionSchema[];
+  approvalsConfiguration: MergeRequestLevelMergeRequestApprovalSchema;
 }
 
 function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefore, state }: AnalyzeParams) {

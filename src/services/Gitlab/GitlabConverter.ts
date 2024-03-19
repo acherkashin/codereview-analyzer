@@ -19,7 +19,12 @@ export class GitlabConverter implements GitConverter {
   }
 }
 
-export function convertToPullRequest({ mergeRequest: mr, notes: comments, discussions }: GitlabRawDatum): PullRequest {
+export function convertToPullRequest({
+  mergeRequest: mr,
+  notes: comments,
+  discussions,
+  approvalsConfiguration,
+}: GitlabRawDatum): PullRequest {
   //   // some notes are left by gitlab, so we need to filter them out
   const notSystemComments = comments.filter((item) => !item.system);
   const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
@@ -37,7 +42,7 @@ export function convertToPullRequest({ mergeRequest: mr, notes: comments, discus
     comments: notSystemComments.map<Comment>((item) => convertToComment(mr, item)),
     //TODO: implement
     reviewedByUserIds: [],
-    approvedByUserIds: [],
+    approvedByUserIds: (approvalsConfiguration.approved_by ?? []).map((item) => item.user.id.toString()),
     requestedChangesByUserIds: [],
     mergedAt: mr.merged_at,
     discussions: notSystemDiscussions.map((item) => convertToDiscussion(mr, item)),
