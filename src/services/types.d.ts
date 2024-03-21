@@ -111,16 +111,16 @@ export interface PullRequest {
    * - requested changes
    * - commented
    */
-  reviewedByUserIds: string[];
+  reviewedByUser: User[];
   /**
    * Users who approved the pull request
    * TODO: probably it is better to assign "User[]" instead of "string[]" to be consistent
    */
-  approvedByUserIds: string[];
+  approvedByUser: User[];
   /**
    * Users who requested changes in pull request
    */
-  requestedChangesByUserIds: string[];
+  requestedChangesByUser: User[];
   updatedAt: string;
   createdAt: string;
   mergedAt?: string;

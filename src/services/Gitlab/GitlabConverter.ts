@@ -9,6 +9,7 @@ import {
   DiscussionSchema,
   DiscussionNoteSchema,
 } from '@gitbeaker/rest';
+import { distinct, tidy } from '@tidyjs/tidy';
 
 export class GitlabConverter implements GitConverter {
   convert({ pullRequests, users }: RawData): { pullRequests: PullRequest[]; users: User[] } {
@@ -29,8 +30,10 @@ export function convertToPullRequest({
   const notSystemComments = comments.filter((item) => !item.system);
   const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
 
-  const discussionAuthorIds = notSystemComments.map((item) => item.author.id.toString());
-  const approvedByIds = (approvalsConfiguration.approved_by ?? []).map((item) => item.user.id.toString());
+  const discussionAuthor = notSystemComments.map((item) => item.author);
+  const approvedBy = (approvalsConfiguration.approved_by ?? []).map((item) => item.user);
+
+  const reviewedByUser = tidy([...discussionAuthor, ...approvedBy], distinct(['id']));
 
   return {
     id: mr.id.toString(),
@@ -41,12 +44,12 @@ export function convertToPullRequest({
     updatedAt: mr.updated_at,
     createdAt: mr.created_at,
     author: convertToUser(mr.author as any),
-    requestedReviewers: (mr.reviewers ?? []).map((item) => convertToUser(item as any)),
+    requestedReviewers: (mr.reviewers ?? []).map((item) => convertToUser(item)),
     comments: notSystemComments.map<Comment>((item) => convertToComment(mr, item)),
-    reviewedByUserIds: [...new Set([...discussionAuthorIds, ...approvedByIds])],
-    approvedByUserIds: approvedByIds,
+    reviewedByUser: reviewedByUser.map(convertToUser),
+    approvedByUser: approvedBy.map(convertToUser),
     // In Gitlab there is no special state for "Requested Changes"
-    requestedChangesByUserIds: [],
+    requestedChangesByUser: [],
     mergedAt: mr.merged_at || undefined,
     discussions: notSystemDiscussions.map((item) => convertToDiscussion(mr, item)),
     readyAt: getReadyTime(mr, comments),

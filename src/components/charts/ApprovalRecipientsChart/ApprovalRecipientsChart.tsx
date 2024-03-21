@@ -43,14 +43,14 @@ function ApprovalRecipientsForAll({ users, pullRequests }: ApprovalRecipientsCha
   );
 }
 
-function ApprovalRecipientsForUser({ user, users, pullRequests }: ApprovalRecipientsChartProps) {
+function ApprovalRecipientsForUser({ user, pullRequests }: ApprovalRecipientsChartProps) {
   const data = useMemo(
     () =>
-      getWhomUserApprovesArray(pullRequests, users, user!.id).map(({ displayName, total }) => ({
+      getWhomUserApprovesArray(pullRequests, user!.id).map(({ displayName, total }) => ({
         id: displayName,
         value: total,
       })),
-    [pullRequests, user, users]
+    [pullRequests, user]
   );
 
   return (

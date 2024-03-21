@@ -10,7 +10,7 @@ import {
 import { GitConverter } from '../GitConverter';
 import { RawData, PullRequest, User, Project, UserDiscussion, Comment } from '../types';
 import { GiteaRawDatum } from './GiteaService';
-import { groupBy, tidy } from '@tidyjs/tidy';
+import { distinct, groupBy, tidy } from '@tidyjs/tidy';
 
 export class GiteaConverter implements GitConverter {
   constructor(private host: string) {}
@@ -29,17 +29,16 @@ export function convertToPullRequest(
   const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pr, review));
   const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
 
-  const reviewedBy = reviews
-    .filter((item) => item.state && item.user && ['APPROVED', 'REQUEST_CHANGES', 'COMMENT'].includes(item.state))
-    .map((item) => item.user!.id!.toString());
+  const reviewedBy = reviews.filter(
+    (item) => item.state && item.user && ['APPROVED', 'REQUEST_CHANGES', 'COMMENT'].includes(item.state)
+  );
+  const reviewedByUsers = tidy(reviewedBy, distinct(['id']));
 
-  const approvedBy = reviews
-    .filter((item) => item.state && item.user && item.state === 'APPROVED')
-    .map((item) => item.user!.id!.toString());
+  const approvedBy = reviews.filter((item) => item.state && item.user && item.state === 'APPROVED');
+  const approvedByUsers = tidy(approvedBy, distinct(['id']));
 
-  const requestedChangesBy = reviews
-    .filter((item) => item.state && item.user && item.state === 'REQUEST_CHANGES')
-    .map((item) => item.user!.id!.toString());
+  const requestedChangesBy = reviews.filter((item) => item.state && item.user && item.state === 'REQUEST_CHANGES');
+  const requestedChangesByUsers = tidy(requestedChangesBy, distinct(['id']));
 
   return {
     id: pr.id!.toString(),
@@ -52,9 +51,9 @@ export function convertToPullRequest(
     requestedReviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user)),
     comments: [...notEmptyReviews, ...prComments],
     createdAt: pr.created_at ?? 'unknown created at',
-    reviewedByUserIds: [...new Set(reviewedBy)],
-    approvedByUserIds: [...new Set(approvedBy)],
-    requestedChangesByUserIds: [...new Set(requestedChangesBy)],
+    reviewedByUser: reviewedByUsers.map((user) => convertToUser(hostUrl, user)),
+    approvedByUser: approvedByUsers.map((user) => convertToUser(hostUrl, user)),
+    requestedChangesByUser: requestedChangesByUsers.map((user) => convertToUser(hostUrl, user)),
     mergedAt: pr.merged_at,
     discussions: convertToDiscussions(pr, comments),
     readyAt: getReadyTime(pr, timeline),
