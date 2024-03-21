@@ -7,8 +7,8 @@ import {
   MergeRequestNoteSchema,
   MergeRequestSchema,
   DiscussionSchema,
-  DiscussionNote,
-} from '@gitbeaker/core/dist/types/types';
+  DiscussionNoteSchema,
+} from '@gitbeaker/rest';
 
 export class GitlabConverter implements GitConverter {
   convert({ pullRequests, users }: RawData): { pullRequests: PullRequest[]; users: User[] } {
@@ -47,16 +47,16 @@ export function convertToPullRequest({
     approvedByUserIds: approvedByIds,
     // In Gitlab there is no special state for "Requested Changes"
     requestedChangesByUserIds: [],
-    mergedAt: mr.merged_at,
+    mergedAt: mr.merged_at || undefined,
     discussions: notSystemDiscussions.map((item) => convertToDiscussion(mr, item)),
     readyAt: getReadyTime(mr, comments),
   };
 }
 
-export function convertToComment(mr: MergeRequestSchema, comment: MergeRequestNoteSchema | DiscussionNote): Comment {
+export function convertToComment(mr: MergeRequestSchema, comment: MergeRequestNoteSchema | DiscussionNoteSchema): Comment {
   return {
     id: comment.id.toString(),
-    prAuthorId: (mr.author.id as string).toString(),
+    prAuthorId: mr.author.id.toString(),
     prAuthorName: mr.author.name as string,
     prAuthorAvatarUrl: mr.author.avatar_url as string,
     reviewerId: (comment.author as UserSchema).id.toString(),
@@ -75,10 +75,10 @@ export function convertToDiscussion(mr: MergeRequestSchema, discussion: Discussi
   return {
     id: discussion.id.toString(),
     pullRequestId: mr.id.toString(),
-    prAuthorId: (mr.author.id as string).toString(),
+    prAuthorId: mr.author.id.toString(),
     prAuthorName: mr.author.name as string,
-    reviewerId: (discussion.notes ?? []).length > 0 ? (discussion.notes![0].author.id as string) : 'unknown reviewerId',
-    reviewerName: (discussion.notes ?? []).length > 0 ? (discussion.notes![0].author.name as string) : 'unknown reviewerName',
+    reviewerId: (discussion.notes ?? []).length > 0 ? discussion.notes![0].author.id.toString() : 'unknown reviewerId',
+    reviewerName: (discussion.notes ?? []).length > 0 ? discussion.notes![0].author.name : 'unknown reviewerName',
     reviewerAvatarUrl: discussion.notes![0].author.avatar_url as string,
     pullRequestName: mr.title,
     url: (discussion.notes ?? []).length > 0 ? getNoteUrl(mr.web_url, discussion.notes![0].id.toString()) : mr.web_url!,
@@ -109,7 +109,7 @@ export function convertToProject(project: ProjectSchema): Project {
   return {
     id: project.id.toString(),
     name: project.name_with_namespace,
-    avatarUrl: project.avatar_url,
+    avatarUrl: project.avatar_url || undefined,
     description: project.description,
   };
 }

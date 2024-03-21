@@ -1,16 +1,18 @@
 import { User, Project, AnalyzeParams, ExportData } from '../types';
-import { Gitlab } from '@gitbeaker/browser';
-import { UserSchema, AllMergeRequestsOptions } from '@gitbeaker/core/dist/types/types';
-import { Gitlab as GitlabType } from '@gitbeaker/core/dist/types';
-import {
+import { Gitlab } from '@gitbeaker/rest';
+import type {
   MergeRequestNoteSchema,
   MergeRequestSchema,
   DiscussionSchema,
   MergeRequestLevelMergeRequestApprovalSchema,
-} from '@gitbeaker/core/dist/types/types';
+  UserSchema,
+  AllMergeRequestsOptions,
+} from '@gitbeaker/rest';
 import { GitService } from '../GitService';
 import { convertToProject, convertToUser } from './GitlabConverter';
 import { requestAllChunked } from '../../utils/PromiseUtils';
+
+type GitlabType = InstanceType<typeof Gitlab<false>>;
 
 export class GitlabService implements GitService {
   private api: GitlabType;
@@ -56,8 +58,8 @@ export class GitlabService implements GitService {
       //TODO: most probably it is enough to get only discussions and get the user notes from it, so we can optimize it later
       const userNotes = await this.api.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
       const discussions = await this.api.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 });
-      const approvalsConfiguration = await this.api.MergeRequestApprovals.configuration(projectId, {
-        mergerequestIid: mrItem.iid,
+      const approvalsConfiguration = await this.api.MergeRequestApprovals.showConfiguration(projectId, {
+        mergerequestIId: mrItem.iid,
       });
 
       return {
@@ -74,11 +76,11 @@ export class GitlabService implements GitService {
   }
 
   getCurrentUser(): Promise<User> {
-    return this.api.Users.current().then(convertToUser);
+    return this.api.Users.showCurrentUser().then(convertToUser);
   }
 
   async searchUsers(searchText: string): Promise<User[]> {
-    const resp = await this.api.Users.search(searchText);
+    const resp = await this.api.Users.all({ search: searchText, perPage: 100 });
     return resp.map(convertToUser);
   }
 
