@@ -5,9 +5,9 @@ body {
   background-color: #f9fafc;
 }
 
-/* * {
+* {
   box-sizing: border-box;
-} */
+}
 
 #root {
   width: 100%;
