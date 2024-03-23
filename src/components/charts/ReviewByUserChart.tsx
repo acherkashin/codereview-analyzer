@@ -25,19 +25,17 @@ export function ReviewByUserChart(props: ReviewByUserChartProps) {
 }
 
 function ReviewChartForAll({ users, pullRequests }: ReviewByUserChartProps) {
-  const width = 1020;
   const hostType = useChartsStore(getHostType);
   const data = useMemo(() => getReviewDataByUser(users, pullRequests), [users, pullRequests]);
   const keys = hostType === 'Gitea' ? giteaKeys : gitlabKeys;
 
   return (
-    <ChartContainer title={'Pull Requests reviews by user'} style={{ width }}>
+    <ChartContainer title={'Pull Requests reviews by user'}>
       <BarChart
-        width={width}
         indexBy="userName"
         keys={keys}
         data={data}
-        margin={{ top: 50, right: 150, bottom: 120, left: 50 }}
+        margin={{ top: 50, right: 50, bottom: 120, left: 50 }}
         groupMode="grouped"
         layout="vertical"
         borderRadius={4}
@@ -49,11 +47,11 @@ function ReviewChartForAll({ users, pullRequests }: ReviewByUserChartProps) {
         legends={[
           {
             dataFrom: 'keys',
-            anchor: 'top-right',
-            direction: 'column',
+            anchor: 'top',
+            direction: 'row',
             justify: false,
-            translateX: 120,
-            translateY: 0,
+            translateX: 0,
+            translateY: -20,
             itemsSpacing: 2,
             itemWidth: 100,
             itemHeight: 20,

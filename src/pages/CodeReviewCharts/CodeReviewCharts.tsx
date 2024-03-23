@@ -203,7 +203,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <Grid item xs={12}>
               <DiscussionsPerMonthChart user={user} discussions={discussions} />
             </Grid>
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <TopLongestDiscussionsChart
                 user={user}
                 pullRequests={pullRequests}
@@ -215,7 +215,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               />
             </Grid>
             {user == null && (
-              <Grid item lg={4} xs={6}>
+              <Grid item lg={4} md={6} xs={12}>
                 <StartedWithDiscussionsPieChart
                   discussions={discussions}
                   onClick={(authorName) => showFilteredDiscussions(null, authorName)}
@@ -223,17 +223,17 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               </Grid>
             )}
             {user == null && (
-              <Grid item lg={4} xs={6}>
+              <Grid item lg={4} md={6} xs={12}>
                 <StartedByDiscussionsPieChart
                   discussions={discussions}
                   onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
                 />
               </Grid>
             )}
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <StartedByDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
             </Grid>
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
             </Grid>
           </Grid>
@@ -247,31 +247,31 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <Grid item xs={12}>
               <WordsCloud comments={user ? userComments : comments} onClick={handleWordClick} />
             </Grid>
-            <Grid item lg={4} xs={6}>
-              <TopCommentedPullRequestsChart user={user} pullRequests={pullRequests} count={10} />
-            </Grid>
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={user != null ? 4 : 12} md={user != null ? 4 : 12} xs={12}>
               <ReviewByUserChart user={user} pullRequests={pullRequests} users={users} />
             </Grid>
+            <Grid item lg={4} md={6} xs={12}>
+              <TopCommentedPullRequestsChart user={user} pullRequests={pullRequests} count={10} />
+            </Grid>
             {user == null && (
-              <Grid item lg={4} xs={6}>
+              <Grid item lg={4} md={6} xs={12}>
                 <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
               </Grid>
             )}
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <CommentsLeftBarChart user={user} comments={comments} onClick={showFilteredComments} />
             </Grid>
 
             {user == null && (
-              <Grid item lg={4} xs={6}>
+              <Grid item lg={4} md={6} xs={12}>
                 <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
               </Grid>
             )}
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <CommentsReceivedBarChart user={user} comments={comments} onClick={showFilteredComments} />
             </Grid>
             {hostType === 'Gitea' && (
-              <Grid item lg={4} xs={6}>
+              <Grid item lg={4} md={6} xs={12}>
                 <CommentedFilesChart user={user} comments={comments} />
               </Grid>
             )}
@@ -283,10 +283,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           </Typography>
 
           <Grid container className="charts">
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <ApprovalDistributionChart user={user} pullRequests={pullRequests} users={users} />
             </Grid>
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <ApprovalRecipientsChart user={user} pullRequests={pullRequests} users={users} />
             </Grid>
           </Grid>
@@ -296,10 +296,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           </Typography>
 
           <Grid container className="charts">
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <ReviewRequestRecipients user={user} pullRequests={pullRequests} users={users} />
             </Grid>
-            <Grid item lg={4} xs={6}>
+            <Grid item lg={4} md={6} xs={12}>
               <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
             </Grid>
           </Grid>
@@ -310,7 +310,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
           <Grid container className="charts">
             {user == null && (
-              <Grid item lg={4} xs={6}>
+              <Grid item lg={4} md={6} xs={12}>
                 <PullRequestsCreatedChart pullRequests={pullRequests} />
               </Grid>
             )}
