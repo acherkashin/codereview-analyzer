@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { PropsWithChildren, useCallback, useState } from 'react';
 import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../../utils/GitUtils';
 import { CommentList, DiscussionList, FullScreenDialog, UsersList } from '../../components';
 import { Button, Divider, Grid, Stack, Tooltip, Typography } from '@mui/material';
@@ -190,15 +190,11 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           </Tooltip>
         </Stack>
 
-        <Typography variant="h4" component="h2">
-          Highlights
-        </Typography>
+        <ChartsTitle>Highlights</ChartsTitle>
         <CodeReviewTiles user={user} />
 
         <div className="charts-container">
-          <Typography variant="h4" component="h2">
-            Discussions
-          </Typography>
+          <ChartsTitle>Discussions</ChartsTitle>
           <Grid container className="charts">
             <Grid item xs={12}>
               <DiscussionsPerMonthChart user={user} discussions={discussions} />
@@ -237,9 +233,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
             </Grid>
           </Grid>
-          <Typography variant="h4" component="h2">
-            Comments
-          </Typography>
+          <ChartsTitle>Comments</ChartsTitle>
           <Grid container className="charts">
             <Grid item xs={12}>
               <CommentsPerMonthChart user={user} comments={comments} />
@@ -278,9 +272,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
           </Grid>
 
-          <Typography variant="h4" component="h2">
-            Approvals
-          </Typography>
+          <ChartsTitle>Approvals</ChartsTitle>
 
           <Grid container className="charts">
             <Grid item lg={4} md={6} xs={12}>
@@ -291,9 +283,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             </Grid>
           </Grid>
 
-          <Typography variant="h4" component="h2">
-            Review Requests
-          </Typography>
+          <ChartsTitle>Review Requests</ChartsTitle>
 
           <Grid container className="charts">
             <Grid item lg={4} md={6} xs={12}>
@@ -304,9 +294,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             </Grid>
           </Grid>
 
-          <Typography variant="h4" component="h2">
-            Other
-          </Typography>
+          <ChartsTitle>Other</ChartsTitle>
 
           <Grid container className="charts">
             {user == null && (
@@ -350,5 +338,13 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
         <DiscussionList discussions={filteredDiscussions} />
       </FullScreenDialog>
     </PageContainer>
+  );
+}
+
+function ChartsTitle({ children }: PropsWithChildren<{}>) {
+  return (
+    <Typography variant="h3" component="h2" ml={3}>
+      {children}
+    </Typography>
   );
 }

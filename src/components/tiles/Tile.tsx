@@ -9,7 +9,6 @@ export interface TileProps {
 }
 
 const TileRoot = styled(Card)({
-  minWidth: 220,
   height: 150,
   display: 'flex',
   flexDirection: 'column',

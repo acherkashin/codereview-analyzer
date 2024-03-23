@@ -68,48 +68,48 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
 
   return (
     <Grid container>
-      <Grid item xs={6} md={4} lg={2}>
+      <Grid item xs={6} md={4} lg={3} xl={2}>
         <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
       </Grid>
 
-      <Grid item xs={6} md={4} lg={2}>
+      <Grid item xs={6} md={4} lg={3} xl={2}>
         <Tile count={discussions.length} title="Discussions" icon={<ForumIcon fontSize="large" sx={{ color: 'white' }} />} />
       </Grid>
 
-      <Grid item xs={6} md={4} lg={2}>
+      <Grid item xs={6} md={4} lg={3} xl={2}>
         <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
       </Grid>
       {mostCommentedPRs != null && (
-        <Grid item xs={6} md={4} lg={2}>
+        <Grid item xs={6} md={4} lg={3} xl={2}>
           <MostCommentsPullRequestTile pullRequest={mostCommentedPRs} />
         </Grid>
       )}
       {mostCommentsLeftUser && user == null && (
-        <Grid item xs={6} md={4} lg={2}>
+        <Grid item xs={6} md={4} lg={3} xl={2}>
           <MostCommentsLeftByTile user={mostCommentsLeftUser} count={mostCommentsLeftTotal} />
         </Grid>
       )}
       {mostCommentsReceivedUser && user == null && (
-        <Grid item xs={6} md={4} lg={2}>
+        <Grid item xs={6} md={4} lg={3} xl={2}>
           <MostCommentsReceivedTile user={mostCommentsReceivedUser} count={mostCommentsReceivedTotal} />
         </Grid>
       )}
       {longestPullRequest && (
-        <Grid item xs={6} md={4} lg={2}>
+        <Grid item xs={6} md={4} lg={3} xl={2}>
           <LongestPullRequestTile pullRequest={longestPullRequest} />
         </Grid>
       )}
-      <Grid item xs={6} md={4} lg={2}>
+      <Grid item xs={6} md={4} lg={3} xl={2}>
         <Tile
           count={commentedFilesCount}
           title="Commented files"
           icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />}
         />
       </Grid>
-      <Grid item xs={6} md={4} lg={2}>
+      <Grid item xs={6} md={4} lg={3} xl={2}>
         <LongestDiscussionTile discussion={longestDiscussion} />
       </Grid>
-      <Grid item xs={6} md={4} lg={2}>
+      <Grid item xs={6} md={4} lg={3} xl={2}>
         <Tile count={noDiscussionsPr} title={'PRs merged without comments'} icon={<BranchIcon />} />
       </Grid>
     </Grid>

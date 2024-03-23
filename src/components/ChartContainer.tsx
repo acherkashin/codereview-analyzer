@@ -1,5 +1,5 @@
 import { Fullscreen } from '@mui/icons-material';
-import { IconButton, Paper, Box, Typography, Hidden } from '@mui/material';
+import { IconButton, Paper, Box, Typography, Stack } from '@mui/material';
 import { CSSProperties, useState } from 'react';
 
 export interface ChartContainerProps {
@@ -25,13 +25,26 @@ export function ChartContainer({ children, title, style }: ChartContainerProps) 
     : { margin: 10 };
   return (
     <Paper variant="outlined" component="section" style={{ ...style, ...maximizeStyles }}>
-      <Typography variant="subtitle1" color="text.secondary" style={{ marginLeft: 16 }}>
-        {title}{' '}
-        <IconButton onClick={() => setIsMaximized(!isMaximized)}>
-          <Fullscreen />
-        </IconButton>
-      </Typography>
+      <ChartHeader title={title} onMaximizeClick={() => setIsMaximized(!isMaximized)} />
       <Box style={{ height: isMaximized ? 'calc(100% - 40px)' : 500 }}>{children}</Box>
     </Paper>
+  );
+}
+
+export interface ChartHeaderProps {
+  title: string;
+  onMaximizeClick?: () => void;
+}
+
+function ChartHeader({ title, onMaximizeClick }: ChartHeaderProps) {
+  return (
+    <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Typography variant="subtitle1" color="text.secondary" style={{ marginLeft: 16 }}>
+        {title}
+      </Typography>
+      <IconButton onClick={onMaximizeClick}>
+        <Fullscreen />
+      </IconButton>
+    </Stack>
   );
 }

@@ -14,7 +14,7 @@ export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick, ...
     <ResponsiveLine
       data={data}
       enableSlices="x"
-      margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+      margin={{ top: 10, right: 110, bottom: 50, left: 60 }}
       xScale={{
         type: 'time',
         format: '%Y-%m-%d',
