@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Stack } from '@mui/material';
+import { Grid } from '@mui/material';
 import {
   getComments,
   useChartsStore,
@@ -67,25 +67,51 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
   }
 
   return (
-    <Stack direction="row" flexWrap={'wrap'}>
-      <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
-      <Tile count={discussions.length} title="Discussions" icon={<ForumIcon fontSize="large" sx={{ color: 'white' }} />} />
-      <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
-      {mostCommentedPRs != null && <MostCommentsPullRequestTile pullRequest={mostCommentedPRs} />}
+    <Grid container>
+      <Grid item xs={6} md={4} lg={2}>
+        <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
+      </Grid>
+
+      <Grid item xs={6} md={4} lg={2}>
+        <Tile count={discussions.length} title="Discussions" icon={<ForumIcon fontSize="large" sx={{ color: 'white' }} />} />
+      </Grid>
+
+      <Grid item xs={6} md={4} lg={2}>
+        <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
+      </Grid>
+      {mostCommentedPRs != null && (
+        <Grid item xs={6} md={4} lg={2}>
+          <MostCommentsPullRequestTile pullRequest={mostCommentedPRs} />
+        </Grid>
+      )}
       {mostCommentsLeftUser && user == null && (
-        <MostCommentsLeftByTile user={mostCommentsLeftUser} count={mostCommentsLeftTotal} />
+        <Grid item xs={6} md={4} lg={2}>
+          <MostCommentsLeftByTile user={mostCommentsLeftUser} count={mostCommentsLeftTotal} />
+        </Grid>
       )}
       {mostCommentsReceivedUser && user == null && (
-        <MostCommentsReceivedTile user={mostCommentsReceivedUser} count={mostCommentsReceivedTotal} />
+        <Grid item xs={6} md={4} lg={2}>
+          <MostCommentsReceivedTile user={mostCommentsReceivedUser} count={mostCommentsReceivedTotal} />
+        </Grid>
       )}
-      {longestPullRequest && <LongestPullRequestTile pullRequest={longestPullRequest} />}
-      <Tile
-        count={commentedFilesCount}
-        title="Commented files"
-        icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />}
-      />
-      <LongestDiscussionTile discussion={longestDiscussion} />
-      <Tile count={noDiscussionsPr} title={'PRs merged without comments'} icon={<BranchIcon />} />
-    </Stack>
+      {longestPullRequest && (
+        <Grid item xs={6} md={4} lg={2}>
+          <LongestPullRequestTile pullRequest={longestPullRequest} />
+        </Grid>
+      )}
+      <Grid item xs={6} md={4} lg={2}>
+        <Tile
+          count={commentedFilesCount}
+          title="Commented files"
+          icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />}
+        />
+      </Grid>
+      <Grid item xs={6} md={4} lg={2}>
+        <LongestDiscussionTile discussion={longestDiscussion} />
+      </Grid>
+      <Grid item xs={6} md={4} lg={2}>
+        <Tile count={noDiscussionsPr} title={'PRs merged without comments'} icon={<BranchIcon />} />
+      </Grid>
+    </Grid>
   );
 }

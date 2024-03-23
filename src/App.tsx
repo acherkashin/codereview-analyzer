@@ -1,7 +1,7 @@
 import './App.css';
 import { styled } from '@mui/material';
 import { Outlet } from 'react-router-dom';
-import { SideBar } from './components/SideBar';
+// import { SideBar } from './components/SideBar';
 import { AuthGuard } from './components/AuthGuard';
 import { AppHeader } from './components/AppHeader/AppHeader';
 import { LocalizationProvider } from '@mui/x-date-pickers';
