@@ -39,6 +39,7 @@ export function Login(_: LoginProps) {
 
   const signIn = useAuthStore(getSignIn);
   const signInGuest = useAuthStore(getSignInGuest);
+  const cancelSignIn = useAuthStore((state) => state.actions.cancelSignIn);
   const isSigningIn = useAuthStore((state) => state.isSigningIn);
 
   const handleLoginAsGuest = () => {
@@ -123,6 +124,7 @@ export function Login(_: LoginProps) {
         <LoadingButton loading={isSigningIn} startIcon={<LoginIcon />} onClick={handleLoggedIn}>
           Login
         </LoadingButton>
+        {isSigningIn && <Button onClick={cancelSignIn}>Cancel</Button>}
         <Button onClick={handleLoginAsGuest} startIcon={<PersonIcon />}>
           Login As Guest
         </Button>

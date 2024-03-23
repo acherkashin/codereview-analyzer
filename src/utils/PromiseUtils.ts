@@ -38,3 +38,30 @@ export async function successRetry<T>(
 }
 
 const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+export interface ICancelablePromise<T> {
+  promise: Promise<T>;
+  cancel: () => void;
+}
+
+/**
+ * {@link https://reactjs.org/blog/2015/12/16/ismounted-antipattern.html Makes promise cancellable}
+ * @param promise promise to make cancelable
+ */
+export function makeCancelable<T>(promise: Promise<T>): ICancelablePromise<T> {
+  let hasCanceled_ = false;
+
+  const wrappedPromise = new Promise<T>((resolve, reject) => {
+    promise.then(
+      (val) => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
+      (error) => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error))
+    );
+  });
+
+  return {
+    promise: wrappedPromise,
+    cancel() {
+      hasCanceled_ = true;
+    },
+  };
+}

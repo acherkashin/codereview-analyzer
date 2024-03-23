@@ -10,6 +10,7 @@ import {
 import { isValidHttpUrl } from '../utils/UrlUtils';
 import { HostingType, User } from '../services/types';
 import { GitService, getGitService } from '../services/GitService';
+import { makeCancelable } from '../utils/PromiseUtils';
 
 const initialState = {
   // setup user context on page loading
@@ -30,6 +31,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 }));
 
 function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStore>['getState']) {
+  let _cancel: (() => void) | null = null;
+
   return {
     signInGuest: () => {
       const guestContext: GuestUserContext = { access: 'guest' };
@@ -54,7 +57,8 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
       const client = getGitService({ host, token, hostType });
 
       try {
-        const user = await client.getCurrentUser();
+        const userPromise = makeCancelable(client.getCurrentUser());
+        const user = await userPromise.promise;
         const userContext: UserContext = { token, host, hostType, access: 'full' };
         saveUserContext(userContext);
 
@@ -64,6 +68,10 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
           genericClient: client,
         });
       } catch (e) {
+        if ((e as any).isCanceled) {
+          return;
+        }
+
         set({
           userContext: null,
           user: null,
@@ -74,6 +82,7 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
 
         throw e;
       } finally {
+        _cancel = null;
         set({ isSigningIn: false });
       }
     },
@@ -84,6 +93,15 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
         genericClient: null,
       });
       clearUserContext();
+    },
+    cancelSignIn() {
+      if (_cancel != null) {
+        _cancel();
+        _cancel = null;
+      }
+
+      set({ isSigningIn: false });
+      get().actions.signOut();
     },
   };
 }

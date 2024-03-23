@@ -1,5 +1,5 @@
 import { getIsAuthenticated, useAuthStore } from '../stores/AuthStore';
-import { CircularProgress, Stack, Typography } from '@mui/material';
+import { Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { useAuthGuard } from '../hooks/useAuthGuard';
 
 export interface AuthGuardProps {
@@ -9,6 +9,7 @@ export interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps): JSX.Element | null {
   const isAuthenticated = useAuthStore(getIsAuthenticated);
   const isSigningIn = useAuthStore((store) => store.isSigningIn);
+  const cancelSignIn = useAuthStore((store) => store.actions.cancelSignIn);
 
   // redirects to login if not authenticated
   useAuthGuard();
@@ -28,6 +29,8 @@ export function AuthGuard({ children }: AuthGuardProps): JSX.Element | null {
         <Stack spacing={2} direction="column">
           <CircularProgress style={{ alignSelf: 'center' }} />
           <Typography>Signing in</Typography>
+
+          <Button onClick={() => cancelSignIn()}>Cancel</Button>
         </Stack>
       </div>
     );
