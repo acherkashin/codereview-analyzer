@@ -1,6 +1,5 @@
 import { FileUpload } from '@mui/icons-material';
 import { Button } from '@mui/material';
-import { useRef } from 'react';
 
 export interface FileUploadButtonProps {
   label: string;
@@ -8,16 +7,13 @@ export interface FileUploadButtonProps {
 }
 
 export function ImportTextButton({ label, onTextSelected }: FileUploadButtonProps) {
-  const ref = useRef<HTMLInputElement>(null);
-
   return (
-    <Button onClick={() => ref.current?.click()} startIcon={<FileUpload />}>
+    <Button component="label" startIcon={<FileUpload />}>
       {label}
       <input
-        ref={ref}
-        hidden
         accept="application/json"
         type="file"
+        hidden
         onChange={(e) => {
           const input = e.target;
           const file = input.files?.[0];
