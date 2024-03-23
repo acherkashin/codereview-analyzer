@@ -1,7 +1,8 @@
+import { ExportData } from '../utils/ExportDataUtils';
 import { Credentials } from '../utils/UserContextUtils';
 import { GiteaService } from './Gitea/GiteaService';
 import { GitlabService } from './Gitlab/GitlabService';
-import { AnalyzeParams, ExportData, Project, User } from './types';
+import { AnalyzeParams, Project, User } from './types';
 
 export function getGitService({ hostType, host, token }: Credentials): GitService {
   return hostType === 'Gitlab' ? new GitlabService(host, token) : new GiteaService(host, token);

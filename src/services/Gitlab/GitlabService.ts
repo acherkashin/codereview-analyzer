@@ -1,4 +1,4 @@
-import { User, Project, AnalyzeParams, ExportData } from '../types';
+import { User, Project, AnalyzeParams } from '../types';
 import { Gitlab } from '@gitbeaker/rest';
 import type {
   MergeRequestNoteSchema,
@@ -11,6 +11,7 @@ import type {
 import { GitService } from '../GitService';
 import { convertToProject, convertToUser } from './GitlabConverter';
 import { requestAllChunked, successRetry } from '../../utils/PromiseUtils';
+import { ExportData } from '../../utils/ExportDataUtils';
 
 type GitlabType = InstanceType<typeof Gitlab<false>>;
 

@@ -7,10 +7,10 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import { downloadFile } from '../../utils/FileUtils';
 import { ExportToExcelDialog } from '../../components/dialogs/ExportToExcelDialog';
 import { downloadDiscussions } from '../../utils/ExcelUtils';
 import { getDiscussions, useChartsStore, getDefaultFileName, getExportData } from '../../stores/ChartsStore';
+import { downloadExportData } from '../../utils/ExportDataUtils';
 
 export interface ExportButtonProps {
   style?: React.CSSProperties;
@@ -48,7 +48,7 @@ export default function ExportButton({ style }: ExportButtonProps) {
         downloadDiscussions(fileName, discussions);
         break;
       case ExportType.Json:
-        downloadFile(`${fileName}.json`, JSON.stringify(dataToExport, null, 2));
+        downloadExportData(fileName, dataToExport!);
         break;
       default:
         alert('unknown export type');

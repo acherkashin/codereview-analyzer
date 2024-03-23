@@ -135,12 +135,6 @@ export interface PullRequest {
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';
 
-export interface ExportData {
-  hostType: HostingType;
-  hostUrl: string;
-  data: RawData;
-}
-
 export interface RawData {
   pullRequests: any[];
   users: any[];

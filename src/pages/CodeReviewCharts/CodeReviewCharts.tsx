@@ -17,7 +17,7 @@ import {
   useChartsStore,
 } from '../../stores/ChartsStore';
 
-import { ImportTextButton } from '../../components/FileUploadButton';
+import { ImportTextButton } from '../../components/ImportTextButton';
 import { useClient } from '../../stores/AuthStore';
 import { FilterPanel } from '../../components/FilterPanel/FilterPanel';
 import { PageContainer } from '../shared/PageContainer';

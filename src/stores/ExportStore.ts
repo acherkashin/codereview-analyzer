@@ -13,7 +13,7 @@ export interface ExportStore {
   setProjectsToExport: (projectIds: string[]) => void;
 }
 
-export interface ExportData {
+interface ExportData {
   users: User[];
   projects: ProjectExport[];
 }

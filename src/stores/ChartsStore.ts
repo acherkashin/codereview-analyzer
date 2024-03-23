@@ -1,11 +1,12 @@
 import create, { StoreApi } from 'zustand';
 import createContext from 'zustand/context';
-import { AnalyzeParams, Comment, ExportData, PullRequest, User } from '../services/types';
+import { AnalyzeParams, Comment, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { GitService } from '../services/GitService';
 import { convert } from '../services/GitConverter';
 import { getEndDate, getStartDate } from '../utils/GitUtils';
 import dayjs, { Dayjs } from 'dayjs';
+import { ExportData } from '../utils/ExportDataUtils';
 
 const initialState = {
   pullRequests: [] as PullRequest[],

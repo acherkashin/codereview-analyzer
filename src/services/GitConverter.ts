@@ -1,6 +1,7 @@
+import { ExportData } from '../utils/ExportDataUtils';
 import { GiteaConverter } from './Gitea/GiteaConverter';
 import { GitlabConverter } from './Gitlab/GitlabConverter';
-import { ExportData, PullRequest, RawData, User } from './types';
+import { PullRequest, RawData, User } from './types';
 
 export interface GitConverter {
   convert(data: RawData): ConvertedData;

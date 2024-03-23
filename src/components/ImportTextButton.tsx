@@ -26,9 +26,13 @@ export function ImportTextButton({ label, onTextSelected }: FileUploadButtonProp
           reader.onload = function () {
             const text = reader.result as string;
             if (!text) {
+              //TODO: need to show error. probably file is too big
               return;
             }
             onTextSelected(text);
+          };
+          reader.onerror = function () {
+            console.error(reader.error);
           };
           reader.readAsText(file);
         }}
