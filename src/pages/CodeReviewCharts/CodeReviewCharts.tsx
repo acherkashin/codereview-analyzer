@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../../utils/GitUtils';
 import { CommentList, DiscussionList, FullScreenDialog, UsersList } from '../../components';
-import { Button, Divider, Stack, Tooltip, Typography } from '@mui/material';
+import { Button, Divider, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import CloseIcon from '@mui/icons-material/Close';
@@ -199,73 +199,122 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <Typography variant="h4" component="h2">
             Discussions
           </Typography>
-          <div className="charts">
-            <DiscussionsPerMonthChart user={user} discussions={discussions} />
-            <TopLongestDiscussionsChart
-              user={user}
-              pullRequests={pullRequests}
-              count={10}
-              onClick={(discussion) => {
-                setTitle(`Discussion started by ${discussion.reviewerName} in ${discussion.pullRequestName}`);
-                setFilteredDiscussions([discussion]);
-              }}
-            />
-            {user == null && (
-              <StartedWithDiscussionsPieChart
-                discussions={discussions}
-                onClick={(authorName) => showFilteredDiscussions(null, authorName)}
+          <Grid container className="charts">
+            <Grid item xs={12}>
+              <DiscussionsPerMonthChart user={user} discussions={discussions} />
+            </Grid>
+            <Grid item xs={4}>
+              <TopLongestDiscussionsChart
+                user={user}
+                pullRequests={pullRequests}
+                count={10}
+                onClick={(discussion) => {
+                  setTitle(`Discussion started by ${discussion.reviewerName} in ${discussion.pullRequestName}`);
+                  setFilteredDiscussions([discussion]);
+                }}
               />
+            </Grid>
+            {user == null && (
+              <Grid item xs={4}>
+                <StartedWithDiscussionsPieChart
+                  discussions={discussions}
+                  onClick={(authorName) => showFilteredDiscussions(null, authorName)}
+                />
+              </Grid>
             )}
             {user == null && (
-              <StartedByDiscussionsPieChart
-                discussions={discussions}
-                onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
-              />
+              <Grid item xs={4}>
+                <StartedByDiscussionsPieChart
+                  discussions={discussions}
+                  onClick={(reviewerName) => showFilteredDiscussions(reviewerName, null)}
+                />
+              </Grid>
             )}
-            <StartedByDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
-            <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
-          </div>
+            <Grid item xs={4}>
+              <StartedByDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
+            </Grid>
+            <Grid item xs={4}>
+              <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
+            </Grid>
+          </Grid>
           <Typography variant="h4" component="h2">
             Comments
           </Typography>
-          <div className="charts">
-            <CommentsPerMonthChart user={user} comments={comments} />
-            <WordsCloud comments={user ? userComments : comments} onClick={handleWordClick} />
-            <TopCommentedPullRequestsChart user={user} pullRequests={pullRequests} count={10} />
-            <ReviewByUserChart user={user} pullRequests={pullRequests} users={users} />
-            {user == null && <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />}
-            <CommentsLeftBarChart user={user} comments={comments} onClick={showFilteredComments} />
+          <Grid container className="charts">
+            <Grid item xs={12}>
+              <CommentsPerMonthChart user={user} comments={comments} />
+            </Grid>
+            <Grid item xs={12}>
+              <WordsCloud comments={user ? userComments : comments} onClick={handleWordClick} />
+            </Grid>
+            <Grid item xs={4}>
+              <TopCommentedPullRequestsChart user={user} pullRequests={pullRequests} count={10} />
+            </Grid>
+            <Grid item xs={4}>
+              <ReviewByUserChart user={user} pullRequests={pullRequests} users={users} />
+            </Grid>
+            {user == null && (
+              <Grid item xs={4}>
+                <CommentsLeftPieChart comments={comments} onClick={(id) => showFilteredComments(id, null)} />
+              </Grid>
+            )}
+            <Grid item xs={4}>
+              <CommentsLeftBarChart user={user} comments={comments} onClick={showFilteredComments} />
+            </Grid>
 
-            {user == null && <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />}
-            <CommentsReceivedBarChart user={user} comments={comments} onClick={showFilteredComments} />
-            {hostType === 'Gitea' && <CommentedFilesChart user={user} comments={comments} />}
-
+            {user == null && (
+              <Grid item xs={4}>
+                <CommentsReceivedPieChart comments={comments} onClick={(id) => showFilteredComments(null, id)} />
+              </Grid>
+            )}
+            <Grid item xs={4}>
+              <CommentsReceivedBarChart user={user} comments={comments} onClick={showFilteredComments} />
+            </Grid>
+            {hostType === 'Gitea' && (
+              <Grid item xs={4}>
+                <CommentedFilesChart user={user} comments={comments} />
+              </Grid>
+            )}
             {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
-          </div>
+          </Grid>
 
           <Typography variant="h4" component="h2">
             Approvals
           </Typography>
 
-          <div className="charts">
-            <ApprovalDistributionChart user={user} pullRequests={pullRequests} users={users} />
-            <ApprovalRecipientsChart user={user} pullRequests={pullRequests} users={users} />
-          </div>
+          <Grid container className="charts">
+            <Grid item xs={4}>
+              <ApprovalDistributionChart user={user} pullRequests={pullRequests} users={users} />
+            </Grid>
+            <Grid item xs={4}>
+              <ApprovalRecipientsChart user={user} pullRequests={pullRequests} users={users} />
+            </Grid>
+          </Grid>
 
           <Typography variant="h4" component="h2">
             Review Requests
           </Typography>
 
-          <div className="charts">
-            <ReviewRequestRecipients user={user} pullRequests={pullRequests} users={users} />
-            <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
-          </div>
+          <Grid container className="charts">
+            <Grid item xs={4}>
+              <ReviewRequestRecipients user={user} pullRequests={pullRequests} users={users} />
+            </Grid>
+            <Grid item xs={4}>
+              <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
+            </Grid>
+          </Grid>
 
           <Typography variant="h4" component="h2">
             Other
           </Typography>
 
-          <div className="charts">{user == null && <PullRequestsCreatedChart pullRequests={pullRequests} />}</div>
+          <Grid container className="charts">
+            {user == null && (
+              <Grid item xs={4}>
+                <PullRequestsCreatedChart pullRequests={pullRequests} />
+              </Grid>
+            )}
+          </Grid>
         </div>
       </div>
 

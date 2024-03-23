@@ -1,4 +1,4 @@
-import { Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 
 export interface ChartContainerProps {
   title: string;
@@ -8,11 +8,11 @@ export interface ChartContainerProps {
 
 export function ChartContainer({ children, title, style }: ChartContainerProps) {
   return (
-    <Paper variant="outlined" component="section" style={style}>
+    <Paper variant="outlined" component="section" style={{ ...style }}>
       <Typography variant="subtitle1" textAlign="center">
         {title}
       </Typography>
-      {children}
+      <Box style={{ height: 500 }}>{children}</Box>
     </Paper>
   );
 }

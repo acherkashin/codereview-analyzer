@@ -14,7 +14,7 @@ export function CommentsPerMonthChart({ comments, user }: CommentsPerMonthChartP
   const data = useMemo(() => getCommentsLineChartData(comments, user ? [user.displayName] : []), [comments, user]);
 
   return (
-    <ChartContainer title="Comments per month" style={{ width: 1020, height: 500 }}>
+    <ChartContainer title="Comments per month">
       <LineChart legendYLabel="Comments count" data={data} sliceTooltip={CommentsLineChartTooltip} />
     </ChartContainer>
   );

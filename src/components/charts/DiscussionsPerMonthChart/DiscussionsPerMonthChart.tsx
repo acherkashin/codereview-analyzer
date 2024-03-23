@@ -14,7 +14,7 @@ export function DiscussionsPerMonthChart({ discussions, user }: DiscussionsPerMo
   const data = useMemo(() => getDiscussionLineChartData(discussions, user ? [user.displayName] : []), [discussions, user]);
 
   return (
-    <ChartContainer title="Discussions per month" style={{ width: 1020, height: 500 }}>
+    <ChartContainer title="Discussions per month">
       <LineChart legendYLabel="Discussions count" data={data} sliceTooltip={CommentsLineChartTooltip} />
     </ChartContainer>
   );

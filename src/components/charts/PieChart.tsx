@@ -1,15 +1,13 @@
-import { Pie, PieSvgProps } from '@nivo/pie';
+import { PieSvgProps, ResponsivePie } from '@nivo/pie';
 import { PieChartDatum } from '../../utils/PieChartUtils';
 
 export interface PieChartProps extends Pick<PieSvgProps<PieChartDatum>, 'onClick' | 'tooltip' | 'data'> {}
 
 export function PieChart(props: PieChartProps) {
-  return <Pie {...pieChartSettings} {...props} />;
+  return <ResponsivePie {...pieChartSettings} {...props} />;
 }
 
 export const pieChartSettings = {
-  width: 500,
-  height: 400,
   padding: 0.2,
   labelTextColor: 'inherit:darker(1.4)',
   labelSkipWidth: 16,
@@ -48,4 +46,4 @@ export const pieChartSettings = {
       spacing: 10,
     },
   ],
-} as Omit<PieSvgProps<PieChartDatum>, 'data'>;
+} as Omit<PieSvgProps<PieChartDatum>, 'data' | 'width' | 'height'>;
