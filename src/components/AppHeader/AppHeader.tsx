@@ -14,6 +14,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import { Logo } from '../Logo';
 import { getCurrentUser, getSignOut, useAuthStore } from './../../stores/AuthStore';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -55,7 +56,8 @@ export function AppHeader() {
     <DashboardNavbarRoot position="relative">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography color="text.primary" variant="h6" noWrap component="div" sx={{ mr: 2, display: 'flex', flexGrow: 1 }}>
+          <Logo />
+          <Typography color="text.primary" variant="h6" noWrap component="div" sx={{ ml: 2, display: 'flex', flexGrow: 1 }}>
             Analyzer
           </Typography>
           <Box sx={{ flexGrow: 0 }}>
