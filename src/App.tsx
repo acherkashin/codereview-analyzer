@@ -29,7 +29,7 @@ export function App() {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <AuthGuard>
         <AppFrame>
-          <SideBar />
+          {/* <SideBar /> */}
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
             <AppHeader />
             <Main>
