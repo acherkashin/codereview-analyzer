@@ -10,7 +10,7 @@ import type {
 } from '@gitbeaker/rest';
 import { GitService } from '../GitService';
 import { convertToProject, convertToUser } from './GitlabConverter';
-import { requestAllChunked } from '../../utils/PromiseUtils';
+import { requestAllChunked, successRetry } from '../../utils/PromiseUtils';
 
 type GitlabType = InstanceType<typeof Gitlab<false>>;
 
@@ -21,6 +21,8 @@ export class GitlabService implements GitService {
     this.api = new Gitlab({
       token,
       host,
+      // if we requests pull requests for long period of time it will lead to timeout, so we need to reset it
+      queryTimeout: null
     });
   }
 
@@ -56,11 +58,11 @@ export class GitlabService implements GitService {
 
     const promises = allMrs.map<() => Promise<GitlabRawDatum>>((mrItem) => async () => {
       //TODO: most probably it is enough to get only discussions and get the user notes from it, so we can optimize it later
-      const userNotes = await this.api.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 });
-      const discussions = await this.api.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 });
-      const approvalsConfiguration = await this.api.MergeRequestApprovals.showConfiguration(projectId, {
+      const userNotes = await successRetry(() => this.api.MergeRequestNotes.all(projectId, mrItem.iid, { perPage: 100 }), 3, 1000, []);
+      const discussions = await successRetry(() => this.api.MergeRequestDiscussions.all(projectId, mrItem.iid, { perPage: 100 }), 3, 1000, []);
+      const approvalsConfiguration = await successRetry(() => this.api.MergeRequestApprovals.showConfiguration(projectId, {
         mergerequestIId: mrItem.iid,
-      });
+      }), 3, 1000, {} as MergeRequestLevelMergeRequestApprovalSchema);
 
       return {
         mergeRequest: mrItem,
