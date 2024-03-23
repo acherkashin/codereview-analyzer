@@ -35,15 +35,10 @@ function ReviewChartForAll({ users, pullRequests }: ReviewByUserChartProps) {
         indexBy="userName"
         keys={keys}
         data={data}
-        margin={{ top: 50, right: 50, bottom: 120, left: 50 }}
+        margin={{ top: 50, right: 50, bottom: 100, left: 50 }}
         groupMode="grouped"
         layout="vertical"
         borderRadius={4}
-        axisBottom={{
-          tickSize: 10,
-          tickPadding: 5,
-          tickRotation: 90,
-        }}
         legends={[
           {
             dataFrom: 'keys',

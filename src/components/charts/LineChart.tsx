@@ -14,7 +14,7 @@ export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick, ...
     <ResponsiveLine
       data={data}
       enableSlices="x"
-      margin={{ top: 10, right: 110, bottom: 50, left: 60 }}
+      margin={{ top: 10, right: 150, bottom: 50, left: 60 }}
       xScale={{
         type: 'time',
         format: '%Y-%m-%d',
@@ -35,6 +35,7 @@ export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick, ...
         tickValues: 'every month',
         legend: legendXLabel,
         legendOffset: -12,
+        tickRotation: 45,
       }}
       axisLeft={{
         tickSize: 5,

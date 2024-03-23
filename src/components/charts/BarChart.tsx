@@ -16,5 +16,9 @@ export const barChartSettings = {
   layout: 'horizontal',
   enableLabel: true,
   enableGridX: true,
-  axisBottom: {},
+  axisBottom: {
+    tickSize: 10,
+    tickPadding: 5,
+    tickRotation: 45,
+  },
 } as BarSvgProps<BarDatum>;
