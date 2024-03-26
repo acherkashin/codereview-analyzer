@@ -83,19 +83,19 @@ function ReviewChartForUser({ user, pullRequests }: ReviewByUserChartProps) {
     return [
       {
         id: 'Assigned',
-        value: reviewByUser.Assigned,
+        value: reviewByUser?.Assigned ?? 0,
       },
       {
         id: 'Reviewed',
-        value: reviewByUser.Reviewed,
+        value: reviewByUser?.Reviewed ?? 0,
       },
       {
         id: 'Approved',
-        value: reviewByUser.Approved,
+        value: reviewByUser?.Approved ?? 0,
       },
       {
         id: 'Requested Changes',
-        value: reviewByUser['Requested Changes'],
+        value: reviewByUser?.['Requested Changes'] ?? 0,
       },
     ];
   }, [reviewByUser]);

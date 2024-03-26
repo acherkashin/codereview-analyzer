@@ -9,20 +9,24 @@ export interface LongestDiscussionTileProps {
 export function LongestDiscussionTile({ discussion }: LongestDiscussionTileProps) {
   return (
     <Tile
-      count={discussion.comments.length}
+      count={discussion?.comments?.length ?? 0}
       title="Longest Discussion"
       details={
-        <a href={discussion.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
-          {discussion.pullRequestName}
-        </a>
+        discussion && (
+          <a href={discussion.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+            {discussion.pullRequestName}
+          </a>
+        )
       }
       icon={
-        <Avatar
-          alt={`${discussion.reviewerName}'s avatar`}
-          sizes="40px"
-          title={discussion.reviewerName}
-          src={discussion.reviewerAvatarUrl}
-        />
+        discussion && (
+          <Avatar
+            alt={`${discussion.reviewerName}'s avatar`}
+            sizes="40px"
+            title={discussion.reviewerName}
+            src={discussion.reviewerAvatarUrl}
+          />
+        )
       }
     />
   );
