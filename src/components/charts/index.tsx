@@ -18,5 +18,6 @@ export { CommentsPerMonthChart } from './CommentsPerMonthChart/CommentsPerMonthC
 export { WordsCloud } from './WordsCloud/WordsCloud';
 export { TopLongestDiscussionsChart } from './TopLongestDiscussionsChart';
 export { TopCommentedPullRequestsChart } from './TopCommentedPullRequests';
-export { DiscussionsPerMonthChart } from './DiscussionsPerMonthChart/DiscussionsPerMonthChart';
+export { DiscussionsStartedByPerMonthChart } from './DiscussionsStartedByPerMonthChart/DiscussionsPerMonthChart';
+export { DiscussionsStartedWithPerMonthChart } from './DiscussionsStartedWithPerMonthChart/DiscussionsStartedWithPerMonthChart';
 export { PullRequestsCreatedChart } from './PullRequestsCreatedChart/PullRequestsCreatedChart';

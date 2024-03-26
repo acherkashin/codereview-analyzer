@@ -44,7 +44,8 @@ import {
   TopLongestDiscussionsChart,
   TopCommentedPullRequestsChart,
   StartedByDiscussionsChart,
-  DiscussionsPerMonthChart,
+  DiscussionsStartedByPerMonthChart,
+  DiscussionsStartedWithPerMonthChart,
   PullRequestsCreatedChart,
 } from '../../components/charts';
 import dayjs from 'dayjs';
@@ -197,7 +198,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartsTitle>Discussions</ChartsTitle>
           <Grid container className="charts">
             <Grid item xs={12}>
-              <DiscussionsPerMonthChart user={user} discussions={discussions} />
+              <DiscussionsStartedByPerMonthChart user={user} discussions={discussions} />
+            </Grid>
+            <Grid item xs={12}>
+              <DiscussionsStartedWithPerMonthChart user={user} discussions={discussions} />
             </Grid>
             <Grid item lg={4} md={6} xs={12}>
               <TopLongestDiscussionsChart

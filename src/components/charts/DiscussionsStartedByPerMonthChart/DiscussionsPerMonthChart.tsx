@@ -2,19 +2,19 @@ import { LineChart } from '../LineChart';
 import { ChartContainer } from '../../ChartContainer';
 import { User, UserDiscussion } from '../../../services/types';
 import { useMemo } from 'react';
-import { getDiscussionLineChartData } from './DiscussionsPerMonthChartUtils';
+import { getDiscussionStartedByData } from './DiscussionsStartedByPerMonthChartUtils';
 import { CommentsLineChartTooltip } from '../../tooltips';
 
-export interface DiscussionsPerMonthChartProps {
+export interface DiscussionsStartedByPerMonthChartProps {
   user?: User;
   discussions: UserDiscussion[];
 }
 
-export function DiscussionsPerMonthChart({ discussions, user }: DiscussionsPerMonthChartProps) {
-  const data = useMemo(() => getDiscussionLineChartData(discussions, user ? [user.displayName] : []), [discussions, user]);
+export function DiscussionsStartedByPerMonthChart({ discussions, user }: DiscussionsStartedByPerMonthChartProps) {
+  const data = useMemo(() => getDiscussionStartedByData(discussions, user ? [user.displayName] : []), [discussions, user]);
 
   return (
-    <ChartContainer title="Discussions per month">
+    <ChartContainer title="Discussions started by per month">
       <LineChart legendYLabel="Discussions count" data={data} sliceTooltip={CommentsLineChartTooltip} />
     </ChartContainer>
   );
