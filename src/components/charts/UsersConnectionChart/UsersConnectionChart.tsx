@@ -21,7 +21,7 @@ export function UsersConnectionChart({ users, pullRequests }: UsersConnectionCha
 
     for (const pullRequest of pullRequests) {
       const authorMap = map.get(pullRequest.author.id)!;
-      for (const reviewer of pullRequest.reviewedByUser) {
+      for (const reviewer of pullRequest.reviewedByUser.map((item) => item.user)) {
         const oldValue = authorMap.get(reviewer.id) ?? 0;
         authorMap.set(reviewer.id, oldValue + 1);
       }

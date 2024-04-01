@@ -2,7 +2,7 @@ import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { PullRequest } from '../../../services/types';
 
 export function getWhoUserApprovesArray(mergeRequests: PullRequest[], userId: string) {
-  const approvedByUser = mergeRequests.filter((item) => item.approvedByUser.map((item) => item.id).includes(userId));
+  const approvedByUser = mergeRequests.filter((item) => item.approvedByUser.map((item) => item.user.id).includes(userId));
   const authors = approvedByUser.map((item) => item.author);
 
   const whoUserApproves = tidy(authors, groupBy('displayName', [summarize({ total: n() })]), arrange([asc('total')]));

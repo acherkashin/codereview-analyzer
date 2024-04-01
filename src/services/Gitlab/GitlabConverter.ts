@@ -46,8 +46,8 @@ export function convertToPullRequest({
     author: convertToUser(mr.author as any),
     requestedReviewers: (mr.reviewers ?? []).map((item) => convertToUser(item)),
     comments: notSystemComments.map<Comment>((item) => convertToComment(mr, item)),
-    reviewedByUser: reviewedByUser.map(convertToUser),
-    approvedByUser: approvedBy.map(convertToUser),
+    reviewedByUser: reviewedByUser.map(convertToUser) as any,
+    approvedByUser: approvedBy.map(convertToUser) as any,
     // In Gitlab there is no special state for "Requested Changes"
     requestedChangesByUser: [],
     mergedAt: mr.merged_at || undefined,

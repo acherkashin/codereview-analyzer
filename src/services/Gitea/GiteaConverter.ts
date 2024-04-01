@@ -8,9 +8,9 @@ import {
 } from 'gitea-js';
 
 import { GitConverter } from '../GitConverter';
-import { RawData, PullRequest, User, Project, UserDiscussion, Comment } from '../types';
+import { RawData, PullRequest, User, Project, UserDiscussion, Comment, UserPrActivity } from '../types';
 import { GiteaRawDatum } from './GiteaService';
-import { distinct, groupBy, tidy } from '@tidyjs/tidy';
+import { groupBy, tidy } from '@tidyjs/tidy';
 
 export class GiteaConverter implements GitConverter {
   constructor(private host: string) {}
@@ -29,16 +29,19 @@ export function convertToPullRequest(
   const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pr, review));
   const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
 
-  const reviewedBy = reviews.filter(
-    (item) => item.state && item.user && ['APPROVED', 'REQUEST_CHANGES', 'COMMENT'].includes(item.state)
-  );
-  const reviewedByUsers = tidy(reviewedBy, distinct(['id']));
+  const reviewedBy = reviews
+    .filter((item) => item.state && item.user && ['APPROVED', 'REQUEST_CHANGES', 'COMMENT'].includes(item.state))
+    .map<UserPrActivity>((item) => ({ user: convertToUser(hostUrl, item.user!), at: item.submitted_at! }));
 
-  const approvedBy = reviews.filter((item) => item.state && item.user && item.state === 'APPROVED');
-  const approvedByUsers = tidy(approvedBy, distinct(['id']));
+  const approvedBy = reviews
+    .filter((item) => item.state && item.user && item.state === 'APPROVED')
+    .map<UserPrActivity>((item) => ({ user: convertToUser(hostUrl, item.user!), at: item.submitted_at! }));
 
-  const requestedChangesBy = reviews.filter((item) => item.state && item.user && item.state === 'REQUEST_CHANGES');
-  const requestedChangesByUsers = tidy(requestedChangesBy, distinct(['id']));
+  const requestedChangesBy = reviews
+    .filter((item) => item.state && item.user && item.state === 'REQUEST_CHANGES')
+    .map<UserPrActivity>((item) => ({ user: convertToUser(hostUrl, item.user!), at: item.submitted_at! }));
+
+  const requestedReviewers = (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user));
 
   return {
     id: pr.id!.toString(),
@@ -48,12 +51,12 @@ export function convertToPullRequest(
     url: pr.url!,
     updatedAt: pr.updated_at ?? 'unknown updated at',
     author: convertToUser(hostUrl, pr.user!),
-    requestedReviewers: (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user)),
+    requestedReviewers,
     comments: [...notEmptyReviews, ...prComments],
     createdAt: pr.created_at ?? 'unknown created at',
-    reviewedByUser: reviewedByUsers.map((user) => convertToUser(hostUrl, user)),
-    approvedByUser: approvedByUsers.map((user) => convertToUser(hostUrl, user)),
-    requestedChangesByUser: requestedChangesByUsers.map((user) => convertToUser(hostUrl, user)),
+    reviewedByUser: reviewedBy,
+    approvedByUser: approvedBy,
+    requestedChangesByUser: requestedChangesBy,
     mergedAt: pr.merged_at,
     discussions: convertToDiscussions(pr, comments),
     readyAt: getReadyTime(pr, timeline),
