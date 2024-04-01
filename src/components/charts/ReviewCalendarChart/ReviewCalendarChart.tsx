@@ -1,32 +1,37 @@
 import { ResponsiveCalendar } from '@nivo/calendar';
 import { ChartContainer } from '../../ChartContainer';
-import { PullRequest } from '../../../services/types';
+import { PullRequest, User } from '../../../services/types';
 import dayjs from 'dayjs';
 import { getEndDate, getStartDate } from '../../../utils/GitUtils';
 import { useMemo } from 'react';
 import { groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 
 export interface ReviewCalendarChartProps {
+  user?: User;
   pullRequests: PullRequest[];
 }
 
-export function ReviewCalendarChart({ pullRequests }: ReviewCalendarChartProps) {
+export function ReviewCalendarChart({ pullRequests, user }: ReviewCalendarChartProps) {
   const startDate = useMemo(() => dayjs(getStartDate(pullRequests)).format('YYYY-MM-DD'), [pullRequests]);
   const endDate = useMemo(() => dayjs(getEndDate(pullRequests)).format('YYYY-MM-DD'), [pullRequests]);
 
   const data = useMemo(() => {
     const allReviews = pullRequests
-      .flatMap((item) => item.reviewedByUser)
+      .flatMap((item) =>
+        user ? item.reviewedByUser.filter(({ user: reviewUser }) => reviewUser.id === user.id) : item.reviewedByUser
+      )
       .map((item) => ({
         user: item.user,
         day: dayjs(item.at).format('YYYY-MM-DD'),
       }));
 
     return tidy(allReviews, groupBy('day', [summarize({ value: n() })]));
-  }, [pullRequests]);
+  }, [pullRequests, user]);
+
+  const title = user ? `Daily reviews by ${user.displayName}` : 'Daily reviews';
 
   return (
-    <ChartContainer title="Review by day">
+    <ChartContainer title={title}>
       <ResponsiveCalendar
         data={data}
         from={startDate}

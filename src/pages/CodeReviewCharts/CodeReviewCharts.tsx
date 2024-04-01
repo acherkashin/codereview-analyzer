@@ -298,7 +298,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
               <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
             </Grid>
             <Grid xs={12}>
-              <ReviewCalendarChart pullRequests={pullRequests} />
+              <ReviewCalendarChart user={user} pullRequests={pullRequests} />
             </Grid>
           </Grid>
 
