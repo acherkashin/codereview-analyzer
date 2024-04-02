@@ -57,6 +57,16 @@ export function ReviewCalendarChart({ pullRequests, user }: ReviewCalendarChartP
             itemDirection: 'right-to-left',
           },
         ]}
+        onClick={(datum) => {
+          const reviewedPullRequests = pullRequests.filter(
+            (pr) =>
+              pr.reviewedByUser.find(
+                ({ at, user: reviewedBy }) => at === datum.day && (user == null || reviewedBy.id === user?.id)
+              ) != null
+          );
+
+          console.log(reviewedPullRequests);
+        }}
       />
     </ChartContainer>
   );
