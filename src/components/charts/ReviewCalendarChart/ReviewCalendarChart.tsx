@@ -30,8 +30,10 @@ export function ReviewCalendarChart({ pullRequests, user }: ReviewCalendarChartP
 
   const title = user ? `Daily reviews by ${user.displayName}` : 'Daily reviews';
 
+  const chartsCount = dayjs(endDate).year() - dayjs(startDate).year() + 1;
+
   return (
-    <ChartContainer title={title}>
+    <ChartContainer title={title} height={chartsCount * 250}>
       <ResponsiveCalendar
         data={data}
         from={startDate}

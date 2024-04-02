@@ -5,11 +5,13 @@ import { CSSProperties, useState } from 'react';
 export interface ChartContainerProps {
   title: string;
   style?: React.CSSProperties | undefined;
+  height?: number;
   children: React.ReactNode;
 }
 
-export function ChartContainer({ children, title, style }: ChartContainerProps) {
+export function ChartContainer({ children, title, style, height = 500 }: ChartContainerProps) {
   const [isMaximized, setIsMaximized] = useState(false);
+
   const maximizeStyles: CSSProperties = isMaximized
     ? {
         position: 'absolute',
@@ -26,7 +28,7 @@ export function ChartContainer({ children, title, style }: ChartContainerProps) 
   return (
     <Paper variant="outlined" component="section" style={{ ...style, ...maximizeStyles }}>
       <ChartHeader title={title} onMaximizeClick={() => setIsMaximized(!isMaximized)} />
-      <Box style={{ height: isMaximized ? 'calc(100% - 40px)' : 500 }}>{children}</Box>
+      <Box style={{ height: isMaximized ? 'calc(100% - 40px)' : height }}>{children}</Box>
     </Paper>
   );
 }
