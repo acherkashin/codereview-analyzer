@@ -61,7 +61,7 @@ export function ReviewCalendarChart({ pullRequests, user }: ReviewCalendarChartP
           const reviewedPullRequests = pullRequests.filter(
             (pr) =>
               pr.reviewedByUser.find(
-                ({ at, user: reviewedBy }) => at === datum.day && (user == null || reviewedBy.id === user?.id)
+                ({ at, user: reviewedBy }) => at === datum.day && (user == null || reviewedBy.id === user.id)
               ) != null
           );
 

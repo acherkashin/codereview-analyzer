@@ -30,9 +30,12 @@ export function convertToPullRequest({
   // some notes are left by gitlab, so we need to filter them out
   const notSystemComments = comments.filter((item) => !item.system);
 
+  const notAuthorDiscussions = discussions.filter(
+    (item) => item.notes != null && item.notes.length > 0 && item.notes[0].author.id !== mr.author.id
+  );
   // need to group by pull request and date of creation of discussion
   const groupedDiscussions = tidy(
-    discussions.filter((item) => item.notes != null && item.notes.length > 0),
+    notAuthorDiscussions,
     groupBy((item) => dayjs(item.notes![0].created_at).format('YYYY-MM-DD'), groupBy.entriesObject())
   ) as Array<{ key: string; values: DiscussionSchema[] }>;
 
@@ -43,11 +46,16 @@ export function convertToPullRequest({
 
   const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
 
-  const approvedBy = (approvalsConfiguration.approved_by ?? []).map<UserPrActivity>((item) => ({
-    at: comments.findLast((comment) => comment.body === 'approved this merge request' && comment.author.id === item.user.id)!
-      .created_at,
-    user: convertToUser(item.user),
-  }));
+  const approvedBy = (approvalsConfiguration.approved_by ?? []).map<UserPrActivity>((item) => {
+    const createdAt = comments.findLast(
+      (comment) => comment.body === 'approved this merge request' && comment.author.id === item.user.id
+    )!.created_at;
+
+    return {
+      at: dayjs(createdAt).format('YYYY-MM-DD'),
+      user: convertToUser(item.user),
+    };
+  });
 
   const reviewedByUser = [...reviews, ...approvedBy];
 
