@@ -1,6 +1,6 @@
 import { GitConverter } from '../GitConverter';
 import { GitlabRawDatum } from './GitlabService';
-import { RawData, PullRequest, User, Comment, UserDiscussion, Project } from '../types';
+import { RawData, PullRequest, User, Comment, UserDiscussion, Project, UserPrActivity } from '../types';
 import {
   UserSchema,
   ProjectSchema,
@@ -9,7 +9,8 @@ import {
   DiscussionSchema,
   DiscussionNoteSchema,
 } from '@gitbeaker/rest';
-import { distinct, tidy } from '@tidyjs/tidy';
+import { groupBy, tidy } from '@tidyjs/tidy';
+import dayjs from 'dayjs';
 
 export class GitlabConverter implements GitConverter {
   convert({ pullRequests, users }: RawData): { pullRequests: PullRequest[]; users: User[] } {
@@ -28,12 +29,27 @@ export function convertToPullRequest({
 }: GitlabRawDatum): PullRequest {
   // some notes are left by gitlab, so we need to filter them out
   const notSystemComments = comments.filter((item) => !item.system);
+
+  // need to group by pull request and date of creation of discussion
+  const groupedDiscussions = tidy(
+    discussions.filter((item) => item.notes != null && item.notes.length > 0),
+    groupBy((item) => dayjs(item.notes![0].created_at).format('YYYY-MM-DD'), groupBy.entriesObject())
+  ) as Array<{ key: string; values: DiscussionSchema[] }>;
+
+  const reviews = groupedDiscussions.map<UserPrActivity>(({ key, values }) => ({
+    at: key,
+    user: convertToUser(values![0].notes![0].author),
+  }));
+
   const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
 
-  const discussionAuthor = notSystemComments.map((item) => item.author);
-  const approvedBy = (approvalsConfiguration.approved_by ?? []).map((item) => item.user);
+  const approvedBy = (approvalsConfiguration.approved_by ?? []).map<UserPrActivity>((item) => ({
+    at: comments.findLast((comment) => comment.body === 'approved this merge request' && comment.author.id === item.user.id)!
+      .created_at,
+    user: convertToUser(item.user),
+  }));
 
-  const reviewedByUser = tidy([...discussionAuthor, ...approvedBy], distinct(['id']));
+  const reviewedByUser = [...reviews, ...approvedBy];
 
   return {
     id: mr.id.toString(),
@@ -46,8 +62,8 @@ export function convertToPullRequest({
     author: convertToUser(mr.author as any),
     requestedReviewers: (mr.reviewers ?? []).map((item) => convertToUser(item)),
     comments: notSystemComments.map<Comment>((item) => convertToComment(mr, item)),
-    reviewedByUser: reviewedByUser.map(convertToUser) as any,
-    approvedByUser: approvedBy.map(convertToUser) as any,
+    reviewedByUser: reviewedByUser,
+    approvedByUser: approvedBy,
     // In Gitlab there is no special state for "Requested Changes"
     requestedChangesByUser: [],
     mergedAt: mr.merged_at || undefined,
