@@ -31,15 +31,27 @@ export function convertToPullRequest(
 
   const reviewedBy = reviews
     .filter((item) => item.state && item.user && ['APPROVED', 'REQUEST_CHANGES', 'COMMENT'].includes(item.state))
-    .map<UserPrActivity>((item) => ({ user: convertToUser(hostUrl, item.user!), at: item.submitted_at! }));
+    .map<UserPrActivity>((item) => ({
+      user: convertToUser(hostUrl, item.user!),
+      at: item.submitted_at!,
+      activityType: getActivityType(item.state!),
+    }));
 
   const approvedBy = reviews
     .filter((item) => item.state && item.user && item.state === 'APPROVED')
-    .map<UserPrActivity>((item) => ({ user: convertToUser(hostUrl, item.user!), at: item.submitted_at! }));
+    .map<UserPrActivity>((item) => ({
+      user: convertToUser(hostUrl, item.user!),
+      at: item.submitted_at!,
+      activityType: 'approved',
+    }));
 
   const requestedChangesBy = reviews
     .filter((item) => item.state && item.user && item.state === 'REQUEST_CHANGES')
-    .map<UserPrActivity>((item) => ({ user: convertToUser(hostUrl, item.user!), at: item.submitted_at! }));
+    .map<UserPrActivity>((item) => ({
+      user: convertToUser(hostUrl, item.user!),
+      at: item.submitted_at!,
+      activityType: 'requested changes',
+    }));
 
   const requestedReviewers = (pr.requested_reviewers ?? []).map((user) => convertToUser(hostUrl, user));
 
@@ -61,6 +73,19 @@ export function convertToPullRequest(
     discussions: convertToDiscussions(pr, comments),
     readyAt: getReadyTime(pr, timeline),
   };
+}
+
+function getActivityType(reviewState: string): UserPrActivity['activityType'] {
+  switch (reviewState) {
+    case 'APPROVED':
+      return 'approved';
+    case 'REQUEST_CHANGES':
+      return 'requested changes';
+    case 'COMMENT':
+      return 'comment';
+    default:
+      throw Error('Unknown state');
+  }
 }
 
 export function convertToUser(host: string, user: GiteaUser): User {

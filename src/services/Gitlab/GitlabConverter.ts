@@ -29,8 +29,9 @@ export function convertToPullRequest({
 }: GitlabRawDatum): PullRequest {
   // some notes are left by gitlab, so we need to filter them out
   const notSystemComments = comments.filter((item) => !item.system);
+  const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
 
-  const notAuthorDiscussions = discussions.filter(
+  const notAuthorDiscussions = notSystemDiscussions.filter(
     (item) => item.notes != null && item.notes.length > 0 && item.notes[0].author.id !== mr.author.id
   );
   // need to group by pull request and date of creation of discussion
@@ -42,9 +43,8 @@ export function convertToPullRequest({
   const reviews = groupedDiscussions.map<UserPrActivity>(({ key, values }) => ({
     at: key,
     user: convertToUser(values![0].notes![0].author),
+    activityType: 'comment',
   }));
-
-  const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
 
   const approvedBy = (approvalsConfiguration.approved_by ?? []).map<UserPrActivity>((item) => {
     const createdAt = comments.findLast(
@@ -54,6 +54,7 @@ export function convertToPullRequest({
     return {
       at: dayjs(createdAt).format('YYYY-MM-DD'),
       user: convertToUser(item.user),
+      activityType: 'approved',
     };
   });
 

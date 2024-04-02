@@ -139,6 +139,7 @@ export interface UserPrActivity {
    * Indicates when user performed the action on pull request
    */
   at: string;
+  activityType: 'comment' | 'approved' | 'requested changes';
 }
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';
