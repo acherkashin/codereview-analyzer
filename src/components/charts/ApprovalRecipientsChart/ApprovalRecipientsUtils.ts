@@ -5,7 +5,11 @@ export function getWhomUserApprovesArray(mergeRequests: PullRequest[], userId: s
   const userPrs = mergeRequests.filter((item) => item.author.id === userId);
   const authors = userPrs.flatMap((item) => item.approvedByUser);
 
-  const whoReceivedApprovals = tidy(authors, groupBy('displayName', [summarize({ total: n() })]), arrange([asc('total')]));
+  const whoReceivedApprovals = tidy(
+    authors.map((item) => item.user),
+    groupBy('displayName', [summarize({ total: n() })]),
+    arrange([asc('total')])
+  );
 
   return whoReceivedApprovals;
 }

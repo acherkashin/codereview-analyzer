@@ -111,16 +111,16 @@ export interface PullRequest {
    * - requested changes
    * - commented
    */
-  reviewedByUser: User[];
+  reviewedByUser: UserPrActivity[];
   /**
    * Users who approved the pull request
    * TODO: probably it is better to assign "User[]" instead of "string[]" to be consistent
    */
-  approvedByUser: User[];
+  approvedByUser: UserPrActivity[];
   /**
    * Users who requested changes in pull request
    */
-  requestedChangesByUser: User[];
+  requestedChangesByUser: UserPrActivity[];
   updatedAt: string;
   createdAt: string;
   mergedAt?: string;
@@ -131,6 +131,15 @@ export interface PullRequest {
    * If not defined then pull request is WIP.
    */
   readyAt?: string;
+}
+
+export interface UserPrActivity {
+  user: User;
+  /**
+   * Indicates when user performed the action on pull request
+   */
+  at: string;
+  activityType: 'comment' | 'approved' | 'requested changes';
 }
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';

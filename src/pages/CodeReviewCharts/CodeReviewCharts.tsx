@@ -50,6 +50,7 @@ import {
 } from '../../components/charts';
 import dayjs from 'dayjs';
 import ExportButton from './ExportButton';
+import { ReviewCalendarChart } from '../../components/charts/ReviewCalendarChart/ReviewCalendarChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -295,6 +296,9 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             </Grid>
             <Grid item lg={4} md={6} xs={12}>
               <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
+            </Grid>
+            <Grid item xs={12}>
+              <ReviewCalendarChart user={user} pullRequests={pullRequests} />
             </Grid>
           </Grid>
 
