@@ -12,7 +12,7 @@ import {
 import { User, Project, AnalyzeParams, PullRequest, PullRequestStatus, RawData } from '../types';
 import { GitService } from '../GitService';
 import { convertToProject, convertToPullRequest, convertToUser } from './GiteaConverter';
-import { requestAllChunked } from '../../utils/PromiseUtils';
+import { requestAllChunked, successRetry } from '../../utils/PromiseUtils';
 import { ExportData } from '../../utils/ExportDataUtils';
 
 export class GiteaService implements GitService {
@@ -96,17 +96,25 @@ export class GiteaService implements GitService {
         // 2. Get reviews for each pull request
         // 3. Get comments for each review
 
-        const reviews = await this.getAllReviews(owner, name, pullRequest.number!);
-        const timeline = await this.getAllComments(owner, name, pullRequest.number!);
-        const files = await this.getAllFiles(owner, name, pullRequest.number!);
+        const reviews = await successRetry(() => this.getAllReviews(owner, name, pullRequest.number!), 3, 1000, []);
+        const timeline = await successRetry(() => this.getAllComments(owner, name, pullRequest.number!), 3, 1000, []);
+        const files = await successRetry(() => this.getAllFiles(owner, name, pullRequest.number!), 3, 1000, []);
 
-        const commentsFns = reviews
+        const commentsFns = reviews!
           .filter((review) => (review.comments_count ?? 0) > 0)
-          .map((review) => () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!));
+          .map(
+            (review) => () =>
+              successRetry(
+                () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!),
+                3,
+                1000,
+                {} as any
+              )
+          );
 
         const commentsResp = await requestAllChunked(commentsFns);
-        const prComments = commentsResp.flatMap((item) => item.data);
-        return { pullRequest, comments: prComments, reviews, timeline, files };
+        const prComments = commentsResp.flatMap((item) => item!.data);
+        return { pullRequest, comments: prComments!, reviews: reviews!, timeline: timeline!, files: files! };
       });
 
     const rawData = await requestAllChunked(rawDataPromises);
