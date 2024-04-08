@@ -1,7 +1,9 @@
-import { ResponsiveScatterPlot, ScatterPlotDatum } from '@nivo/scatterplot';
+import { ResponsiveScatterPlot, ScatterPlotDatum, ScatterPlotTooltip } from '@nivo/scatterplot';
 import { ChartContainer } from '../../ChartContainer';
 import { PullRequest } from '../../../services/types';
 import { useMemo } from 'react';
+import { BaseChartTooltip } from '../../tooltips';
+import { Stack } from '@mui/material';
 
 export interface ChangesToDiscussionsCorrelationChartProps {
   pullRequests: PullRequest[];
@@ -12,6 +14,8 @@ export function ChangesToDiscussionsCorrelationChart({ pullRequests }: ChangesTo
     const points: ScatterPlotDatum[] = pullRequests.map((item) => ({
       x: item.changedFilesCount,
       y: item.discussions.length,
+      id: item.id,
+      prName: item.title,
     }));
 
     return [
@@ -26,7 +30,7 @@ export function ChangesToDiscussionsCorrelationChart({ pullRequests }: ChangesTo
     <ChartContainer title={'Changes to Discussions correlation'}>
       <ResponsiveScatterPlot
         data={data}
-        margin={{ top: 60, right: 140, bottom: 70, left: 90 }}
+        margin={{ top: 60, right: 30, bottom: 70, left: 70 }}
         xScale={{ type: 'linear', min: 0, max: 'auto' }}
         xFormat=">-.2f"
         yScale={{ type: 'linear', min: 0, max: 'auto' }}
@@ -35,49 +39,37 @@ export function ChangesToDiscussionsCorrelationChart({ pullRequests }: ChangesTo
         axisTop={null}
         axisRight={null}
         axisBottom={{
-          //   orient: 'bottom',
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: 'weight',
+          legend: 'Changed Files Count',
           legendPosition: 'middle',
-          legendOffset: 46,
-          //   truncateTickAt: 0,
+          legendOffset: 40,
         }}
         axisLeft={{
-          //   orient: 'left',
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: 'size',
+          legend: 'Discussions Started',
           legendPosition: 'middle',
-          legendOffset: -60,
-          //   truncateTickAt: 0,
+          legendOffset: -40,
         }}
-        legends={[
-          {
-            anchor: 'bottom-right',
-            direction: 'column',
-            justify: false,
-            translateX: 130,
-            translateY: 0,
-            itemWidth: 100,
-            itemHeight: 12,
-            itemsSpacing: 5,
-            itemDirection: 'left-to-right',
-            symbolSize: 12,
-            symbolShape: 'circle',
-            effects: [
-              {
-                on: 'hover',
-                style: {
-                  itemOpacity: 1,
-                },
-              },
-            ],
-          },
-        ]}
+        tooltip={Tooltip}
       />
     </ChartContainer>
   );
 }
+
+const Tooltip: ScatterPlotTooltip<ScatterPlotDatum> = (props) => {
+  const prName = (props.node.data as any).prName;
+
+  return (
+    <BaseChartTooltip style={{ width: 400 }}>
+      <Stack>
+        <strong style={{ whiteSpace: 'break-spaces' }}>{prName}</strong>
+        <div>Files Changed: {props.node.data.x.toString()}</div>
+        <div>Discussions Started: {props.node.data.y.toString()}</div>
+      </Stack>
+    </BaseChartTooltip>
+  );
+};
