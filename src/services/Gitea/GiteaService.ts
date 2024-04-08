@@ -96,9 +96,8 @@ export class GiteaService implements GitService {
         // 2. Get reviews for each pull request
         // 3. Get comments for each review
 
-        // TODO: it seems we get not all reviews here. it cannot return more reviews than some limit
-        const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
-        const { data: timeline } = await this.api.repos.issueGetCommentsAndTimeline(owner, name, pullRequest.number!); // TODO: limit is 50
+        const reviews = await this.getAllReviews(owner, name, pullRequest.number!);
+        const timeline = await this.getAllComments(owner, name, pullRequest.number!);
         const files = await this.getAllFiles(owner, name, pullRequest.number!);
 
         const commentsFns = reviews
@@ -133,6 +132,30 @@ export class GiteaService implements GitService {
     return getAllPages((page) => {
       return this.api.repos
         .repoGetPullRequestFiles(owner, repo, pullRequestIndex, {
+          page,
+          limit,
+        })
+        .then(({ data }) => data ?? []);
+    }, limit);
+  }
+
+  private async getAllComments(owner: string, repo: string, pullRequestIndex: number): Promise<GiteaPullReviewComment[]> {
+    const limit = 50;
+    return getAllPages((page) => {
+      return this.api.repos
+        .issueGetCommentsAndTimeline(owner, repo, pullRequestIndex, {
+          page,
+          limit,
+        })
+        .then(({ data }) => data ?? []);
+    }, limit);
+  }
+
+  private async getAllReviews(owner: string, repo: string, pullRequestIndex: number): Promise<GiteaPullReview[]> {
+    const limit = 50;
+    return getAllPages((page) => {
+      return this.api.repos
+        .repoListPullReviews(owner, repo, pullRequestIndex, {
           page,
           limit,
         })
