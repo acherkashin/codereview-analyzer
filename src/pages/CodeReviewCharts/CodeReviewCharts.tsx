@@ -47,6 +47,7 @@ import {
   DiscussionsStartedByPerMonthChart,
   DiscussionsStartedWithPerMonthChart,
   PullRequestsCreatedChart,
+  ChangesToDiscussionsCorrelationChart,
 } from '../../components/charts';
 import dayjs from 'dayjs';
 import ExportButton from './ExportButton';
@@ -251,6 +252,11 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
             <Grid item lg={4} md={6} xs={12}>
               <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={showFilteredDiscussions} />
             </Grid>
+            {user == null && (
+              <Grid item lg={4} md={6} xs={12}>
+                <ChangesToDiscussionsCorrelationChart pullRequests={pullRequests} />
+              </Grid>
+            )}
           </Grid>
           <ChartsTitle>Comments</ChartsTitle>
           <Grid container className="charts">

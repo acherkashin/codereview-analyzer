@@ -7,6 +7,7 @@ import {
   PullReview as GiteaPullReview,
   Repository,
   TimelineComment,
+  ChangedFile,
 } from 'gitea-js';
 import { User, Project, AnalyzeParams, PullRequest, PullRequestStatus, RawData } from '../types';
 import { GitService } from '../GitService';
@@ -86,25 +87,30 @@ export class GiteaService implements GitService {
 
     const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state);
 
-    const rawDataPromises = giteaPrs.map((pullRequest) => async () => {
-      // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
-      // So, we need:
-      // 1. Get all pull requests
-      // 2. Get reviews for each pull request
-      // 3. Get comments for each review
+    const rawDataPromises = giteaPrs
+      .filter((item) => item.merged || item.state === 'open')
+      .map<() => Promise<GiteaRawDatum>>((pullRequest) => async () => {
+        // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
+        // So, we need:
+        // 1. Get all pull requests
+        // 2. Get reviews for each pull request
+        // 3. Get comments for each review
 
-      // TODO: it seems we get not all reviews here. it cannot return more reviews than some limit
-      const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
-      const { data: timeline } = await this.api.repos.issueGetCommentsAndTimeline(owner, name, pullRequest.number!);
+        // TODO: it seems we get not all reviews here. it cannot return more reviews than some limit
+        const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
+        const { data: timeline } = await this.api.repos.issueGetCommentsAndTimeline(owner, name, pullRequest.number!); // TODO: limit is 50
+        const { data: files } = await this.api.repos.repoGetPullRequestFiles(owner, name, pullRequest.number!, {
+          limit: 100, //TODO: limit is 50 files
+        });
 
-      const commentsFns = reviews
-        .filter((review) => (review.comments_count ?? 0) > 0)
-        .map((review) => () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!));
+        const commentsFns = reviews
+          .filter((review) => (review.comments_count ?? 0) > 0)
+          .map((review) => () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!));
 
-      const commentsResp = await requestAllChunked(commentsFns);
-      const prComments = commentsResp.flatMap((item) => item.data);
-      return { pullRequest, comments: prComments, reviews, timeline };
-    });
+        const commentsResp = await requestAllChunked(commentsFns);
+        const prComments = commentsResp.flatMap((item) => item.data);
+        return { pullRequest, comments: prComments, reviews, timeline, files };
+      });
 
     const rawData = await requestAllChunked(rawDataPromises);
 
@@ -138,6 +144,7 @@ export interface GiteaRawDatum {
   reviews: GiteaPullReview[];
   comments: GiteaPullReviewComment[];
   timeline: TimelineComment[];
+  files: ChangedFile[];
 }
 
 const pageSize = 50;

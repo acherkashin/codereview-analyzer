@@ -78,6 +78,7 @@ export function convertToPullRequest({
     mergedAt: mr.merged_at || undefined,
     discussions: notSystemDiscussions.map((item) => convertToDiscussion(mr, item)),
     readyAt: getReadyTime(mr, comments),
+    changedFilesCount: 0,
   };
 }
 

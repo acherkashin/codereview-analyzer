@@ -132,6 +132,7 @@ export interface PullRequest {
    * If not defined then pull request is WIP.
    */
   readyAt?: string;
+  changedFilesCount: number;
 }
 
 export interface UserPrActivity {

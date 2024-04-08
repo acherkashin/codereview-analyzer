@@ -21,3 +21,4 @@ export { TopCommentedPullRequestsChart } from './TopCommentedPullRequests';
 export { DiscussionsStartedByPerMonthChart } from './DiscussionsStartedByPerMonthChart/DiscussionsPerMonthChart';
 export { DiscussionsStartedWithPerMonthChart } from './DiscussionsStartedWithPerMonthChart/DiscussionsStartedWithPerMonthChart';
 export { PullRequestsCreatedChart } from './PullRequestsCreatedChart/PullRequestsCreatedChart';
+export { ChangesToDiscussionsCorrelationChart } from './ChangesToDiscussionsCorrelationChart/ChangesToDiscussionsCorrelationChart';
