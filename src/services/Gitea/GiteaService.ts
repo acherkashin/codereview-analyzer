@@ -99,9 +99,7 @@ export class GiteaService implements GitService {
         // TODO: it seems we get not all reviews here. it cannot return more reviews than some limit
         const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
         const { data: timeline } = await this.api.repos.issueGetCommentsAndTimeline(owner, name, pullRequest.number!); // TODO: limit is 50
-        const { data: files } = await this.api.repos.repoGetPullRequestFiles(owner, name, pullRequest.number!, {
-          limit: 100, //TODO: limit is 50 files
-        });
+        const files = await this.getAllFiles(owner, name, pullRequest.number!);
 
         const commentsFns = reviews
           .filter((review) => (review.comments_count ?? 0) > 0)
@@ -125,17 +123,21 @@ export class GiteaService implements GitService {
   }
 
   private async _getAllUsers(): Promise<GiteaUser[]> {
-    const all: GiteaUser[] = [];
-    let users: GiteaUser[] = [];
+    return getAllPages(async (page) => {
+      return (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
+    }, 50);
+  }
 
-    let page = 1;
-    do {
-      users = (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
-      all.push(...users);
-      page++;
-    } while (users.length === 50);
-
-    return all;
+  private async getAllFiles(owner: string, repo: string, pullRequestIndex: number): Promise<ChangedFile[]> {
+    const limit = 50;
+    return getAllPages((page) => {
+      return this.api.repos
+        .repoGetPullRequestFiles(owner, repo, pullRequestIndex, {
+          page,
+          limit,
+        })
+        .then(({ data }) => data ?? []);
+    }, limit);
   }
 }
 
@@ -175,4 +177,18 @@ async function getAllPullRequests(
   }
 
   return pullRequests;
+}
+
+async function getAllPages<T>(func: (page: number) => Promise<T[]>, pageSize: number): Promise<T[]> {
+  const all: T[] = [];
+  let currentPage: T[] = [];
+
+  let page = 1;
+  do {
+    currentPage = (await func(page)) ?? [];
+    all.push(...currentPage);
+    page++;
+  } while (currentPage.length === pageSize);
+
+  return all;
 }
