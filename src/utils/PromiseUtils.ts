@@ -28,6 +28,7 @@ export async function successRetry<T>(
       const result = await fn();
       return result;
     } catch (e) {
+      console.error(e);
       if (count === attempts) {
         return defaultValue;
       }
