@@ -158,6 +158,7 @@ export function convertToDiscussions(pr: GiteaPullRequest, comments: GiteaPullRe
 
       pullRequestId: comments[0].pullRequestId,
       pullRequestName: comments[0].pullRequestName,
+      pullRequestUrl: pr.url!,
       url: comments[0].url,
     };
   });

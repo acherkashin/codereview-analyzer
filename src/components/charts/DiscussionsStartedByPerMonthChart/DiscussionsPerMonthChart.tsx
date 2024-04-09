@@ -15,7 +15,22 @@ export function DiscussionsStartedByPerMonthChart({ discussions, user }: Discuss
 
   return (
     <ChartContainer title="Discussions started by person per month">
-      <LineChart legendYLabel="Discussions count" data={data} sliceTooltip={CommentsLineChartTooltip} />
+      <LineChart
+        legendYLabel="Discussions count"
+        data={data}
+        sliceTooltip={CommentsLineChartTooltip}
+        onClick={(event) => {
+          // console.log();
+          const filtered = discussions.filter((item) => {
+            const date = new Date(item.comments[0].createdAt);
+            const pointDate = (event as any).points[0].data.x as Date;
+
+            return date.getMonth() === pointDate.getMonth() && date.getFullYear() === pointDate.getFullYear();
+          });
+
+          console.log(filtered);
+        }}
+      />
     </ChartContainer>
   );
 }

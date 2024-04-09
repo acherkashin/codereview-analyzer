@@ -46,6 +46,7 @@ export interface UserDiscussion {
 
   pullRequestId: string;
   pullRequestName: string;
+  pullRequestUrl: string;
   /**
    * Link to discussion
    */
