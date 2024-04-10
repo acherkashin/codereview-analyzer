@@ -8,9 +8,10 @@ import { CommentsLineChartTooltip } from '../../tooltips';
 export interface DiscussionsStartedByPerMonthChartProps {
   user?: User;
   discussions: UserDiscussion[];
+  onClick: (date: Date) => void;
 }
 
-export function DiscussionsStartedByPerMonthChart({ discussions, user }: DiscussionsStartedByPerMonthChartProps) {
+export function DiscussionsStartedByPerMonthChart({ discussions, user, onClick }: DiscussionsStartedByPerMonthChartProps) {
   const data = useMemo(() => getDiscussionStartedByData(discussions, user ? [user.displayName] : []), [discussions, user]);
 
   return (
@@ -20,15 +21,9 @@ export function DiscussionsStartedByPerMonthChart({ discussions, user }: Discuss
         data={data}
         sliceTooltip={CommentsLineChartTooltip}
         onClick={(event) => {
-          // console.log();
-          const filtered = discussions.filter((item) => {
-            const date = new Date(item.comments[0].createdAt);
-            const pointDate = (event as any).points[0].data.x as Date;
+          const pointDate = (event as any).points[0].data.x as Date;
 
-            return date.getMonth() === pointDate.getMonth() && date.getFullYear() === pointDate.getFullYear();
-          });
-
-          console.log(filtered);
+          onClick(pointDate);
         }}
       />
     </ChartContainer>

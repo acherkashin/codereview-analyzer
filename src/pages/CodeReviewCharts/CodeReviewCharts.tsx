@@ -120,6 +120,20 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     [discussions]
   );
 
+  const showDiscussionsAt = useCallback(
+    (pointDate: Date) => {
+      const filtered = discussions.filter((item) => {
+        const date = new Date(item.comments[0].createdAt);
+
+        return date.getMonth() === pointDate.getMonth() && date.getFullYear() === pointDate.getFullYear();
+      });
+
+      setFilteredDiscussions(filtered);
+      setTitle('Discussions started at' + pointDate.toLocaleDateString());
+    },
+    [discussions]
+  );
+
   const handleAnalyze = useCallback(
     (params: AnalyzeParams) => {
       return analyze(client, params);
@@ -199,10 +213,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
           <ChartsTitle>Discussions</ChartsTitle>
           <Grid container className="charts">
             <Grid item xs={12}>
-              <DiscussionsStartedByPerMonthChart user={user} discussions={discussions} />
+              <DiscussionsStartedByPerMonthChart user={user} discussions={discussions} onClick={showDiscussionsAt} />
             </Grid>
             <Grid item xs={12}>
-              <DiscussionsStartedWithPerMonthChart user={user} discussions={discussions} />
+              <DiscussionsStartedWithPerMonthChart user={user} discussions={discussions} onClick={showDiscussionsAt} />
             </Grid>
             <Grid item lg={4} md={6} xs={12}>
               <TopLongestDiscussionsChart
