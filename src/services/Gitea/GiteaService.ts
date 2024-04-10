@@ -7,11 +7,12 @@ import {
   PullReview as GiteaPullReview,
   Repository,
   TimelineComment,
+  ChangedFile,
 } from 'gitea-js';
 import { User, Project, AnalyzeParams, PullRequest, PullRequestStatus, RawData } from '../types';
 import { GitService } from '../GitService';
 import { convertToProject, convertToPullRequest, convertToUser } from './GiteaConverter';
-import { requestAllChunked } from '../../utils/PromiseUtils';
+import { requestAllChunked, successRetry } from '../../utils/PromiseUtils';
 import { ExportData } from '../../utils/ExportDataUtils';
 
 export class GiteaService implements GitService {
@@ -86,25 +87,35 @@ export class GiteaService implements GitService {
 
     const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state);
 
-    const rawDataPromises = giteaPrs.map((pullRequest) => async () => {
-      // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
-      // So, we need:
-      // 1. Get all pull requests
-      // 2. Get reviews for each pull request
-      // 3. Get comments for each review
+    const rawDataPromises = giteaPrs
+      .filter((item) => item.merged || item.state === 'open')
+      .map<() => Promise<GiteaRawDatum>>((pullRequest) => async () => {
+        // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
+        // So, we need:
+        // 1. Get all pull requests
+        // 2. Get reviews for each pull request
+        // 3. Get comments for each review
 
-      // TODO: it seems we get not all reviews here. it cannot return more reviews than some limit
-      const { data: reviews } = await this.api.repos.repoListPullReviews(owner, name, pullRequest.number!);
-      const { data: timeline } = await this.api.repos.issueGetCommentsAndTimeline(owner, name, pullRequest.number!);
+        const reviews = await successRetry(() => this.getAllReviews(owner, name, pullRequest.number!), 3, 1000, []);
+        const timeline = await successRetry(() => this.getAllComments(owner, name, pullRequest.number!), 3, 1000, []);
+        const files = await successRetry(() => this.getAllFiles(owner, name, pullRequest.number!), 3, 1000, []);
 
-      const commentsFns = reviews
-        .filter((review) => (review.comments_count ?? 0) > 0)
-        .map((review) => () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!));
+        const commentsFns = reviews!
+          .filter((review) => (review.comments_count ?? 0) > 0)
+          .map(
+            (review) => () =>
+              successRetry(
+                () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!),
+                3,
+                1000,
+                {} as any
+              )
+          );
 
-      const commentsResp = await requestAllChunked(commentsFns);
-      const prComments = commentsResp.flatMap((item) => item.data);
-      return { pullRequest, comments: prComments, reviews, timeline };
-    });
+        const commentsResp = await requestAllChunked(commentsFns);
+        const prComments = commentsResp.flatMap((item) => item!.data);
+        return { pullRequest, comments: prComments!, reviews: reviews!, timeline: timeline!, files: files! };
+      });
 
     const rawData = await requestAllChunked(rawDataPromises);
 
@@ -119,17 +130,45 @@ export class GiteaService implements GitService {
   }
 
   private async _getAllUsers(): Promise<GiteaUser[]> {
-    const all: GiteaUser[] = [];
-    let users: GiteaUser[] = [];
+    return getAllPages(async (page) => {
+      return (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
+    }, 50);
+  }
 
-    let page = 1;
-    do {
-      users = (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
-      all.push(...users);
-      page++;
-    } while (users.length === 50);
+  private async getAllFiles(owner: string, repo: string, pullRequestIndex: number): Promise<ChangedFile[]> {
+    const limit = 50;
+    return getAllPages((page) => {
+      return this.api.repos
+        .repoGetPullRequestFiles(owner, repo, pullRequestIndex, {
+          page,
+          limit,
+        })
+        .then(({ data }) => data ?? []);
+    }, limit);
+  }
 
-    return all;
+  private async getAllComments(owner: string, repo: string, pullRequestIndex: number): Promise<GiteaPullReviewComment[]> {
+    const limit = 50;
+    return getAllPages((page) => {
+      return this.api.repos
+        .issueGetCommentsAndTimeline(owner, repo, pullRequestIndex, {
+          page,
+          limit,
+        })
+        .then(({ data }) => data ?? []);
+    }, limit);
+  }
+
+  private async getAllReviews(owner: string, repo: string, pullRequestIndex: number): Promise<GiteaPullReview[]> {
+    const limit = 50;
+    return getAllPages((page) => {
+      return this.api.repos
+        .repoListPullReviews(owner, repo, pullRequestIndex, {
+          page,
+          limit,
+        })
+        .then(({ data }) => data ?? []);
+    }, limit);
   }
 }
 
@@ -138,6 +177,7 @@ export interface GiteaRawDatum {
   reviews: GiteaPullReview[];
   comments: GiteaPullReviewComment[];
   timeline: TimelineComment[];
+  files: ChangedFile[];
 }
 
 const pageSize = 50;
@@ -168,4 +208,18 @@ async function getAllPullRequests(
   }
 
   return pullRequests;
+}
+
+async function getAllPages<T>(func: (page: number) => Promise<T[]>, pageSize: number): Promise<T[]> {
+  const all: T[] = [];
+  let currentPage: T[] = [];
+
+  let page = 1;
+  do {
+    currentPage = (await func(page)) ?? [];
+    all.push(...currentPage);
+    page++;
+  } while (currentPage.length === pageSize);
+
+  return all;
 }

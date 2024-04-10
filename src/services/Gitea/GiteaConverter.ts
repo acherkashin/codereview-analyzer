@@ -24,7 +24,7 @@ export class GiteaConverter implements GitConverter {
 
 export function convertToPullRequest(
   hostUrl: string,
-  { pullRequest: pr, reviews, comments, timeline }: GiteaRawDatum
+  { pullRequest: pr, reviews, comments, timeline, files }: GiteaRawDatum
 ): PullRequest {
   const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pr, review));
   const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
@@ -72,6 +72,7 @@ export function convertToPullRequest(
     mergedAt: pr.merged_at,
     discussions: convertToDiscussions(pr, comments),
     readyAt: getReadyTime(pr, timeline),
+    changedFilesCount: files?.length ?? 0,
   };
 }
 

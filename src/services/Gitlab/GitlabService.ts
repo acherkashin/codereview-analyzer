@@ -7,6 +7,7 @@ import type {
   MergeRequestLevelMergeRequestApprovalSchema,
   UserSchema,
   AllMergeRequestsOptions,
+  MergeRequestDiffSchema,
 } from '@gitbeaker/rest';
 import { GitService } from '../GitService';
 import { convertToProject, convertToUser } from './GitlabConverter';
@@ -65,11 +66,14 @@ export class GitlabService implements GitService {
         mergerequestIId: mrItem.iid,
       }), 3, 1000, {} as MergeRequestLevelMergeRequestApprovalSchema);
 
+      const changes = await successRetry(() => this.api.MergeRequests.allDiffs(projectId, mrItem.iid), 3, 1000, []);
+
       return {
         mergeRequest: mrItem,
         notes: userNotes,
         discussions,
         approvalsConfiguration,
+        changes: changes!,
       } as GitlabRawDatum;
     });
 
@@ -101,6 +105,7 @@ export interface GitlabRawDatum {
   notes: MergeRequestNoteSchema[];
   discussions: DiscussionSchema[];
   approvalsConfiguration: MergeRequestLevelMergeRequestApprovalSchema;
+  changes: MergeRequestDiffSchema[];
 }
 
 function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefore, state }: AnalyzeParams) {

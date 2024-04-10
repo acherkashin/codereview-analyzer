@@ -26,6 +26,7 @@ export function convertToPullRequest({
   notes: comments,
   discussions,
   approvalsConfiguration,
+  changes,
 }: GitlabRawDatum): PullRequest {
   // some notes are left by gitlab, so we need to filter them out
   const notSystemComments = comments.filter((item) => !item.system);
@@ -78,6 +79,7 @@ export function convertToPullRequest({
     mergedAt: mr.merged_at || undefined,
     discussions: notSystemDiscussions.map((item) => convertToDiscussion(mr, item)),
     readyAt: getReadyTime(mr, comments),
+    changedFilesCount: changes?.length ?? 0,
   };
 }
 
