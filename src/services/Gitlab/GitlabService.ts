@@ -115,7 +115,7 @@ function getMergeRequests(api: GitlabType, { project, createdAfter, createdBefor
   }
 
   return api.MergeRequests.all({
-    project: project.id,
+    projectId: project.id,
     createdAfter: createdAfter?.toISOString(),
     createdBefore: createdBefore?.toISOString(),
     perPage: 100,

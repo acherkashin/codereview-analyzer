@@ -103,6 +103,7 @@ export function convertToDiscussion(mr: MergeRequestSchema, discussion: Discussi
   return {
     id: discussion.id.toString(),
     pullRequestId: mr.id.toString(),
+    pullRequestUrl: mr.web_url,
     prAuthorId: mr.author.id.toString(),
     prAuthorName: mr.author.name as string,
     reviewerId: (discussion.notes ?? []).length > 0 ? discussion.notes![0].author.id.toString() : 'unknown reviewerId',
