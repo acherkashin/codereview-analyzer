@@ -1,4 +1,4 @@
-import { ResponsiveScatterPlot, ScatterPlotDatum, ScatterPlotTooltip } from '@nivo/scatterplot';
+import { ResponsiveScatterPlotCanvas, ScatterPlotDatum, ScatterPlotTooltip } from '@nivo/scatterplot';
 import { ChartContainer } from '../../ChartContainer';
 import { PullRequest } from '../../../services/types';
 import { useMemo } from 'react';
@@ -28,14 +28,13 @@ export function ChangesToDiscussionsCorrelationChart({ pullRequests }: ChangesTo
 
   return (
     <ChartContainer title={'Changes to Discussions correlation'}>
-      <ResponsiveScatterPlot
+      <ResponsiveScatterPlotCanvas
         data={data}
         margin={{ top: 60, right: 30, bottom: 70, left: 70 }}
         xScale={{ type: 'linear', min: 0, max: 'auto' }}
         xFormat=">-.2f"
         yScale={{ type: 'linear', min: 0, max: 'auto' }}
         yFormat=">-.2f"
-        blendMode="multiply"
         axisTop={null}
         axisRight={null}
         axisBottom={{
