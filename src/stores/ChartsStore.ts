@@ -1,4 +1,4 @@
-import { create, StoreApi } from 'zustand';
+import { StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { AnalyzeParams, Comment, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
@@ -7,6 +7,7 @@ import { convert } from '../services/GitConverter';
 import { getEndDate, getStartDate } from '../utils/GitUtils';
 import dayjs, { Dayjs } from 'dayjs';
 import { ExportData } from '../utils/ExportDataUtils';
+import { createStore } from '../utils/ZustandUtils';
 
 const initialState = {
   pullRequests: [] as PullRequest[],
@@ -34,39 +35,42 @@ const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContex
 export { ChartsStoreProvider, useChartsStore };
 
 export function createChartsStore() {
-  return create<ChartsStore>((set, get) => ({
-    ...initialState,
-    import(json: string) {
-      // TODO: add json validation
-      const exportData: ExportData = JSON.parse(json);
+  return createStore<ChartsStore>(
+    (set, get) => ({
+      ...initialState,
+      import(json: string) {
+        // TODO: add json validation
+        const exportData: ExportData = JSON.parse(json);
 
-      initStore(set, exportData);
-    },
-    analyze: async (client: GitService, params: AnalyzeParams) => {
-      const exportData = await client.fetch(params);
+        initStore(set, exportData);
+      },
+      analyze: async (client: GitService, params: AnalyzeParams) => {
+        const exportData = await client.fetch(params);
 
-      initStore(set, exportData);
-    },
-    getExportData: () => {
-      const { users, exportData: rawData } = get();
-      return {
-        users,
-        rawData,
-      };
-    },
-    closeAnalysis: () => {
-      set({ ...initialState });
-    },
-    setUser(user: User | undefined) {
-      set({ ...get(), user });
-    },
-    setStartDate(start: Dayjs | null) {
-      set({ ...get(), startDate: start });
-    },
-    setEndDate(end: Dayjs | null) {
-      set({ ...get(), startDate: end });
-    },
-  }));
+        initStore(set, exportData);
+      },
+      getExportData: () => {
+        const { users, exportData: rawData } = get();
+        return {
+          users,
+          rawData,
+        };
+      },
+      closeAnalysis: () => {
+        set({ ...initialState });
+      },
+      setUser(user: User | undefined) {
+        set({ ...get(), user });
+      },
+      setStartDate(start: Dayjs | null) {
+        set({ ...get(), startDate: start });
+      },
+      setEndDate(end: Dayjs | null) {
+        set({ ...get(), startDate: end });
+      },
+    }),
+    'ChartsStore'
+  );
 }
 
 const personalPageStore = createChartsStore();
@@ -84,13 +88,16 @@ export function createCommonChartsStore() {
 function initStore(set: StoreApi<ChartsStore>['setState'], exportData: ExportData) {
   const { users, pullRequests } = convert(exportData);
 
-  set({
-    users,
-    pullRequests,
-    exportData,
-    startDate: dayjs(getStartDate(pullRequests)),
-    endDate: dayjs(getEndDate(pullRequests)),
-  });
+  set(
+    {
+      users,
+      pullRequests,
+      exportData,
+      startDate: dayjs(getStartDate(pullRequests)),
+      endDate: dayjs(getEndDate(pullRequests)),
+    },
+    false
+  );
 }
 
 export function getComments(state: ChartState) {
