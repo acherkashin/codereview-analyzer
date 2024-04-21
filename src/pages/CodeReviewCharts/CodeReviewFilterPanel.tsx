@@ -1,13 +1,15 @@
-import { UsersList } from '../../components';
-import ExportButton from './ExportButton';
-
+import dayjs from 'dayjs';
+import { useShallow } from 'zustand/react/shallow';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import { Button, Divider, Stack, Tooltip } from '@mui/material';
-import { useChartsStore } from '../../stores/ChartsStore';
-import dayjs from 'dayjs';
-import { getEndDate, getStartDate } from '../../utils/GitUtils';
 import { styled } from '@mui/material/styles';
+
+import { UsersList } from '../../components';
+import ExportButton from './ExportButton';
+
+import { useChartsStore } from '../../stores/ChartsStore';
+import { getEndDate, getStartDate } from '../../utils/GitUtils';
 
 /**
  * Filters pull requests by user and date range
@@ -16,7 +18,16 @@ export function CodeReviewFilterPanel() {
   const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests)));
   const maxDate = useChartsStore((state) => dayjs(getEndDate(state.pullRequests)));
 
-  const { user, users, startDate, endDate, setStartDate, setEndDate } = useChartsStore();
+  const { user, users, startDate, endDate, setStartDate, setEndDate } = useChartsStore(
+    useShallow((state) => ({
+      user: state.user,
+      users: state.users,
+      startDate: state.startDate,
+      endDate: state.endDate,
+      setStartDate: state.setStartDate,
+      setEndDate: state.setEndDate,
+    }))
+  );
 
   const closeAnalysis = useChartsStore((state) => state.closeAnalysis);
   const setUser = useChartsStore((state) => state.setUser);

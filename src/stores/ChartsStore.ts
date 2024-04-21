@@ -1,4 +1,4 @@
-import create, { StoreApi } from 'zustand';
+import { create, StoreApi } from 'zustand';
 import createContext from 'zustand/context';
 import { AnalyzeParams, Comment, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
