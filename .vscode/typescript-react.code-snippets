@@ -1,0 +1,23 @@
+{
+  "React FC": {
+    "scope": "typescriptreact",
+    "prefix": "rfc",
+    "body": [
+      "import React from 'react';",
+      "",
+      "",
+      "export interface ${1:${TM_FILENAME_BASE}}Props extends React.HTMLProps<{}> {",
+      "  $2",
+      "}",
+      "",
+      "",
+      "/**",
+      " * $3",
+      " */",
+      "export function ${1:${TM_FILENAME_BASE}} ({$4}: ${1:${TM_FILENAME_BASE}}Props) {",
+      "  return ${5};",
+      "};"
+    ],
+    "description": "React functional component"
+  },
+}

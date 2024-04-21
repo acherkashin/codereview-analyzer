@@ -1,11 +1,9 @@
 import { PropsWithChildren, useCallback, useState } from 'react';
-import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../../utils/GitUtils';
-import { CommentList, DiscussionList, FullScreenDialog, UsersList } from '../../components';
-import { Button, Divider, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import { getFilteredComments, getFilteredDiscussions } from '../../utils/GitUtils';
+import { CommentList, DiscussionList, FullScreenDialog } from '../../components';
+import { Grid, Stack, Typography } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
-import CloseIcon from '@mui/icons-material/Close';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import {
   getAnalyze,
@@ -49,9 +47,8 @@ import {
   PullRequestsCreatedChart,
   ChangesToDiscussionsCorrelationChart,
 } from '../../components/charts';
-import dayjs from 'dayjs';
-import ExportButton from './ExportButton';
 import { ReviewCalendarChart } from '../../components/charts/ReviewCalendarChart/ReviewCalendarChart';
+import { CodeReviewFilterPanel } from './CodeReviewFilterPanel';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -60,15 +57,10 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const isGuest = useIsGuest();
 
-  const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests)));
-  const maxDate = useChartsStore((state) => dayjs(getEndDate(state.pullRequests)));
-
-  const { user, pullRequests: allPrs, users, startDate, endDate, setStartDate, setEndDate } = useChartsStore();
+  const { user, pullRequests: allPrs, users } = useChartsStore();
   const pullRequests = useChartsStore(getFilteredPullRequests);
 
   const importData = useChartsStore((state) => state.import);
-  const closeAnalysis = useChartsStore((state) => state.closeAnalysis);
-  const setUser = useChartsStore((state) => state.setUser);
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
@@ -175,37 +167,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   return (
     <PageContainer>
       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflowX: 'hidden' }}>
-        <Stack direction="row" spacing={2}>
-          <DatePicker
-            label="Created After"
-            format="DD/MM/YYYY"
-            value={startDate}
-            minDate={minDate}
-            maxDate={maxDate}
-            onChange={setStartDate}
-          />
-          <DatePicker
-            label="Created Before"
-            format="DD/MM/YYYY"
-            value={endDate}
-            minDate={startDate || undefined}
-            maxDate={maxDate}
-            onChange={setEndDate}
-          />
-
-          <Divider aria-hidden="true" orientation="vertical" variant="middle" />
-
-          <UsersList label="Users" user={user} users={users} onSelected={setUser} />
-
-          <ExportButton style={{ marginLeft: 'auto' }} />
-
-          {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
-          <Tooltip title="Close Analysis">
-            <Button size="small" variant="contained" onClick={closeAnalysis}>
-              <CloseIcon />
-            </Button>
-          </Tooltip>
-        </Stack>
+        <CodeReviewFilterPanel />
 
         <ChartsTitle>Highlights</ChartsTitle>
         <CodeReviewTiles user={user} />
