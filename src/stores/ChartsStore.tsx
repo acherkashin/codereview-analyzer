@@ -24,12 +24,7 @@ const initialState = {
 type ChartState = typeof initialState;
 
 export type ChartsStore = ChartState & {
-  import: (json: string) => void;
-  analyze: (client: GitService, params: AnalyzeParams) => Promise<void>;
-  closeAnalysis: () => void;
-  setUser: (user: User | undefined) => void;
-  setStartDate: (start: Dayjs | null) => void;
-  setEndDate: (end: Dayjs | null) => void;
+  actions: ReturnType<typeof createChartsActions>;
 };
 
 export const ChartsStoreContext = createContext<ReturnType<typeof createChartsStore> | null>(null);
@@ -54,39 +49,45 @@ function createChartsStore() {
   return createStore<ChartsStore>(
     (set, get) => ({
       ...initialState,
-      import(json: string) {
-        // TODO: add json validation
-        const exportData: ExportData = JSON.parse(json);
-
-        initStore(set, exportData);
-      },
-      analyze: async (client: GitService, params: AnalyzeParams) => {
-        const exportData = await client.fetch(params);
-
-        initStore(set, exportData);
-      },
-      getExportData: () => {
-        const { users, exportData: rawData } = get();
-        return {
-          users,
-          rawData,
-        };
-      },
-      closeAnalysis: () => {
-        set({ ...initialState }, false, 'close analysis');
-      },
-      setUser(user: User | undefined) {
-        set({ ...get(), user }, false, 'filter by user');
-      },
-      setStartDate(start: Dayjs | null) {
-        set({ ...get(), startDate: start }, false, 'change start date');
-      },
-      setEndDate(end: Dayjs | null) {
-        set({ ...get(), startDate: end }, false, 'change end date');
-      },
+      actions: createChartsActions(set, get),
     }),
     'ChartsStore'
   );
+}
+
+function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore) {
+  return {
+    import(json: string) {
+      // TODO: add json validation
+      const exportData: ExportData = JSON.parse(json);
+
+      initStore(set, exportData);
+    },
+    analyze: async (client: GitService, params: AnalyzeParams) => {
+      const exportData = await client.fetch(params);
+
+      initStore(set, exportData);
+    },
+    getExportData: () => {
+      const { users, exportData: rawData } = get();
+      return {
+        users,
+        rawData,
+      };
+    },
+    closeAnalysis: () => {
+      set({ ...initialState }, false, 'close analysis');
+    },
+    setUser(user: User | undefined) {
+      set({ ...get(), user }, false, 'filter by user');
+    },
+    setStartDate(start: Dayjs | null) {
+      set({ ...get(), startDate: start }, false, 'change start date');
+    },
+    setEndDate(end: Dayjs | null) {
+      set({ ...get(), startDate: end }, false, 'change end date');
+    },
+  };
 }
 
 function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {
@@ -104,6 +105,8 @@ function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {
     'initStore'
   );
 }
+
+// selectors
 
 export function getComments(state: ChartState) {
   const comments = getFilteredPullRequests(state).flatMap((item) => item.comments);
@@ -130,7 +133,7 @@ export function getDefaultFileName(state: ChartState) {
 }
 
 export function getAnalyze(state: ChartsStore) {
-  return state.analyze;
+  return state.actions.analyze;
 }
 
 export function useMostCommentsLeft() {

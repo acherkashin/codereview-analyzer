@@ -18,19 +18,18 @@ export function CodeReviewFilterPanel() {
   const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests)));
   const maxDate = useChartsStore((state) => dayjs(getEndDate(state.pullRequests)));
 
-  const { user, users, startDate, endDate, setStartDate, setEndDate } = useChartsStore(
+  const { user, users, startDate, endDate, setStartDate, setEndDate, closeAnalysis, setUser } = useChartsStore(
     useShallow((state) => ({
       user: state.user,
       users: state.users,
       startDate: state.startDate,
       endDate: state.endDate,
-      setStartDate: state.setStartDate,
-      setEndDate: state.setEndDate,
+      setStartDate: state.actions.setStartDate,
+      setEndDate: state.actions.setEndDate,
+      closeAnalysis: state.actions.closeAnalysis,
+      setUser: state.actions.setUser,
     }))
   );
-
-  const closeAnalysis = useChartsStore((state) => state.closeAnalysis);
-  const setUser = useChartsStore((state) => state.setUser);
 
   return (
     <Root direction="row" spacing={2}>
