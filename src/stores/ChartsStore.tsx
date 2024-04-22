@@ -1,5 +1,4 @@
-import create, { StoreApi } from 'zustand';
-import createContext from 'zustand/context';
+import { createContext, useContext, useRef } from 'react';
 import { AnalyzeParams, Comment, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { GitService } from '../services/GitService';
@@ -7,6 +6,9 @@ import { convert } from '../services/GitConverter';
 import { getEndDate, getStartDate } from '../utils/GitUtils';
 import dayjs, { Dayjs } from 'dayjs';
 import { ExportData } from '../utils/ExportDataUtils';
+import { createStore } from '../utils/ZustandUtils';
+import { NamedSet } from 'zustand/middleware/devtools';
+import { useStore } from 'zustand';
 
 const initialState = {
   pullRequests: [] as PullRequest[],
@@ -22,20 +24,39 @@ const initialState = {
 type ChartState = typeof initialState;
 
 export type ChartsStore = ChartState & {
-  import: (json: string) => void;
-  analyze: (client: GitService, params: AnalyzeParams) => Promise<void>;
-  closeAnalysis: () => void;
-  setUser: (user: User | undefined) => void;
-  setStartDate: (start: Dayjs | null) => void;
-  setEndDate: (end: Dayjs | null) => void;
+  actions: ReturnType<typeof createChartsActions>;
 };
 
-const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
-export { ChartsStoreProvider, useChartsStore };
+export const ChartsStoreContext = createContext<ReturnType<typeof createChartsStore> | null>(null);
 
-export function createChartsStore() {
-  return create<ChartsStore>((set, get) => ({
-    ...initialState,
+export function ChartsStoreProvider({ children }: React.PropsWithChildren) {
+  const storeRef = useRef<ReturnType<typeof createChartsStore>>();
+  if (!storeRef.current) {
+    storeRef.current = createChartsStore();
+  }
+
+  return <ChartsStoreContext.Provider value={storeRef.current}>{children}</ChartsStoreContext.Provider>;
+}
+
+export function useChartsStore<T>(selector: (state: ChartsStore) => T): T {
+  const store = useContext(ChartsStoreContext);
+  if (!store) throw new Error('Missing ChartsStoreContext.Provider in the tree');
+
+  return useStore(store, selector);
+}
+
+function createChartsStore() {
+  return createStore<ChartsStore>(
+    (set, get) => ({
+      ...initialState,
+      actions: createChartsActions(set, get),
+    }),
+    'ChartsStore'
+  );
+}
+
+function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore) {
+  return {
     import(json: string) {
       // TODO: add json validation
       const exportData: ExportData = JSON.parse(json);
@@ -55,43 +76,37 @@ export function createChartsStore() {
       };
     },
     closeAnalysis: () => {
-      set({ ...initialState });
+      set({ ...initialState }, false, 'close analysis');
     },
     setUser(user: User | undefined) {
-      set({ ...get(), user });
+      set({ ...get(), user }, false, 'filter by user');
     },
     setStartDate(start: Dayjs | null) {
-      set({ ...get(), startDate: start });
+      set({ ...get(), startDate: start }, false, 'change start date');
     },
     setEndDate(end: Dayjs | null) {
-      set({ ...get(), startDate: end });
+      set({ ...get(), startDate: end }, false, 'change end date');
     },
-  }));
+  };
 }
 
-const personalPageStore = createChartsStore();
-
-export function createPersonalPageStore() {
-  return personalPageStore;
-}
-
-const chartsStore = createChartsStore();
-
-export function createCommonChartsStore() {
-  return chartsStore;
-}
-
-function initStore(set: StoreApi<ChartsStore>['setState'], exportData: ExportData) {
+function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {
   const { users, pullRequests } = convert(exportData);
 
-  set({
-    users,
-    pullRequests,
-    exportData,
-    startDate: dayjs(getStartDate(pullRequests)),
-    endDate: dayjs(getEndDate(pullRequests)),
-  });
+  set(
+    {
+      users,
+      pullRequests,
+      exportData,
+      startDate: dayjs(getStartDate(pullRequests)),
+      endDate: dayjs(getEndDate(pullRequests)),
+    },
+    false,
+    'initStore'
+  );
 }
+
+// selectors
 
 export function getComments(state: ChartState) {
   const comments = getFilteredPullRequests(state).flatMap((item) => item.comments);
@@ -118,7 +133,7 @@ export function getDefaultFileName(state: ChartState) {
 }
 
 export function getAnalyze(state: ChartsStore) {
-  return state.analyze;
+  return state.actions.analyze;
 }
 
 export function useMostCommentsLeft() {

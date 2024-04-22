@@ -49,6 +49,7 @@ import {
 } from '../../components/charts';
 import { ReviewCalendarChart } from '../../components/charts/ReviewCalendarChart/ReviewCalendarChart';
 import { CodeReviewFilterPanel } from './CodeReviewFilterPanel';
+import { useShallow } from 'zustand/react/shallow';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {}
@@ -57,10 +58,16 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
   const client = useClient();
   const isGuest = useIsGuest();
 
-  const { user, pullRequests: allPrs, users } = useChartsStore();
+  const { user, allPrs, users } = useChartsStore(
+    useShallow((state) => ({
+      user: state.user,
+      allPrs: state.pullRequests,
+      users: state.users,
+    }))
+  );
   const pullRequests = useChartsStore(getFilteredPullRequests);
 
-  const importData = useChartsStore((state) => state.import);
+  const importData = useChartsStore((state) => state.actions.import);
   const comments = useChartsStore(getComments);
   const discussions = useChartsStore(getDiscussions);
   const analyze = useChartsStore(getAnalyze);
