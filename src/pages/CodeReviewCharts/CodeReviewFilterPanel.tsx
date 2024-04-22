@@ -2,7 +2,17 @@ import dayjs from 'dayjs';
 import { useShallow } from 'zustand/react/shallow';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
-import { Button, Divider, Stack, Tooltip } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Stack,
+  Tooltip,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import { UsersList } from '../../components';
@@ -10,6 +20,7 @@ import ExportButton from './ExportButton';
 
 import { useChartsStore } from '../../stores/ChartsStore';
 import { getEndDate, getStartDate } from '../../utils/GitUtils';
+import { useState } from 'react';
 
 /**
  * Filters pull requests by user and date range
@@ -30,6 +41,20 @@ export function CodeReviewFilterPanel() {
       setUser: state.actions.setUser,
     }))
   );
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (confirmed: boolean) => {
+    setOpen(false);
+
+    if (confirmed) {
+      closeAnalysis();
+    }
+  };
 
   return (
     <Root direction="row" spacing={2}>
@@ -56,13 +81,39 @@ export function CodeReviewFilterPanel() {
 
       <ExportButton style={{ marginLeft: 'auto' }} />
 
-      {/* TODO: probably need to show confirmation dialog to prevent closing analysis if data were not exported */}
       <Tooltip title="Close Analysis">
-        <Button size="small" variant="contained" onClick={closeAnalysis}>
+        <Button size="small" variant="contained" onClick={handleClickOpen}>
           <CloseIcon />
         </Button>
       </Tooltip>
+      <ConfirmationDialog open={open} onClose={handleClose} />
     </Root>
+  );
+}
+
+interface ConfirmationDialogProps {
+  open: boolean;
+  onClose: (confirmed: boolean) => void;
+}
+
+function ConfirmationDialog({ open, onClose }: ConfirmationDialogProps) {
+  return (
+    <Dialog open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+      <DialogTitle id="alert-dialog-title">{'Close Analysis?'}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          You are are about to close analysis. Export you data if you don't want to lose them. Do you really want to close it?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="contained" onClick={() => onClose(false)}>
+          Go Back
+        </Button>
+        <Button onClick={() => onClose(true)} autoFocus>
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
