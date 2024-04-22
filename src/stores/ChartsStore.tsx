@@ -26,7 +26,7 @@ type ChartState = typeof initialState;
 export type ChartsStore = ChartState & {
   actions: ReturnType<typeof createChartsActions>;
 };
-
+// https://github.com/pmndrs/zustand/pull/1403/files#r1064836369
 export const ChartsStoreContext = createContext<ReturnType<typeof createChartsStore> | null>(null);
 
 export function ChartsStoreProvider({ children }: React.PropsWithChildren) {
