@@ -1,5 +1,4 @@
-import { StoreApi } from 'zustand';
-import createContext from 'zustand/context';
+import { createContext, useContext, useRef } from 'react';
 import { AnalyzeParams, Comment, PullRequest, User } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { GitService } from '../services/GitService';
@@ -9,6 +8,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { ExportData } from '../utils/ExportDataUtils';
 import { createStore } from '../utils/ZustandUtils';
 import { NamedSet } from 'zustand/middleware/devtools';
+import { useStore } from 'zustand';
 
 const initialState = {
   pullRequests: [] as PullRequest[],
@@ -32,10 +32,25 @@ export type ChartsStore = ChartState & {
   setEndDate: (end: Dayjs | null) => void;
 };
 
-const { Provider: ChartsStoreProvider, useStore: useChartsStore } = createContext<StoreApi<ChartsStore>>();
-export { ChartsStoreProvider, useChartsStore };
+export const ChartsStoreContext = createContext<ReturnType<typeof createChartsStore> | null>(null);
 
-export function createChartsStore() {
+export function ChartsStoreProvider({ children }: React.PropsWithChildren) {
+  const storeRef = useRef<ReturnType<typeof createChartsStore>>();
+  if (!storeRef.current) {
+    storeRef.current = createChartsStore();
+  }
+
+  return <ChartsStoreContext.Provider value={storeRef.current}>{children}</ChartsStoreContext.Provider>;
+}
+
+export function useChartsStore<T>(selector: (state: ChartsStore) => T): T {
+  const store = useContext(ChartsStoreContext);
+  if (!store) throw new Error('Missing ChartsStoreContext.Provider in the tree');
+
+  return useStore(store, selector);
+}
+
+function createChartsStore() {
   return createStore<ChartsStore>(
     (set, get) => ({
       ...initialState,
@@ -72,18 +87,6 @@ export function createChartsStore() {
     }),
     'ChartsStore'
   );
-}
-
-const personalPageStore = createChartsStore();
-
-export function createPersonalPageStore() {
-  return personalPageStore;
-}
-
-const chartsStore = createChartsStore();
-
-export function createCommonChartsStore() {
-  return chartsStore;
 }
 
 function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {
