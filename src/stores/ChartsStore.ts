@@ -8,6 +8,7 @@ import { getEndDate, getStartDate } from '../utils/GitUtils';
 import dayjs, { Dayjs } from 'dayjs';
 import { ExportData } from '../utils/ExportDataUtils';
 import { createStore } from '../utils/ZustandUtils';
+import { NamedSet } from 'zustand/middleware/devtools';
 
 const initialState = {
   pullRequests: [] as PullRequest[],
@@ -57,16 +58,16 @@ export function createChartsStore() {
         };
       },
       closeAnalysis: () => {
-        set({ ...initialState });
+        set({ ...initialState }, false, 'close analysis');
       },
       setUser(user: User | undefined) {
-        set({ ...get(), user });
+        set({ ...get(), user }, false, 'filter by user');
       },
       setStartDate(start: Dayjs | null) {
-        set({ ...get(), startDate: start });
+        set({ ...get(), startDate: start }, false, 'change start date');
       },
       setEndDate(end: Dayjs | null) {
-        set({ ...get(), startDate: end });
+        set({ ...get(), startDate: end }, false, 'change end date');
       },
     }),
     'ChartsStore'
@@ -85,7 +86,7 @@ export function createCommonChartsStore() {
   return chartsStore;
 }
 
-function initStore(set: StoreApi<ChartsStore>['setState'], exportData: ExportData) {
+function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {
   const { users, pullRequests } = convert(exportData);
 
   set(
@@ -96,7 +97,8 @@ function initStore(set: StoreApi<ChartsStore>['setState'], exportData: ExportDat
       startDate: dayjs(getStartDate(pullRequests)),
       endDate: dayjs(getEndDate(pullRequests)),
     },
-    false
+    false,
+    'initStore'
   );
 }
 
