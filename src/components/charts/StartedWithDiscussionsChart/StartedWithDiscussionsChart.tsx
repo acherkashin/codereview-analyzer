@@ -4,6 +4,7 @@ import { BaseDiscussionsTooltip } from '../../tooltips';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { convertToDiscussionsReceived, getDiscussionStartedWithUserData } from './StartedWithDiscussionsChartUtils';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface StartedWithDiscussionsChartProps {
   user?: User | null;
@@ -24,6 +25,7 @@ export function DiscussionsChartForAll({ discussions, onClick }: StartedWithDisc
     <ChartContainer title="Discussions started with person">
       <BarChart
         {...data}
+        colors={chartColor}
         tooltip={(props) => {
           const { indexValue, value, id } = props;
 

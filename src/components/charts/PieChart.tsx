@@ -1,7 +1,7 @@
 import { PieSvgProps, ResponsivePie } from '@nivo/pie';
 import { PieChartDatum } from '../../utils/PieChartUtils';
 
-export interface PieChartProps extends Pick<PieSvgProps<PieChartDatum>, 'onClick' | 'tooltip' | 'data'> {}
+export interface PieChartProps extends Pick<PieSvgProps<PieChartDatum>, 'onClick' | 'tooltip' | 'data' | 'colors'> {}
 
 export function PieChart(props: PieChartProps) {
   return <ResponsivePie {...pieChartSettings} {...props} />;

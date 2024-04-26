@@ -5,6 +5,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestsReview, getWhoRequestsReviewArray } from './ReviewRequestDistributionUtils';
 import { BaseReviewTooltip } from '../../tooltips';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface ReviewRequestDistributionChartProps {
   user?: User | null;
@@ -37,6 +38,7 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestDistributionC
         indexBy="approverName"
         keys={authors}
         data={data}
+        colors={chartColor}
         tooltip={(props) => {
           return <BaseReviewTooltip author={props.indexValue as string} count={props.value} reviewer={props.id as string} />;
         }}

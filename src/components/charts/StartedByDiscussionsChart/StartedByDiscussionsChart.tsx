@@ -4,6 +4,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { getDiscussionStartedByUserData, getDiscussionsStarted } from './StartedByDiscussionsChartUtils';
 import { BaseDiscussionsTooltip } from '../../tooltips';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface StartedByDiscussionsChartProps {
   user?: User | null;
@@ -43,6 +44,7 @@ function StartedByDiscussionsForAll({ discussions, onClick }: StartedByDiscussio
       <BarChart
         data={data}
         keys={authors}
+        colors={chartColor}
         indexBy="userName"
         tooltip={(props) => {
           return <BaseDiscussionsTooltip reviewer={props.indexValue as string} author={props.id as string} count={props.value} />;

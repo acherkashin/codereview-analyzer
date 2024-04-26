@@ -5,6 +5,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhomUserApproves, getWhomUserApprovesArray } from './ApprovalRecipientsUtils';
 import { BaseApprovalsTooltip } from '../../tooltips';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface ApprovalRecipientsChartProps {
   user?: User | null;
@@ -34,6 +35,7 @@ function ApprovalRecipientsForAll({ users, pullRequests }: ApprovalRecipientsCha
         indexBy="approverName"
         keys={authors}
         data={data}
+        colors={chartColor}
         tooltip={(props) => {
           return <BaseApprovalsTooltip approver={props.id as string} author={props.indexValue as string} count={props.value} />;
         }}

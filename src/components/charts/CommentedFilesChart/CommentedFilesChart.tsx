@@ -3,6 +3,7 @@ import { Comment, User } from '../../../services/types';
 import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { getCommentedFilesData } from './CommentedFilesChartUtils';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface CommentedFilesChartProps {
   user?: User | null;
@@ -26,6 +27,7 @@ function CommentedFilesForAll({ comments }: CommentedFilesChartProps) {
         indexBy="extension"
         keys={authors}
         data={data}
+        colors={chartColor}
         onClick={() => {}}
       />
     </ChartContainer>

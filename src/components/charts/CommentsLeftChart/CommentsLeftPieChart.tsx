@@ -3,6 +3,7 @@ import { PieChart } from '../PieChart';
 import { Comment } from '../../../services/types';
 import { convertToCommentsLeftPieChart } from './CommentsLeftChartUtils';
 import { useMemo } from 'react';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface CommentsLeftPieChartProps {
   comments: Comment[];
@@ -18,6 +19,7 @@ export function CommentsLeftPieChart({ comments, onClick }: CommentsLeftPieChart
     <ChartContainer title="Comments left by person">
       <PieChart
         data={data}
+        colors={chartColor}
         onClick={(e) => {
           onClick(e.id as string);
         }}

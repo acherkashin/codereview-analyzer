@@ -4,6 +4,7 @@ import { Comment, User } from '../../../services/types';
 import { useMemo } from 'react';
 import { convertToCommentsReceived, getDiscussionStartedByUserData } from './CommentsReceivedChartUtils';
 import { BaseCommentsTooltip } from '../../tooltips';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface CommentsReceivedBarChartProps {
   user?: User | null;
@@ -25,6 +26,7 @@ function CommentsReceivedChartForAll({ comments, onClick }: CommentsReceivedBarC
     <ChartContainer title="Comments received by person">
       <BarChart
         {...data}
+        colors={chartColor}
         tooltip={(props) => {
           return <BaseCommentsTooltip reviewer={props.id as string} author={props.indexValue as string} count={props.value} />;
         }}

@@ -4,6 +4,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { getCommentsLeftByUserData, getCommentsLeftData } from './CommentsLeftChartUtils';
 import { BaseCommentsTooltip } from '../../tooltips/BaseCommentsTooltip';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface CommentsLeftBarChartProps {
   user?: User | null;
@@ -26,6 +27,7 @@ function CommentsLeftChartForAll({ comments, onClick }: CommentsLeftBarChartProp
       <BarChart
         keys={authors}
         data={data}
+        colors={chartColor}
         indexBy="userName"
         tooltip={(props) => {
           return <BaseCommentsTooltip reviewer={props.indexValue as string} author={props.id as string} count={props.value} />;

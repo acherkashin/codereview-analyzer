@@ -3,6 +3,7 @@ import { UserDiscussion } from '../../../services/types';
 import { ChartContainer } from '../../ChartContainer';
 import { PieChart } from '../PieChart';
 import { convertToDiscussionsReceivedPieChart } from './StartedWithDiscussionsChartUtils';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface StartedWithDiscussionsPieChartProps {
   discussions: UserDiscussion[];
@@ -16,6 +17,7 @@ export function StartedWithDiscussionsPieChart({ discussions, onClick }: Started
     <ChartContainer title="Discussions started with person">
       <PieChart
         data={data}
+        colors={chartColor}
         onClick={(e) => {
           const authorName = e.id as string;
           onClick(authorName);

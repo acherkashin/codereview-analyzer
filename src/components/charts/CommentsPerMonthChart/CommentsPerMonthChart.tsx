@@ -4,6 +4,7 @@ import { Comment, User } from '../../../services/types';
 import { useMemo } from 'react';
 import { getCommentsLineChartData } from './CommentsPerMonthChartUtils';
 import { CommentsLineChartTooltip } from '../../tooltips';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface CommentsPerMonthChartProps {
   user?: User;
@@ -15,7 +16,7 @@ export function CommentsPerMonthChart({ comments, user }: CommentsPerMonthChartP
 
   return (
     <ChartContainer title="Comments per month">
-      <LineChart legendYLabel="Comments count" data={data} sliceTooltip={CommentsLineChartTooltip} />
+      <LineChart legendYLabel="Comments count" colors={chartColor} data={data} sliceTooltip={CommentsLineChartTooltip} />
     </ChartContainer>
   );
 }

@@ -6,6 +6,7 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { BaseApprovalsTooltip } from '../../tooltips';
+import { chartColor } from '../../../utils/ColorUtils';
 
 export interface ApprovalDistributionProps {
   user?: User | null;
@@ -40,6 +41,7 @@ function ApprovalDistributionForAll({ pullRequests, users }: ApprovalDistributio
         indexBy="approverName"
         keys={authors}
         data={data}
+        colors={chartColor}
         tooltip={ApprovalsAllTooltip}
         onClick={() => {}}
       />
