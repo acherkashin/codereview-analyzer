@@ -4,8 +4,9 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestsReview, getWhoRequestsReviewArray } from './ReviewRequestDistributionUtils';
-import { BaseReviewTooltip } from '../../tooltips';
+import { BaseChartTooltip, BaseReviewTooltip } from '../../tooltips';
 import { chartColor } from '../../../utils/ColorUtils';
+import { Stack } from '@mui/material';
 
 export interface ReviewRequestDistributionChartProps {
   user?: User | null;
@@ -50,9 +51,10 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestDistributionC
 
 function ReviewRequestForUser({ user, pullRequests }: ReviewRequestDistributionChartProps) {
   const data = useMemo(() => {
-    return getWhoRequestsReviewArray(pullRequests, user!.id).map(({ displayName, total }) => ({
+    return getWhoRequestsReviewArray(pullRequests, user!.id).map(({ displayName, total, reviewed }) => ({
       id: displayName,
       value: total,
+      reviewed,
     }));
   }, [pullRequests, user]);
 
@@ -60,10 +62,30 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestDistributionC
     <ChartContainer title={`${user!.userName} asks to review`}>
       <BarChart
         data={data}
+        keys={['value', 'reviewed']}
+        groupMode="grouped"
         tooltip={(props) => {
+          const author = user!.userName as string;
+          const reviewer = props.indexValue as string;
+          const { value: count, reviewed } = props.data as typeof data[number];
+
           return (
-            <BaseReviewTooltip author={user!.userName as string} count={props.value} reviewer={props.indexValue as string} />
+            <BaseChartTooltip>
+              <Stack spacing={8}>
+                <div>
+                  <strong>{author}</strong> requested review from <strong>{reviewer} </strong>
+                  <strong>{count}</strong> times.
+                </div>
+                <div>
+                  <strong>
+                    {reviewed}/{count}
+                  </strong>{' '}
+                  pull requests were reviewed.
+                </div>
+              </Stack>
+            </BaseChartTooltip>
           );
+          // return <BaseReviewTooltip author={author} count={item.value} reviewer={props.indexValue as string} />;
         }}
       />
     </ChartContainer>

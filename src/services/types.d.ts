@@ -111,6 +111,8 @@ export interface PullRequest {
    * - approved
    * - requested changes
    * - commented
+   *
+   * Field may contain the same user several times, as he may at first request changes or comment and approve only after that
    */
   reviewedByUser: UserPrActivity[];
   /**
