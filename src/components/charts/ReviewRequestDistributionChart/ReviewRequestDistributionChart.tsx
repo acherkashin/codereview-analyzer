@@ -60,7 +60,7 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestDistributionC
   }, [pullRequests, user]);
 
   return (
-    <ChartContainer title={`${user!.userName} asks to review`}>
+    <ChartContainer title={`${user!.userName} requests review from`}>
       <BarChart
         data={data}
         keys={['value', 'reviewed']}

@@ -18,7 +18,7 @@ export interface ReviewRequestRecipientsProps {
  * On y-axis it shows who get review requests.
  * On x-axis it shows number of pull requests that user asked to review.
  */
-export function ReviewRequestRecipients(props: ReviewRequestRecipientsProps) {
+export function ReviewRequestRecipientsChart(props: ReviewRequestRecipientsProps) {
   if (props.user) return <ReviewRequestForUser {...props} />;
 
   return <ReviewRequestForAll {...props} />;
@@ -49,13 +49,19 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestRecipientsPro
 
 function ReviewRequestForUser({ user, pullRequests }: ReviewRequestRecipientsProps) {
   const data = useMemo(() => {
-    return getWhoRequestReviewsArray(pullRequests, user!.id).map((item) => ({ id: item.displayName, value: item.total }));
+    return getWhoRequestReviewsArray(pullRequests, user!.id).map((item) => ({
+      id: item.displayName,
+      total: item.total,
+      reviewed: item.reviewed,
+    }));
   }, [pullRequests, user]);
 
   return (
     <ChartContainer title={`Review requested from ${user!.userName} `}>
       <BarChart
         data={data}
+        keys={['total', 'reviewed']}
+        groupMode="grouped"
         tooltip={(props) => (
           <BaseReviewTooltip reviewer={user!.userName} count={props.value} author={props.indexValue as string} />
         )}

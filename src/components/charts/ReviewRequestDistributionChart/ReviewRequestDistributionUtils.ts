@@ -25,9 +25,10 @@ export function getWhoRequestsReviewArray(mergeRequests: PullRequest[], userId: 
     groupBy('displayName', [summarize({ total: n() })]),
     arrange([asc('total')])
   ).map((item) => [item.displayName, item.total] as const);
-
   const reviewRequestedMap = new Map(reviewRequestedStats);
 
+  // In gitea, if user approves it automatically will be added to reviewers list, however in Gitlab, it will not be added.
+  // So, it is possible that user will approve PR, but will not be in reviewers list. So, we have to join both: [...reviewersAssigned, ...reviewedBy].
   const stats = uniqueByProperty([...reviewersAssigned, ...reviewedBy], 'displayName')
     .filter((item) => item.id !== userId)
     .map(({ displayName }) => ({

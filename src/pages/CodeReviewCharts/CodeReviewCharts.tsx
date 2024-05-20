@@ -24,7 +24,7 @@ import { CommentItemProps } from '../../components/CommentList';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { useIsGuest } from '../../hooks/useIsGuest';
 import {
-  ReviewRequestRecipients,
+  ReviewRequestRecipientsChart,
   ReviewRequestDistributionChart,
   ApprovalDistributionChart,
   ApprovalRecipientsChart,
@@ -281,7 +281,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
 
           <Grid container className="charts">
             <Grid item lg={4} md={6} xs={12}>
-              <ReviewRequestRecipients user={user} pullRequests={pullRequests} users={users} />
+              <ReviewRequestRecipientsChart user={user} pullRequests={pullRequests} users={users} />
             </Grid>
             <Grid item lg={4} md={6} xs={12}>
               <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
