@@ -6,6 +6,7 @@ import { BarChart } from './BarChart';
 import { BaseChartTooltip } from '../tooltips/BaseChartTooltip';
 import { Avatar, Stack } from '@mui/material';
 import { getHostType, useChartsStore } from '../../stores/ChartsStore';
+import { percentString } from '../../utils/StringUtils';
 
 export interface ReviewByUserChartProps {
   user?: User | null;
@@ -154,9 +155,9 @@ function ReviewByUserTooltip({
 }: ReviewByUserTooltipProps) {
   const hostType = useChartsStore(getHostType);
   const requestedChanges = requestedChangesCount || 0;
-  const reviewedPercent = Math.ceil((reviewedCount / assignedCount) * 100) + '%';
-  const approvedPercent = Math.ceil((approvedCount / assignedCount) * 100) + '%';
-  const requestChangesPercent = Math.ceil((requestedChanges / assignedCount) * 100) + '%';
+  const reviewedPercent = percentString(reviewedCount, assignedCount);
+  const approvedPercent = percentString(approvedCount, assignedCount);
+  const requestChangesPercent = percentString(requestedChanges, assignedCount);
 
   return (
     <BaseChartTooltip>
