@@ -30,6 +30,7 @@ export function LineChart({ data, legendYLabel, legendXLabel, onLegendClick, ...
       yFormat=" >-.0r"
       axisTop={null}
       axisRight={null}
+      animate={false}
       axisBottom={{
         format: '%b %y',
         tickValues: 'every month',

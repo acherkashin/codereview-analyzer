@@ -16,6 +16,7 @@ export const barChartSettings = {
   layout: 'horizontal',
   enableLabel: true,
   enableGridX: true,
+  animate: false,
   axisBottom: {
     tickSize: 10,
     tickPadding: 5,

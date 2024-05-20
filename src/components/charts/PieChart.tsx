@@ -18,6 +18,7 @@ export const pieChartSettings = {
   cornerRadius: 3,
   activeOuterRadiusOffset: 8,
   borderWidth: 1,
+  animate: false,
   borderColor: {
     from: 'color',
     modifiers: [['darker', 0.2]],
