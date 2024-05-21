@@ -4,10 +4,8 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestsReview, getWhoRequestsReviewArray } from './ReviewRequestDistributionUtils';
-import { BaseChartTooltip, BaseReviewTooltip } from '../../tooltips';
+import { BaseReviewTooltip, ReviewRequestTooltip } from '../../tooltips';
 import { chartColor } from '../../../utils/ColorUtils';
-import { Stack } from '@mui/material';
-import { percentString } from '../../../utils/StringUtils';
 
 export interface ReviewRequestDistributionChartProps {
   user?: User | null;
@@ -70,23 +68,7 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestDistributionC
           const reviewer = props.indexValue as string;
           const { value: count = 0, reviewed = 0 } = props.data as typeof data[number];
 
-          return (
-            <BaseChartTooltip>
-              <Stack spacing={1}>
-                <div>
-                  <strong>{author}</strong> requested review from <strong>{reviewer} </strong>
-                  <strong>{count}</strong> times.
-                </div>
-                <div>
-                  <strong>
-                    {reviewed}/{count} ({percentString(reviewed, count)})
-                  </strong>{' '}
-                  pull requests were reviewed.
-                </div>
-              </Stack>
-            </BaseChartTooltip>
-          );
-          // return <BaseReviewTooltip author={author} count={item.value} reviewer={props.indexValue as string} />;
+          return <ReviewRequestTooltip authorName={author} reviewerName={reviewer} count={count} reviewed={reviewed} />;
         }}
       />
     </ChartContainer>

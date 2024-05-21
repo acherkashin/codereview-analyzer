@@ -4,7 +4,7 @@ import { BarChart } from '../BarChart';
 import { ChartContainer } from '../../ChartContainer';
 import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestReviews, getWhoRequestReviewsArray } from './ReviewRequestRecipientsUtils';
-import { BaseReviewTooltip } from '../../tooltips';
+import { BaseReviewTooltip, ReviewRequestTooltip } from '../../tooltips';
 import { chartColor } from '../../../utils/ColorUtils';
 
 export interface ReviewRequestRecipientsProps {
@@ -62,9 +62,13 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestRecipientsPro
         data={data}
         keys={['total', 'reviewed']}
         groupMode="grouped"
-        tooltip={(props) => (
-          <BaseReviewTooltip reviewer={user!.userName} count={props.value} author={props.indexValue as string} />
-        )}
+        tooltip={(props) => {
+          const reviewer = user!.userName as string;
+          const author = props.indexValue as string;
+          const { total: count = 0, reviewed = 0 } = props.data as typeof data[number];
+
+          return <ReviewRequestTooltip authorName={author} reviewerName={reviewer} count={count} reviewed={reviewed} />;
+        }}
       />
     </ChartContainer>
   );
