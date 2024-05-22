@@ -41,6 +41,7 @@ export function Login(_: LoginProps) {
   const signInGuest = useAuthStore(getSignInGuest);
   const cancelSignIn = useAuthStore((state) => state.actions.cancelSignIn);
   const isSigningIn = useAuthStore((state) => state.isSigningIn);
+  const signInError = useAuthStore((state) => state.signInError);
 
   const handleLoginAsGuest = () => {
     signInGuest();
@@ -50,15 +51,9 @@ export function Login(_: LoginProps) {
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
   const handleLoggedIn = useCallback(() => {
-    signIn(host, token, hostType).then(
-      () => {
-        navigate('/charts');
-      },
-      (e) => {
-        console.error(e);
-        //TODO: need to show validation
-      }
-    );
+    signIn(host, token, hostType).then(() => {
+      navigate('/charts');
+    });
   }, [host, hostType, navigate, signIn, token]);
 
   // redirects to login if not authenticated
@@ -109,6 +104,8 @@ export function Login(_: LoginProps) {
           name="token"
           value={token}
           type="password"
+          error={!!signInError}
+          helperText={signInError}
           onChange={(e) => setToken(e.target.value)}
           InputProps={{
             endAdornment:

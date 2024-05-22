@@ -98,6 +98,10 @@ export class GitlabService implements GitService {
   private async _getAllUsers(): Promise<UserSchema[]> {
     return this.api.Users.all({ perPage: 100 });
   }
+
+  getErrorMessage(e: any): string {
+    return e.cause?.message || e.cause?.description || e.name || "Gitlab error";
+  }
 }
 
 export interface GitlabRawDatum {

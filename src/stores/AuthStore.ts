@@ -66,9 +66,10 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
           userContext,
           user,
           genericClient: client,
+          signInError: null,
         });
-      } catch (e) {
-        if ((e as any).isCanceled) {
+      } catch (e: any) {
+        if (e.isCanceled) {
           return;
         }
 
@@ -76,9 +77,8 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
           userContext: null,
           user: null,
           genericClient: null,
+          signInError: client.getErrorMessage(e),
         });
-
-        set({ signInError: (e as any).toString() });
 
         throw e;
       } finally {

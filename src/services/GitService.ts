@@ -16,4 +16,5 @@ export interface GitService {
   getAllUsers(): Promise<User[]>;
   searchProjects(searchText: string): Promise<Project[]>;
   getAllProjects(): Promise<Project[]>;
+  getErrorMessage(e: any): string;
 }

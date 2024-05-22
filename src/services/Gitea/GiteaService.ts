@@ -129,6 +129,10 @@ export class GiteaService implements GitService {
     };
   }
 
+  getErrorMessage(e: any): string {
+    return e?.error?.message || e?.statusText || 'Gitea error';
+  }
+
   private async _getAllUsers(): Promise<GiteaUser[]> {
     return getAllPages(async (page) => {
       return (await this.api.users.userSearch({ q: '', page, limit: 50 })).data.data ?? [];
