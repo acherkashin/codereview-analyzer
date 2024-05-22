@@ -23,6 +23,7 @@ import { useAuthGuard } from '../hooks/useAuthGuard';
 import { HostingType } from '../services/types';
 import PersonIcon from '@mui/icons-material/Person';
 import LoginIcon from '@mui/icons-material/Login';
+import { isValidHttpUrl } from '../utils/UrlUtils';
 
 const tokenHelp: Record<HostingType, `https://${string}`> = {
   Gitlab: 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token',
@@ -36,6 +37,8 @@ export function Login(_: LoginProps) {
   const [hostType, setHostType] = useState<HostingType>('Gitlab');
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
+
+  const [isHostValid, setIsHostValid] = useState(true);
 
   const signIn = useAuthStore(getSignIn);
   const signInGuest = useAuthStore(getSignInGuest);
@@ -51,6 +54,12 @@ export function Login(_: LoginProps) {
   //TODO: need to call client.Users.current() to make sure token and host are correct
 
   const handleLoggedIn = useCallback(() => {
+    if (!isValidHttpUrl(host)) {
+      setIsHostValid(false);
+      return;
+    }
+    setIsHostValid(true);
+
     signIn(host, token, hostType).then(() => {
       navigate('/charts');
     });
@@ -92,6 +101,8 @@ export function Login(_: LoginProps) {
         </Select>
         <TextField
           required
+          error={!isHostValid}
+          helperText={isHostValid ? null : 'Incorrect url provided'}
           label="Host"
           name="host"
           placeholder="https://gitlab.com"

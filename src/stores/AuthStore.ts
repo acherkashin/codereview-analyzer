@@ -7,7 +7,6 @@ import {
   getUserContext,
   saveUserContext,
 } from '../utils/UserContextUtils';
-import { isValidHttpUrl } from '../utils/UrlUtils';
 import { HostingType, User } from '../services/types';
 import { GitService, getGitService } from '../services/GitService';
 import { makeCancelable } from '../utils/PromiseUtils';
@@ -44,10 +43,6 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
       });
     },
     signIn: async (host: string, token: string, hostType: HostingType) => {
-      if (!isValidHttpUrl(host)) {
-        throw Error(`Incorrect url provided: ${host}`);
-      }
-
       if (get().isSigningIn) {
         return;
       }
