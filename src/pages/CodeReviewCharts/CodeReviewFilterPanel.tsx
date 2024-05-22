@@ -26,8 +26,8 @@ import { useState } from 'react';
  * Filters pull requests by user and date range
  */
 export function CodeReviewFilterPanel() {
-  const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests)));
-  const maxDate = useChartsStore((state) => dayjs(getEndDate(state.pullRequests)));
+  const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests ?? [])));
+  const maxDate = useChartsStore((state) => dayjs(getEndDate(state.pullRequests ?? [])));
 
   const { user, users, startDate, endDate, setStartDate, setEndDate, closeAnalysis, setUser } = useChartsStore(
     useShallow((state) => ({

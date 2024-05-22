@@ -11,8 +11,10 @@ import { NamedSet } from 'zustand/middleware/devtools';
 import { useStore } from 'zustand';
 
 const initialState = {
-  pullRequests: [] as PullRequest[],
-  users: [] as User[],
+  isAnalyzing: false as boolean,
+
+  pullRequests: null as PullRequest[] | null,
+  users: null as User[] | null,
   exportData: null as ExportData | null,
 
   // filtering options
@@ -64,9 +66,16 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
       initStore(set, exportData);
     },
     analyze: async (client: GitService, params: AnalyzeParams) => {
-      const exportData = await client.fetch(params);
+      if (get().isAnalyzing) return;
 
-      initStore(set, exportData);
+      set({ isAnalyzing: true });
+
+      try {
+        const exportData = await client.fetch(params);
+        initStore(set, exportData);
+      } finally {
+        set({ isAnalyzing: false });
+      }
     },
     getExportData: () => {
       const { users, exportData: rawData } = get();
@@ -119,7 +128,7 @@ export function getDiscussions(state: ChartState) {
 }
 
 export function getDefaultFileName(state: ChartState) {
-  if (state.pullRequests.length === 0) {
+  if (state.pullRequests == null || state.pullRequests.length === 0) {
     return null;
   }
 
@@ -140,7 +149,7 @@ export function useMostCommentsLeft() {
   return useChartsStore((state) => {
     const comments = getComments(state);
     const data = tidy(comments, groupBy('reviewerId', summarize({ total: n() })), arrange([desc('total')]));
-    const user = state.users.find((item) => item.id === data[0]?.reviewerId);
+    const user = (state.users ?? []).find((item) => item.id === data[0]?.reviewerId);
 
     return {
       user,
@@ -153,7 +162,7 @@ export function useMostCommentsReceived() {
   return useChartsStore((state) => {
     const comments = getComments(state);
     const data = tidy(comments, groupBy('prAuthorId', summarize({ total: n() })), arrange([desc('total')]));
-    const user = state.users.find((item) => item.id === data[0]?.prAuthorId);
+    const user = (state.users ?? []).find((item) => item.id === data[0]?.prAuthorId);
 
     return {
       user,
@@ -209,6 +218,10 @@ export function getUserDiscussions(state: ChartState) {
 }
 
 export function getFilteredPullRequests(state: ChartState) {
+  if (state.pullRequests == null) {
+    return [];
+  }
+
   const start = dayjs(state.startDate ?? new Date()).subtract(1, 'day');
   const end = dayjs(state.endDate ?? new Date()).add(1, 'day');
 

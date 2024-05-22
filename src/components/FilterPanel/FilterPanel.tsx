@@ -3,11 +3,12 @@ import { Stack, TextField } from '@mui/material';
 import { ProjectList } from '../ProjectList';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { useCallback, useState } from 'react';
-import { useLocalStorage, useRequest } from '../../hooks';
+import { useLocalStorage } from '../../hooks';
 import { AnalyzeParams, Project } from '../../services/types';
 import { getHostType, useAuthStore } from '../../stores/AuthStore';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
+import { useChartsStore } from '../../stores/ChartsStore';
 
 export interface FilterPanelProps {
   onAnalyze: (state: AnalyzeParams) => Promise<any>;
@@ -21,8 +22,8 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   const [project, setProject] = useLocalStorage<Project | undefined>('project', undefined);
   const [prCount, setPrCount] = useState(100);
 
-  const { makeRequest: analyze, isLoading } = useRequest(onAnalyze);
   const hostType = useAuthStore(getHostType);
+  const isAnalyzing = useChartsStore((state) => state.isAnalyzing);
 
   const handleAnalyze = useCallback(() => {
     if (!project || !createdAfter || !createdBefore) {
@@ -30,14 +31,14 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
       return;
     }
 
-    analyze({
+    onAnalyze({
       createdAfter: createdAfter.toDate(),
       createdBefore: createdBefore.toDate(),
       project,
       pullRequestCount: prCount,
       state: 'all',
     });
-  }, [analyze, createdAfter, createdBefore, prCount, project]);
+  }, [createdAfter, createdBefore, onAnalyze, prCount, project]);
 
   return (
     <Stack spacing={2} position="sticky" top={0} style={style}>
@@ -71,7 +72,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
         </>
       )}
       {children}
-      <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isLoading} onClick={handleAnalyze}>
+      <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isAnalyzing} onClick={handleAnalyze}>
         Analyze
       </LoadingButton>
     </Stack>

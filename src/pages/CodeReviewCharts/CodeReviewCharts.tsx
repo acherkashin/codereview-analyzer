@@ -150,7 +150,7 @@ export function CodeReviewCharts(_: CodeReviewChartsProps) {
     [comments]
   );
 
-  if (allPrs.length === 0) {
+  if (allPrs == null || users == null) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
         <Stack spacing={2} position="sticky" style={{ width: 300 }}>

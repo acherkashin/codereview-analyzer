@@ -6,6 +6,9 @@ import { AuthGuard } from './components/AuthGuard';
 import { AppHeader } from './components/AppHeader/AppHeader';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useUnhandledRefection } from './hooks';
 
 export interface Credentials {
   token: string;
@@ -25,6 +28,12 @@ const Main = styled('main')(() => ({
 }));
 
 export function App() {
+  useUnhandledRefection((event: PromiseRejectionEvent) => {
+    toast(event.reason.message, {
+      type: 'error',
+    });
+  }, []);
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <AuthGuard>
@@ -38,6 +47,7 @@ export function App() {
           </div>
         </AppFrame>
       </AuthGuard>
+      <ToastContainer newestOnTop limit={5} autoClose={3000} />
     </LocalizationProvider>
   );
 }

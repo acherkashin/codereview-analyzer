@@ -8,10 +8,12 @@ import { styled } from '@mui/system';
 export interface UsersListProps {
   label: string;
   user?: User | null;
-  users: ((value: string) => Promise<User[]>) | User[];
+  users: ((value: string) => Promise<User[]>) | User[] | null;
   onSelected: (user: User | undefined) => void;
   style?: React.CSSProperties | undefined;
 }
+
+const emptyUsersArray: User[] = [];
 
 export function UsersList({
   /**
@@ -21,12 +23,12 @@ export function UsersList({
   user = null,
   label,
   style,
-  users,
+  users = emptyUsersArray,
   onSelected,
 }: UsersListProps) {
   const [open, setOpen] = useState(false);
   const isApiSearchMode = typeof users === 'function';
-  const [options, setOptions] = useState<User[]>(isApiSearchMode ? [] : users);
+  const [options, setOptions] = useState<User[]>(isApiSearchMode ? [] : users!);
   const [loading, setLoading] = useState(false);
 
   const [value, setValue] = useState<string>('');
