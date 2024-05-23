@@ -1,15 +1,17 @@
 import { Fullscreen } from '@mui/icons-material';
 import { IconButton, Paper, Box, Typography, Stack } from '@mui/material';
-import { CSSProperties, useState } from 'react';
+import React, { CSSProperties, useState } from 'react';
+import { TooltipPrompt } from './TooltipPrompt';
 
 export interface ChartContainerProps {
   title: string;
+  description?: React.ReactNode;
   style?: React.CSSProperties | undefined;
   height?: number;
   children: React.ReactNode;
 }
 
-export function ChartContainer({ children, title, style, height = 500 }: ChartContainerProps) {
+export function ChartContainer({ children, title, description, style, height = 500 }: ChartContainerProps) {
   const [isMaximized, setIsMaximized] = useState(false);
 
   const maximizeStyles: CSSProperties = isMaximized
@@ -27,26 +29,28 @@ export function ChartContainer({ children, title, style, height = 500 }: ChartCo
     : { margin: 10 };
   return (
     <Paper variant="outlined" component="section" style={{ ...style, ...maximizeStyles }}>
-      <ChartHeader title={title} onMaximizeClick={() => setIsMaximized(!isMaximized)} />
+      <ChartHeader title={title} description={description} onMaximizeClick={() => setIsMaximized(!isMaximized)} />
       <Box style={{ height: isMaximized ? 'calc(100% - 40px)' : height }}>{children}</Box>
     </Paper>
   );
 }
 
-export interface ChartHeaderProps {
-  title: string;
+export interface ChartHeaderProps extends Pick<ChartContainerProps, 'description' | 'title'> {
   onMaximizeClick?: () => void;
 }
 
-function ChartHeader({ title, onMaximizeClick }: ChartHeaderProps) {
+function ChartHeader({ title, description, onMaximizeClick }: ChartHeaderProps) {
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center">
-      <Typography variant="subtitle1" color="text.secondary" style={{ marginLeft: 16 }}>
+      <Typography variant="subtitle1" color="text.secondary" style={{ marginLeft: 16, marginRight: 16, flex: 1 }}>
         {title}
       </Typography>
-      <IconButton onClick={onMaximizeClick}>
-        <Fullscreen />
-      </IconButton>
+      <Stack direction="row" alignItems="center">
+        {description && <TooltipPrompt>{description}</TooltipPrompt>}
+        <IconButton onClick={onMaximizeClick}>
+          <Fullscreen />
+        </IconButton>
+      </Stack>
     </Stack>
   );
 }

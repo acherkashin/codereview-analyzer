@@ -10,13 +10,14 @@ export function TooltipPrompt({ children }: TooltipPromptProps) {
   return <LightTooltip title={children}>{<HelpIcon />}</LightTooltip>;
 }
 
-const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.palette.common.white,
-    color: 'rgba(0, 0, 0, 0.87)',
-    boxShadow: theme.shadows[1],
-    fontSize: 14,
-  },
-}));
+const LightTooltip = styled(({ className, ...props }: TooltipProps) => <Tooltip {...props} classes={{ popper: className }} />)(
+  ({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.common.white,
+      border: `1px solid ${theme.palette.divider}`,
+      color: 'rgba(0, 0, 0, 0.87)',
+      boxShadow: theme.shadows[7],
+      fontSize: 14,
+    },
+  })
+);

@@ -27,7 +27,18 @@ export function ChangesToDiscussionsCorrelationChart({ pullRequests }: ChangesTo
   }, [pullRequests]);
 
   return (
-    <ChartContainer title={'Changes to Discussions correlation'}>
+    <ChartContainer
+      title={'Changes to Discussions correlation'}
+      description={
+        <Stack gap={1}>
+          <div>
+            Allows to analyze whether there is correlation between changed files count and discussions count started in the pull
+            requests.
+          </div>
+          <div>Allows quickly find pull request with the most discussions count and most changed files.</div>
+        </Stack>
+      }
+    >
       <ResponsiveScatterPlotCanvas
         data={data}
         margin={{ top: 60, right: 30, bottom: 70, left: 70 }}

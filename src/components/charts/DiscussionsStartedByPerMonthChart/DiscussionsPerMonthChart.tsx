@@ -16,7 +16,10 @@ export function DiscussionsStartedByPerMonthChart({ discussions, user, onClick }
   const data = useMemo(() => getDiscussionStartedByData(discussions, user ? [user.displayName] : []), [discussions, user]);
 
   return (
-    <ChartContainer title="Discussions started by person per month">
+    <ChartContainer
+      title="Discussions started by person per month"
+      description="Allows to analyze how many discussions each user starts per month"
+    >
       <LineChart
         legendYLabel="Discussions count"
         data={data}
