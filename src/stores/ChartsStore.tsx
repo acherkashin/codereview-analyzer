@@ -145,30 +145,26 @@ export function getAnalyze(state: ChartsStore) {
   return state.actions.analyze;
 }
 
-export function useMostCommentsLeft() {
-  return useChartsStore((state) => {
-    const comments = getComments(state);
-    const data = tidy(comments, groupBy('reviewerId', summarize({ total: n() })), arrange([desc('total')]));
-    const user = (state.users ?? []).find((item) => item.id === data[0]?.reviewerId);
+export function getMostCommentsLeft(state: ChartsStore) {
+  const comments = getComments(state);
+  const data = tidy(comments, groupBy('reviewerId', summarize({ total: n() })), arrange([desc('total')]));
+  const user = (state.users ?? []).find((item) => item.id === data[0]?.reviewerId);
 
-    return {
-      user,
-      total: data[0]?.total,
-    };
-  });
+  return {
+    user,
+    total: data[0]?.total,
+  };
 }
 
-export function useMostCommentsReceived() {
-  return useChartsStore((state) => {
-    const comments = getComments(state);
-    const data = tidy(comments, groupBy('prAuthorId', summarize({ total: n() })), arrange([desc('total')]));
-    const user = (state.users ?? []).find((item) => item.id === data[0]?.prAuthorId);
+export function getMostCommentsReceived(state: ChartsStore) {
+  const comments = getComments(state);
+  const data = tidy(comments, groupBy('prAuthorId', summarize({ total: n() })), arrange([desc('total')]));
+  const user = (state.users ?? []).find((item) => item.id === data[0]?.prAuthorId);
 
-    return {
-      user,
-      total: data[0]?.total,
-    };
-  });
+  return {
+    user,
+    total: data[0]?.total,
+  };
 }
 
 export function getCommentedFilesCount(comments: Comment[]) {

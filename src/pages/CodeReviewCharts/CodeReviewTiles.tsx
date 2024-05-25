@@ -3,8 +3,8 @@ import { Grid } from '@mui/material';
 import {
   getComments,
   useChartsStore,
-  useMostCommentsLeft,
-  useMostCommentsReceived,
+  getMostCommentsLeft,
+  getMostCommentsReceived,
   getDiscussions,
   getUserComments,
   getUserDiscussions,
@@ -47,8 +47,8 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
     return sorted[0];
   }, [pullRequests]);
 
-  const { user: mostCommentsLeftUser, total: mostCommentsLeftTotal } = useMostCommentsLeft();
-  const { user: mostCommentsReceivedUser, total: mostCommentsReceivedTotal } = useMostCommentsReceived();
+  const { user: mostCommentsLeftUser, total: mostCommentsLeftTotal } = useChartsStore(getMostCommentsLeft);
+  const { user: mostCommentsReceivedUser, total: mostCommentsReceivedTotal } = useChartsStore(getMostCommentsReceived);
 
   const commentedFilesCount = useMemo(() => getCommentedFilesCount(comments), [comments]);
 
