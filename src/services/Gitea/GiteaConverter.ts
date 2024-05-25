@@ -122,6 +122,7 @@ function convertToComment(pullRequest: GiteaPullRequest, item: GiteaPullReviewCo
     body: item.body!,
     reviewerId: item.user?.id?.toString() || 'unknown reviewerId',
     reviewerName: item.user?.full_name || item.user?.login || 'unknown reviewerName',
+    reviewerAvatarUrl: item.user?.avatar_url,
     pullRequestId: pullRequest.id!.toString(),
     pullRequestName: pullRequest.title!,
     url: item.html_url ?? '#',

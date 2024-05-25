@@ -21,13 +21,14 @@ export interface CommentItemProps {
   title?: string;
   commentUrl?: string;
   noteText: string;
+  authorName?: string;
 }
 
-export function CommentItem({ avatarUrl, title, commentUrl, noteText }: Omit<CommentItemProps, 'id'>) {
+export function CommentItem({ avatarUrl, title, commentUrl, noteText, authorName }: Omit<CommentItemProps, 'id'>) {
   return (
     <ListItem>
       <ListItemAvatar>
-        <Avatar src={avatarUrl} />
+        <Avatar src={avatarUrl} alt={authorName} />
       </ListItemAvatar>
       <ListItemText
         primary={

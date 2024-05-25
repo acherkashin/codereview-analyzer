@@ -3,7 +3,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { CommentList } from './CommentList';
-import { Avatar, Link } from '@mui/material';
+import { Avatar, Link, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import { UserDiscussion } from '../services/types';
 
 export interface DiscussionListProps {
@@ -12,28 +12,38 @@ export interface DiscussionListProps {
 
 export function DiscussionList({ discussions }: DiscussionListProps) {
   return (
-    <ul>
+    <div>
       {discussions.map(({ id, comments, url, pullRequestName, reviewerAvatarUrl }) => {
         return (
           <Accordion key={id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Avatar src={reviewerAvatarUrl} />
-              <Link underline="none" variant="subtitle2" href={url} target="_blank" rel="noreferrer">
-                {pullRequestName}
-              </Link>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar src={reviewerAvatarUrl} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={
+                    <Link underline="none" variant="subtitle2" href={url} target="_blank" rel="noreferrer">
+                      {pullRequestName}
+                    </Link>
+                  }
+                />
+              </ListItem>
             </AccordionSummary>
             <AccordionDetails>
               <CommentList
-                comments={(comments ?? []).map(({ id, body, prAuthorAvatarUrl }) => ({
+                comments={(comments ?? []).map(({ id, body, reviewerAvatarUrl, prAuthorName, reviewerName }) => ({
                   id: id,
                   noteText: body,
-                  avatarUrl: prAuthorAvatarUrl,
+                  title: reviewerName,
+                  avatarUrl: reviewerAvatarUrl,
+                  authorName: prAuthorName,
                 }))}
               />
             </AccordionDetails>
           </Accordion>
         );
       })}
-    </ul>
+    </div>
   );
 }
