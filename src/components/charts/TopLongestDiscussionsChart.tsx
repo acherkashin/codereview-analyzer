@@ -41,7 +41,7 @@ export function TopLongestDiscussionsChart({ pullRequests, count, user, onClick 
   const title = !user ? `Top ${count} Longest Discussions` : `Top ${count} Longest Discussions started by ${user.displayName}`;
 
   return (
-    <ChartContainer title={title}>
+    <ChartContainer title={title} description="Shows discussions with the most of the comments">
       <BarChart
         data={data}
         margin={{ left: user ? 250 : 350 }}
