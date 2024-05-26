@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { CodeReviewCharts, ReadyMergeRequests, ErrorPage, Login, ExportPage } from './';
+import { CodeReviewChartsPage, ReadyMergeRequests, ErrorPage, Login, ExportPage } from './';
 import { ChartsStoreProvider } from './../stores/ChartsStore';
 import { createExportStore, ExportStoreProvider } from './../stores/ExportStore';
 import { App } from './../App';
@@ -19,7 +19,7 @@ export const router = createBrowserRouter(
           path: '/charts',
           element: (
             <ChartsStoreProvider>
-              <CodeReviewCharts />
+              <CodeReviewChartsPage />
             </ChartsStoreProvider>
           ),
         },
