@@ -1,34 +1,23 @@
-import { PropsWithChildren, useCallback, useState } from 'react';
-import { getFilteredComments, getFilteredDiscussions } from '../../utils/GitUtils';
-import { CommentList, DiscussionList, FullScreenDialog } from '../../components';
-import { Stack, Typography } from '@mui/material';
+import { useCallback } from 'react';
+import { DiscussionList, FullScreenDialog } from '../../components';
+import { Stack } from '@mui/material';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 
-import {
-  getAnalyze,
-  getComments,
-  getDiscussions,
-  getFilteredPullRequests,
-  getHostType,
-  getUserComments,
-  useChartsStore,
-} from '../../stores/ChartsStore';
+import { getAnalyze, useChartsStore } from '../../stores/ChartsStore';
 
-import { ImportTextButton } from '../../components/ImportTextButton';
+import { ImportTextButton, CommentList } from '../../components';
 import { useClient } from '../../stores/AuthStore';
 import { FilterPanel } from '../../components/FilterPanel/FilterPanel';
 import { PageContainer } from '../shared/PageContainer';
-import { AnalyzeParams, Comment, UserDiscussion } from '../../services/types';
-import { CommentItemProps } from '../../components/CommentList';
+import { AnalyzeParams } from '../../services/types';
 import { CodeReviewTiles } from './CodeReviewTiles';
 import { useIsGuest } from '../../hooks/useIsGuest';
-import { ReviewCalendarChart } from '../../components/charts/ReviewCalendarChart/ReviewCalendarChart';
 import { CodeReviewFilterPanel } from './CodeReviewFilterPanel';
 import { useShallow } from 'zustand/react/shallow';
 import { CodeReviewCharts } from './CodeReviewCharts';
 import { ChartsTitle } from './ChartsTitle';
-// import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
+import { CommentItemProps } from '../../components/CommentList';
 
 export interface CodeReviewChartsProps {}
 
@@ -36,92 +25,32 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
   const client = useClient();
   const isGuest = useIsGuest();
 
-  const { user, allPrs, users } = useChartsStore(
+  const { user, allPrs, users, title, filteredComments, filteredDiscussions } = useChartsStore(
     useShallow((state) => ({
       user: state.user,
       allPrs: state.pullRequests,
       users: state.users,
+      title: state.dialogTitle,
+      filteredComments: state.filteredComments,
+      filteredDiscussions: state.filteredDiscussions,
     }))
   );
 
   const importData = useChartsStore((state) => state.actions.import);
-  const comments = useChartsStore(getComments);
-  const discussions = useChartsStore(getDiscussions);
+  const closeDialog = useChartsStore((state) => state.actions.closeDialog);
   const analyze = useChartsStore(getAnalyze);
 
-  const [title, setTitle] = useState('');
-  const [filteredComments, setFilteredComments] = useState<Comment[]>([]);
-  const [filteredDiscussions, setFilteredDiscussions] = useState<UserDiscussion[]>([]);
-
-  const showFilteredComments = useCallback(
-    (reviewerName: string | null, authorName: string | null) => {
-      const filteredComments = getFilteredComments(comments, reviewerName, authorName);
-
-      let title = '';
-      if (reviewerName && authorName) {
-        title = `Comments received by ${authorName} from ${reviewerName}`;
-      } else if (reviewerName) {
-        title = `Comments left by ${reviewerName}`;
-      } else if (authorName) {
-        title = `Comments received by ${authorName}`;
-      }
-
-      title += `. Total: ${filteredComments.length}`;
-
-      setTitle(title);
-      setFilteredComments(filteredComments);
-    },
-    [comments]
-  );
-
-  const showFilteredDiscussions = useCallback(
-    (reviewerName: string | null, authorName: string | null) => {
-      const filteredDiscussions = getFilteredDiscussions(discussions, reviewerName, authorName);
-
-      let title = '';
-      if (reviewerName && authorName) {
-        title = `Discussions started by ${reviewerName} with ${authorName}`;
-      } else if (reviewerName) {
-        title = `Discussions started by ${reviewerName}`;
-      } else if (authorName) {
-        title = `Discussions started with ${authorName}`;
-      }
-      title += `. Total: ${filteredDiscussions.length}`;
-
-      setTitle(title);
-      setFilteredDiscussions(filteredDiscussions);
-    },
-    [discussions]
-  );
-
-  const showDiscussionsAt = useCallback(
-    (pointDate: Date) => {
-      const filtered = discussions.filter((item) => {
-        const date = new Date(item.comments[0].createdAt);
-
-        return date.getMonth() === pointDate.getMonth() && date.getFullYear() === pointDate.getFullYear();
-      });
-
-      setFilteredDiscussions(filtered);
-      setTitle('Discussions started at' + pointDate.toLocaleDateString());
-    },
-    [discussions]
-  );
+  const showDiscussionsAt = useChartsStore((state) => state.actions.showDiscussionsAt);
+  const showFilteredComments = useChartsStore((state) => state.actions.showFilteredComments);
+  const showFilteredDiscussions = useChartsStore((state) => state.actions.showFilteredDiscussions);
+  const showDiscussion = useChartsStore((state) => state.actions.showDiscussion);
+  const showCommentsWithWord = useChartsStore((state) => state.actions.showCommentsWithWord);
 
   const handleAnalyze = useCallback(
     (params: AnalyzeParams) => {
       return analyze(client, params);
     },
     [analyze, client]
-  );
-
-  const handleWordClick = useCallback(
-    (word: string) => {
-      const filtered = comments.filter((item) => item.body.includes(word));
-      setTitle(`Comments containing "${word}". Count: ${filtered.length}`);
-      setFilteredComments(filtered);
-    },
-    [comments]
   );
 
   if (allPrs == null || users == null) {
@@ -153,23 +82,22 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
         <ChartsTitle>Highlights</ChartsTitle>
         <CodeReviewTiles user={user} />
         <CodeReviewCharts
-          onWordClick={handleWordClick}
+          onWordClick={showCommentsWithWord}
           onShowComments={showFilteredComments}
           onShowDiscussions={showFilteredDiscussions}
           onShowDiscussionsAt={showDiscussionsAt}
+          onDiscussionClick={showDiscussion}
         />
       </div>
 
       <FullScreenDialog
         icon={<SpeakerNotesOutlinedIcon />}
         title={title}
-        open={filteredComments.length !== 0}
-        onClose={() => {
-          setFilteredComments([]);
-        }}
+        open={(filteredComments ?? []).length !== 0}
+        onClose={closeDialog}
       >
         <CommentList
-          comments={filteredComments.map(
+          comments={(filteredComments ?? []).map(
             (item) =>
               ({
                 id: item.id,
@@ -184,12 +112,10 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
       <FullScreenDialog
         icon={<QuestionAnswerOutlinedIcon />}
         title={title}
-        open={filteredDiscussions.length !== 0}
-        onClose={() => {
-          setFilteredDiscussions([]);
-        }}
+        open={(filteredDiscussions ?? []).length !== 0}
+        onClose={closeDialog}
       >
-        <DiscussionList discussions={filteredDiscussions} />
+        <DiscussionList discussions={filteredDiscussions ?? []} />
       </FullScreenDialog>
     </PageContainer>
   );

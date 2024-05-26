@@ -1,9 +1,9 @@
 import { createContext, useContext, useRef } from 'react';
-import { AnalyzeParams, Comment, PullRequest, User } from '../services/types';
+import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { GitService } from '../services/GitService';
 import { convert } from '../services/GitConverter';
-import { getEndDate, getStartDate } from '../utils/GitUtils';
+import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../utils/GitUtils';
 import dayjs, { Dayjs } from 'dayjs';
 import { ExportData } from '../utils/ExportDataUtils';
 import { createStore } from '../utils/ZustandUtils';
@@ -21,6 +21,11 @@ const initialState = {
   user: undefined as User | undefined,
   startDate: null as Dayjs | null,
   endDate: null as Dayjs | null,
+
+  // dialog options
+  dialogTitle: '',
+  filteredDiscussions: null as UserDiscussion[] | null,
+  filteredComments: null as Comment[] | null,
 };
 
 type ChartState = typeof initialState;
@@ -95,6 +100,106 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
     },
     setEndDate(end: Dayjs | null) {
       set({ ...get(), startDate: end }, false, 'change end date');
+    },
+    showDiscussionsAt(pointDate: Date) {
+      const discussions = getDiscussions(get());
+
+      const filteredDiscussions = discussions.filter((item) => {
+        const date = new Date(item.comments[0].createdAt);
+
+        return date.getMonth() === pointDate.getMonth() && date.getFullYear() === pointDate.getFullYear();
+      });
+
+      set(
+        {
+          ...get(),
+          filteredDiscussions: filteredDiscussions,
+          dialogTitle: 'Discussions started at' + pointDate.toLocaleDateString(),
+        },
+        false,
+        'show discussions at'
+      );
+    },
+    showFilteredComments(reviewerName: string | null, authorName: string | null) {
+      const comments = getComments(get());
+      const filteredComments = getFilteredComments(comments, reviewerName, authorName);
+
+      let title = '';
+      if (reviewerName && authorName) {
+        title = `Comments received by ${authorName} from ${reviewerName}`;
+      } else if (reviewerName) {
+        title = `Comments left by ${reviewerName}`;
+      } else if (authorName) {
+        title = `Comments received by ${authorName}`;
+      }
+
+      title += `. Total: ${filteredComments.length}`;
+
+      set(
+        {
+          filteredComments: filteredComments,
+          dialogTitle: title,
+        },
+        false,
+        'show filtered comments'
+      );
+    },
+    showFilteredDiscussions: (reviewerName: string | null, authorName: string | null) => {
+      const discussions = getDiscussions(get());
+      const filteredDiscussions = getFilteredDiscussions(discussions, reviewerName, authorName);
+
+      let title = '';
+      if (reviewerName && authorName) {
+        title = `Discussions started by ${reviewerName} with ${authorName}`;
+      } else if (reviewerName) {
+        title = `Discussions started by ${reviewerName}`;
+      } else if (authorName) {
+        title = `Discussions started with ${authorName}`;
+      }
+      title += `. Total: ${filteredDiscussions.length}`;
+
+      set(
+        {
+          filteredDiscussions,
+          dialogTitle: title,
+        },
+        false,
+        'show filtered discussions'
+      );
+    },
+    showDiscussion(discussion: UserDiscussion) {
+      set(
+        {
+          filteredDiscussions: [discussion],
+          dialogTitle: `Discussion started by ${discussion.reviewerName} in ${discussion.pullRequestName}`,
+        },
+        false,
+        'show discussion'
+      );
+    },
+    showCommentsWithWord(word: string) {
+      const comments = getComments(get());
+      const filtered = comments.filter((item) => item.body.includes(word));
+
+      set(
+        {
+          filteredComments: filtered,
+          dialogTitle: `Comments containing "${word}". Count: ${filtered.length}`,
+        },
+        false,
+        'show comments with word'
+      );
+    },
+    closeDialog() {
+      set(
+        {
+          filteredComments: null,
+          filteredDiscussions: null,
+          dialogTitle: '',
+        },
+        false,
+        'close dialog'
+      );
     },
   };
 }
@@ -229,4 +334,12 @@ export function getFilteredPullRequests(state: ChartState) {
   });
 
   return filtered;
+}
+
+export function getUser(state: ChartState) {
+  return state.user;
+}
+
+export function getAllUsers(state: ChartState) {
+  return state.users;
 }

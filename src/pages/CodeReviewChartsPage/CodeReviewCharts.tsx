@@ -1,4 +1,5 @@
-import { Grid } from '@mui/material';
+import React from 'react';
+import { Grid, styled } from '@mui/material';
 import {
   ReviewRequestRecipientsChart,
   ReviewRequestDistributionChart,
@@ -24,36 +25,47 @@ import {
   ChangesToDiscussionsCorrelationChart,
 } from '../../components/charts';
 import {
+  getAllUsers,
   getComments,
   getDiscussions,
   getFilteredPullRequests,
   getHostType,
+  getUser,
   getUserComments,
   useChartsStore,
 } from '../../stores/ChartsStore';
 import { ChartsTitle } from './ChartsTitle';
 import { ReviewCalendarChart } from '../../components/charts/ReviewCalendarChart/ReviewCalendarChart';
 import { WordsCloudProps } from '../../components/charts/WordsCloud/WordsCloud';
-import { CommentsLeftBarChartProps } from '../../components/charts/CommentsLeftChart/CommentsLeftBarChart';
 import { DiscussionsStartedByPerMonthChartProps } from '../../components/charts/DiscussionsStartedByPerMonthChart/DiscussionsPerMonthChart';
 import { useUpdateReason } from '../../hooks/useUpdateReason';
-import React from 'react';
+import { UserDiscussion } from '../../services/types';
+import { useShallow } from 'zustand/react/shallow';
+// import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {
   onWordClick: WordsCloudProps['onClick'];
   onShowComments: (reviewerName: string | null, authorName: string | null) => void;
   onShowDiscussions: (reviewerName: string | null, authorName: string | null) => void;
   onShowDiscussionsAt: DiscussionsStartedByPerMonthChartProps['onClick'];
+  onDiscussionClick: (discussion: UserDiscussion) => void;
 }
 
-function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onShowDiscussionsAt }: CodeReviewChartsProps) {
-  const pullRequests = useChartsStore(getFilteredPullRequests);
-  const comments = useChartsStore(getComments);
-  const discussions = useChartsStore(getDiscussions);
-  const user = useChartsStore((state) => state.user);
-  const users = useChartsStore((state) => state.users)!;
+function _CodeReviewCharts({
+  onWordClick,
+  onShowComments,
+  onShowDiscussions,
+  onShowDiscussionsAt,
+  onDiscussionClick,
+}: CodeReviewChartsProps) {
+  //TODO: getFilteredPullRequests is run too many times
+  const pullRequests = useChartsStore(useShallow(getFilteredPullRequests));
+  const comments = useChartsStore(useShallow(getComments));
+  const discussions = useChartsStore(useShallow(getDiscussions));
+  const userComments = useChartsStore(useShallow(getUserComments));
+  const user = useChartsStore(getUser);
+  const users = useChartsStore(getAllUsers)!;
   const hostType = useChartsStore(getHostType);
-  const userComments = useChartsStore(getUserComments);
 
   useUpdateReason('CodeReviewCharts', {
     pullRequests,
@@ -69,9 +81,9 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onS
   });
 
   return (
-    <div className="charts-container">
+    <div className="cr-code-review-charts">
       <ChartsTitle>Discussions</ChartsTitle>
-      <Grid container className="charts">
+      <ChartsContainer container>
         <Grid item xs={12}>
           <DiscussionsStartedByPerMonthChart user={user} discussions={discussions} onClick={onShowDiscussionsAt} />
         </Grid>
@@ -79,15 +91,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onS
           <DiscussionsStartedWithPerMonthChart user={user} discussions={discussions} onClick={onShowDiscussionsAt} />
         </Grid>
         <Grid item lg={4} md={6} xs={12}>
-          <TopLongestDiscussionsChart
-            user={user}
-            pullRequests={pullRequests}
-            count={10}
-            onClick={(discussion) => {
-              //   setTitle(`Discussion started by ${discussion.reviewerName} in ${discussion.pullRequestName}`);
-              //   setFilteredDiscussions([discussion]);
-            }}
-          />
+          <TopLongestDiscussionsChart user={user} pullRequests={pullRequests} count={10} onClick={onDiscussionClick} />
         </Grid>
         {user == null && (
           <Grid item lg={4} md={6} xs={12}>
@@ -116,9 +120,9 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onS
             <ChangesToDiscussionsCorrelationChart pullRequests={pullRequests} />
           </Grid>
         )}
-      </Grid>
+      </ChartsContainer>
       <ChartsTitle>Comments</ChartsTitle>
-      <Grid container className="charts">
+      <ChartsContainer container>
         <Grid item xs={12}>
           <CommentsPerMonthChart user={user} comments={comments} />
         </Grid>
@@ -154,22 +158,22 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onS
           </Grid>
         )}
         {/* <UsersConnectionChart pullRequests={pullRequests} users={users} /> */}
-      </Grid>
+      </ChartsContainer>
 
       <ChartsTitle>Approvals</ChartsTitle>
 
-      <Grid container className="charts">
+      <ChartsContainer container>
         <Grid item lg={4} md={6} xs={12}>
           <ApprovalDistributionChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
         <Grid item lg={4} md={6} xs={12}>
           <ApprovalRecipientsChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
-      </Grid>
+      </ChartsContainer>
 
       <ChartsTitle>Review Requests</ChartsTitle>
 
-      <Grid container className="charts">
+      <ChartsContainer container>
         <Grid item lg={4} md={6} xs={12}>
           <ReviewRequestRecipientsChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
@@ -179,19 +183,25 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onS
         <Grid item xs={12}>
           <ReviewCalendarChart user={user} pullRequests={pullRequests} />
         </Grid>
-      </Grid>
+      </ChartsContainer>
 
       <ChartsTitle>Other</ChartsTitle>
 
-      <Grid container className="charts">
+      <ChartsContainer container>
         {user == null && (
           <Grid item lg={4} md={6} xs={12}>
             <PullRequestsCreatedChart pullRequests={pullRequests} />
           </Grid>
         )}
-      </Grid>
+      </ChartsContainer>
     </div>
   );
 }
+
+const ChartsContainer = styled(Grid)(() => ({
+  display: 'flex',
+  flexFlow: 'row wrap',
+  padding: '10px',
+}));
 
 export const CodeReviewCharts = React.memo(_CodeReviewCharts);
