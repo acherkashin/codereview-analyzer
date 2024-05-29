@@ -6,6 +6,7 @@ import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhomUserApproves, getWhomUserApprovesArray } from './ApprovalRecipientsUtils';
 import { BaseApprovalsTooltip } from '../../tooltips';
 import { chartColor } from '../../../utils/ColorUtils';
+import { Stack } from '@mui/material';
 
 export interface ApprovalRecipientsChartProps {
   user?: User | null;
@@ -29,7 +30,7 @@ function ApprovalRecipientsForAll({ users, pullRequests }: ApprovalRecipientsCha
   }, [users, pullRequests]);
 
   return (
-    <ChartContainer title="Approvals Received By">
+    <ChartContainer title="Approvals Received By" description={<ApprovedByDescription />}>
       <BarChart
         margin={{ left: 100, bottom: 50, right: 30 }}
         indexBy="approverName"
@@ -56,7 +57,7 @@ function ApprovalRecipientsForUser({ user, pullRequests }: ApprovalRecipientsCha
   );
 
   return (
-    <ChartContainer title={`${user!.userName} receives approvals from`}>
+    <ChartContainer title={`${user!.userName} receives approvals from`} description={<ApprovedByDescription />}>
       <BarChart
         data={data}
         tooltip={(props) => {
@@ -70,5 +71,14 @@ function ApprovalRecipientsForUser({ user, pullRequests }: ApprovalRecipientsCha
         }}
       />
     </ChartContainer>
+  );
+}
+
+function ApprovedByDescription() {
+  return (
+    <Stack gap={1}>
+      <div>Displays who approves pull request of each user.</div>
+      <div>Filter by a particular user to easily identify who approves pull requests of the user.</div>
+    </Stack>
   );
 }
