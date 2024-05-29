@@ -31,7 +31,7 @@ function ReviewChartForAll({ users, pullRequests }: ReviewByUserChartProps) {
   const keys = hostType === 'Gitea' ? giteaKeys : gitlabKeys;
 
   return (
-    <ChartContainer title={'Pull Requests reviews by user'}>
+    <ChartContainer title="Pull Requests reviews by user" description={<ReviewByUserDescription />}>
       <BarChart
         indexBy="userName"
         keys={keys}
@@ -105,7 +105,7 @@ function ReviewChartForUser({ user, pullRequests }: ReviewByUserChartProps) {
   const title = `Pull Requests reviews by ${user!.displayName}`;
 
   return (
-    <ChartContainer title={title} style={{ width }}>
+    <ChartContainer title={title} style={{ width }} description={<ReviewByUserDescription />}>
       <BarChart
         width={width}
         data={data}
@@ -133,6 +133,14 @@ function ReviewChartForUser({ user, pullRequests }: ReviewByUserChartProps) {
         }}
       />
     </ChartContainer>
+  );
+}
+
+function ReviewByUserDescription() {
+  return (
+    <div>
+      Displays how many pull requests were assigned to the user to make a review and how many were actually reviewed and approved.
+    </div>
   );
 }
 
