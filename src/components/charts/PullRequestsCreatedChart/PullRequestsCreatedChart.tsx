@@ -3,6 +3,7 @@ import { ChartContainer } from '../../';
 import { PullRequest } from '../../../services/types';
 import { BarChart } from '../BarChart';
 import { arrange, asc, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
+import { Stack } from '@mui/material';
 
 export interface PullRequestsCreatedChartProps {
   pullRequests: PullRequest[];
@@ -12,7 +13,15 @@ export function PullRequestsCreatedChart({ pullRequests }: PullRequestsCreatedCh
   const createdPullRequestsPieChart = useMemo(() => getPullRequestCreatedData(pullRequests), [pullRequests]);
 
   return (
-    <ChartContainer title="Pull Requests Created">
+    <ChartContainer
+      title="Pull Requests created by user"
+      description={
+        <Stack gap={1}>
+          <div>Displays the number of pull requests contributed by each user.</div>
+          <div>Specify date range to see how many pull requests were created in that period.</div>
+        </Stack>
+      }
+    >
       <BarChart {...createdPullRequestsPieChart} onClick={() => {}} />
     </ChartContainer>
   );
