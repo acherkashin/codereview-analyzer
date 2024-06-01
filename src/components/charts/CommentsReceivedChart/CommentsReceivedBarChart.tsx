@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { convertToCommentsReceived, getDiscussionStartedByUserData } from './CommentsReceivedChartUtils';
 import { BaseCommentsTooltip } from '../../tooltips';
 import { chartColor } from '../../../utils/ColorUtils';
+import { Stack } from '@mui/material';
 
 export interface CommentsReceivedBarChartProps {
   user?: User | null;
@@ -23,7 +24,7 @@ function CommentsReceivedChartForAll({ comments, onClick }: CommentsReceivedBarC
   const data = useMemo(() => convertToCommentsReceived(comments), [comments]);
 
   return (
-    <ChartContainer title="Comments received by person">
+    <ChartContainer title="Comments received by person" description={<CommentsReceivedDescription />}>
       <BarChart
         {...data}
         colors={chartColor}
@@ -44,7 +45,7 @@ function CommentsReceivedChartForUser({ user, comments, onClick }: CommentsRecei
   const data = useMemo(() => getDiscussionStartedByUserData(comments, user!), [comments, user]);
 
   return (
-    <ChartContainer title={`${user!.displayName} received comments from`}>
+    <ChartContainer title={`${user!.displayName} received comments from`} description={<CommentsReceivedDescription />}>
       <BarChart
         data={data}
         tooltip={(props) => {
@@ -55,5 +56,14 @@ function CommentsReceivedChartForUser({ user, comments, onClick }: CommentsRecei
         }}
       />
     </ChartContainer>
+  );
+}
+
+function CommentsReceivedDescription() {
+  return (
+    <Stack gap={1}>
+      <div>Shows how comments are distributed among authors of pull requests.</div>
+      <div>Click on the slice to see the list of pull requests where user left comments.</div>
+    </Stack>
   );
 }

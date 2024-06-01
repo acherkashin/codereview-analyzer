@@ -5,6 +5,7 @@ import { BarChart } from '../BarChart';
 import { getCommentsLeftByUserData, getCommentsLeftData } from './CommentsLeftChartUtils';
 import { BaseCommentsTooltip } from '../../tooltips/BaseCommentsTooltip';
 import { chartColor } from '../../../utils/ColorUtils';
+import { Stack } from '@mui/material';
 
 export interface CommentsLeftBarChartProps {
   user?: User | null;
@@ -23,7 +24,7 @@ function CommentsLeftChartForAll({ comments, onClick }: CommentsLeftBarChartProp
   const { authors, data } = useMemo(() => getCommentsLeftData(comments), [comments]);
 
   return (
-    <ChartContainer title="Comments left by person">
+    <ChartContainer title="Comments left by person" description={<CommentsLeftsDescription />}>
       <BarChart
         keys={authors}
         data={data}
@@ -46,7 +47,7 @@ function CommentsLeftChartForUser({ user, comments, onClick }: CommentsLeftBarCh
   const data = useMemo(() => getCommentsLeftByUserData(comments, user!), [comments, user]);
 
   return (
-    <ChartContainer title={`Comments left by ${user!.displayName}`}>
+    <ChartContainer title={`Comments left by ${user!.displayName}`} description={<CommentsLeftsDescription />}>
       <BarChart
         data={data}
         tooltip={(props) => {
@@ -64,5 +65,14 @@ function CommentsLeftChartForUser({ user, comments, onClick }: CommentsLeftBarCh
         }}
       />
     </ChartContainer>
+  );
+}
+
+function CommentsLeftsDescription() {
+  return (
+    <Stack gap={1}>
+      <div>Shows how comments are distributed among reviewers.</div>
+      <div>Click on the bar segment to see the list of pull requests where user left comments.</div>
+    </Stack>
   );
 }

@@ -110,10 +110,10 @@ function _CodeReviewCharts({
           </Grid>
         )}
         <Grid item lg={4} md={6} xs={12}>
-          <StartedByDiscussionsChart user={user} discussions={discussions} onClick={onShowDiscussions} />
+          <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={onShowDiscussions} />
         </Grid>
         <Grid item lg={4} md={6} xs={12}>
-          <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={onShowDiscussions} />
+          <StartedByDiscussionsChart user={user} discussions={discussions} onClick={onShowDiscussions} />
         </Grid>
         {user == null && (
           <Grid item lg={4} md={6} xs={12}>

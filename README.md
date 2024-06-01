@@ -1,46 +1,31 @@
-# Getting Started with Create React App
+# Code Review Analyzer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Allows you to find analyze your pull requests and find different patterns.
 
-## Available Scripts
+# Available charts
 
-In the project directory, you can run:
-
-### `yarn start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+| №   | Chart Name                                                                                | Description                                                                                                                   | Available for specific user |
+| --- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| 1   | Enables the analysis of how frequently each user initiates discussions on a monthly basis | Enables the analysis of how frequently each user initiates discussions on a monthly basis                                     | ✅                          |
+| 2   | Discussions started with person per month                                                 | Allows to analyze how many discussions started with each user by other users per month                                        | ✅                          |
+| 3   | Top 10 Longest Discussions                                                                | Shows discussions with the greatest number of comments                                                                        | ✅                          |
+| 4   | Discussions started with person (PieChart)                                                | Shows how discussions are distributed among authors of pull requests                                                          |                             |
+| 5   | Discussions started by person (PieChart)                                                  | Shows how discussions are distributed among reviewers                                                                         |                             |
+| 7   | Discussions started with person (BarChart)                                                | Shows how discussions are distributed among authors of pull requests and who starts those discussions                         | ✅                          |
+| 8   | Discussions started by person (BarChart)                                                  | Shows how discussions are distributed among reviewers and who they start discussions with                                     | ✅                          |
+| 9   | Changes to Discussions correlation                                                        | Allows to analyze whether there is correlation between changed files count and discussions count started in the pull requests |                             |
+| 10  | Comments left by person per month                                                         | Enables the analysis of how frequently each user leaves comments on a monthly basis                                           | ✅                          |
+| 11  | Tags cloud created from most popular words in comments                                    | Displays the most popular words that appear in comments to pull requests                                                      | ✅                          |
+| 12  | Pull Requests reviews by user                                                             | Displays how many pull requests were assigned to the user to make a review and how many were actually reviewed and approved   | ✅                          |
+| 13  | Top 10 Most commented Pull Requests                                                       | Highlights pull requests with the highest volume of comments                                                                  | ✅                          |
+| 14  | Comments left by person (PieChart)                                                        | Shows how comments are distributed among reviewers                                                                            |                             |
+| 15  | Comments left by person (BarChart)                                                        | Shows how comments are distributed among reviewers and who they leave comment to                                              | ✅                          |
+| 16  | Comments received by person (PieChart)                                                    | Shows how comments are distributed among authors of pull requests                                                             |                             |
+| 17  | Comments received by person (BarChart)                                                    | Shows how comments are distributed among authors of pull requests and who leaves those discussions                            | ✅                          |
+| 18  | Commented Files                                                                           | Displays which files users usually leave comments on during code reviews                                                      | ✅                          |
+| 19  | Approved By                                                                               | Displays whose pool requests each user approves                                                                               | ✅                          |
+| 20  | Approvals Received By                                                                     | Displays who approves pull request of each user                                                                               | ✅                          |
+| 21  | Review Requested From                                                                     | Shows whom users frequently request reviews from and displays the individuals who ask to review their changes                 | ✅                          |
+| 22  | Review Requested By                                                                       | Shows which users frequently request reviews from others and displays the individuals they ask to review their changes        | ✅                          |
+| 23  | Daily reviews                                                                             | Enables the analysis of how frequently each user reviews on a daily basis                                                     | ✅                          |
+| 24  | Pull Requests created by user                                                             | Displays the number of pull requests contributed by each user                                                                 |                             |

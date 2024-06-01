@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { getDiscussionStartedByData } from './DiscussionsStartedByPerMonthChartUtils';
 import { CommentsLineChartTooltip } from '../../tooltips';
 import { chartColor } from '../../../utils/ColorUtils';
+import { Stack } from '@mui/material';
 
 export interface DiscussionsStartedByPerMonthChartProps {
   user?: User;
@@ -18,7 +19,15 @@ export function DiscussionsStartedByPerMonthChart({ discussions, user, onClick }
   return (
     <ChartContainer
       title="Discussions started by person per month"
-      description="Allows to analyze how many discussions each user starts per month"
+      description={
+        <Stack gap={1}>
+          <div>Enables the analysis of how frequently each user initiates discussions on a monthly basis.</div>
+          <div>
+            t also provides the capability to filter results by individual users to view the quantity of discussions started by
+            them.
+          </div>
+        </Stack>
+      }
     >
       <LineChart
         legendYLabel="Discussions count"

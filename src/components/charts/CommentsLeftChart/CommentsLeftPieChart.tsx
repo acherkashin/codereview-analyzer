@@ -4,6 +4,7 @@ import { Comment } from '../../../services/types';
 import { convertToCommentsLeftPieChart } from './CommentsLeftChartUtils';
 import { useMemo } from 'react';
 import { chartColor } from '../../../utils/ColorUtils';
+import { Stack } from '@mui/material';
 
 export interface CommentsLeftPieChartProps {
   comments: Comment[];
@@ -16,7 +17,7 @@ export function CommentsLeftPieChart({ comments, onClick }: CommentsLeftPieChart
   }, [comments]);
 
   return (
-    <ChartContainer title="Comments left by person">
+    <ChartContainer title="Comments left by person" description={<StartedDiscussionsDescription />}>
       <PieChart
         data={data}
         colors={chartColor}
@@ -25,5 +26,14 @@ export function CommentsLeftPieChart({ comments, onClick }: CommentsLeftPieChart
         }}
       />
     </ChartContainer>
+  );
+}
+
+function StartedDiscussionsDescription() {
+  return (
+    <Stack gap={1}>
+      <div>Shows how comments are distributed among reviewers.</div>
+      <div>Click on the slice to see the list of pull requests where user left comments.</div>
+    </Stack>
   );
 }

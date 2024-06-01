@@ -6,6 +6,7 @@ import { getBarChartData } from '../../../utils/ChartUtils';
 import { getWhoRequestsReview, getWhoRequestsReviewArray } from './ReviewRequestDistributionUtils';
 import { BaseReviewTooltip, ReviewRequestTooltip } from '../../tooltips';
 import { chartColor } from '../../../utils/ColorUtils';
+import { Stack } from '@mui/material';
 
 export interface ReviewRequestDistributionChartProps {
   user?: User | null;
@@ -31,7 +32,7 @@ function ReviewRequestForAll({ users, pullRequests }: ReviewRequestDistributionC
   }, [users, pullRequests]);
 
   return (
-    <ChartContainer title="Review Requested By">
+    <ChartContainer title="Review Requested By" description={<ReviewRequestDescription />}>
       <BarChart
         margin={{ left: 100, bottom: 50, right: 30 }}
         // axisBottom={{}}
@@ -58,7 +59,7 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestDistributionC
   }, [pullRequests, user]);
 
   return (
-    <ChartContainer title={`${user!.userName} requests review from`}>
+    <ChartContainer title={`${user!.userName} requests review from`} description={<ReviewRequestDescription />}>
       <BarChart
         data={data}
         keys={['value', 'reviewed']}
@@ -72,5 +73,16 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestDistributionC
         }}
       />
     </ChartContainer>
+  );
+}
+
+function ReviewRequestDescription() {
+  return (
+    <Stack gap={1}>
+      <div>
+        Shows which users frequently request reviews from others and displays the individuals they ask to review their changes.
+      </div>
+      <div>Filter by a particular user to easily identify who he or she ask for reviews from.</div>
+    </Stack>
   );
 }

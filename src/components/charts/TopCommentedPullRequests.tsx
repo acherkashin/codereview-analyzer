@@ -3,6 +3,7 @@ import { BaseChartTooltip } from '../tooltips/BaseChartTooltip';
 import { BarChart } from './BarChart';
 import { useMemo } from 'react';
 import { ChartContainer } from '../ChartContainer';
+import { Stack } from '@mui/material';
 
 export interface TopCommentedPullRequestsChartProps {
   user?: User | null;
@@ -34,7 +35,10 @@ export function TopCommentedPullRequestsChart({ user, pullRequests, count }: Top
     : `Top ${count} Most commented Pull Requests created by ${user.displayName}`;
 
   return (
-    <ChartContainer title={title}>
+    <ChartContainer
+      title={title}
+      description={<Stack gap={1}>Highlights pull requests with the highest volume of comments</Stack>}
+    >
       <BarChart
         data={data}
         margin={{ left: 300 }}
