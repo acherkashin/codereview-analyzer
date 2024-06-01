@@ -5,6 +5,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { convertToDiscussionsReceived, getDiscussionStartedWithUserData } from './StartedWithDiscussionsChartUtils';
 import { chartColor } from '../../../utils/ColorUtils';
+import { Stack } from '@mui/material';
 
 export interface StartedWithDiscussionsChartProps {
   user?: User | null;
@@ -22,7 +23,7 @@ export function DiscussionsChartForAll({ discussions, onClick }: StartedWithDisc
   const data = useMemo(() => convertToDiscussionsReceived(discussions), [discussions]);
 
   return (
-    <ChartContainer title="Discussions started with person">
+    <ChartContainer title="Discussions started with person" description={<StartedDiscussionsDescription />}>
       <BarChart
         {...data}
         colors={chartColor}
@@ -45,7 +46,7 @@ export function DiscussionsChartForUser({ user, discussions, onClick }: StartedW
   const data = useMemo(() => getDiscussionStartedWithUserData(discussions, user!), [discussions, user]);
 
   return (
-    <ChartContainer title={`Discussions started with ${user!.displayName}`}>
+    <ChartContainer title={`Discussions started with ${user!.displayName}`} description={<StartedDiscussionsDescription />}>
       <BarChart
         data={data}
         tooltip={(props) => {
@@ -57,5 +58,14 @@ export function DiscussionsChartForUser({ user, discussions, onClick }: StartedW
         }}
       />
     </ChartContainer>
+  );
+}
+
+function StartedDiscussionsDescription() {
+  return (
+    <Stack gap={1}>
+      <div>Shows how discussions are distributed among authors of pull requests and who starts those discussions.</div>
+      <div>Click on any segment to dive into the conversations happening around that author.</div>
+    </Stack>
   );
 }
