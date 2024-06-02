@@ -4,7 +4,6 @@ import { ChartContainer } from '../../ChartContainer';
 import { BarChart } from '../BarChart';
 import { getCommentedFilesData } from './CommentedFilesChartUtils';
 import { chartColor } from '../../../utils/ColorUtils';
-import { Stack } from '@mui/material';
 
 export interface CommentedFilesChartProps {
   user?: User | null;
