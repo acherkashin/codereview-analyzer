@@ -22,11 +22,13 @@ export function TopLongestDiscussionsChart({ pullRequests, count, user, onClick 
 
   const data = useMemo(() => {
     const data = topDiscussions
+      .filter((item) => item.comments.length > 0)
       .map((item) => {
         const title = user ? item.pullRequestName : `${item.reviewerName} in ${item.pullRequestName}`;
-        const maxLength = user ? 40 : 60;
+        const maxLength = user ? 30 : 50;
         return {
-          id: shortenText(title, maxLength),
+          // to make sure that id is unique we need to add a discussion id
+          id: `${shortenText(title, maxLength)} #${item.id}`,
           value: item.comments.length,
           pullRequest: item.pullRequestName,
           reviewerName: item.reviewerName,
