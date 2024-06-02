@@ -1,6 +1,6 @@
 import { OrdinalColorScaleConfigCustomFunction } from '@nivo/colors';
 
-export const chartColor: OrdinalColorScaleConfigCustomFunction<any> = (datum: any) => {
+export const chartColor: OrdinalColorScaleConfigCustomFunction<any> = (datum) => {
   return stringToColor(datum.id.toString());
 };
 

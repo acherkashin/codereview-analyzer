@@ -99,7 +99,7 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
       set({ ...get(), startDate: start }, false, 'change start date');
     },
     setEndDate(end: Dayjs | null) {
-      set({ ...get(), startDate: end }, false, 'change end date');
+      set({ ...get(), endDate: end }, false, 'change end date');
     },
     showDiscussionsAt(pointDate: Date) {
       const discussions = getDiscussions(get());
