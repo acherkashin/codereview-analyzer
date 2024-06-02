@@ -18,12 +18,12 @@ export function convertToDiscussionsStartedPieChart(discussions: UserDiscussion[
 }
 
 export function getDiscussionsStarted(discussions: UserDiscussion[]) {
-  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
+  const rawData = getAuthorReviewerFromDiscussions(discussions);
   return getItemsLeft(rawData);
 }
 
 export function getDiscussionStartedByUserData(discussions: UserDiscussion[], user: User) {
-  const items = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
+  const items = getAuthorReviewerFromDiscussions(discussions);
   const commentsByUser = getCommentsLeftByUser(items, user.userName);
 
   const data = commentsByUser.map((item) => ({ id: item.author, value: item.total })).sort((a, b) => a.value - b.value);

@@ -18,7 +18,7 @@ export function convertToDiscussionsReceivedPieChart(discussions: UserDiscussion
 }
 
 export function getDiscussionStartedWithUserData(discussions: UserDiscussion[], user: User) {
-  const items = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
+  const items = getAuthorReviewerFromDiscussions(discussions);
   const commentsPerUser = getCommentsReceivedByUser(items, user.userName);
 
   const data = commentsPerUser
@@ -29,6 +29,6 @@ export function getDiscussionStartedWithUserData(discussions: UserDiscussion[], 
 }
 
 export function convertToDiscussionsReceived(discussions: UserDiscussion[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromDiscussions(discussions).filter((item) => item.reviewer !== item.author);
+  const rawData = getAuthorReviewerFromDiscussions(discussions);
   return getItemsReceived(rawData);
 }

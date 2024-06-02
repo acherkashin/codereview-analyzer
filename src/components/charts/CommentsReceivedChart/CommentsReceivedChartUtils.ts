@@ -18,12 +18,12 @@ export function convertToCommentsReceivedPieChart(comments: Comment[]): PieChart
 }
 
 export function convertToCommentsReceived(comments: Comment[]): ReviewBarChartSettings<ReviewBarDatum> {
-  const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
+  const rawData = getAuthorReviewerFromComments(comments);
   return getItemsReceived(rawData);
 }
 
 export function getDiscussionStartedByUserData(comments: Comment[], user: User) {
-  const items = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
+  const items = getAuthorReviewerFromComments(comments);
   const commentsPerUser = getCommentsReceivedByUser(items, user.userName);
 
   const data = commentsPerUser.map((item) => ({ id: item.reviewer, value: item.total })).sort((a, b) => a.value - b.value);

@@ -28,9 +28,16 @@ export function DiscussionsChartForAll({ discussions, onClick }: StartedWithDisc
         {...data}
         colors={chartColor}
         tooltip={(props) => {
-          const { indexValue, value, id } = props;
+          const { indexValue, value, id, data } = props;
 
-          return <BaseDiscussionsTooltip reviewer={id as string} author={indexValue as string} count={value} />;
+          return (
+            <BaseDiscussionsTooltip
+              reviewer={id as string}
+              author={indexValue as string}
+              count={value}
+              total={data.total as number}
+            />
+          );
         }}
         onClick={(e) => {
           const authorName = e.indexValue as string;

@@ -18,12 +18,12 @@ export function convertToCommentsLeftPieChart(comments: Comment[]): PieChartDatu
 }
 
 export function getCommentsLeftData(comments: Comment[]) {
-  const rawData = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
+  const rawData = getAuthorReviewerFromComments(comments);
   return getItemsLeft(rawData);
 }
 
 export function getCommentsLeftByUserData(comments: Comment[], user: User) {
-  const items = getAuthorReviewerFromComments(comments).filter((item) => item.reviewer !== item.author);
+  const items = getAuthorReviewerFromComments(comments);
   const commentsPerUser = getCommentsLeftByUser(items, user.userName);
 
   const data = commentsPerUser.map((item) => ({ id: item.author, value: item.total })).sort((a, b) => a.value - b.value);

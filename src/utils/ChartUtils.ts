@@ -17,7 +17,7 @@ export interface ReviewBarChartSettings<T = BarDatum> {
 
 export function convertToCommentsReceivedFromUsers(comments: Comment[], userId: string): ReviewBarChartSettings {
   const commentsToAuthor = comments.filter((item) => item.prAuthorId === userId);
-  const rawData = getAuthorReviewerFromComments(commentsToAuthor).filter((item) => item.reviewer !== item.author);
+  const rawData = getAuthorReviewerFromComments(commentsToAuthor);
 
   const data = tidy(rawData, groupBy('reviewer', [summarize({ total: n() })]), arrange([asc('total')]));
 

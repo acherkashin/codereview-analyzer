@@ -48,7 +48,14 @@ function StartedByDiscussionsForAll({ discussions, onClick }: StartedByDiscussio
         colors={chartColor}
         indexBy="userName"
         tooltip={(props) => {
-          return <BaseDiscussionsTooltip reviewer={props.indexValue as string} author={props.id as string} count={props.value} />;
+          return (
+            <BaseDiscussionsTooltip
+              reviewer={props.indexValue as string}
+              author={props.id as string}
+              count={props.value}
+              total={props.data.total as number}
+            />
+          );
         }}
         onClick={(e) => {
           const authorName = e.id as string;
