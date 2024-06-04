@@ -17,13 +17,14 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
 import ForumIcon from '@mui/icons-material/Forum';
 import { BranchIcon } from '../../icons/BranchIcon';
-import { getLongestDiscussions, getLongestPullRequest } from '../../utils/ChartUtils';
+import { getLongestDiscussions, getLongestPullRequest, getReviewRation } from '../../utils/ChartUtils';
 import { User } from '../../services/types';
 import { MostCommentsPullRequestTile } from '../../components/tiles/MostCommentsPullRequestTile';
 import { MostCommentsLeftByTile } from '../../components/tiles/MostCommentsLeftByTile';
 import { MostCommentsReceivedTile } from '../../components/tiles/MostCommentsReceivedTile';
 import { LongestPullRequestTile } from '../../components/tiles/LongestPullRequestTile';
 import { LongestDiscussionTile } from '../../components/tiles/LongestDiscussionTile';
+import { TileGridItem } from './TileGridItem';
 
 export interface CodeReviewTilesProps {
   user?: User | null;
@@ -62,56 +63,61 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
     return `${percent}%`;
   }, [pullRequests]);
 
+  const reviewRation = useMemo(() => getReviewRation(allPullRequests), [allPullRequests]);
+
   if (allPullRequests == null || allPullRequests.length === 0) {
     return null;
   }
 
   return (
     <Grid container>
-      <Grid item xs={6} md={4} lg={3} xl={2}>
+      <TileGridItem>
         <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
-      </Grid>
+      </TileGridItem>
 
-      <Grid item xs={6} md={4} lg={3} xl={2}>
+      <TileGridItem>
         <Tile count={discussions.length} title="Discussions" icon={<ForumIcon fontSize="large" sx={{ color: 'white' }} />} />
-      </Grid>
+      </TileGridItem>
 
-      <Grid item xs={6} md={4} lg={3} xl={2}>
+      <TileGridItem>
         <Tile count={pullRequests.length} title="Pull requests" icon={<BranchIcon />} />
-      </Grid>
+      </TileGridItem>
       {mostCommentedPRs != null && (
-        <Grid item xs={6} md={4} lg={3} xl={2}>
+        <TileGridItem>
           <MostCommentsPullRequestTile pullRequest={mostCommentedPRs} />
-        </Grid>
+        </TileGridItem>
       )}
       {mostCommentsLeftUser && user == null && (
-        <Grid item xs={6} md={4} lg={3} xl={2}>
+        <TileGridItem>
           <MostCommentsLeftByTile user={mostCommentsLeftUser} count={mostCommentsLeftTotal} />
-        </Grid>
+        </TileGridItem>
       )}
       {mostCommentsReceivedUser && user == null && (
-        <Grid item xs={6} md={4} lg={3} xl={2}>
+        <TileGridItem>
           <MostCommentsReceivedTile user={mostCommentsReceivedUser} count={mostCommentsReceivedTotal} />
-        </Grid>
+        </TileGridItem>
       )}
       {longestPullRequest && (
-        <Grid item xs={6} md={4} lg={3} xl={2}>
+        <TileGridItem>
           <LongestPullRequestTile pullRequest={longestPullRequest} />
-        </Grid>
+        </TileGridItem>
       )}
-      <Grid item xs={6} md={4} lg={3} xl={2}>
+      <TileGridItem>
         <Tile
           count={commentedFilesCount}
           title="Commented files"
           icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />}
         />
-      </Grid>
-      <Grid item xs={6} md={4} lg={3} xl={2}>
+      </TileGridItem>
+      <TileGridItem>
         <LongestDiscussionTile discussion={longestDiscussion} />
-      </Grid>
-      <Grid item xs={6} md={4} lg={3} xl={2}>
+      </TileGridItem>
+      <TileGridItem>
         <Tile count={noDiscussionsPr} title={'PRs merged without comments'} icon={<BranchIcon />} />
-      </Grid>
+      </TileGridItem>
+      <TileGridItem>
+        <Tile count={reviewRation} title="Review ration" icon={<BranchIcon />} />
+      </TileGridItem>
     </Grid>
   );
 }
