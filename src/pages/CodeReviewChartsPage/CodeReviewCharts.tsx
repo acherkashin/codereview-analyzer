@@ -162,9 +162,6 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         <Grid item xs={12}>
           <WordsCloud comments={user ? userComments : comments} onClick={onWordClick} />
         </Grid>
-        <Grid item lg={user != null ? 4 : 12} md={user != null ? 4 : 12} xs={12}>
-          <ReviewByUserChart user={user} pullRequests={pullRequests} users={users} />
-        </Grid>
         <Grid item lg={4} md={6} xs={12}>
           <TopCommentedPullRequestsChart user={user} pullRequests={pullRequests} count={10} />
         </Grid>
@@ -207,6 +204,9 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
       <ChartsTitle>Review Requests</ChartsTitle>
 
       <ChartsContainer container>
+        <Grid item lg={user != null ? 4 : 12} md={user != null ? 4 : 12} xs={12}>
+          <ReviewByUserChart user={user} pullRequests={pullRequests} users={users} />
+        </Grid>
         <Grid item lg={4} md={6} xs={12}>
           <ReviewRequestRecipientsChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>

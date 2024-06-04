@@ -3,7 +3,7 @@ import { AuthorReviewer, getAuthorReviewerFromComments } from './GitUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { TimeSpan, timeSince } from './TimeSpanUtils';
-import { toPercent, toPercentString } from './PercentUtils';
+import { toPercent } from './PercentUtils';
 
 export interface ReviewBarDatum extends BarDatum {
   userName: string;
