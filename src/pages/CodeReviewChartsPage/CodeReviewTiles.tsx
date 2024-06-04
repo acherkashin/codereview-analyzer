@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Grid } from '@mui/material';
+import { Grid, Stack } from '@mui/material';
 import {
   getComments,
   useChartsStore,
@@ -119,7 +119,17 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
         <Tile count={noDiscussionsPr} title={'PRs merged without comments'} icon={<BranchIcon />} />
       </TileGridItem>
       <TileGridItem>
-        <Tile count={reviewRation} title="Review ration" icon={<BranchIcon />} />
+        <Tile
+          count={reviewRation}
+          title="Review ration"
+          icon={<BranchIcon />}
+          description={
+            <Stack direction="column" spacing={1}>
+              <div>Represents probability that the developer will review a pull request assigned to him.</div>
+              <div>Filter by user to see review ration for a specific user.</div>
+            </Stack>
+          }
+        />
       </TileGridItem>
     </Grid>
   );
