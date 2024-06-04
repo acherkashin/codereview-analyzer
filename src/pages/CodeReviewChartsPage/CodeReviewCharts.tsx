@@ -25,6 +25,7 @@ import {
   ChangesToDiscussionsCorrelationChart,
 } from '../../components/charts';
 import {
+  FilterCommentsProps,
   getAllUsers,
   getComments,
   getDiscussions,
@@ -37,7 +38,6 @@ import {
 import { ChartsTitle } from './ChartsTitle';
 import { ReviewCalendarChart } from '../../components/charts/ReviewCalendarChart/ReviewCalendarChart';
 import { WordsCloudProps } from '../../components/charts/WordsCloud/WordsCloud';
-import { DiscussionsStartedByPerMonthChartProps } from '../../components/charts/DiscussionsStartedByPerMonthChart/DiscussionsPerMonthChart';
 import { useUpdateReason } from '../../hooks/useUpdateReason';
 import { UserDiscussion } from '../../services/types';
 import { useShallow } from 'zustand/react/shallow';
@@ -46,18 +46,11 @@ import { useShallow } from 'zustand/react/shallow';
 export interface CodeReviewChartsProps {
   onWordClick: WordsCloudProps['onClick'];
   onShowComments: (reviewerName: string | null, authorName: string | null) => void;
-  onShowDiscussions: (reviewerName: string | null, authorName: string | null) => void;
-  onShowDiscussionsAt: DiscussionsStartedByPerMonthChartProps['onClick'];
+  onShowDiscussions: (props: FilterCommentsProps) => void;
   onDiscussionClick: (discussion: UserDiscussion) => void;
 }
 
-function _CodeReviewCharts({
-  onWordClick,
-  onShowComments,
-  onShowDiscussions,
-  onShowDiscussionsAt,
-  onDiscussionClick,
-}: CodeReviewChartsProps) {
+function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onDiscussionClick }: CodeReviewChartsProps) {
   //TODO: getFilteredPullRequests is run too many times
   const pullRequests = useChartsStore(useShallow(getFilteredPullRequests));
   const comments = useChartsStore(useShallow(getComments));
@@ -77,7 +70,6 @@ function _CodeReviewCharts({
     onWordClick,
     onShowComments,
     onShowDiscussions,
-    onShowDiscussionsAt,
   });
 
   return (
@@ -85,10 +77,28 @@ function _CodeReviewCharts({
       <ChartsTitle>Discussions</ChartsTitle>
       <ChartsContainer container>
         <Grid item xs={12}>
-          <DiscussionsStartedByPerMonthChart user={user} discussions={discussions} onClick={onShowDiscussionsAt} />
+          <DiscussionsStartedByPerMonthChart
+            user={user}
+            discussions={discussions}
+            onClick={(at) => {
+              onShowDiscussions({
+                reviewerId: user?.id,
+                at,
+              });
+            }}
+          />
         </Grid>
         <Grid item xs={12}>
-          <DiscussionsStartedWithPerMonthChart user={user} discussions={discussions} onClick={onShowDiscussionsAt} />
+          <DiscussionsStartedWithPerMonthChart
+            user={user}
+            discussions={discussions}
+            onClick={(at) => {
+              onShowDiscussions({
+                authorName: user?.id,
+                at,
+              });
+            }}
+          />
         </Grid>
         <Grid item lg={4} md={6} xs={12}>
           <TopLongestDiscussionsChart user={user} pullRequests={pullRequests} count={10} onClick={onDiscussionClick} />
@@ -97,7 +107,11 @@ function _CodeReviewCharts({
           <Grid item lg={4} md={6} xs={12}>
             <StartedWithDiscussionsPieChart
               discussions={discussions}
-              onClick={(authorName) => onShowDiscussions(null, authorName)}
+              onClick={(authorName) =>
+                onShowDiscussions({
+                  authorName,
+                })
+              }
             />
           </Grid>
         )}
@@ -105,15 +119,33 @@ function _CodeReviewCharts({
           <Grid item lg={4} md={6} xs={12}>
             <StartedByDiscussionsPieChart
               discussions={discussions}
-              onClick={(reviewerName) => onShowDiscussions(reviewerName, null)}
+              onClick={(reviewerName) => onShowDiscussions({ reviewerId: reviewerName })}
             />
           </Grid>
         )}
         <Grid item lg={4} md={6} xs={12}>
-          <StartedWithDiscussionsChart user={user} discussions={discussions} onClick={onShowDiscussions} />
+          <StartedWithDiscussionsChart
+            user={user}
+            discussions={discussions}
+            onClick={(reviewerName, authorName) => {
+              onShowDiscussions({
+                reviewerId: reviewerName,
+                authorName,
+              });
+            }}
+          />
         </Grid>
         <Grid item lg={4} md={6} xs={12}>
-          <StartedByDiscussionsChart user={user} discussions={discussions} onClick={onShowDiscussions} />
+          <StartedByDiscussionsChart
+            user={user}
+            discussions={discussions}
+            onClick={(reviewerName, authorName) => {
+              onShowDiscussions({
+                reviewerId: reviewerName,
+                authorName,
+              });
+            }}
+          />
         </Grid>
         {user == null && (
           <Grid item lg={4} md={6} xs={12}>

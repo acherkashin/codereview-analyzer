@@ -23,20 +23,27 @@ export function getFilteredComments(comments: Comment[], reviewerName: string | 
 
 export function getFilteredDiscussions(
   discussions: UserDiscussion[],
-  reviewerName: string | null,
-  authorName: string | null
+  reviewerId?: string | null,
+  authorId?: string | null,
+  at?: Date | null
 ): UserDiscussion[] {
   let filteredDiscussions = discussions;
 
-  if (!!reviewerName) {
-    filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.reviewerName === reviewerName);
+  if (!!reviewerId) {
+    filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.reviewerId === reviewerId);
   }
 
-  if (!!authorName) {
-    filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.prAuthorName === authorName);
+  if (!!authorId) {
+    filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.prAuthorId === authorId);
   }
 
-  filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.reviewerId !== discussion.prAuthorId);
+  if (!!at) {
+    filteredDiscussions = filteredDiscussions.filter((item) => {
+      const date = new Date(item.comments[0].createdAt);
+
+      return date.getMonth() === at.getMonth() && date.getFullYear() === at.getFullYear();
+    });
+  }
 
   return filteredDiscussions;
 }

@@ -1,4 +1,5 @@
 import { createContext, useContext, useRef } from 'react';
+import classNames from 'classnames';
 import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { GitService } from '../services/GitService';
@@ -144,19 +145,22 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
         'show filtered comments'
       );
     },
-    showFilteredDiscussions: (reviewerName: string | null, authorName: string | null) => {
+    showFilteredDiscussions: ({ reviewerId, authorName: authorId, at }: FilterCommentsProps) => {
       const discussions = getDiscussions(get());
-      const filteredDiscussions = getFilteredDiscussions(discussions, reviewerName, authorName);
+      const filteredDiscussions = getFilteredDiscussions(discussions, reviewerId, authorId, at);
 
-      let title = '';
-      if (reviewerName && authorName) {
-        title = `Discussions started by ${reviewerName} with ${authorName}`;
-      } else if (reviewerName) {
-        title = `Discussions started by ${reviewerName}`;
-      } else if (authorName) {
-        title = `Discussions started with ${authorName}`;
-      }
-      title += `. Total: ${filteredDiscussions.length}`;
+      const authorName = get().users?.find((item) => item.id === authorId)?.displayName || authorId;
+      const reviewerName = get().users?.find((item) => item.id === reviewerId)?.displayName || reviewerId;
+
+      const title = classNames(
+        'Discussions started',
+        {
+          [` by ${reviewerName}`]: reviewerName,
+          [` with ${authorName}`]: authorName,
+          [` at ${at?.toLocaleDateString()}`]: at,
+        },
+        `. Total: ${filteredDiscussions.length}`
+      );
 
       set(
         {
@@ -202,6 +206,12 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
       );
     },
   };
+}
+
+export interface FilterCommentsProps {
+  reviewerId?: string | null;
+  authorName?: string | null;
+  at?: Date;
 }
 
 function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {

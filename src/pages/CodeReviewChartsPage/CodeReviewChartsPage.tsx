@@ -40,7 +40,6 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
   const closeDialog = useChartsStore((state) => state.actions.closeDialog);
   const analyze = useChartsStore(getAnalyze);
 
-  const showDiscussionsAt = useChartsStore((state) => state.actions.showDiscussionsAt);
   const showFilteredComments = useChartsStore((state) => state.actions.showFilteredComments);
   const showFilteredDiscussions = useChartsStore((state) => state.actions.showFilteredDiscussions);
   const showDiscussion = useChartsStore((state) => state.actions.showDiscussion);
@@ -85,7 +84,6 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
           onWordClick={showCommentsWithWord}
           onShowComments={showFilteredComments}
           onShowDiscussions={showFilteredDiscussions}
-          onShowDiscussionsAt={showDiscussionsAt}
           onDiscussionClick={showDiscussion}
         />
       </div>
