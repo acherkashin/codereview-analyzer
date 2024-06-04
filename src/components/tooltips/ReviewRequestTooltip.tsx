@@ -1,6 +1,6 @@
 import { Stack } from '@mui/material';
 import { BaseChartTooltip } from './BaseChartTooltip';
-import { percentString } from '../../utils/StringUtils';
+import { toPercentString } from '../../utils/PercentUtils';
 
 export interface ReviewRequestTooltipProps {
   authorName: string;
@@ -19,7 +19,7 @@ export function ReviewRequestTooltip({ count, reviewed, reviewerName, authorName
         </div>
         <div>
           <strong>
-            {reviewed}/{count} ({percentString(reviewed, count)})
+            {reviewed}/{count} ({toPercentString(reviewed, count)})
           </strong>{' '}
           pull requests were reviewed.
         </div>

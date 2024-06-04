@@ -41,6 +41,7 @@ import { WordsCloudProps } from '../../components/charts/WordsCloud/WordsCloud';
 import { useUpdateReason } from '../../hooks/useUpdateReason';
 import { UserDiscussion } from '../../services/types';
 import { useShallow } from 'zustand/react/shallow';
+import { ReviewRationChart } from '../../components/charts/ReviewRationChart/ReviewRationChart';
 // import { UsersConnectionChart } from '../components/charts/UsersConnectionChart/UsersConnectionChart';
 
 export interface CodeReviewChartsProps {
@@ -212,6 +213,11 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         <Grid item lg={4} md={6} xs={12}>
           <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
+        {user == null && (
+          <Grid item lg={4} md={6} xs={12}>
+            <ReviewRationChart users={users} pullRequests={pullRequests} />
+          </Grid>
+        )}
         <Grid item xs={12}>
           <ReviewCalendarChart user={user} pullRequests={pullRequests} />
         </Grid>

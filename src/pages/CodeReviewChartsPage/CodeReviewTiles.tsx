@@ -25,6 +25,7 @@ import { MostCommentsReceivedTile } from '../../components/tiles/MostCommentsRec
 import { LongestPullRequestTile } from '../../components/tiles/LongestPullRequestTile';
 import { LongestDiscussionTile } from '../../components/tiles/LongestDiscussionTile';
 import { TileGridItem } from './TileGridItem';
+import { toPercentString } from '../../utils/PercentUtils';
 
 export interface CodeReviewTilesProps {
   user?: User | null;
@@ -58,15 +59,15 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
 
   const noDiscussionsPr = useMemo(() => {
     const noComments = pullRequests.filter((item) => item.discussions.length === 0);
-    const percent = Math.ceil((noComments.length / pullRequests.length) * 100);
 
-    return `${percent}%`;
+    return toPercentString(noComments.length, pullRequests.length);
   }, [pullRequests]);
 
-  const reviewRation = useMemo(
-    () => (user == null ? getReviewRation(allPullRequests) : getReviewRationForUser(allPullRequests, user.id)),
-    [allPullRequests, user]
-  );
+  const reviewRation = useMemo(() => {
+    const ration = user == null ? getReviewRation(allPullRequests) : getReviewRationForUser(allPullRequests, user.id);
+
+    return `${ration}%`;
+  }, [allPullRequests, user]);
 
   if (allPullRequests == null || allPullRequests.length === 0) {
     return null;

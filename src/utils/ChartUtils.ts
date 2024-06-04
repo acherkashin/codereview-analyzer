@@ -3,7 +3,7 @@ import { AuthorReviewer, getAuthorReviewerFromComments } from './GitUtils';
 import { arrange, asc, distinct, groupBy, sum, summarize, tidy, filter, n } from '@tidyjs/tidy';
 import { Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { TimeSpan, timeSince } from './TimeSpanUtils';
-import { percentString } from './StringUtils';
+import { toPercent, toPercentString } from './PercentUtils';
 
 export interface ReviewBarDatum extends BarDatum {
   userName: string;
@@ -47,15 +47,16 @@ export function convertToCommentsLeftToUsers(comment: Comment[], userId: string)
  */
 export function getReviewDataByUser(users: User[], pullRequests: PullRequest[]) {
   const rawData = users.map((item) => {
-    const reviewRequestedCount = pullRequests.filter((pr) => (pr.requestedReviewers ?? []).some((i) => i.id === item.id)).length;
+    const notUserPrs = pullRequests.filter((pr) => pr.author.id !== item.id);
+    const reviewRequestedCount = notUserPrs.filter((pr) => (pr.requestedReviewers ?? []).some((i) => i.id === item.id)).length;
 
-    const reviewedPrs = pullRequests.filter((pr) => (pr.reviewedByUser ?? []).some(({ user }) => user.id === item.id));
+    const reviewedPrs = notUserPrs.filter((pr) => (pr.reviewedByUser ?? []).some(({ user }) => user.id === item.id));
     const reviewedCount = reviewedPrs.length;
 
-    const approvedPrs = pullRequests.filter((pr) => (pr.approvedByUser ?? []).some(({ user }) => user.id === item.id));
+    const approvedPrs = notUserPrs.filter((pr) => (pr.approvedByUser ?? []).some(({ user }) => user.id === item.id));
     const approvedCount = approvedPrs.length;
 
-    const requestedChangesPrs = pullRequests.filter((pr) =>
+    const requestedChangesPrs = notUserPrs.filter((pr) =>
       (pr.requestedChangesByUser ?? []).some(({ user }) => user.id === item.id)
     );
     const requestedChangesCount = requestedChangesPrs.length;
@@ -275,25 +276,30 @@ export function getReviewRation(pullRequests: PullRequest[]) {
     reviewedCount += reviewedBy.length;
   });
 
-  return percentString(reviewedCount, reviewRequestCount);
+  return toPercent(reviewedCount, reviewRequestCount);
 }
 
 /**
  * Calculates review ration for specified reviewer
  */
 export function getReviewRationForUser(pullRequests: PullRequest[], reviewerId: string) {
+  //TODO: reuse getReviewDataByUser here
   let reviewRequestCount = 0;
   let approversCount = 0;
 
   pullRequests.forEach((pr) => {
-    if (pr.requestedReviewers.some((item) => item.id === reviewerId)) {
-      reviewRequestCount += 1;
+    if (pr.author.id === reviewerId) {
+      return;
     }
 
-    if (pr.reviewedByUser.some(({ user }) => user.id === reviewerId)) {
-      approversCount += 1;
+    if (pr.requestedReviewers.some((item) => item.id === reviewerId)) {
+      reviewRequestCount += 1;
+
+      if (pr.reviewedByUser.some(({ user }) => user.id === reviewerId)) {
+        approversCount += 1;
+      }
     }
   });
 
-  return percentString(approversCount, reviewRequestCount);
+  return toPercent(approversCount, reviewRequestCount);
 }
