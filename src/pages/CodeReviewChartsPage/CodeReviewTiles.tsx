@@ -17,7 +17,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
 import ForumIcon from '@mui/icons-material/Forum';
 import { BranchIcon } from '../../icons/BranchIcon';
-import { getLongestDiscussions, getLongestPullRequest, getReviewRation } from '../../utils/ChartUtils';
+import { getLongestDiscussions, getLongestPullRequest, getReviewRation, getReviewRationForUser } from '../../utils/ChartUtils';
 import { User } from '../../services/types';
 import { MostCommentsPullRequestTile } from '../../components/tiles/MostCommentsPullRequestTile';
 import { MostCommentsLeftByTile } from '../../components/tiles/MostCommentsLeftByTile';
@@ -63,7 +63,10 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
     return `${percent}%`;
   }, [pullRequests]);
 
-  const reviewRation = useMemo(() => getReviewRation(allPullRequests), [allPullRequests]);
+  const reviewRation = useMemo(
+    () => (user == null ? getReviewRation(allPullRequests) : getReviewRationForUser(allPullRequests, user.id)),
+    [allPullRequests, user]
+  );
 
   if (allPullRequests == null || allPullRequests.length === 0) {
     return null;

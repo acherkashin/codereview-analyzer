@@ -257,22 +257,43 @@ export function getBarChartData(pullRequests: PullRequest[], users: User[], prov
   };
 }
 
+/**
+ * Calculates probability that someone will review your PR if you assign it to him
+ */
 export function getReviewRation(pullRequests: PullRequest[]) {
-  // Probability that someone will review your PR if you assign it to him
+  let reviewRequestCount = 0;
+  let reviewedCount = 0;
+
   // We go through all pull request, find every user that set as a reviewer and check whether he review it
-
-  let reviewersCount = 0;
-  let approversCount = 0;
-
   pullRequests.forEach((pr) => {
     const reviewerIds = pr.requestedReviewers.map((item) => item.id);
-    reviewersCount += reviewerIds.length;
+    reviewRequestCount += reviewerIds.length;
 
     // In gitlab user can approve PR, and don't be in "reviewers" list, we are not interested in them here.
     // In gitea user that approved PR automatically added to approvers.
     const reviewedBy = pr.reviewedByUser.filter(({ user }) => reviewerIds.includes(user.id));
-    approversCount += reviewedBy.length;
+    reviewedCount += reviewedBy.length;
   });
 
-  return percentString(approversCount, reviewersCount);
+  return percentString(reviewedCount, reviewRequestCount);
+}
+
+/**
+ * Calculates review ration for specified reviewer
+ */
+export function getReviewRationForUser(pullRequests: PullRequest[], reviewerId: string) {
+  let reviewRequestCount = 0;
+  let approversCount = 0;
+
+  pullRequests.forEach((pr) => {
+    if (pr.requestedReviewers.some((item) => item.id === reviewerId)) {
+      reviewRequestCount += 1;
+    }
+
+    if (pr.reviewedByUser.some(({ user }) => user.id === reviewerId)) {
+      approversCount += 1;
+    }
+  });
+
+  return percentString(approversCount, reviewRequestCount);
 }
