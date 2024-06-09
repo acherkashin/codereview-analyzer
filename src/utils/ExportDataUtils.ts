@@ -10,10 +10,13 @@ export interface ExportData {
 
 export function downloadExportData(fileName: string, data: ExportData) {
   const chunkSize = 10_000;
-  const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+  // Use vendor property to determine whether browser is firefox. It is empty for Firefox.
+  // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vendor
+  const isFirefox = !window.navigator.vendor;
 
-  if (!isChrome || data!.data.pullRequests.length <= chunkSize) {
+  if (isFirefox && data!.data.pullRequests.length <= chunkSize) {
     downloadFile(`${fileName}.json`, JSON.stringify(data, null, 2));
+    return;
   }
 
   // For Chrome: if there are many pull requests they will be saved in several files due to string limit 600 MB
