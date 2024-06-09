@@ -22,3 +22,4 @@ export { DiscussionsStartedByPerMonthChart } from './DiscussionsStartedByPerMont
 export { DiscussionsStartedWithPerMonthChart } from './DiscussionsStartedWithPerMonthChart/DiscussionsStartedWithPerMonthChart';
 export { PullRequestsCreatedChart } from './PullRequestsCreatedChart/PullRequestsCreatedChart';
 export { ChangesToDiscussionsCorrelationChart } from './ChangesToDiscussionsCorrelationChart/ChangesToDiscussionsCorrelationChart';
+export { PullRequestsCalendarChart } from './PullRequestsCalendarChart/PullRequestsCalendarChart';

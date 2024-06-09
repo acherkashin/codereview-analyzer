@@ -23,6 +23,7 @@ import {
   DiscussionsStartedWithPerMonthChart,
   PullRequestsCreatedChart,
   ChangesToDiscussionsCorrelationChart,
+  PullRequestsCalendarChart,
 } from '../../components/charts';
 import {
   FilterCommentsProps,
@@ -226,6 +227,9 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
       <ChartsTitle>Other</ChartsTitle>
 
       <ChartsContainer container>
+        <Grid item xs={12}>
+          <PullRequestsCalendarChart user={user} pullRequests={pullRequests} />
+        </Grid>
         {user == null && (
           <Grid item lg={4} md={6} xs={12}>
             <PullRequestsCreatedChart pullRequests={pullRequests} />
