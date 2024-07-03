@@ -26,6 +26,6 @@ export const router = createBrowserRouter(
     },
   ],
   {
-    basename: '/gitlab-codereview-analyzer',
+    basename: '/codereview-analyzer',
   }
 );
