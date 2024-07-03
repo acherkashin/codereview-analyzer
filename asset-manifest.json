@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "/gitlab-codereview-analyzer/static/css/main.77db4147.css",
-    "main.js": "/gitlab-codereview-analyzer/static/js/main.0dfa114e.js",
-    "static/js/453.ee2f5124.chunk.js": "/gitlab-codereview-analyzer/static/js/453.ee2f5124.chunk.js",
-    "static/js/248.7bc00dc2.chunk.js": "/gitlab-codereview-analyzer/static/js/248.7bc00dc2.chunk.js",
-    "static/media/gitea.svg": "/gitlab-codereview-analyzer/static/media/gitea.efd9e6e3ad7ca58d2029e6a58295eab4.svg",
-    "static/media/gitlab.svg": "/gitlab-codereview-analyzer/static/media/gitlab.3b8b8ce822f28bbcc94e059a8011ebd2.svg",
-    "index.html": "/gitlab-codereview-analyzer/index.html",
-    "main.77db4147.css.map": "/gitlab-codereview-analyzer/static/css/main.77db4147.css.map",
-    "main.0dfa114e.js.map": "/gitlab-codereview-analyzer/static/js/main.0dfa114e.js.map",
-    "453.ee2f5124.chunk.js.map": "/gitlab-codereview-analyzer/static/js/453.ee2f5124.chunk.js.map",
-    "248.7bc00dc2.chunk.js.map": "/gitlab-codereview-analyzer/static/js/248.7bc00dc2.chunk.js.map"
+    "main.css": "/codereview-analyzer/static/css/main.77db4147.css",
+    "main.js": "/codereview-analyzer/static/js/main.0a40d797.js",
+    "static/js/453.ccf7ca5a.chunk.js": "/codereview-analyzer/static/js/453.ccf7ca5a.chunk.js",
+    "static/js/248.6289adb1.chunk.js": "/codereview-analyzer/static/js/248.6289adb1.chunk.js",
+    "static/media/gitea.svg": "/codereview-analyzer/static/media/gitea.efd9e6e3ad7ca58d2029e6a58295eab4.svg",
+    "static/media/gitlab.svg": "/codereview-analyzer/static/media/gitlab.3b8b8ce822f28bbcc94e059a8011ebd2.svg",
+    "index.html": "/codereview-analyzer/index.html",
+    "main.77db4147.css.map": "/codereview-analyzer/static/css/main.77db4147.css.map",
+    "main.0a40d797.js.map": "/codereview-analyzer/static/js/main.0a40d797.js.map",
+    "453.ccf7ca5a.chunk.js.map": "/codereview-analyzer/static/js/453.ccf7ca5a.chunk.js.map",
+    "248.6289adb1.chunk.js.map": "/codereview-analyzer/static/js/248.6289adb1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.77db4147.css",
-    "static/js/main.0dfa114e.js"
+    "static/js/main.0a40d797.js"
   ]
 }
