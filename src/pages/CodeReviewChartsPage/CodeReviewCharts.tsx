@@ -53,8 +53,7 @@ export interface CodeReviewChartsProps {
 }
 
 function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onDiscussionClick }: CodeReviewChartsProps) {
-  //TODO: getFilteredPullRequests is run too many times
-  const pullRequests = useChartsStore(useShallow(getFilteredPullRequests));
+  const pullRequests = useChartsStore(getFilteredPullRequests);
   const comments = useChartsStore(useShallow(getComments));
   const discussions = useChartsStore(useShallow(getDiscussions));
   const userComments = useChartsStore(useShallow(getUserComments));

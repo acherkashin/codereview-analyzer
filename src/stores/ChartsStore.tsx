@@ -10,6 +10,7 @@ import { ExportData } from '../utils/ExportDataUtils';
 import { createStore } from '../utils/ZustandUtils';
 import { NamedSet } from 'zustand/middleware/devtools';
 import { useStore } from 'zustand';
+import { memoize } from 'proxy-memoize';
 
 const initialState = {
   isAnalyzing: false as boolean,
@@ -328,7 +329,8 @@ export function getUserDiscussions(state: ChartState) {
   return [];
 }
 
-export function getFilteredPullRequests(state: ChartState) {
+export const getFilteredPullRequests = memoize((state: ChartState) => {
+  console.log(state);
   if (state.pullRequests == null) {
     return [];
   }
@@ -344,7 +346,7 @@ export function getFilteredPullRequests(state: ChartState) {
   });
 
   return filtered;
-}
+});
 
 export function getUser(state: ChartState) {
   return state.user;

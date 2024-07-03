@@ -1,3 +1,4 @@
+import { memoize } from 'proxy-memoize';
 import { Comment, UserDiscussion, PullRequest } from '../services/types';
 
 export interface AuthorReviewer {
@@ -30,11 +31,15 @@ export function getFilteredDiscussions(
   let filteredDiscussions = discussions;
 
   if (!!reviewerId) {
-    filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.reviewerId === reviewerId);
+    filteredDiscussions = filteredDiscussions.filter(
+      (discussion) => discussion.reviewerId === reviewerId || discussion.reviewerName === reviewerId
+    );
   }
 
   if (!!authorId) {
-    filteredDiscussions = filteredDiscussions.filter((discussion) => discussion.prAuthorId === authorId);
+    filteredDiscussions = filteredDiscussions.filter(
+      (discussion) => discussion.prAuthorId === authorId || discussion.prAuthorName === authorId
+    );
   }
 
   if (!!at) {
@@ -76,14 +81,14 @@ export function getAuthorReviewerFromMergeRequests(mrs: PullRequest[]): AuthorRe
   );
 }
 
-export function getStartDate(prs: PullRequest[]) {
+export const getStartDate = memoize((prs: PullRequest[]) => {
   const sorted = prs.toSorted((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
   return sorted[0]?.createdAt;
-}
+});
 
-export function getEndDate(prs: PullRequest[]) {
+export const getEndDate = memoize((prs: PullRequest[]) => {
   const sorted = prs.toSorted((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return sorted[0]?.createdAt;
-}
+});
