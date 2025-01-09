@@ -1,4 +1,4 @@
-import CodeReviewIcon from './../../public/code-review-icon.png';
+import CodeReviewIcon from '/code-review-icon.png';
 
 export function Logo() {
   return <img src={CodeReviewIcon} alt="Code review icon" width="50px" />;
