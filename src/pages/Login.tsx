@@ -12,8 +12,8 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { useCallback, useState } from 'react';
-import { ReactComponent as GitLabIcon } from './../components/gitlab.svg';
-import { ReactComponent as GiteaIcon } from './../components/gitea.svg';
+import GitLabIcon from './../components/gitlab.svg?react';
+import GiteaIcon from './../components/gitea.svg?react';
 import { TooltipPrompt } from '../components';
 import { getSignIn, getSignInGuest, useAuthStore } from '../stores/AuthStore';
 import { useNavigate } from 'react-router-dom';

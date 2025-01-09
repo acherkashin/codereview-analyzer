@@ -1,3 +1,5 @@
+import CodeReviewIcon from './../../public/code-review-icon.png';
+
 export function Logo() {
-  return <img src={process.env.PUBLIC_URL + '/code-review-icon.png'} alt="Code review icon" width="50px" />;
+  return <img src={CodeReviewIcon} alt="Code review icon" width="50px" />;
 }
