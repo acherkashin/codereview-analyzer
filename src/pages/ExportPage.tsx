@@ -8,8 +8,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { downloadFile } from '../utils/FileUtils';
 import { CheckBoxProjectList } from '../components/CheckBoxProjectList';
 import { useEffect } from 'react';
-
-const { version } = require('./../../package.json');
+import { version } from './../../package.json';
 
 export function ExportPage() {
   const handleExport = useExportsStore((store) => store.export);
