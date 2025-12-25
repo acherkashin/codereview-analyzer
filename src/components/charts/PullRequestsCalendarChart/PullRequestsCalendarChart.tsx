@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { getEndDate, getStartDate } from '../../../utils/GitUtils';
 import dayjs from 'dayjs';
 import { PullRequest, User } from '../../../services/types';
@@ -7,6 +7,7 @@ import { ChartContainer } from '../../ChartContainer';
 import { ResponsiveCalendar } from '@nivo/calendar';
 import classNames from 'classnames';
 import { Stack } from '@mui/material';
+import { PullRequestDialog } from '../../dialogs/PullRequestDialog';
 
 export interface PullRequestsCalendarChartProps {
   user?: User;
@@ -14,6 +15,10 @@ export interface PullRequestsCalendarChartProps {
 }
 
 export function PullRequestsCalendarChart({ user, pullRequests }: PullRequestsCalendarChartProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedPullRequests, setSelectedPullRequests] = useState<PullRequest[]>([]);
+  const [dialogTitle, setDialogTitle] = useState('');
+
   const startDate = useMemo(() => dayjs(getStartDate(pullRequests)).format('YYYY-MM-DD'), [pullRequests]);
   const endDate = useMemo(() => dayjs(getEndDate(pullRequests)).format('YYYY-MM-DD'), [pullRequests]);
 
@@ -32,47 +37,60 @@ export function PullRequestsCalendarChart({ user, pullRequests }: PullRequestsCa
     [`by ${user?.displayName}`]: user,
   });
 
-  return (
-    <ChartContainer
-      title={title}
-      height={chartsCount * 250}
-      description={
-        <Stack>
-          <div>Shows count of pull requests created daily.</div>
-          <div>Specify user to see pull requests created by that user.</div>
-        </Stack>
-      }
-    >
-      <ResponsiveCalendar
-        data={data}
-        from={startDate}
-        to={endDate}
-        emptyColor="#eeeeee"
-        colors={['#6FCB84', '#4D9759', '#366F3C', '#1F4424']}
-        margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
-        yearSpacing={40}
-        monthBorderColor="#ffffff"
-        dayBorderWidth={2}
-        dayBorderColor="#ffffff"
-        legends={[
-          {
-            anchor: 'bottom-right',
-            direction: 'row',
-            translateY: 36,
-            itemCount: 4,
-            itemWidth: 42,
-            itemHeight: 36,
-            itemsSpacing: 14,
-            itemDirection: 'right-to-left',
-          },
-        ]}
-        onClick={(datum) => {
-          const prsAtDate = filteredPrs.filter((item) => dayjs(item.createdAt).format('YYYY-MM-DD') === datum.day);
+  const handleDayClick = (datum: any) => {
+    const prsAtDate = filteredPrs.filter((item) => dayjs(item.createdAt).format('YYYY-MM-DD') === datum.day);
 
-          //TODO: implement UI
-          console.log(prsAtDate);
-        }}
+    setSelectedPullRequests(prsAtDate);
+    setDialogTitle(`Pull Requests - ${dayjs(datum.day).format('MMMM DD, YYYY')}${user ? ` by ${user.displayName}` : ''}`);
+    setDialogOpen(true);
+  };
+
+  return (
+    <>
+      <ChartContainer
+        title={title}
+        height={chartsCount * 250}
+        description={
+          <Stack>
+            <div>Shows count of pull requests created daily.</div>
+            <div>Specify user to see pull requests created by that user.</div>
+            <div>Click on a day to see the detailed list of pull requests created on that day.</div>
+          </Stack>
+        }
+      >
+        <ResponsiveCalendar
+          data={data}
+          from={startDate}
+          to={endDate}
+          emptyColor="#eeeeee"
+          colors={['#6FCB84', '#4D9759', '#366F3C', '#1F4424']}
+          margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+          yearSpacing={40}
+          monthBorderColor="#ffffff"
+          dayBorderWidth={2}
+          dayBorderColor="#ffffff"
+          legends={[
+            {
+              anchor: 'bottom-right',
+              direction: 'row',
+              translateY: 36,
+              itemCount: 4,
+              itemWidth: 42,
+              itemHeight: 36,
+              itemsSpacing: 14,
+              itemDirection: 'right-to-left',
+            },
+          ]}
+          onClick={handleDayClick}
+        />
+      </ChartContainer>
+
+      <PullRequestDialog
+        open={dialogOpen}
+        title={dialogTitle}
+        pullRequests={selectedPullRequests}
+        onClose={() => setDialogOpen(false)}
       />
-    </ChartContainer>
+    </>
   );
 }

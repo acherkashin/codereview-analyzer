@@ -11,3 +11,4 @@ export { FullSizeProgress } from './FullSizeProgress';
 export { FilterPanel } from './FilterPanel';
 export { FullScreenDialog } from './FullScreenDialog';
 export { ImportTextButton } from './ImportTextButton';
+export { PullRequestList } from './PullRequestList';
