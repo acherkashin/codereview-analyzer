@@ -22,6 +22,7 @@ import {
   DiscussionsStartedByPerMonthChart,
   DiscussionsStartedWithPerMonthChart,
   PullRequestsCreatedChart,
+  PullRequestsCreatedPerMonthChart,
   ChangesToDiscussionsCorrelationChart,
   PullRequestsCalendarChart,
 } from '../../components/charts';
@@ -226,6 +227,9 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
       <ChartsTitle>Other</ChartsTitle>
 
       <ChartsContainer container>
+        <Grid item xs={12}>
+          <PullRequestsCreatedPerMonthChart user={user} pullRequests={pullRequests} />
+        </Grid>
         <Grid item xs={12}>
           <PullRequestsCalendarChart user={user} pullRequests={pullRequests} />
         </Grid>
