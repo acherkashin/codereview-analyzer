@@ -1,6 +1,55 @@
-# Code Review Analyzer
+# GitLab Code Review Analyzer - Project Structure
 
-Allows you to find analyze your pull requests and find different patterns.
+## Overview
+
+A React-based web application for analyzing GitLab and Gitea pull request data, providing comprehensive charts and insights for code review processes.
+
+## Technologies Stack
+
+- **Frontend**: React 18, TypeScript
+- **UI Framework**: Material-UI (MUI)
+- **Charts**: Nivo (React chart library)
+- **State Management**: Zustand
+- **Data Processing**: Tidy.js
+- **Date Handling**: Day.js
+- **Build Tool**: Vite
+- **Testing**: Vitest
+
+## Folder Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── charts/         # Chart components (Bar, Line, Pie, etc.)
+│   ├── tooltips/       # Chart tooltip components
+│   ├── tiles/          # Dashboard tile components
+│   ├── dialogs/        # Modal dialogs
+│   └── FilterPanel/    # Filtering controls
+├── pages/              # Page components
+│   └── CodeReviewChartsPage/  # Main dashboard page
+├── services/           # API integration
+│   ├── Gitlab/         # GitLab API service
+│   └── Gitea/          # Gitea API service
+├── stores/             # Zustand state stores
+├── hooks/              # Custom React hooks
+├── utils/              # Utility functions
+├── theme/              # MUI theme configuration
+└── types.d.ts          # TypeScript type definitions
+```
+
+## Key Components
+
+- **Charts**: Modular chart system with consistent API
+- **Services**: Abstracted API layer for GitLab/Gitea integration
+- **Stores**: Centralized state management for analytics data
+- **Utils**: Data processing and formatting utilities
+
+## Development
+
+- Built with modern React patterns (hooks, functional components)
+- TypeScript for type safety
+- Component-based architecture with clear separation of concerns
+- Responsive design with Material-UI grid system
 
 # Available charts
 
