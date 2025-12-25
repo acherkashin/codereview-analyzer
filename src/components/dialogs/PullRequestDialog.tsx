@@ -24,9 +24,6 @@ export function PullRequestDialog({ open, title, pullRequests, onClose }: PullRe
       <DialogContent>
         {pullRequests.length > 0 ? (
           <Box sx={{ mt: 1 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {pullRequests.length} pull request{pullRequests.length !== 1 ? 's' : ''}
-            </Typography>
             <PullRequestList pullRequests={pullRequests} />
           </Box>
         ) : (
