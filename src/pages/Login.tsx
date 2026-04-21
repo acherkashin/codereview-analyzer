@@ -16,7 +16,7 @@ import GitLabIcon from './../components/gitlab.svg?react';
 import GiteaIcon from './../components/gitea.svg?react';
 import { TooltipPrompt } from '../components';
 import { getSignIn, getSignInGuest, useAuthStore } from '../stores/AuthStore';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@mui/lab';
 import { Logo } from '../components/Logo';
 import { useAuthGuard } from '../hooks/useAuthGuard';
@@ -34,6 +34,7 @@ export interface LoginProps {}
 
 export function Login(_: LoginProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [hostType, setHostType] = useState<HostingType>('Gitlab');
   const [token, setToken] = useState('');
   const [host, setHost] = useState('');
@@ -45,10 +46,11 @@ export function Login(_: LoginProps) {
   const cancelSignIn = useAuthStore((state) => state.actions.cancelSignIn);
   const isSigningIn = useAuthStore((state) => state.isSigningIn);
   const signInError = useAuthStore((state) => state.signInError);
+  const redirectTarget = getRedirectTarget(location.state);
 
   const handleLoginAsGuest = () => {
     signInGuest();
-    navigate('/charts');
+    navigate(redirectTarget, { replace: true });
   };
 
   //TODO: need to call client.Users.current() to make sure token and host are correct
@@ -61,9 +63,9 @@ export function Login(_: LoginProps) {
     setIsHostValid(true);
 
     signIn(host, token, hostType).then(() => {
-      navigate('/charts');
+      navigate(redirectTarget, { replace: true });
     });
-  }, [host, hostType, navigate, signIn, token]);
+  }, [host, hostType, navigate, redirectTarget, signIn, token]);
 
   // redirects to login if not authenticated
   useAuthGuard();
@@ -139,4 +141,14 @@ export function Login(_: LoginProps) {
       </Stack>
     </Box>
   );
+}
+
+function getRedirectTarget(state: unknown) {
+  const from = typeof state === 'object' && state != null && 'from' in state ? state.from : null;
+
+  if (typeof from === 'string' && from !== '/login') {
+    return from;
+  }
+
+  return '/charts';
 }

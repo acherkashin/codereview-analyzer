@@ -114,7 +114,14 @@ export class GiteaService implements GitService {
 
         const commentsResp = await requestAllChunked(commentsFns);
         const prComments = commentsResp.flatMap((item) => item!.data);
-        return { pullRequest, comments: prComments!, reviews: reviews!, timeline: timeline!, files: files! };
+        return {
+          projectName: project.name,
+          pullRequest,
+          comments: prComments!,
+          reviews: reviews!,
+          timeline: timeline!,
+          files: files!,
+        };
       });
 
     const rawData = await requestAllChunked(rawDataPromises);
@@ -177,6 +184,7 @@ export class GiteaService implements GitService {
 }
 
 export interface GiteaRawDatum {
+  projectName: string;
   pullRequest: GiteaPullRequest;
   reviews: GiteaPullReview[];
   comments: GiteaPullReviewComment[];

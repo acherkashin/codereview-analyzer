@@ -1,58 +1,43 @@
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import duration from 'dayjs/plugin/duration';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {
-  Avatar,
-  Link,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Typography,
-  Chip,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  IconButton,
-  Toolbar,
-} from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import ChatIcon from '@mui/icons-material/Chat';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import { PullRequest } from '../services/types';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import duration from 'dayjs/plugin/duration';
-import { useState, useMemo } from 'react';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import ReviewsIcon from '@mui/icons-material/Reviews';
+import ForumIcon from '@mui/icons-material/Forum';
+import DifferenceIcon from '@mui/icons-material/Difference';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  FormControl,
+  IconButton,
+  InputLabel,
+  Link,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  MenuItem,
+  Select,
+  Toolbar,
+  Typography,
+} from '@mui/material';
+import { PullRequest, User, UserDiscussion } from '../services/types';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
 
-// Utility functions for PR display
-const getFilesColor = (fileCount: number) => {
-  if (fileCount <= 5) return 'success';
-  if (fileCount <= 15) return 'warning';
-  if (fileCount <= 30) return 'error';
-  return 'error';
-};
-
-const getPRDuration = (pr: PullRequest) => {
-  const startDate = dayjs(pr.createdAt);
-  const endDate = pr.mergedAt ? dayjs(pr.mergedAt) : dayjs();
-  const diff = endDate.diff(startDate, 'day');
-
-  if (pr.mergedAt) {
-    return `Was open ${diff} day${diff !== 1 ? 's' : ''}`;
-  } else {
-    return `Open ${diff} day${diff !== 1 ? 's' : ''}`;
-  }
-};
-
-// Sorting types and utilities
-type SortField = 'date' | 'comments' | 'files' | 'duration';
+type PullRequestListVariant = 'default' | 'oneOnOne';
+type SortField = 'date' | 'discussionLoad' | 'files' | 'duration' | 'size';
 type SortDirection = 'asc' | 'desc';
 
 interface SortOption {
@@ -60,54 +45,27 @@ interface SortOption {
   direction: SortDirection;
 }
 
-const getPRDurationInDays = (pr: PullRequest): number => {
-  const startDate = dayjs(pr.createdAt);
-  const endDate = pr.mergedAt ? dayjs(pr.mergedAt) : dayjs();
-  return endDate.diff(startDate, 'day');
-};
-
-const sortPullRequests = (prs: PullRequest[], sortOption: SortOption): PullRequest[] => {
-  const { field, direction } = sortOption;
-
-  const sorted = [...prs].sort((a, b) => {
-    let aValue: number | string;
-    let bValue: number | string;
-
-    switch (field) {
-      case 'date':
-        aValue = dayjs(a.createdAt).valueOf();
-        bValue = dayjs(b.createdAt).valueOf();
-        break;
-      case 'comments':
-        aValue = a.comments.length;
-        bValue = b.comments.length;
-        break;
-      case 'files':
-        aValue = a.changedFilesCount;
-        bValue = b.changedFilesCount;
-        break;
-      case 'duration':
-        aValue = getPRDurationInDays(a);
-        bValue = getPRDurationInDays(b);
-        break;
-      default:
-        return 0;
-    }
-
-    if (aValue < bValue) return direction === 'asc' ? -1 : 1;
-    if (aValue > bValue) return direction === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  return sorted;
-};
-
 export interface PullRequestListProps {
   pullRequests: PullRequest[];
+  variant?: PullRequestListVariant;
+  selectedPullRequestId?: string | null;
+  onPullRequestSelect?: (pullRequest: PullRequest) => void;
+  renderExtraDetails?: (pullRequest: PullRequest) => ReactNode;
 }
 
-export function PullRequestList({ pullRequests }: PullRequestListProps) {
+export function PullRequestList({
+  pullRequests,
+  variant = 'default',
+  selectedPullRequestId,
+  onPullRequestSelect,
+  renderExtraDetails,
+}: PullRequestListProps) {
   const [sortOption, setSortOption] = useState<SortOption>({ field: 'date', direction: 'desc' });
+  const [expandedPullRequestId, setExpandedPullRequestId] = useState<string | false>(selectedPullRequestId ?? false);
+
+  useEffect(() => {
+    setExpandedPullRequestId(selectedPullRequestId ?? false);
+  }, [selectedPullRequestId]);
 
   const sortedPullRequests = useMemo(() => {
     return sortPullRequests(pullRequests, sortOption);
@@ -121,21 +79,30 @@ export function PullRequestList({ pullRequests }: PullRequestListProps) {
     setSortOption((prev) => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }));
   };
 
+  const handlePullRequestToggle = (pullRequest: PullRequest, expanded: boolean) => {
+    setExpandedPullRequestId(expanded ? pullRequest.id : false);
+
+    if (expanded || variant === 'oneOnOne') {
+      onPullRequestSelect?.(pullRequest);
+    }
+  };
+
   return (
     <div>
-      <Toolbar sx={{ px: 0, minHeight: '48px !important', justifyContent: 'space-between' }}>
+      <Toolbar sx={{ px: 0, minHeight: '48px !important', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
         <Typography variant="caption" color="text.secondary">
           {sortedPullRequests.length} pull request{sortedPullRequests.length !== 1 ? 's' : ''}
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
             <InputLabel>Sort by</InputLabel>
             <Select value={sortOption.field} label="Sort by" onChange={(e) => handleSortFieldChange(e.target.value as SortField)}>
               <MenuItem value="date">Date</MenuItem>
-              <MenuItem value="comments">Comments</MenuItem>
+              <MenuItem value="discussionLoad">Discussion load</MenuItem>
               <MenuItem value="files">Files</MenuItem>
               <MenuItem value="duration">Duration</MenuItem>
+              <MenuItem value="size">Size</MenuItem>
             </Select>
           </FormControl>
 
@@ -164,120 +131,415 @@ export function PullRequestList({ pullRequests }: PullRequestListProps) {
         </Box>
       </Toolbar>
 
-      {sortedPullRequests.map((pr) => {
+      {sortedPullRequests.map((pullRequest) => {
+        const isSelected = selectedPullRequestId != null && selectedPullRequestId === pullRequest.id;
+
         return (
-          <Accordion key={pr.id}>
+          <Accordion
+            key={pullRequest.id}
+            expanded={expandedPullRequestId === pullRequest.id}
+            onChange={(_, expanded) => handlePullRequestToggle(pullRequest, expanded)}
+            sx={{
+              border: isSelected ? '1px solid' : undefined,
+              borderColor: isSelected ? 'primary.main' : undefined,
+              backgroundColor: isSelected ? 'action.selected' : undefined,
+            }}
+          >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <ListItem sx={{ width: '100%', pr: 2 }}>
-                <ListItemAvatar>
-                  <Avatar src={pr.author.avatarUrl} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                      <Link underline="none" variant="subtitle2" href={pr.url} target="_blank" rel="noreferrer">
-                        {pr.title}
-                      </Link>
-                      <Box sx={{ display: 'flex', gap: 1, flexShrink: 0, ml: 2 }}>
-                        <Chip
-                          icon={<ScheduleIcon />}
-                          label={getPRDuration(pr)}
-                          size="small"
-                          variant="outlined"
-                          color={pr.mergedAt ? 'default' : 'info'}
-                        />
-                        <Chip
-                          icon={<FolderIcon />}
-                          label={`${pr.changedFilesCount} files`}
-                          size="small"
-                          variant="outlined"
-                          color={getFilesColor(pr.changedFilesCount)}
-                        />
-                        <Chip
-                          icon={<ChatIcon />}
-                          label={`${pr.comments.length} comments`}
-                          size="small"
-                          variant="outlined"
-                          color="default"
-                        />
-                      </Box>
-                    </Box>
-                  }
-                  secondary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        by {pr.author.displayName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        • {dayjs(pr.createdAt).fromNow()}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        • {pr.branchName} → {pr.targetBranch}
-                      </Typography>
-                      {pr.mergedAt && (
-                        <Typography variant="caption" color="success.main">
-                          • Merged {dayjs(pr.mergedAt).fromNow()}
-                        </Typography>
-                      )}
-                    </Box>
-                  }
-                />
-              </ListItem>
+              {variant === 'oneOnOne' ? (
+                <OneOnOnePullRequestSummary pullRequest={pullRequest} onSelect={onPullRequestSelect} />
+              ) : (
+                <DefaultPullRequestSummary pullRequest={pullRequest} />
+              )}
             </AccordionSummary>
             <AccordionDetails>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {pr.requestedReviewers.length > 0 && (
-                  <Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                      Requested Reviewers:
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      {pr.requestedReviewers.map((reviewer) => (
-                        <Box key={reviewer.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <Avatar src={reviewer.avatarUrl} sx={{ width: 20, height: 20 }} />
-                          <Typography variant="caption">{reviewer.displayName}</Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </Box>
-                )}
-
-                {pr.approvedByUser.length > 0 && (
-                  <Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                      Approved by:
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      {pr.approvedByUser.map((approval, index) => (
-                        <Box key={`${approval.user.id}-${index}`} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <Avatar src={approval.user.avatarUrl} sx={{ width: 20, height: 20 }} />
-                          <Typography variant="caption">{approval.user.displayName}</Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </Box>
-                )}
-
-                {pr.requestedChangesByUser.length > 0 && (
-                  <Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                      Requested Changes by:
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      {pr.requestedChangesByUser.map((change, index) => (
-                        <Box key={`${change.user.id}-${index}`} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <Avatar src={change.user.avatarUrl} sx={{ width: 20, height: 20 }} />
-                          <Typography variant="caption">{change.user.displayName}</Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </Box>
-                )}
-              </Box>
+              {variant === 'oneOnOne' ? (
+                <OneOnOnePullRequestDetails
+                  pullRequest={pullRequest}
+                  onSelect={onPullRequestSelect}
+                  extraDetails={renderExtraDetails?.(pullRequest)}
+                />
+              ) : (
+                <DefaultPullRequestDetails pullRequest={pullRequest} />
+              )}
             </AccordionDetails>
           </Accordion>
         );
       })}
     </div>
   );
+}
+
+function DefaultPullRequestSummary({ pullRequest }: { pullRequest: PullRequest }) {
+  return (
+    <ListItem sx={{ width: '100%', pr: 2 }}>
+      <ListItemAvatar>
+        <Avatar src={pullRequest.author.avatarUrl} />
+      </ListItemAvatar>
+      <ListItemText
+        primary={
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <Link underline="none" variant="subtitle2" href={pullRequest.url} target="_blank" rel="noreferrer">
+              {pullRequest.title}
+            </Link>
+            <Box sx={{ display: 'flex', gap: 1, flexShrink: 0, ml: 2 }}>
+              <Chip
+                icon={<ScheduleIcon />}
+                label={getPullRequestDurationLabel(pullRequest)}
+                size="small"
+                variant="outlined"
+                color={pullRequest.mergedAt ? 'default' : 'info'}
+              />
+              <Chip
+                icon={<FolderIcon />}
+                label={`${pullRequest.changedFilesCount} files`}
+                size="small"
+                variant="outlined"
+                color={getFilesColor(pullRequest.changedFilesCount)}
+              />
+              <Chip
+                icon={<ChatIcon />}
+                label={`${pullRequest.reviewCommentCount} comments`}
+                size="small"
+                variant="outlined"
+                color="default"
+              />
+            </Box>
+          </Box>
+        }
+        secondary={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
+            <Typography variant="caption" color="text.secondary">
+              by {pullRequest.author.displayName}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              • {dayjs(pullRequest.createdAt).fromNow()}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              • {pullRequest.branchName} → {pullRequest.targetBranch}
+            </Typography>
+            {pullRequest.mergedAt && (
+              <Typography variant="caption" color="success.main">
+                • Merged {dayjs(pullRequest.mergedAt).fromNow()}
+              </Typography>
+            )}
+          </Box>
+        }
+      />
+    </ListItem>
+  );
+}
+
+function DefaultPullRequestDetails({ pullRequest }: { pullRequest: PullRequest }) {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <PeopleGroup label="Requested Reviewers" users={pullRequest.requestedReviewers} />
+      <PeopleGroup label="Approved by" users={pullRequest.approvedByUser.map((item) => item.user)} />
+      <PeopleGroup label="Requested Changes by" users={pullRequest.requestedChangesByUser.map((item) => item.user)} />
+    </Box>
+  );
+}
+
+function OneOnOnePullRequestSummary({
+  pullRequest,
+  onSelect,
+}: {
+  pullRequest: PullRequest;
+  onSelect?: (pullRequest: PullRequest) => void;
+}) {
+  return (
+    <ListItem
+      sx={{ width: '100%', px: 0 }}
+      secondaryAction={
+        <IconButton
+          edge="end"
+          aria-label="Open pull request"
+          onClick={(event) => {
+            event.stopPropagation();
+            window.open(pullRequest.url, '_blank', 'noopener,noreferrer');
+          }}
+        >
+          <OpenInNewIcon />
+        </IconButton>
+      }
+    >
+      <ListItemAvatar>
+        <Avatar src={pullRequest.author.avatarUrl} />
+      </ListItemAvatar>
+      <ListItemText
+        primary={
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+            <Typography variant="subtitle2">{pullRequest.title}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <Chip label={pullRequest.repositoryName} size="small" variant="outlined" />
+              <Chip
+                label={pullRequest.status}
+                size="small"
+                color={getStatusColor(pullRequest.status)}
+                sx={{ textTransform: 'capitalize' }}
+              />
+              <Chip label={dayjs(pullRequest.createdAt).format('DD MMM YYYY')} size="small" variant="outlined" />
+              <Chip icon={<ScheduleIcon />} label={getPullRequestDurationLabel(pullRequest)} size="small" variant="outlined" />
+              <Chip icon={<FolderIcon />} label={`${pullRequest.changedFilesCount} files`} size="small" variant="outlined" />
+              <Chip
+                icon={<DifferenceIcon />}
+                label={`+${pullRequest.linesAdded} / -${pullRequest.linesRemoved}`}
+                size="small"
+                variant="outlined"
+              />
+              <Chip icon={<ForumIcon />} label={`${pullRequest.discussionCount} threads`} size="small" variant="outlined" />
+              <Chip
+                icon={<ReviewsIcon />}
+                label={`${pullRequest.reviewCommentCount} comments`}
+                size="small"
+                variant="outlined"
+              />
+              {pullRequest.unresolvedDiscussionCount != null && (
+                <Chip
+                  label={`${pullRequest.unresolvedDiscussionCount} unresolved`}
+                  size="small"
+                  variant="outlined"
+                  color={pullRequest.unresolvedDiscussionCount > 0 ? 'warning' : 'success'}
+                />
+              )}
+            </Box>
+          </Box>
+        }
+        secondary={
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+            {pullRequest.branchName} → {pullRequest.targetBranch}
+          </Typography>
+        }
+      />
+    </ListItem>
+  );
+}
+
+function OneOnOnePullRequestDetails({
+  pullRequest,
+  onSelect,
+  extraDetails,
+}: {
+  pullRequest: PullRequest;
+  onSelect?: (pullRequest: PullRequest) => void;
+  extraDetails?: ReactNode;
+}) {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
+        <PeopleGroup label="Reviewers" users={pullRequest.requestedReviewers} emptyText="No reviewers assigned" />
+        <PeopleGroup label="Approvers" users={pullRequest.approvedByUser.map((item) => item.user)} emptyText="No approvals yet" />
+      </Box>
+
+      <Box>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+          Discussion preview
+        </Typography>
+        {pullRequest.discussions.length > 0 ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {pullRequest.discussions
+              .slice()
+              .sort((left, right) => getLastDiscussionTimestamp(right) - getLastDiscussionTimestamp(left))
+              .slice(0, 3)
+              .map((discussion) => (
+                <DiscussionPreview key={discussion.id} discussion={discussion} />
+              ))}
+
+            <Button variant="text" sx={{ alignSelf: 'flex-start' }} onClick={() => onSelect?.(pullRequest)}>
+              View all discussions in side panel
+            </Button>
+          </Box>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No discussion threads were captured for this pull request.
+          </Typography>
+        )}
+      </Box>
+
+      {extraDetails}
+    </Box>
+  );
+}
+
+function DiscussionPreview({ discussion }: { discussion: UserDiscussion }) {
+  const firstComment = discussion.comments[0];
+  const lastComment = discussion.comments[discussion.comments.length - 1];
+
+  return (
+    <Box sx={{ p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', backgroundColor: 'background.default' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+        <Avatar src={discussion.reviewerAvatarUrl} sx={{ width: 28, height: 28 }} />
+        <Typography variant="body2" fontWeight={600}>
+          {discussion.reviewerName}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {discussion.comments.length} comment{discussion.comments.length !== 1 ? 's' : ''}
+        </Typography>
+        {discussion.isResolved != null && (
+          <Chip
+            size="small"
+            label={discussion.isResolved ? 'Resolved' : 'Open'}
+            color={discussion.isResolved ? 'success' : 'warning'}
+            variant="outlined"
+          />
+        )}
+      </Box>
+      <Typography variant="body2" color="text.primary" sx={{ mb: 0.75 }}>
+        {trimText(firstComment?.body ?? '', 180)}
+      </Typography>
+      {lastComment && lastComment.id !== firstComment?.id && (
+        <Typography variant="caption" color="text.secondary">
+          Last update {dayjs(lastComment.createdAt).fromNow()}
+        </Typography>
+      )}
+    </Box>
+  );
+}
+
+function PeopleGroup({
+  label,
+  users,
+  emptyText = 'None',
+}: {
+  label: string;
+  users: User[];
+  emptyText?: string;
+}) {
+  const uniqueUsers = uniqueUsersById(users);
+
+  return (
+    <Box>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+        {label}
+      </Typography>
+      {uniqueUsers.length > 0 ? (
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {uniqueUsers.map((user) => (
+            <Box
+              key={user.id}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.75,
+                py: 0.5,
+                px: 1,
+                borderRadius: 999,
+                backgroundColor: 'action.hover',
+              }}
+            >
+              <Avatar src={user.avatarUrl} sx={{ width: 20, height: 20 }} />
+              <Typography variant="caption">{user.displayName}</Typography>
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        <Typography variant="body2" color="text.secondary">
+          {emptyText}
+        </Typography>
+      )}
+    </Box>
+  );
+}
+
+function uniqueUsersById(users: User[]) {
+  const seenUsers = new Map<string, User>();
+
+  users.forEach((user) => {
+    if (!seenUsers.has(user.id)) {
+      seenUsers.set(user.id, user);
+    }
+  });
+
+  return [...seenUsers.values()];
+}
+
+function getFilesColor(fileCount: number) {
+  if (fileCount <= 5) return 'success' as const;
+  if (fileCount <= 15) return 'warning' as const;
+  return 'error' as const;
+}
+
+function getPullRequestDurationLabel(pullRequest: PullRequest) {
+  const diff = getPullRequestDurationInDays(pullRequest);
+
+  if (pullRequest.status === 'open') {
+    return `Open ${diff} day${diff !== 1 ? 's' : ''}`;
+  }
+
+  return `Was open ${diff} day${diff !== 1 ? 's' : ''}`;
+}
+
+function getPullRequestDurationInDays(pullRequest: PullRequest) {
+  const startDate = dayjs(pullRequest.createdAt);
+  const endDate = pullRequest.mergedAt ? dayjs(pullRequest.mergedAt) : dayjs(pullRequest.updatedAt || new Date());
+  return Math.max(endDate.diff(startDate, 'day'), 0);
+}
+
+function getDiscussionLoad(pullRequest: PullRequest) {
+  return pullRequest.discussionCount + pullRequest.reviewCommentCount;
+}
+
+function getPullRequestSize(pullRequest: PullRequest) {
+  return pullRequest.linesAdded + pullRequest.linesRemoved;
+}
+
+function sortPullRequests(pullRequests: PullRequest[], sortOption: SortOption): PullRequest[] {
+  const { field, direction } = sortOption;
+
+  return [...pullRequests].sort((left, right) => {
+    let leftValue = 0;
+    let rightValue = 0;
+
+    switch (field) {
+      case 'date':
+        leftValue = dayjs(left.createdAt).valueOf();
+        rightValue = dayjs(right.createdAt).valueOf();
+        break;
+      case 'discussionLoad':
+        leftValue = getDiscussionLoad(left);
+        rightValue = getDiscussionLoad(right);
+        break;
+      case 'files':
+        leftValue = left.changedFilesCount;
+        rightValue = right.changedFilesCount;
+        break;
+      case 'duration':
+        leftValue = getPullRequestDurationInDays(left);
+        rightValue = getPullRequestDurationInDays(right);
+        break;
+      case 'size':
+        leftValue = getPullRequestSize(left);
+        rightValue = getPullRequestSize(right);
+        break;
+    }
+
+    if (leftValue < rightValue) return direction === 'asc' ? -1 : 1;
+    if (leftValue > rightValue) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+function getStatusColor(status: PullRequest['status']) {
+  switch (status) {
+    case 'merged':
+      return 'success' as const;
+    case 'closed':
+      return 'default' as const;
+    case 'open':
+      return 'info' as const;
+  }
+}
+
+function trimText(text: string, limit: number) {
+  if (text.length <= limit) {
+    return text;
+  }
+
+  return `${text.substring(0, limit).trim()}...`;
+}
+
+function getLastDiscussionTimestamp(discussion: UserDiscussion) {
+  return discussion.comments.reduce((latest, comment) => {
+    return Math.max(latest, new Date(comment.createdAt).getTime());
+  }, 0);
 }

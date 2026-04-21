@@ -3,3 +3,4 @@ export { CodeReviewChartsPage } from './CodeReviewChartsPage/CodeReviewChartsPag
 export { ErrorPage } from './ErrorPage';
 export { ReadyMergeRequests } from './ReadyMergeRequests';
 export { Login } from './Login';
+export { OneOnOneReviewPage } from './OneOnOnePage/OneOnOneReviewPage';

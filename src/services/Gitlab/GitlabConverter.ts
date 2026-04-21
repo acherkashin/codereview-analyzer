@@ -4,6 +4,7 @@ import { RawData, PullRequest, User, Comment, UserDiscussion, Project, UserPrAct
 import {
   UserSchema,
   ProjectSchema,
+  MergeRequestDiffSchema,
   MergeRequestNoteSchema,
   MergeRequestSchema,
   DiscussionSchema,
@@ -22,6 +23,7 @@ export class GitlabConverter implements GitConverter {
 }
 
 export function convertToPullRequest({
+  projectName,
   mergeRequest: mr,
   notes: comments,
   discussions,
@@ -31,6 +33,10 @@ export function convertToPullRequest({
   // some notes are left by gitlab, so we need to filter them out
   const notSystemComments = comments.filter((item) => !item.system);
   const notSystemDiscussions = discussions.filter((discussion) => discussion.notes?.some((item) => !item.system));
+  const convertedDiscussions = notSystemDiscussions.map((item) => convertToDiscussion(mr, item)).filter((item) => item.comments.length > 0);
+  const reviewCommentCount =
+    notSystemComments.length + convertedDiscussions.reduce((total, discussion) => total + discussion.comments.length, 0);
+  const linesChanged = getDiffStats(changes);
 
   const notAuthorDiscussions = notSystemDiscussions.filter(
     (item) => item.notes != null && item.notes.length > 0 && item.notes[0].author.id !== mr.author.id
@@ -64,9 +70,11 @@ export function convertToPullRequest({
   return {
     id: mr.id.toString(),
     title: mr.title,
+    repositoryName: projectName,
     branchName: mr.source_branch,
     url: mr.web_url,
     targetBranch: mr.target_branch,
+    status: getPullRequestStatus(mr),
     updatedAt: mr.updated_at,
     createdAt: mr.created_at,
     author: convertToUser(mr.author as any),
@@ -77,9 +85,14 @@ export function convertToPullRequest({
     // In Gitlab there is no special state for "Requested Changes"
     requestedChangesByUser: [],
     mergedAt: mr.merged_at || undefined,
-    discussions: notSystemDiscussions.map((item) => convertToDiscussion(mr, item)),
+    discussions: convertedDiscussions,
     readyAt: getReadyTime(mr, comments),
     changedFilesCount: changes?.length ?? 0,
+    linesAdded: linesChanged.linesAdded,
+    linesRemoved: linesChanged.linesRemoved,
+    discussionCount: convertedDiscussions.length,
+    reviewCommentCount,
+    unresolvedDiscussionCount: convertedDiscussions.filter((item) => item.isResolved === false).length,
   };
 }
 
@@ -102,19 +115,71 @@ export function convertToComment(mr: MergeRequestSchema, comment: MergeRequestNo
 }
 
 export function convertToDiscussion(mr: MergeRequestSchema, discussion: DiscussionSchema): UserDiscussion {
+  const notes = (discussion.notes ?? []).filter((item) => !item.system);
+
   return {
     id: discussion.id.toString(),
     pullRequestId: mr.id.toString(),
     pullRequestUrl: mr.web_url,
     prAuthorId: mr.author.id.toString(),
     prAuthorName: mr.author.name as string,
-    reviewerId: (discussion.notes ?? []).length > 0 ? discussion.notes![0].author.id.toString() : 'unknown reviewerId',
-    reviewerName: (discussion.notes ?? []).length > 0 ? discussion.notes![0].author.name : 'unknown reviewerName',
-    reviewerAvatarUrl: discussion.notes![0].author.avatar_url as string,
+    reviewerId: notes.length > 0 ? notes[0].author.id.toString() : 'unknown reviewerId',
+    reviewerName: notes.length > 0 ? notes[0].author.name : 'unknown reviewerName',
+    reviewerAvatarUrl: notes[0]?.author.avatar_url as string,
     pullRequestName: mr.title,
-    url: (discussion.notes ?? []).length > 0 ? getNoteUrl(mr.web_url, discussion.notes![0].id.toString()) : mr.web_url!,
-    comments: discussion.notes?.map((item) => convertToComment(mr, item)) ?? [],
+    url: notes.length > 0 ? getNoteUrl(mr.web_url, notes[0].id.toString()) : mr.web_url!,
+    comments: notes.map((item) => convertToComment(mr, item)),
+    isResolved: typeof discussion.resolved === 'boolean' ? discussion.resolved : undefined,
   };
+}
+
+function getPullRequestStatus(mr: MergeRequestSchema): PullRequest['status'] {
+  if (mr.merged_at) {
+    return 'merged';
+  }
+
+  if (mr.state === 'closed') {
+    return 'closed';
+  }
+
+  return 'open';
+}
+
+function getDiffStats(changes: MergeRequestDiffSchema[] | undefined) {
+  return (changes ?? []).reduce(
+    (total, change) => {
+      const stats = getDiffLineStats(change.diff as string | undefined);
+
+      return {
+        linesAdded: total.linesAdded + stats.linesAdded,
+        linesRemoved: total.linesRemoved + stats.linesRemoved,
+      };
+    },
+    { linesAdded: 0, linesRemoved: 0 }
+  );
+}
+
+function getDiffLineStats(diff?: string) {
+  if (!diff) {
+    return { linesAdded: 0, linesRemoved: 0 };
+  }
+
+  return diff.split('\n').reduce(
+    (total, line) => {
+      if (line.startsWith('+++') || line.startsWith('---')) {
+        return total;
+      }
+
+      if (line.startsWith('+')) {
+        total.linesAdded += 1;
+      } else if (line.startsWith('-')) {
+        total.linesRemoved += 1;
+      }
+
+      return total;
+    },
+    { linesAdded: 0, linesRemoved: 0 }
+  );
 }
 
 function getReadyTime(mr: MergeRequestSchema, notes: MergeRequestNoteSchema[]) {

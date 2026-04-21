@@ -215,6 +215,28 @@ export interface FilterCommentsProps {
   at?: Date;
 }
 
+export interface OneOnOneReviewActivity {
+  reviewedPullRequestsCount: number;
+  discussionsStartedCount: number;
+}
+
+export interface OneOnOneInsights {
+  reviewedPullRequestsCount: number;
+  discussionsStartedCount: number;
+  authoredPullRequestsCount: number;
+  medianOpenDays: number;
+  medianPrSize: number;
+  averageReviewLoad: number;
+  unresolvedDiscussionRate?: number;
+}
+
+export interface OneOnOneReviewedPullRequestActivity {
+  pullRequest: PullRequest;
+  commentsBySelectedReviewer: Comment[];
+  discussionsStartedBySelectedReviewer: UserDiscussion[];
+  reviewActivitiesBySelectedReviewer: PullRequest['reviewedByUser'];
+}
+
 function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {
   const { users, pullRequests } = convert(exportData);
 
@@ -329,8 +351,167 @@ export function getUserDiscussions(state: ChartState) {
   return [];
 }
 
+export const getOneOnOnePullRequests = memoize((state: ChartState) => {
+  if (!state.user) {
+    return [];
+  }
+
+  return getFilteredPullRequests(state).filter((item) => item.author.id === state.user!.id);
+});
+
+export const getOneOnOneReviewActivity = memoize((state: ChartState): OneOnOneReviewActivity => {
+  if (!state.user) {
+    return {
+      reviewedPullRequestsCount: 0,
+      discussionsStartedCount: 0,
+    };
+  }
+
+  const userId = state.user.id;
+  const filteredPullRequests = getFilteredPullRequests(state);
+  const reviewedPullRequestIds = new Set<string>();
+
+  filteredPullRequests.forEach((pullRequest) => {
+    if (pullRequest.comments.some((comment) => comment.reviewerId === userId)) {
+      reviewedPullRequestIds.add(pullRequest.id);
+    }
+
+    if (pullRequest.discussions.some((discussion) => discussion.reviewerId === userId)) {
+      reviewedPullRequestIds.add(pullRequest.id);
+    }
+
+    if (pullRequest.reviewedByUser.some((activity) => activity.user.id === userId)) {
+      reviewedPullRequestIds.add(pullRequest.id);
+    }
+  });
+
+  return {
+    reviewedPullRequestsCount: reviewedPullRequestIds.size,
+    discussionsStartedCount: getDiscussions(state).filter((item) => item.reviewerId === userId).length,
+  };
+});
+
+export const getOneOnOneReviewedPullRequests = memoize((state: ChartState): OneOnOneReviewedPullRequestActivity[] => {
+  if (!state.user) {
+    return [];
+  }
+
+  const userId = state.user.id;
+
+  return getFilteredPullRequests(state)
+    .filter((pullRequest) => pullRequest.author.id !== userId)
+    .map<OneOnOneReviewedPullRequestActivity | null>((pullRequest) => {
+      const commentsBySelectedReviewer = pullRequest.comments.filter((comment) => comment.reviewerId === userId);
+      const discussionsStartedBySelectedReviewer = pullRequest.discussions.filter((discussion) => discussion.reviewerId === userId);
+      const reviewActivitiesBySelectedReviewer = pullRequest.reviewedByUser.filter((activity) => activity.user.id === userId);
+
+      if (
+        commentsBySelectedReviewer.length === 0 &&
+        discussionsStartedBySelectedReviewer.length === 0 &&
+        reviewActivitiesBySelectedReviewer.length === 0
+      ) {
+        return null;
+      }
+
+      return {
+        pullRequest,
+        commentsBySelectedReviewer,
+        discussionsStartedBySelectedReviewer,
+        reviewActivitiesBySelectedReviewer,
+      };
+    })
+    .filter((item): item is OneOnOneReviewedPullRequestActivity => item != null)
+    .sort((left, right) => new Date(right.pullRequest.createdAt).getTime() - new Date(left.pullRequest.createdAt).getTime());
+});
+
+export const getOneOnOneInsights = memoize((state: ChartState): OneOnOneInsights => {
+  const pullRequests = getOneOnOnePullRequests(state);
+  const reviewActivity = getOneOnOneReviewActivity(state);
+  const unresolvedMetricsSupported = pullRequests.length > 0 && pullRequests.every((item) => item.unresolvedDiscussionCount != null);
+
+  const totalDiscussions = pullRequests.reduce((total, item) => total + item.discussionCount, 0);
+  const totalUnresolvedDiscussions = pullRequests.reduce((total, item) => total + (item.unresolvedDiscussionCount ?? 0), 0);
+
+  return {
+    reviewedPullRequestsCount: reviewActivity.reviewedPullRequestsCount,
+    discussionsStartedCount: reviewActivity.discussionsStartedCount,
+    authoredPullRequestsCount: pullRequests.length,
+    medianOpenDays: getMedian(pullRequests.map(getPullRequestOpenDays)),
+    medianPrSize: getMedian(pullRequests.map(getPullRequestSize)),
+    averageReviewLoad: getAverage(pullRequests.map((item) => item.reviewCommentCount + item.discussionCount)),
+    unresolvedDiscussionRate: unresolvedMetricsSupported ? getRoundedPercent(totalUnresolvedDiscussions, totalDiscussions) : undefined,
+  };
+});
+
+export const getOneOnOneHighlights = memoize((state: ChartState) => {
+  const insights = getOneOnOneInsights(state);
+  const highlights: string[] = [];
+
+  if (insights.authoredPullRequestsCount === 0) {
+    return highlights;
+  }
+
+  if (insights.medianPrSize >= 400) {
+    highlights.push('PRs are often larger than expected');
+  } else if (insights.medianPrSize <= 120) {
+    highlights.push('PRs stay small and easier to review');
+  }
+
+  if (insights.medianOpenDays >= 5) {
+    highlights.push('Reviews are happening slowly');
+  } else if (insights.medianOpenDays <= 2) {
+    highlights.push('PRs are moving through review quickly');
+  }
+
+  if ((insights.unresolvedDiscussionRate ?? 0) >= 25) {
+    highlights.push('Many discussions stay unresolved');
+  }
+
+  if (insights.averageReviewLoad >= 6) {
+    highlights.push('Changes are attracting a lot of review discussion');
+  } else if (insights.averageReviewLoad <= 2) {
+    highlights.push('Changes are generally straightforward to review');
+  }
+
+  if (highlights.length === 0) {
+    highlights.push('Recent PR activity looks balanced for a 1:1 review');
+  }
+
+  return highlights.slice(0, 5);
+});
+
+export const getOneOnOneActionItems = memoize((state: ChartState) => {
+  const insights = getOneOnOneInsights(state);
+  const actionItems: string[] = [];
+
+  if (insights.authoredPullRequestsCount === 0) {
+    return actionItems;
+  }
+
+  if (insights.medianPrSize >= 400) {
+    actionItems.push('Try splitting large changes into smaller pull requests');
+  }
+
+  if (insights.medianOpenDays >= 5) {
+    actionItems.push('Agree on a faster review SLA for active pull requests');
+  }
+
+  if ((insights.unresolvedDiscussionRate ?? 0) >= 25) {
+    actionItems.push('Close the loop on open discussion threads before merge');
+  }
+
+  if (insights.averageReviewLoad >= 6) {
+    actionItems.push('Call out recurring review themes and address them earlier in the PR');
+  }
+
+  if (actionItems.length === 0) {
+    actionItems.push('Keep using the current pull request size and review cadence');
+  }
+
+  return actionItems.slice(0, 4);
+});
+
 export const getFilteredPullRequests = memoize((state: ChartState) => {
-  console.log(state);
   if (state.pullRequests == null) {
     return [];
   }
@@ -354,4 +535,44 @@ export function getUser(state: ChartState) {
 
 export function getAllUsers(state: ChartState) {
   return state.users;
+}
+
+function getPullRequestOpenDays(pullRequest: PullRequest) {
+  const endDate = pullRequest.mergedAt ?? pullRequest.updatedAt ?? new Date().toISOString();
+  return Math.max(dayjs(endDate).diff(dayjs(pullRequest.createdAt), 'day'), 0);
+}
+
+function getPullRequestSize(pullRequest: PullRequest) {
+  return pullRequest.linesAdded + pullRequest.linesRemoved;
+}
+
+function getMedian(values: number[]) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+
+  if (sorted.length % 2 === 0) {
+    return Math.round((sorted[middle - 1] + sorted[middle]) / 2);
+  }
+
+  return sorted[middle];
+}
+
+function getAverage(values: number[]) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  return Math.round((values.reduce((total, value) => total + value, 0) / values.length) * 10) / 10;
+}
+
+function getRoundedPercent(value: number, total: number) {
+  if (!total) {
+    return 0;
+  }
+
+  return Math.round((value / total) * 100);
 }
