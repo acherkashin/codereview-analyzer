@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo } from 'react';
-import { Avatar, Box, Chip, Typography } from '@mui/material';
+import { Avatar, Box, Typography } from '@mui/material';
 import {
   Background,
   BaseEdge,
@@ -22,7 +22,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { TeamReviewModel, TeamReviewNode, TeamReviewRelationship } from '../../utils/TeamReviewUtils';
 import { stringToColor } from '../../utils/ColorUtils';
-import { layoutTeamReviewGraph } from './TeamReviewGraphLayout';
+import { TeamReviewLayoutPosition, layoutTeamReviewGraph } from './TeamReviewGraphLayout';
 
 export interface TeamRelationshipGraphProps {
   model: TeamReviewModel;
@@ -43,14 +43,22 @@ interface TeamRelationshipEdgeData extends Record<string, unknown> {
 type TeamMemberFlowNode = Node<TeamMemberNodeData, 'teamMember'>;
 type TeamRelationshipFlowEdge = Edge<TeamRelationshipEdgeData, 'teamRelationship'>;
 
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 78;
+const MIN_GRAPH_HEIGHT = 520;
+const MAX_GRAPH_HEIGHT = 760;
+const GRAPH_HEIGHT_PADDING = 144;
+const HANDLE_OFFSETS = [18, 34, 50, 66, 82];
+const CENTER_HANDLE_SLOT = Math.floor(HANDLE_OFFSETS.length / 2);
+
 export function TeamRelationshipGraph({ model, selectedRelationshipId, onRelationshipSelect }: TeamRelationshipGraphProps) {
   const graphElements = useMemo(() => {
-    const positions = new Map(
-      layoutTeamReviewGraph(
+    const layoutPositions = layoutTeamReviewGraph(
         model.nodes.map((node) => ({ id: node.id })),
         model.relationships.map((relationship) => ({ source: relationship.reviewer.id, target: relationship.author.id }))
-      ).map((position) => [position.id, position])
     );
+    const positions = new Map(layoutPositions.map((position) => [position.id, position]));
+    const handleAssignments = getRelationshipHandleAssignments(model.relationships, positions);
 
     const nodes: TeamMemberFlowNode[] = model.nodes.map((node) => ({
       id: node.id,
@@ -69,12 +77,14 @@ export function TeamRelationshipGraph({ model, selectedRelationshipId, onRelatio
         id: relationship.id,
         source: relationship.reviewer.id,
         target: relationship.author.id,
+        sourceHandle: getHandleId('source', handleAssignments.get(relationship.id)?.sourceSlot ?? CENTER_HANDLE_SLOT),
+        targetHandle: getHandleId('target', handleAssignments.get(relationship.id)?.targetSlot ?? CENTER_HANDLE_SLOT),
         type: 'teamRelationship',
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color,
-          width: 18,
-          height: 18,
+          width: 14,
+          height: 14,
         },
         style: {
           stroke: color,
@@ -88,7 +98,7 @@ export function TeamRelationshipGraph({ model, selectedRelationshipId, onRelatio
       };
     });
 
-    return { nodes, edges };
+    return { nodes, edges, height: getGraphHeight(layoutPositions) };
   }, [model, onRelationshipSelect, selectedRelationshipId]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<TeamMemberFlowNode>(graphElements.nodes);
@@ -100,7 +110,7 @@ export function TeamRelationshipGraph({ model, selectedRelationshipId, onRelatio
   }, [graphElements, setEdges, setNodes]);
 
   return (
-    <Box sx={{ height: 520, width: '100%', overflow: 'hidden', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
+    <Box sx={{ height: graphElements.height, width: '100%', overflow: 'hidden', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
       <ReactFlow<TeamMemberFlowNode, TeamRelationshipFlowEdge>
         nodes={nodes}
         edges={edges}
@@ -124,50 +134,89 @@ export function TeamRelationshipGraph({ model, selectedRelationshipId, onRelatio
 
 const TeamMemberNode = memo(function TeamMemberNode({ data }: NodeProps<TeamMemberFlowNode>) {
   const { node } = data;
+  const countLabel = node.isSelectedTeamMember
+    ? `${node.reviewedPullRequestsCount} reviewed`
+    : `${node.incomingReviewedPullRequestsCount} reviewed by team`;
 
   return (
     <Box
       sx={{
-        width: 260,
-        minHeight: 116,
+        width: NODE_WIDTH,
+        minHeight: NODE_HEIGHT,
         borderRadius: 1,
         border: '1px solid',
-        borderColor: node.isSelectedTeamMember ? 'primary.main' : 'divider',
-        backgroundColor: node.isSelectedTeamMember ? 'background.paper' : '#F8FAFC',
-        boxShadow: node.isSelectedTeamMember ? 2 : 0,
-        px: 2,
-        py: 1.5,
+        borderColor: 'divider',
+        backgroundColor: 'background.paper',
+        px: 1.25,
+        py: 1,
       }}
     >
-      <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
-      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-        <Avatar src={node.user.avatarUrl} alt={node.user.displayName} sx={{ width: 44, height: 44 }} />
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="subtitle2" noWrap>
+      <EdgeHandles type="target" position={Position.Left} />
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Avatar
+          src={node.user.avatarUrl}
+          alt={node.user.displayName}
+          sx={{
+            width: 34,
+            height: 34,
+            filter: node.isSelectedTeamMember ? 'none' : 'grayscale(1) contrast(1.05)',
+          }}
+        />
+        <Box sx={{ minWidth: 0, flex: '1 1 auto' }}>
+          <Typography variant="subtitle2" noWrap sx={{ lineHeight: 1.25 }}>
             {node.user.displayName}
           </Typography>
           <Typography variant="caption" color="text.secondary" noWrap>
             {node.user.userName}
           </Typography>
+          <Box
+            component="span"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              maxWidth: '100%',
+              mt: 0.5,
+              px: 0.75,
+              py: 0.125,
+              borderRadius: 999,
+              border: '1px solid',
+              borderColor: 'divider',
+              backgroundColor: '#F9FAFB',
+              color: 'text.secondary',
+              fontSize: 11,
+              fontWeight: 600,
+              lineHeight: '16px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {countLabel}
+          </Box>
         </Box>
       </Box>
-      <Box sx={{ display: 'flex', gap: 0.75, mt: 1.5, flexWrap: 'wrap' }}>
-        <Chip
-          size="small"
-          label={node.isSelectedTeamMember ? 'Selected' : 'Outside team'}
-          color={node.isSelectedTeamMember ? 'primary' : 'default'}
-          variant={node.isSelectedTeamMember ? 'filled' : 'outlined'}
-        />
-        {node.isSelectedTeamMember ? (
-          <Chip size="small" label={`${node.reviewedPullRequestsCount} reviewed`} variant="outlined" />
-        ) : (
-          <Chip size="small" label={`${node.incomingReviewedPullRequestsCount} reviewed by team`} variant="outlined" />
-        )}
-      </Box>
-      <Handle type="source" position={Position.Right} style={{ opacity: 0 }} />
+      <EdgeHandles type="source" position={Position.Right} />
     </Box>
   );
 });
+
+function EdgeHandles({ type, position }: { type: 'source' | 'target'; position: Position.Left | Position.Right }) {
+  return (
+    <>
+      {HANDLE_OFFSETS.map((offset, index) => (
+        <Handle
+          key={getHandleId(type, index)}
+          id={getHandleId(type, index)}
+          type={type}
+          position={position}
+          style={{
+            opacity: 0,
+            top: `${offset}%`,
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
+    </>
+  );
+}
 
 function TeamRelationshipEdge({
   id,
@@ -249,7 +298,7 @@ function FitViewOnGraphChange({ revision }: { revision: string }) {
 }
 
 function getRelationshipStrokeWidth(reviewedPullRequestsCount: number) {
-  return Math.min(6, Math.max(2, 1.5 + reviewedPullRequestsCount * 0.6));
+  return Math.min(4, Math.max(1.5, 1.2 + reviewedPullRequestsCount * 0.35));
 }
 
 const nodeTypes = {
@@ -263,4 +312,82 @@ const edgeTypes = {
 function getMiniMapNodeColor(node: Node) {
   const data = node.data as TeamMemberNodeData;
   return data.node.isSelectedTeamMember ? '#5048E5' : '#94A3B8';
+}
+
+function getHandleId(type: 'source' | 'target', index: number) {
+  return `${type}-${index}`;
+}
+
+function getRelationshipHandleAssignments(relationships: TeamReviewRelationship[], positions: Map<string, TeamReviewLayoutPosition>) {
+  const assignments = new Map<string, { sourceSlot: number; targetSlot: number }>();
+  const byReviewer = new Map<string, TeamReviewRelationship[]>();
+  const byAuthor = new Map<string, TeamReviewRelationship[]>();
+
+  relationships.forEach((relationship) => {
+    assignments.set(relationship.id, { sourceSlot: CENTER_HANDLE_SLOT, targetSlot: CENTER_HANDLE_SLOT });
+    addRelationshipToMap(byReviewer, relationship.reviewer.id, relationship);
+    addRelationshipToMap(byAuthor, relationship.author.id, relationship);
+  });
+
+  byReviewer.forEach((reviewerRelationships) => {
+    const sortedRelationships = [...reviewerRelationships].sort((left, right) => sortByNodeCenterY(left.author.id, right.author.id, positions));
+
+    sortedRelationships.forEach((relationship, index) => {
+      assignments.get(relationship.id)!.sourceSlot = getHandleSlot(index, sortedRelationships.length);
+    });
+  });
+
+  byAuthor.forEach((authorRelationships) => {
+    const sortedRelationships = [...authorRelationships].sort((left, right) => sortByNodeCenterY(left.reviewer.id, right.reviewer.id, positions));
+
+    sortedRelationships.forEach((relationship, index) => {
+      assignments.get(relationship.id)!.targetSlot = getHandleSlot(index, sortedRelationships.length);
+    });
+  });
+
+  return assignments;
+}
+
+function addRelationshipToMap(map: Map<string, TeamReviewRelationship[]>, key: string, relationship: TeamReviewRelationship) {
+  const relationships = map.get(key) ?? [];
+  relationships.push(relationship);
+  map.set(key, relationships);
+}
+
+function sortByNodeCenterY(leftNodeId: string, rightNodeId: string, positions: Map<string, TeamReviewLayoutPosition>) {
+  return getNodeCenterY(leftNodeId, positions) - getNodeCenterY(rightNodeId, positions) || leftNodeId.localeCompare(rightNodeId);
+}
+
+function getNodeCenterY(nodeId: string, positions: Map<string, TeamReviewLayoutPosition>) {
+  const position = positions.get(nodeId);
+
+  if (!position) {
+    return 0;
+  }
+
+  return position.y + position.height / 2;
+}
+
+function getHandleSlot(index: number, total: number) {
+  if (total <= 1) {
+    return CENTER_HANDLE_SLOT;
+  }
+
+  if (total <= HANDLE_OFFSETS.length) {
+    return Math.round((index * (HANDLE_OFFSETS.length - 1)) / (total - 1));
+  }
+
+  return index % HANDLE_OFFSETS.length;
+}
+
+function getGraphHeight(positions: TeamReviewLayoutPosition[]) {
+  if (positions.length === 0) {
+    return MIN_GRAPH_HEIGHT;
+  }
+
+  const minY = Math.min(...positions.map((position) => position.y));
+  const maxY = Math.max(...positions.map((position) => position.y + position.height));
+  const preferredHeight = maxY - minY + GRAPH_HEIGHT_PADDING;
+
+  return Math.min(MAX_GRAPH_HEIGHT, Math.max(MIN_GRAPH_HEIGHT, preferredHeight));
 }

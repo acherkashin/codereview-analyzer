@@ -17,6 +17,7 @@ export interface TeamReviewLayoutOptions {
   nodeHeight?: number;
   nodeGap?: number;
   rankGap?: number;
+  edgeGap?: number;
 }
 
 export interface TeamReviewLayoutPosition {
@@ -29,10 +30,11 @@ export interface TeamReviewLayoutPosition {
 
 const defaultLayoutOptions: Required<TeamReviewLayoutOptions> = {
   direction: 'LR',
-  nodeWidth: 260,
-  nodeHeight: 116,
-  nodeGap: 48,
-  rankGap: 120,
+  nodeWidth: 220,
+  nodeHeight: 78,
+  nodeGap: 72,
+  rankGap: 180,
+  edgeGap: 36,
 };
 
 export function layoutTeamReviewGraph(
@@ -47,6 +49,7 @@ export function layoutTeamReviewGraph(
     rankdir: resolvedOptions.direction,
     nodesep: resolvedOptions.nodeGap,
     ranksep: resolvedOptions.rankGap,
+    edgesep: resolvedOptions.edgeGap,
     marginx: 24,
     marginy: 24,
   });
