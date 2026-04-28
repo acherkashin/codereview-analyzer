@@ -18,8 +18,9 @@ import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import { useShallow } from 'zustand/react/shallow';
-import { AnalyzeParams, Comment, PullRequest, UserDiscussion } from '../../services/types';
+import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from '../../services/types';
 import { FilterPanel } from '../../components/FilterPanel/FilterPanel';
 import { ImportTextButton, PullRequestList } from '../../components';
 import { MarkdownControl } from '../../components/MarkdownControl';
@@ -27,17 +28,20 @@ import { PageContainer } from '../shared/PageContainer';
 import { useClient } from '../../stores/AuthStore';
 import {
   getAnalyze,
-  getHostType,
   getOneOnOneActionItems,
   getOneOnOneHighlights,
   getOneOnOneInsights,
   getOneOnOnePullRequests,
+  getOneOnOneReviewedBy,
   getOneOnOneReviewedPullRequests,
+  getOneOnOneReviewsFor,
+  OneOnOnePersonRelationshipRow,
   OneOnOneReviewedPullRequestActivity,
   useChartsStore,
 } from '../../stores/ChartsStore';
 import { useIsGuest } from '../../hooks/useIsGuest';
 import { OneOnOneFilterPanel } from './OneOnOneFilterPanel';
+import { getPullRequestSize } from '../../utils/PullRequestMetrics';
 
 export function OneOnOneReviewPage() {
   const client = useClient();
@@ -53,10 +57,11 @@ export function OneOnOneReviewPage() {
   );
   const pullRequests = useChartsStore(getOneOnOnePullRequests);
   const reviewedPullRequests = useChartsStore(getOneOnOneReviewedPullRequests);
+  const reviewedBy = useChartsStore(getOneOnOneReviewedBy);
+  const reviewsFor = useChartsStore(getOneOnOneReviewsFor);
   const insights = useChartsStore(getOneOnOneInsights);
   const highlights = useChartsStore(getOneOnOneHighlights);
   const actionItems = useChartsStore(getOneOnOneActionItems);
-  const hostType = useChartsStore(getHostType);
   const importData = useChartsStore((state) => state.actions.import);
 
   const [selectedPullRequest, setSelectedPullRequest] = useState<PullRequest | null>(null);
@@ -97,8 +102,8 @@ export function OneOnOneReviewPage() {
 
     return [
       { label: 'Files touched', value: `${selectedPullRequest.changedFilesCount}` },
-      { label: 'Total change size', value: `${selectedPullRequest.linesAdded + selectedPullRequest.linesRemoved} lines` },
-      { label: 'Reviewers involved', value: `${selectedPullRequest.requestedReviewers.length}` },
+      { label: 'Total change size', value: `${getPullRequestSize(selectedPullRequest)} lines` },
+      { label: 'Reviewers involved', value: `${getActualReviewers(selectedPullRequest).length}` },
       {
         label: 'Most active thread',
         value: mostActiveDiscussion ? `${mostActiveDiscussion.comments.length} comments by ${mostActiveDiscussion.reviewerName}` : 'No active thread',
@@ -137,14 +142,14 @@ export function OneOnOneReviewPage() {
               1:1 Review
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Review authored pull requests, conversation patterns, and next steps for your upcoming 1:1.
+              Review authored pull requests, collaboration coverage, and conversation patterns for your upcoming 1:1.
             </Typography>
           </Box>
 
           {!user ? (
             <EmptyStateCard
               title="Select a team member"
-              description="Choose a team member above to load authored pull requests, highlights, and action items for the selected period."
+              description="Choose a team member above to load authored pull requests, review relationships, highlights, and action items for the selected period."
             />
           ) : (
             <>
@@ -156,9 +161,11 @@ export function OneOnOneReviewPage() {
                   alignItems: 'start',
                 }}
               >
-                <InsightsSection insights={insights} showUnresolvedMetric={hostType === 'Gitlab' && insights.unresolvedDiscussionRate != null} />
+                <InsightsSection insights={insights} />
                 <HighlightsSection highlights={highlights} />
               </Box>
+
+              <CollaborationSection userName={user.displayName} reviewedBy={reviewedBy} reviewsFor={reviewsFor} />
 
               <Box
                 sx={{
@@ -215,33 +222,25 @@ export function OneOnOneReviewPage() {
   );
 }
 
-function InsightsSection({
-  insights,
-  showUnresolvedMetric,
-}: {
-  insights: ReturnType<typeof getOneOnOneInsights>;
-  showUnresolvedMetric: boolean;
-}) {
+function InsightsSection({ insights }: { insights: ReturnType<typeof getOneOnOneInsights> }) {
   const insightCards = [
-    { label: 'PRs reviewed', value: insights.reviewedPullRequestsCount },
-    { label: 'Discussions started', value: insights.discussionsStartedCount },
     { label: 'PRs authored', value: insights.authoredPullRequestsCount },
-    { label: 'Median open time', value: `${insights.medianOpenDays}d` },
+    { label: 'PRs reviewed', value: insights.reviewedPullRequestsCount },
+    { label: 'Unique reviewers', value: insights.uniqueReviewersCount },
+    { label: 'Unique authors reviewed', value: insights.uniqueReviewedAuthorsCount },
     { label: 'Median PR size', value: `${insights.medianPrSize} lines` },
-    { label: 'Avg review conversations per authored PR', value: insights.averageReviewLoad.toFixed(1) },
+    { label: 'Average PR size', value: `${insights.averagePrSize} lines` },
+    { label: 'Large PRs', value: insights.largePullRequestsCount },
+    { label: 'Median open time', value: `${insights.medianOpenDays}d` },
+    { label: 'Average open time', value: `${insights.averageOpenDays}d` },
+    { label: 'Discussions started', value: insights.discussionsStartedCount },
   ];
-
-  if (showUnresolvedMetric) {
-    insightCards.push({ label: 'Unresolved rate', value: `${insights.unresolvedDiscussionRate}%` });
-  }
 
   return (
     <Box>
-      <Typography variant="h6">
-        Insights
-      </Typography>
+      <Typography variant="h6">Insights</Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-        Review conversations = discussion threads + review comments across this person&apos;s authored pull requests in the selected period.
+        Snapshot of authored work, review reach, and pull request cadence for the selected period.
       </Typography>
       <Box
         sx={{
@@ -261,6 +260,90 @@ function InsightsSection({
           </InsightCard>
         ))}
       </Box>
+    </Box>
+  );
+}
+
+function CollaborationSection({
+  userName,
+  reviewedBy,
+  reviewsFor,
+}: {
+  userName: string;
+  reviewedBy: OneOnOnePersonRelationshipRow[];
+  reviewsFor: OneOnOnePersonRelationshipRow[];
+}) {
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <Stack spacing={2}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <GroupOutlinedIcon color="primary" />
+            <Typography variant="h6">Review relationships</Typography>
+          </Box>
+
+          <Typography variant="body2" color="text.secondary">
+            See who is actively reviewing {userName}&apos;s work and whose pull requests {userName} reviewed in this period.
+          </Typography>
+
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 2,
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
+            }}
+          >
+            <RelationshipList
+              title="Reviewed by"
+              rows={reviewedBy}
+              emptyText="No teammates left captured review activity on this person's authored pull requests in the selected period."
+            />
+            <RelationshipList
+              title="Reviews for"
+              rows={reviewsFor}
+              emptyText="This person did not leave captured review activity on teammates' pull requests in the selected period."
+            />
+          </Box>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
+function RelationshipList({
+  title,
+  rows,
+  emptyText,
+}: {
+  title: string;
+  rows: OneOnOnePersonRelationshipRow[];
+  emptyText: string;
+}) {
+  return (
+    <Box sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', p: 2 }}>
+      <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
+        {title}
+      </Typography>
+
+      {rows.length > 0 ? (
+        <List dense disablePadding>
+          {rows.map((row) => (
+            <ListItem key={row.user.id} disableGutters sx={{ py: 0.75 }}>
+              <ListItemAvatar>
+                <Avatar src={row.user.avatarUrl} />
+              </ListItemAvatar>
+              <ListItemText
+                primary={row.user.displayName}
+                secondary={`${row.pullRequestCount} PR${row.pullRequestCount === 1 ? '' : 's'} reviewed`}
+              />
+            </ListItem>
+          ))}
+        </List>
+      ) : (
+        <Typography variant="body2" color="text.secondary">
+          {emptyText}
+        </Typography>
+      )}
     </Box>
   );
 }
@@ -528,7 +611,7 @@ function DiscussionThreadCard({ discussion }: { discussion: UserDiscussion }) {
             <Typography variant="caption" color="text.secondary">
               {comment.reviewerName} • {dayjs(comment.createdAt).format('DD MMM YYYY')}
             </Typography>
-            <Typography variant="body2">{comment.body}</Typography>
+            <MarkdownControl markdown={comment.body} />
           </Box>
         ))}
       </Stack>
@@ -597,6 +680,42 @@ function getLatestDiscussionDate(discussion: UserDiscussion) {
   return discussion.comments.reduce((latest, comment) => {
     return Math.max(latest, new Date(comment.createdAt).getTime());
   }, 0);
+}
+
+function getActualReviewers(pullRequest: PullRequest) {
+  const reviewers = new Map<string, User>();
+
+  pullRequest.reviewedByUser.forEach((activity) => {
+    reviewers.set(activity.user.id, activity.user);
+  });
+
+  pullRequest.comments.forEach((comment) => {
+    reviewers.set(comment.reviewerId, {
+      id: comment.reviewerId,
+      fullName: comment.reviewerName,
+      userName: comment.reviewerName,
+      displayName: comment.reviewerName,
+      avatarUrl: comment.reviewerAvatarUrl ?? '',
+      webUrl: '',
+      active: true,
+    });
+  });
+
+  pullRequest.discussions.forEach((discussion) => {
+    reviewers.set(discussion.reviewerId, {
+      id: discussion.reviewerId,
+      fullName: discussion.reviewerName,
+      userName: discussion.reviewerName,
+      displayName: discussion.reviewerName,
+      avatarUrl: discussion.reviewerAvatarUrl ?? '',
+      webUrl: '',
+      active: true,
+    });
+  });
+
+  reviewers.delete(pullRequest.author.id);
+
+  return [...reviewers.values()];
 }
 
 const InsightCard = styled(Card)(({ theme }) => ({

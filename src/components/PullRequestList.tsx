@@ -32,6 +32,13 @@ import {
   Typography,
 } from '@mui/material';
 import { PullRequest, User, UserDiscussion } from '../services/types';
+import {
+  PullRequestSizeTier,
+  getPullRequestOpenDays,
+  getPullRequestSize,
+  getPullRequestSizeTier,
+  getPullRequestSizeTierLabel,
+} from '../utils/PullRequestMetrics';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
@@ -247,6 +254,8 @@ function OneOnOnePullRequestSummary({
   pullRequest: PullRequest;
   onSelect?: (pullRequest: PullRequest) => void;
 }) {
+  const sizeTier = getPullRequestSizeTier(pullRequest);
+
   return (
     <ListItem
       sx={{ width: '100%', px: 0 }}
@@ -281,6 +290,7 @@ function OneOnOnePullRequestSummary({
               <Chip label={dayjs(pullRequest.createdAt).format('DD MMM YYYY')} size="small" variant="outlined" />
               <Chip icon={<ScheduleIcon />} label={getPullRequestDurationLabel(pullRequest)} size="small" variant="outlined" />
               <Chip icon={<FolderIcon />} label={`${pullRequest.changedFilesCount} files`} size="small" variant="outlined" />
+              <Chip label={getPullRequestSizeTierLabel(sizeTier)} size="small" color={getSizeTierColor(sizeTier)} />
               <Chip
                 icon={<DifferenceIcon />}
                 label={`+${pullRequest.linesAdded} / -${pullRequest.linesRemoved}`}
@@ -294,14 +304,6 @@ function OneOnOnePullRequestSummary({
                 size="small"
                 variant="outlined"
               />
-              {pullRequest.unresolvedDiscussionCount != null && (
-                <Chip
-                  label={`${pullRequest.unresolvedDiscussionCount} unresolved`}
-                  size="small"
-                  variant="outlined"
-                  color={pullRequest.unresolvedDiscussionCount > 0 ? 'warning' : 'success'}
-                />
-              )}
             </Box>
           </Box>
         }
@@ -460,7 +462,7 @@ function getFilesColor(fileCount: number) {
 }
 
 function getPullRequestDurationLabel(pullRequest: PullRequest) {
-  const diff = getPullRequestDurationInDays(pullRequest);
+  const diff = getPullRequestOpenDays(pullRequest);
 
   if (pullRequest.status === 'open') {
     return `Open ${diff} day${diff !== 1 ? 's' : ''}`;
@@ -469,18 +471,8 @@ function getPullRequestDurationLabel(pullRequest: PullRequest) {
   return `Was open ${diff} day${diff !== 1 ? 's' : ''}`;
 }
 
-function getPullRequestDurationInDays(pullRequest: PullRequest) {
-  const startDate = dayjs(pullRequest.createdAt);
-  const endDate = pullRequest.mergedAt ? dayjs(pullRequest.mergedAt) : dayjs(pullRequest.updatedAt || new Date());
-  return Math.max(endDate.diff(startDate, 'day'), 0);
-}
-
 function getDiscussionLoad(pullRequest: PullRequest) {
   return pullRequest.discussionCount + pullRequest.reviewCommentCount;
-}
-
-function getPullRequestSize(pullRequest: PullRequest) {
-  return pullRequest.linesAdded + pullRequest.linesRemoved;
 }
 
 function sortPullRequests(pullRequests: PullRequest[], sortOption: SortOption): PullRequest[] {
@@ -504,8 +496,8 @@ function sortPullRequests(pullRequests: PullRequest[], sortOption: SortOption): 
         rightValue = right.changedFilesCount;
         break;
       case 'duration':
-        leftValue = getPullRequestDurationInDays(left);
-        rightValue = getPullRequestDurationInDays(right);
+        leftValue = getPullRequestOpenDays(left);
+        rightValue = getPullRequestOpenDays(right);
         break;
       case 'size':
         leftValue = getPullRequestSize(left);
@@ -527,6 +519,19 @@ function getStatusColor(status: PullRequest['status']) {
       return 'default' as const;
     case 'open':
       return 'info' as const;
+  }
+}
+
+function getSizeTierColor(sizeTier: PullRequestSizeTier) {
+  switch (sizeTier) {
+    case 'compact':
+      return 'success' as const;
+    case 'medium':
+      return 'default' as const;
+    case 'large':
+      return 'warning' as const;
+    case 'veryLarge':
+      return 'error' as const;
   }
 }
 
