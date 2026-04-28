@@ -39,6 +39,7 @@ Existing review data is often spread across individual pull requests and broad c
 - See authored pull requests created by selected team members
 - Understand how many compact, medium, large, and very large pull requests the selected team created
 - Compare how much each selected team member contributes to approvals and started discussions
+- Hide outside contributors when the manager wants to focus only on review activity inside the selected team
 
 ## Feature Description
 
@@ -56,6 +57,8 @@ The feature should show:
 
 When selected team members review someone outside the selected group, that outside person should appear so the manager can see where team review effort went. However, the feature should only show the selected team member’s activity toward that outside person. It should not show the outside person’s review activity back toward the selected team unless that person is also selected as part of the team.
 
+The feature should also allow the manager to hide outside contributors from the Team Review view. Outside contributors should be shown by default. When outside contributors are hidden, the graph, relationship details, summary metrics, and approval/discussion distribution should include only relationships where both the reviewer and pull request author are selected team members. Authored pull requests created by selected team members should remain visible.
+
 ## Functional Requirements
 
 - The feature must allow a manager to select multiple team members.
@@ -64,6 +67,8 @@ When selected team members review someone outside the selected group, that outsi
 - The graph must make relationship direction clear from reviewer to pull request author.
 - The graph must show selected team members distinctly from outside contributors.
 - The feature must show outside contributors only when selected team members reviewed their pull requests.
+- The feature must allow outside contributors to be hidden from the Team Review view.
+- When outside contributors are hidden, relationship-derived metrics must exclude selected-team review activity on outside contributors’ pull requests.
 - The feature must avoid showing outside contributor review activity back toward selected team members unless the outside contributor is selected.
 - Each relationship must show how many pull requests were reviewed in the selected period.
 - Each relationship must provide supporting metrics for approvals, discussions started, and comments left.

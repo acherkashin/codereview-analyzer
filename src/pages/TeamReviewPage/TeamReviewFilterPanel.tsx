@@ -12,7 +12,9 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  FormControlLabel,
   Stack,
+  Switch,
   TextField,
   Tooltip,
   createFilterOptions,
@@ -29,16 +31,29 @@ export function TeamReviewFilterPanel() {
   const minDate = useChartsStore((state) => dayjs(getStartDate(state.pullRequests ?? [])));
   const maxDate = useChartsStore((state) => dayjs(getEndDate(state.pullRequests ?? [])));
 
-  const { teamUsers, users, startDate, endDate, setStartDate, setEndDate, closeAnalysis, setTeamUsers } = useChartsStore(
+  const {
+    teamUsers,
+    users,
+    showOutsideTeamMembers,
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+    closeAnalysis,
+    setTeamUsers,
+    setShowOutsideTeamMembers,
+  } = useChartsStore(
     useShallow((state) => ({
       teamUsers: state.teamUsers,
       users: state.users ?? [],
+      showOutsideTeamMembers: state.showOutsideTeamMembers,
       startDate: state.startDate,
       endDate: state.endDate,
       setStartDate: state.actions.setStartDate,
       setEndDate: state.actions.setEndDate,
       closeAnalysis: state.actions.closeAnalysis,
       setTeamUsers: state.actions.setTeamUsers,
+      setShowOutsideTeamMembers: state.actions.setShowOutsideTeamMembers,
     }))
   );
 
@@ -96,6 +111,18 @@ export function TeamReviewFilterPanel() {
         renderOption={(props, user, { selected }) => <UserListItem key={user.id} user={user} selected={selected} {...props} />}
         renderInput={(params) => <TextField {...params} label="Team members" placeholder="Select members" />}
         sx={{ minWidth: { xs: '100%', sm: 420 }, flexGrow: 1 }}
+      />
+
+      <FormControlLabel
+        control={
+          <Switch
+            checked={showOutsideTeamMembers}
+            onChange={(_, checked) => setShowOutsideTeamMembers(checked)}
+            inputProps={{ 'aria-label': 'Show outside team' }}
+          />
+        }
+        label="Show outside team"
+        sx={{ ml: { xs: 0, sm: 1 }, whiteSpace: 'nowrap' }}
       />
 
       <Tooltip title="Close Analysis">

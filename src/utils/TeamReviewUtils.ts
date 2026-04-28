@@ -47,6 +47,10 @@ export interface TeamReviewModel {
   discussionShare: TeamReviewPieDatum[];
 }
 
+export interface TeamReviewModelOptions {
+  includeOutsideTeamMembers?: boolean;
+}
+
 interface MutableRelationship {
   reviewer: User;
   author: User;
@@ -72,7 +76,12 @@ const emptySizeTierCounts: Record<PullRequestSizeTier, number> = {
   veryLarge: 0,
 };
 
-export function buildTeamReviewModel(pullRequests: PullRequest[], selectedTeamMembers: User[]): TeamReviewModel {
+export function buildTeamReviewModel(
+  pullRequests: PullRequest[],
+  selectedTeamMembers: User[],
+  options: TeamReviewModelOptions = {}
+): TeamReviewModel {
+  const includeOutsideTeamMembers = options.includeOutsideTeamMembers ?? true;
   const selectedTeamMembersById = new Map(uniqueUsersById(selectedTeamMembers).map((user) => [user.id, user]));
   const selectedTeamMemberIds = new Set(selectedTeamMembersById.keys());
   const nodeStats = new Map<string, MutableNodeStats>();
@@ -90,6 +99,12 @@ export function buildTeamReviewModel(pullRequests: PullRequest[], selectedTeamMe
   });
 
   pullRequests.forEach((pullRequest) => {
+    const isAuthorSelectedTeamMember = selectedTeamMemberIds.has(pullRequest.author.id);
+
+    if (!includeOutsideTeamMembers && !isAuthorSelectedTeamMember) {
+      return;
+    }
+
     selectedTeamMembersById.forEach((reviewer) => {
       if (pullRequest.author.id === reviewer.id) {
         return;
@@ -103,8 +118,7 @@ export function buildTeamReviewModel(pullRequests: PullRequest[], selectedTeamMe
 
       const key = getRelationshipId(reviewer.id, pullRequest.author.id);
       const relationship =
-        relationships.get(key) ??
-        createRelationship(reviewer, pullRequest.author, selectedTeamMemberIds.has(pullRequest.author.id));
+        relationships.get(key) ?? createRelationship(reviewer, pullRequest.author, isAuthorSelectedTeamMember);
 
       relationship.pullRequestsById.set(pullRequest.id, pullRequest);
 
@@ -117,9 +131,7 @@ export function buildTeamReviewModel(pullRequests: PullRequest[], selectedTeamMe
       relationships.set(key, relationship);
 
       getOrCreateNodeStats(nodeStats, reviewer, true).reviewedPullRequestIds.add(pullRequest.id);
-      getOrCreateNodeStats(nodeStats, pullRequest.author, selectedTeamMemberIds.has(pullRequest.author.id)).incomingReviewedPullRequestIds.add(
-        pullRequest.id
-      );
+      getOrCreateNodeStats(nodeStats, pullRequest.author, isAuthorSelectedTeamMember).incomingReviewedPullRequestIds.add(pullRequest.id);
     });
   });
 

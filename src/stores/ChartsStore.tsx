@@ -24,6 +24,7 @@ const initialState = {
   // filtering options
   user: undefined as User | undefined,
   teamUsers: [] as User[],
+  showOutsideTeamMembers: true,
   startDate: null as Dayjs | null,
   endDate: null as Dayjs | null,
 
@@ -103,6 +104,9 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
     setTeamUsers(teamUsers: User[]) {
       const teamUsersById = new Map(teamUsers.map((teamUser) => [teamUser.id, teamUser]));
       set({ ...get(), teamUsers: [...teamUsersById.values()] }, false, 'filter by team users');
+    },
+    setShowOutsideTeamMembers(showOutsideTeamMembers: boolean) {
+      set({ ...get(), showOutsideTeamMembers }, false, 'toggle outside team members');
     },
     setStartDate(start: Dayjs | null) {
       set({ ...get(), startDate: start }, false, 'change start date');
@@ -605,7 +609,9 @@ export const getOneOnOneActionItems = memoize((state: ChartState) => {
 });
 
 export const getTeamReviewModel = memoize((state: ChartState): TeamReviewModel => {
-  return buildTeamReviewModel(getFilteredPullRequests(state), state.teamUsers);
+  return buildTeamReviewModel(getFilteredPullRequests(state), state.teamUsers, {
+    includeOutsideTeamMembers: state.showOutsideTeamMembers,
+  });
 });
 
 export const getTeamReviewSelectedUsers = memoize((state: ChartState) => {

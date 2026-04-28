@@ -97,6 +97,7 @@ function createState(pullRequests: PullRequest[]) {
     exportData: { hostType: 'Gitlab' },
     user: alice,
     teamUsers: [],
+    showOutsideTeamMembers: true,
     startDate: dayjs('2026-04-01'),
     endDate: dayjs('2026-04-30'),
     dialogTitle: '',
@@ -405,6 +406,46 @@ describe('team review selectors', () => {
     ]);
     expect(model.discussionShare).toEqual([
       expect.objectContaining({ userId: alice.id, value: 1 }),
+      expect.objectContaining({ userId: bob.id, value: 0 }),
+    ]);
+
+    const internalOnlyModel = getTeamReviewModel({
+      ...state,
+      showOutsideTeamMembers: false,
+    });
+
+    expect(internalOnlyModel.nodes.map((node) => ({ id: node.id, selected: node.isSelectedTeamMember }))).toEqual([
+      { id: alice.id, selected: true },
+      { id: bob.id, selected: true },
+    ]);
+    expect(internalOnlyModel.relationships.map((relationship) => relationship.id)).toEqual([
+      `${alice.id}->${bob.id}`,
+      `${bob.id}->${alice.id}`,
+    ]);
+    expect(getTeamReviewAuthoredPullRequests({ ...state, showOutsideTeamMembers: false }).map((pullRequest) => pullRequest.id)).toEqual([
+      'alice-pr',
+      'bob-pr',
+    ]);
+    expect(internalOnlyModel.summary).toMatchObject({
+      teamMembersCount: 2,
+      authoredPullRequestsCount: 2,
+      reviewedPullRequestsCount: 2,
+      approvalsCount: 1,
+      discussionsStartedCount: 0,
+      commentsCount: 1,
+      sizeTierCounts: {
+        compact: 1,
+        medium: 0,
+        large: 1,
+        veryLarge: 0,
+      },
+    });
+    expect(internalOnlyModel.approvalShare).toEqual([
+      expect.objectContaining({ userId: bob.id, value: 1 }),
+      expect.objectContaining({ userId: alice.id, value: 0 }),
+    ]);
+    expect(internalOnlyModel.discussionShare).toEqual([
+      expect.objectContaining({ userId: alice.id, value: 0 }),
       expect.objectContaining({ userId: bob.id, value: 0 }),
     ]);
   });
