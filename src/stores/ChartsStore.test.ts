@@ -5,8 +5,10 @@ import {
   getOneOnOneInsights,
   getOneOnOneReviewedBy,
   getOneOnOneReviewsFor,
+  getTeamReviewAuthoredPullRequests,
+  getTeamReviewModel,
 } from './ChartsStore';
-import { PullRequest, User } from '../services/types';
+import { Comment, PullRequest, User, UserDiscussion } from '../services/types';
 
 const alice: User = {
   id: 'alice',
@@ -94,6 +96,7 @@ function createState(pullRequests: PullRequest[]) {
     users: [alice, bob, carol, dave, erin],
     exportData: { hostType: 'Gitlab' },
     user: alice,
+    teamUsers: [],
     startDate: dayjs('2026-04-01'),
     endDate: dayjs('2026-04-30'),
     dialogTitle: '',
@@ -282,3 +285,184 @@ describe('1:1 selectors', () => {
     ]);
   });
 });
+
+describe('team review selectors', () => {
+  it('builds selected-reviewer relationships and hides outsider-to-team edges', () => {
+    const duplicateComment = createComment({
+      id: 'alice-comment-1',
+      reviewer: alice,
+      author: carol,
+      pullRequestId: 'outsider-pr',
+    });
+    const secondDiscussionComment = createComment({
+      id: 'alice-comment-2',
+      reviewer: alice,
+      author: carol,
+      pullRequestId: 'outsider-pr',
+    });
+    const outsiderPullRequest = createPullRequest({
+      id: 'outsider-pr',
+      author: carol,
+      createdAt: '2026-04-02T00:00:00.000Z',
+      comments: [duplicateComment],
+      discussions: [
+        createDiscussion({
+          id: 'discussion-1',
+          reviewer: alice,
+          author: carol,
+          pullRequestId: 'outsider-pr',
+          comments: [duplicateComment, secondDiscussionComment],
+        }),
+      ],
+      reviewedByUser: [{ user: alice, at: '2026-04-03T00:00:00.000Z', activityType: 'comment' }],
+      approvedByUser: [{ user: alice, at: '2026-04-03T00:00:00.000Z', activityType: 'approved' }],
+      discussionCount: 1,
+      reviewCommentCount: 2,
+      linesAdded: 30,
+      linesRemoved: 10,
+    });
+
+    const bobPullRequest = createPullRequest({
+      id: 'bob-pr',
+      author: bob,
+      createdAt: '2026-04-04T00:00:00.000Z',
+      comments: [
+        createComment({
+          id: 'alice-comment-3',
+          reviewer: alice,
+          author: bob,
+          pullRequestId: 'bob-pr',
+        }),
+      ],
+      reviewedByUser: [{ user: alice, at: '2026-04-05T00:00:00.000Z', activityType: 'comment' }],
+      linesAdded: 430,
+      linesRemoved: 20,
+    });
+
+    const alicePullRequest = createPullRequest({
+      id: 'alice-pr',
+      author: alice,
+      createdAt: '2026-04-06T00:00:00.000Z',
+      reviewedByUser: [
+        { user: bob, at: '2026-04-07T00:00:00.000Z', activityType: 'approved' },
+        { user: carol, at: '2026-04-07T00:00:00.000Z', activityType: 'approved' },
+      ],
+      approvedByUser: [
+        { user: bob, at: '2026-04-07T00:00:00.000Z', activityType: 'approved' },
+        { user: carol, at: '2026-04-07T00:00:00.000Z', activityType: 'approved' },
+      ],
+      linesAdded: 80,
+      linesRemoved: 20,
+    });
+
+    const state = {
+      ...createState([outsiderPullRequest, bobPullRequest, alicePullRequest]),
+      teamUsers: [alice, bob],
+    };
+
+    const model = getTeamReviewModel(state);
+
+    expect(model.nodes.map((node) => ({ id: node.id, selected: node.isSelectedTeamMember }))).toEqual([
+      { id: alice.id, selected: true },
+      { id: bob.id, selected: true },
+      { id: carol.id, selected: false },
+    ]);
+
+    expect(model.relationships.map((relationship) => relationship.id)).toEqual([
+      `${alice.id}->${carol.id}`,
+      `${alice.id}->${bob.id}`,
+      `${bob.id}->${alice.id}`,
+    ]);
+    expect(model.relationships.some((relationship) => relationship.id === `${carol.id}->${alice.id}`)).toBe(false);
+
+    const aliceToCarol = model.relationships.find((relationship) => relationship.id === `${alice.id}->${carol.id}`)!;
+    expect(aliceToCarol).toMatchObject({
+      reviewedPullRequestsCount: 1,
+      approvalsCount: 1,
+      discussionsStartedCount: 1,
+      commentsCount: 2,
+      isAuthorSelectedTeamMember: false,
+    });
+
+    expect(getTeamReviewAuthoredPullRequests(state).map((pullRequest) => pullRequest.id)).toEqual(['alice-pr', 'bob-pr']);
+    expect(model.summary).toMatchObject({
+      teamMembersCount: 2,
+      authoredPullRequestsCount: 2,
+      reviewedPullRequestsCount: 3,
+      approvalsCount: 2,
+      discussionsStartedCount: 1,
+      commentsCount: 3,
+      sizeTierCounts: {
+        compact: 1,
+        medium: 0,
+        large: 1,
+        veryLarge: 0,
+      },
+    });
+    expect(model.approvalShare).toEqual([
+      expect.objectContaining({ userId: alice.id, value: 1 }),
+      expect.objectContaining({ userId: bob.id, value: 1 }),
+    ]);
+    expect(model.discussionShare).toEqual([
+      expect.objectContaining({ userId: alice.id, value: 1 }),
+      expect.objectContaining({ userId: bob.id, value: 0 }),
+    ]);
+  });
+});
+
+function createComment({
+  id,
+  reviewer,
+  author,
+  pullRequestId,
+}: {
+  id: string;
+  reviewer: User;
+  author: User;
+  pullRequestId: string;
+}): Comment {
+  return {
+    id,
+    reviewerId: reviewer.id,
+    reviewerName: reviewer.displayName,
+    reviewerAvatarUrl: reviewer.avatarUrl,
+    prAuthorId: author.id,
+    prAuthorName: author.displayName,
+    prAuthorAvatarUrl: author.avatarUrl,
+    body: 'Review note',
+    pullRequestId,
+    pullRequestName: pullRequestId,
+    url: `https://example.com/${id}`,
+    filePath: 'src/example.ts',
+    createdAt: '2026-04-03T00:00:00.000Z',
+  };
+}
+
+function createDiscussion({
+  id,
+  reviewer,
+  author,
+  pullRequestId,
+  comments,
+}: {
+  id: string;
+  reviewer: User;
+  author: User;
+  pullRequestId: string;
+  comments: Comment[];
+}): UserDiscussion {
+  return {
+    id,
+    reviewerId: reviewer.id,
+    reviewerName: reviewer.displayName,
+    reviewerAvatarUrl: reviewer.avatarUrl,
+    prAuthorId: author.id,
+    prAuthorName: author.displayName,
+    pullRequestId,
+    pullRequestName: pullRequestId,
+    pullRequestUrl: `https://example.com/${pullRequestId}`,
+    url: `https://example.com/${id}`,
+    comments,
+    isResolved: true,
+  };
+}

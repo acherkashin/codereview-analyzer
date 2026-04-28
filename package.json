@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "http://acherkashin.github.io/codereview-analyzer",
   "dependencies": {
+    "@dagrejs/dagre": "^3.0.0",
     "@emotion/react": "^11.7.0",
     "@emotion/styled": "^11.6.0",
     "@gitbeaker/rest": "40.0.1",
@@ -26,6 +27,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
+    "@xyflow/react": "^12.10.2",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.10",
     "gitea-js": "^1.20.1",

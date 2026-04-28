@@ -4,3 +4,4 @@ export { ErrorPage } from './ErrorPage';
 export { ReadyMergeRequests } from './ReadyMergeRequests';
 export { Login } from './Login';
 export { OneOnOneReviewPage } from './OneOnOnePage/OneOnOneReviewPage';
+export { TeamReviewPage } from './TeamReviewPage/TeamReviewPage';

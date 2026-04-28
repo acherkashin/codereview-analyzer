@@ -12,6 +12,7 @@ import { NamedSet } from 'zustand/middleware/devtools';
 import { useStore } from 'zustand';
 import { memoize } from 'proxy-memoize';
 import { getPullRequestOpenDays, getPullRequestSize, isLargePullRequest } from '../utils/PullRequestMetrics';
+import { TeamReviewModel, buildTeamReviewModel } from '../utils/TeamReviewUtils';
 
 const initialState = {
   isAnalyzing: false as boolean,
@@ -22,6 +23,7 @@ const initialState = {
 
   // filtering options
   user: undefined as User | undefined,
+  teamUsers: [] as User[],
   startDate: null as Dayjs | null,
   endDate: null as Dayjs | null,
 
@@ -97,6 +99,10 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
     },
     setUser(user: User | undefined) {
       set({ ...get(), user }, false, 'filter by user');
+    },
+    setTeamUsers(teamUsers: User[]) {
+      const teamUsersById = new Map(teamUsers.map((teamUser) => [teamUser.id, teamUser]));
+      set({ ...get(), teamUsers: [...teamUsersById.values()] }, false, 'filter by team users');
     },
     setStartDate(start: Dayjs | null) {
       set({ ...get(), startDate: start }, false, 'change start date');
@@ -596,6 +602,18 @@ export const getOneOnOneActionItems = memoize((state: ChartState) => {
   }
 
   return actionItems.slice(0, 4);
+});
+
+export const getTeamReviewModel = memoize((state: ChartState): TeamReviewModel => {
+  return buildTeamReviewModel(getFilteredPullRequests(state), state.teamUsers);
+});
+
+export const getTeamReviewSelectedUsers = memoize((state: ChartState) => {
+  return state.teamUsers;
+});
+
+export const getTeamReviewAuthoredPullRequests = memoize((state: ChartState) => {
+  return getTeamReviewModel(state).authoredPullRequests;
 });
 
 export const getFilteredPullRequests = memoize((state: ChartState) => {
