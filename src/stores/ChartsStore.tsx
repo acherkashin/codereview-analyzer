@@ -11,6 +11,7 @@ import { createStore } from '../utils/ZustandUtils';
 import { NamedSet } from 'zustand/middleware/devtools';
 import { useStore } from 'zustand';
 import { memoize } from 'proxy-memoize';
+import { getPullRequestOpenDays, getPullRequestSize, isLargePullRequest } from '../utils/PullRequestMetrics';
 
 const initialState = {
   isAnalyzing: false as boolean,
@@ -215,6 +216,36 @@ export interface FilterCommentsProps {
   at?: Date;
 }
 
+export interface OneOnOneReviewActivity {
+  reviewedPullRequestsCount: number;
+  discussionsStartedCount: number;
+}
+
+export interface OneOnOneInsights {
+  reviewedPullRequestsCount: number;
+  discussionsStartedCount: number;
+  authoredPullRequestsCount: number;
+  uniqueReviewersCount: number;
+  uniqueReviewedAuthorsCount: number;
+  medianOpenDays: number;
+  averageOpenDays: number;
+  medianPrSize: number;
+  averagePrSize: number;
+  largePullRequestsCount: number;
+}
+
+export interface OneOnOneReviewedPullRequestActivity {
+  pullRequest: PullRequest;
+  commentsBySelectedReviewer: Comment[];
+  discussionsStartedBySelectedReviewer: UserDiscussion[];
+  reviewActivitiesBySelectedReviewer: PullRequest['reviewedByUser'];
+}
+
+export interface OneOnOnePersonRelationshipRow {
+  user: User;
+  pullRequestCount: number;
+}
+
 function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {
   const { users, pullRequests } = convert(exportData);
 
@@ -329,8 +360,245 @@ export function getUserDiscussions(state: ChartState) {
   return [];
 }
 
+export const getOneOnOnePullRequests = memoize((state: ChartState) => {
+  if (!state.user) {
+    return [];
+  }
+
+  return getFilteredPullRequests(state).filter((item) => item.author.id === state.user!.id);
+});
+
+export const getOneOnOneReviewActivity = memoize((state: ChartState): OneOnOneReviewActivity => {
+  if (!state.user) {
+    return {
+      reviewedPullRequestsCount: 0,
+      discussionsStartedCount: 0,
+    };
+  }
+
+  const userId = state.user.id;
+  const filteredPullRequests = getFilteredPullRequests(state);
+  const reviewedPullRequestIds = new Set<string>();
+
+  filteredPullRequests.forEach((pullRequest) => {
+    if (pullRequest.comments.some((comment) => comment.reviewerId === userId)) {
+      reviewedPullRequestIds.add(pullRequest.id);
+    }
+
+    if (pullRequest.discussions.some((discussion) => discussion.reviewerId === userId)) {
+      reviewedPullRequestIds.add(pullRequest.id);
+    }
+
+    if (pullRequest.reviewedByUser.some((activity) => activity.user.id === userId)) {
+      reviewedPullRequestIds.add(pullRequest.id);
+    }
+  });
+
+  return {
+    reviewedPullRequestsCount: reviewedPullRequestIds.size,
+    discussionsStartedCount: getDiscussions(state).filter((item) => item.reviewerId === userId).length,
+  };
+});
+
+export const getOneOnOneReviewedBy = memoize((state: ChartState): OneOnOnePersonRelationshipRow[] => {
+  if (!state.user) {
+    return [];
+  }
+
+  const relationships = new Map<string, { user: User; pullRequestIds: Set<string> }>();
+
+  getOneOnOnePullRequests(state).forEach((pullRequest) => {
+    const participants = new Map<string, User>();
+
+    pullRequest.reviewedByUser.forEach((activity) => {
+      if (activity.user.id !== state.user!.id) {
+        participants.set(activity.user.id, activity.user);
+      }
+    });
+
+    pullRequest.comments.forEach((comment) => {
+      if (comment.reviewerId !== state.user!.id) {
+        participants.set(comment.reviewerId, getUserFromReviewer(state, comment.reviewerId, comment.reviewerName, comment.reviewerAvatarUrl));
+      }
+    });
+
+    pullRequest.discussions.forEach((discussion) => {
+      if (discussion.reviewerId !== state.user!.id) {
+        participants.set(
+          discussion.reviewerId,
+          getUserFromReviewer(state, discussion.reviewerId, discussion.reviewerName, discussion.reviewerAvatarUrl)
+        );
+      }
+    });
+
+    participants.forEach((participant, reviewerId) => {
+      const existing = relationships.get(reviewerId);
+
+      if (existing) {
+        existing.pullRequestIds.add(pullRequest.id);
+        return;
+      }
+
+      relationships.set(reviewerId, {
+        user: participant,
+        pullRequestIds: new Set([pullRequest.id]),
+      });
+    });
+  });
+
+  return getRelationshipRows(relationships);
+});
+
+export const getOneOnOneReviewedPullRequests = memoize((state: ChartState): OneOnOneReviewedPullRequestActivity[] => {
+  if (!state.user) {
+    return [];
+  }
+
+  const userId = state.user.id;
+
+  return getFilteredPullRequests(state)
+    .filter((pullRequest) => pullRequest.author.id !== userId)
+    .map<OneOnOneReviewedPullRequestActivity | null>((pullRequest) => {
+      const commentsBySelectedReviewer = pullRequest.comments.filter((comment) => comment.reviewerId === userId);
+      const discussionsStartedBySelectedReviewer = pullRequest.discussions.filter((discussion) => discussion.reviewerId === userId);
+      const reviewActivitiesBySelectedReviewer = pullRequest.reviewedByUser.filter((activity) => activity.user.id === userId);
+
+      if (
+        commentsBySelectedReviewer.length === 0 &&
+        discussionsStartedBySelectedReviewer.length === 0 &&
+        reviewActivitiesBySelectedReviewer.length === 0
+      ) {
+        return null;
+      }
+
+      return {
+        pullRequest,
+        commentsBySelectedReviewer,
+        discussionsStartedBySelectedReviewer,
+        reviewActivitiesBySelectedReviewer,
+      };
+    })
+    .filter((item): item is OneOnOneReviewedPullRequestActivity => item != null)
+    .sort((left, right) => new Date(right.pullRequest.createdAt).getTime() - new Date(left.pullRequest.createdAt).getTime());
+});
+
+export const getOneOnOneReviewsFor = memoize((state: ChartState): OneOnOnePersonRelationshipRow[] => {
+  if (!state.user) {
+    return [];
+  }
+
+  const relationships = new Map<string, { user: User; pullRequestIds: Set<string> }>();
+
+  getOneOnOneReviewedPullRequests(state).forEach(({ pullRequest }) => {
+    const existing = relationships.get(pullRequest.author.id);
+
+    if (existing) {
+      existing.pullRequestIds.add(pullRequest.id);
+      return;
+    }
+
+    relationships.set(pullRequest.author.id, {
+      user: pullRequest.author,
+      pullRequestIds: new Set([pullRequest.id]),
+    });
+  });
+
+  return getRelationshipRows(relationships);
+});
+
+export const getOneOnOneInsights = memoize((state: ChartState): OneOnOneInsights => {
+  const pullRequests = getOneOnOnePullRequests(state);
+  const reviewActivity = getOneOnOneReviewActivity(state);
+  const reviewedBy = getOneOnOneReviewedBy(state);
+  const reviewsFor = getOneOnOneReviewsFor(state);
+
+  return {
+    reviewedPullRequestsCount: reviewActivity.reviewedPullRequestsCount,
+    discussionsStartedCount: reviewActivity.discussionsStartedCount,
+    authoredPullRequestsCount: pullRequests.length,
+    uniqueReviewersCount: reviewedBy.length,
+    uniqueReviewedAuthorsCount: reviewsFor.length,
+    medianOpenDays: getMedian(pullRequests.map(getPullRequestOpenDays)),
+    averageOpenDays: getAverage(pullRequests.map(getPullRequestOpenDays)),
+    medianPrSize: getMedian(pullRequests.map(getPullRequestSize)),
+    averagePrSize: getAverage(pullRequests.map(getPullRequestSize)),
+    largePullRequestsCount: pullRequests.filter(isLargePullRequest).length,
+  };
+});
+
+export const getOneOnOneHighlights = memoize((state: ChartState) => {
+  const insights = getOneOnOneInsights(state);
+  const pullRequests = getOneOnOnePullRequests(state);
+  const highlights: string[] = [];
+
+  if (insights.authoredPullRequestsCount === 0) {
+    return highlights;
+  }
+
+  if (insights.largePullRequestsCount > 0) {
+    highlights.push(
+      `${insights.largePullRequestsCount} authored PR${insights.largePullRequestsCount === 1 ? ' was' : 's were'} large or very large`
+    );
+  }
+
+  if (insights.averageOpenDays >= 5 || insights.medianOpenDays >= 5) {
+    highlights.push(`PRs are staying open longer than expected (${insights.averageOpenDays}d average open time)`);
+  }
+
+  if (insights.uniqueReviewersCount <= 2 && insights.authoredPullRequestsCount >= 2) {
+    highlights.push(`Work was reviewed by ${insights.uniqueReviewersCount} teammate${insights.uniqueReviewersCount === 1 ? '' : 's'}`);
+  }
+
+  if (insights.uniqueReviewedAuthorsCount >= 3) {
+    highlights.push(`Reviewed work for ${insights.uniqueReviewedAuthorsCount} teammates in this period`);
+  }
+
+  const averageDiscussionLoad = getAverage(pullRequests.map((item) => item.reviewCommentCount + item.discussionCount));
+  if (averageDiscussionLoad >= 6) {
+    highlights.push(`Changes are attracting a lot of review discussion (${averageDiscussionLoad} conversations per PR on average)`);
+  }
+
+  if (highlights.length === 0) {
+    highlights.push('Recent PR activity looks balanced for a 1:1 review');
+  }
+
+  return highlights.slice(0, 5);
+});
+
+export const getOneOnOneActionItems = memoize((state: ChartState) => {
+  const insights = getOneOnOneInsights(state);
+  const pullRequests = getOneOnOnePullRequests(state);
+  const actionItems: string[] = [];
+
+  if (insights.authoredPullRequestsCount === 0) {
+    return actionItems;
+  }
+
+  if (insights.largePullRequestsCount > 0) {
+    actionItems.push('Try splitting large changes into smaller pull requests');
+  }
+
+  if (insights.averageOpenDays >= 5 || insights.medianOpenDays >= 5) {
+    actionItems.push('Agree on a faster review SLA for active pull requests');
+  }
+
+  if (insights.uniqueReviewersCount <= 2 && insights.authoredPullRequestsCount >= 2) {
+    actionItems.push('Broaden reviewer participation so authored changes get more consistent coverage');
+  }
+
+  const averageDiscussionLoad = getAverage(pullRequests.map((item) => item.reviewCommentCount + item.discussionCount));
+  if (averageDiscussionLoad >= 6) {
+    actionItems.push('Call out recurring review themes and address them earlier in the PR');
+  }
+
+  if (actionItems.length === 0) {
+    actionItems.push('Keep using the current pull request size and review cadence');
+  }
+
+  return actionItems.slice(0, 4);
+});
+
 export const getFilteredPullRequests = memoize((state: ChartState) => {
-  console.log(state);
   if (state.pullRequests == null) {
     return [];
   }
@@ -354,4 +622,65 @@ export function getUser(state: ChartState) {
 
 export function getAllUsers(state: ChartState) {
   return state.users;
+}
+
+function getMedian(values: number[]) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+
+  if (sorted.length % 2 === 0) {
+    return Math.round((sorted[middle - 1] + sorted[middle]) / 2);
+  }
+
+  return sorted[middle];
+}
+
+function getAverage(values: number[]) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  return Math.round((values.reduce((total, value) => total + value, 0) / values.length) * 10) / 10;
+}
+
+function getRelationshipRows(relationships: Map<string, { user: User; pullRequestIds: Set<string> }>): OneOnOnePersonRelationshipRow[] {
+  return Array.from(relationships.values())
+    .map(({ user, pullRequestIds }) => ({
+      user,
+      pullRequestCount: pullRequestIds.size,
+    }))
+    .sort((left, right) => {
+      if (right.pullRequestCount !== left.pullRequestCount) {
+        return right.pullRequestCount - left.pullRequestCount;
+      }
+
+      return left.user.displayName.localeCompare(right.user.displayName);
+    });
+}
+
+function getUserFromReviewer(
+  state: ChartState,
+  reviewerId: string,
+  reviewerName: string,
+  reviewerAvatarUrl?: string
+): User {
+  const existingUser = state.users?.find((item) => item.id === reviewerId);
+
+  if (existingUser) {
+    return existingUser;
+  }
+
+  return {
+    id: reviewerId,
+    fullName: reviewerName,
+    userName: reviewerName,
+    displayName: reviewerName,
+    avatarUrl: reviewerAvatarUrl ?? '',
+    webUrl: '',
+    active: true,
+  };
 }

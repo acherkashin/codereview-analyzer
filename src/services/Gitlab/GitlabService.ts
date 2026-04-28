@@ -69,6 +69,7 @@ export class GitlabService implements GitService {
       const changes = await successRetry(() => this.api.MergeRequests.allDiffs(projectId, mrItem.iid), 3, 1000, []);
 
       return {
+        projectName: params.project.name,
         mergeRequest: mrItem,
         notes: userNotes,
         discussions,
@@ -105,6 +106,7 @@ export class GitlabService implements GitService {
 }
 
 export interface GitlabRawDatum {
+  projectName: string;
   mergeRequest: MergeRequestSchema;
   notes: MergeRequestNoteSchema[];
   discussions: DiscussionSchema[];

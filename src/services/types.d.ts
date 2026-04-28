@@ -53,6 +53,7 @@ export interface UserDiscussion {
   url: string;
 
   comments: Comment[];
+  isResolved?: boolean;
 }
 
 export interface User {
@@ -98,9 +99,11 @@ export interface AnalyzeParams {
 export interface PullRequest {
   id: string;
   title: string;
+  repositoryName: string;
   branchName: string;
   url: string;
   targetBranch: string;
+  status: PullRequestReviewStatus;
   author: User;
   /**
    * Users selected as reviewers in the pull request
@@ -135,6 +138,11 @@ export interface PullRequest {
    */
   readyAt?: string;
   changedFilesCount: number;
+  linesAdded: number;
+  linesRemoved: number;
+  discussionCount: number;
+  reviewCommentCount: number;
+  unresolvedDiscussionCount?: number;
 }
 
 export interface UserPrActivity {
@@ -147,6 +155,7 @@ export interface UserPrActivity {
 }
 
 export type PullRequestStatus = 'closed' | 'open' | 'all';
+export type PullRequestReviewStatus = 'closed' | 'open' | 'merged';
 
 export interface RawData {
   pullRequests: any[];

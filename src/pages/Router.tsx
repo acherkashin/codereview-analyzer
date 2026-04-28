@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { CodeReviewChartsPage, ErrorPage, Login } from './';
+import { CodeReviewChartsPage, ErrorPage, Login, OneOnOneReviewPage } from './';
 import { ChartsStoreProvider } from './../stores/ChartsStore';
 import { App } from './../App';
 
@@ -19,6 +19,14 @@ export const router = createBrowserRouter(
           element: (
             <ChartsStoreProvider>
               <CodeReviewChartsPage />
+            </ChartsStoreProvider>
+          ),
+        },
+        {
+          path: '/one-on-one',
+          element: (
+            <ChartsStoreProvider>
+              <OneOnOneReviewPage />
             </ChartsStoreProvider>
           ),
         },

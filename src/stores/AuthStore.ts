@@ -68,6 +68,8 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
           return;
         }
 
+        clearUserContext();
+
         set({
           userContext: null,
           user: null,

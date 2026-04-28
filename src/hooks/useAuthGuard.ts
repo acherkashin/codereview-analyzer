@@ -1,30 +1,71 @@
-import { useEffect } from 'react';
-import { getUserContext } from '../utils/UserContextUtils';
-import { getIsAuthenticated, getSignIn, getSignInGuest, useAuthStore } from '../stores/AuthStore';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { getSignIn, useAuthStore } from '../stores/AuthStore';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function useAuthGuard() {
-  const isAuthenticated = useAuthStore(getIsAuthenticated);
+  const userContext = useAuthStore((store) => store.userContext);
+  const genericClient = useAuthStore((store) => store.genericClient);
+  const isSigningIn = useAuthStore((store) => store.isSigningIn);
   const signIn = useAuthStore(getSignIn);
-  const signInGuest = useAuthStore(getSignInGuest);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isRehydrating = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      const credentials = getUserContext();
-      if (credentials) {
-        if (credentials.access === 'full') {
-          signIn(credentials.host, credentials.token, credentials.hostType);
-        } else {
-          signInGuest();
-        }
+    const isPublicRoute = location.pathname === '/login';
+    const redirectTarget = getRedirectTarget(location.state);
 
-        navigate('/charts');
-        return;
+    if (!userContext) {
+      isRehydrating.current = false;
+
+      if (!isPublicRoute && !isSigningIn) {
+        navigate('/login', {
+          replace: true,
+          state: { from: getCurrentPath(location) },
+        });
       }
-    } else {
-      console.log('Not authenticated, redirecting');
-      navigate('/login');
+
+      return;
     }
-  }, [isAuthenticated, navigate, signIn, signInGuest]);
+
+    if (userContext.access === 'guest') {
+      isRehydrating.current = false;
+
+      if (isPublicRoute) {
+        navigate(redirectTarget, { replace: true });
+      }
+
+      return;
+    }
+
+    if (!genericClient && !isSigningIn && !isRehydrating.current) {
+      isRehydrating.current = true;
+      signIn(userContext.host, userContext.token, userContext.hostType).catch(() => {
+        isRehydrating.current = false;
+      });
+      return;
+    }
+
+    if (genericClient) {
+      isRehydrating.current = false;
+
+      if (isPublicRoute) {
+        navigate(redirectTarget, { replace: true });
+      }
+    }
+  }, [genericClient, isSigningIn, location, navigate, signIn, userContext]);
+}
+
+function getCurrentPath(location: ReturnType<typeof useLocation>) {
+  return `${location.pathname}${location.search}${location.hash}`;
+}
+
+function getRedirectTarget(state: unknown) {
+  const from = typeof state === 'object' && state != null && 'from' in state ? state.from : null;
+
+  if (typeof from === 'string' && from !== '/login') {
+    return from;
+  }
+
+  return '/charts';
 }

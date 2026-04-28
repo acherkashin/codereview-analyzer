@@ -24,10 +24,12 @@ export class GiteaConverter implements GitConverter {
 
 export function convertToPullRequest(
   hostUrl: string,
-  { pullRequest: pr, reviews, comments, timeline, files }: GiteaRawDatum
+  { projectName, pullRequest: pr, reviews, comments, timeline, files }: GiteaRawDatum
 ): PullRequest {
   const notEmptyReviews = reviews.filter((item) => !!item.body).map((review) => convertToComment(pr, review));
   const prComments = comments.map<Comment>((item) => convertToComment(pr, item));
+  const discussions = convertToDiscussions(pr, comments);
+  const diffStats = getDiffStats(files);
 
   const reviewedBy = reviews
     .filter((item) => item.state && item.user && ['APPROVED', 'REQUEST_CHANGES', 'COMMENT'].includes(item.state))
@@ -58,9 +60,11 @@ export function convertToPullRequest(
   return {
     id: pr.id!.toString(),
     title: pr.title ?? 'unknown title',
+    repositoryName: projectName,
     targetBranch: pr.base?.label ?? 'unknown target branch',
     branchName: pr.head?.label ?? 'unknown branch name',
-    url: pr.url!,
+    url: pr.html_url ?? pr.url!,
+    status: getPullRequestStatus(pr),
     updatedAt: pr.updated_at ?? 'unknown updated at',
     author: convertToUser(hostUrl, pr.user!),
     requestedReviewers,
@@ -70,9 +74,13 @@ export function convertToPullRequest(
     approvedByUser: approvedBy,
     requestedChangesByUser: requestedChangesBy,
     mergedAt: pr.merged_at,
-    discussions: convertToDiscussions(pr, comments),
+    discussions,
     readyAt: getReadyTime(pr, timeline),
     changedFilesCount: files?.length ?? 0,
+    linesAdded: diffStats.linesAdded,
+    linesRemoved: diffStats.linesRemoved,
+    discussionCount: discussions.length,
+    reviewCommentCount: notEmptyReviews.length + prComments.length,
   };
 }
 
@@ -160,7 +168,7 @@ export function convertToDiscussions(pr: GiteaPullRequest, comments: GiteaPullRe
 
       pullRequestId: comments[0].pullRequestId,
       pullRequestName: comments[0].pullRequestName,
-      pullRequestUrl: pr.url!,
+      pullRequestUrl: pr.html_url ?? pr.url!,
       url: comments[0].url,
     };
   });
@@ -180,4 +188,28 @@ function getReadyTime(pullRequest: GiteaPullRequest, timeline: TimelineComment[]
   }
 
   return readyTime;
+}
+
+function getPullRequestStatus(pr: GiteaPullRequest): PullRequest['status'] {
+  if (pr.merged) {
+    return 'merged';
+  }
+
+  if (pr.state === 'closed') {
+    return 'closed';
+  }
+
+  return 'open';
+}
+
+function getDiffStats(files: { additions?: number; deletions?: number }[]) {
+  return (files ?? []).reduce(
+    (total, file) => {
+      total.linesAdded += file.additions ?? 0;
+      total.linesRemoved += file.deletions ?? 0;
+
+      return total;
+    },
+    { linesAdded: 0, linesRemoved: 0 }
+  );
 }
