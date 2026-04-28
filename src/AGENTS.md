@@ -19,5 +19,5 @@
 
 # Project Structure Notes
 
-- `src/pages/TeamReviewPage/` contains the multi-member Team Review screen, its React Flow relationship graph, and the Dagre layout helper used by the graph and layout tests.
+- `src/pages/TeamReviewPage/` contains the multi-member Team Review screen and its relationship matrix.
 - `src/utils/TeamReviewUtils.ts` contains Team Review relationship aggregation and summary logic; keep non-trivial team metrics there instead of embedding them in React components.

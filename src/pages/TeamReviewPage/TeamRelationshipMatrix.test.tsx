@@ -179,7 +179,6 @@ function createModel({ includeOutside = true }: { includeOutside?: boolean } = {
   return {
     selectedTeamMembers: [alice, bob],
     authoredPullRequests: [],
-    nodes: [],
     relationships,
     summary: {
       teamMembersCount: 2,

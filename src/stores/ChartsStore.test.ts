@@ -363,12 +363,7 @@ describe('team review selectors', () => {
 
     const model = getTeamReviewModel(state);
 
-    expect(model.nodes.map((node) => ({ id: node.id, selected: node.isSelectedTeamMember }))).toEqual([
-      { id: alice.id, selected: true },
-      { id: bob.id, selected: true },
-      { id: carol.id, selected: false },
-    ]);
-
+    expect(model.selectedTeamMembers.map((user) => user.id)).toEqual([alice.id, bob.id]);
     expect(model.relationships.map((relationship) => relationship.id)).toEqual([
       `${alice.id}->${carol.id}`,
       `${alice.id}->${bob.id}`,
@@ -414,10 +409,7 @@ describe('team review selectors', () => {
       showOutsideTeamMembers: false,
     });
 
-    expect(internalOnlyModel.nodes.map((node) => ({ id: node.id, selected: node.isSelectedTeamMember }))).toEqual([
-      { id: alice.id, selected: true },
-      { id: bob.id, selected: true },
-    ]);
+    expect(internalOnlyModel.selectedTeamMembers.map((user) => user.id)).toEqual([alice.id, bob.id]);
     expect(internalOnlyModel.relationships.map((relationship) => relationship.id)).toEqual([
       `${alice.id}->${bob.id}`,
       `${bob.id}->${alice.id}`,

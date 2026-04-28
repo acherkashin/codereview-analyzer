@@ -12,8 +12,6 @@ import {
   ListItemAvatar,
   ListItemText,
   Stack,
-  Tab,
-  Tabs,
   Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -41,11 +39,9 @@ import { chartColor } from '../../utils/ColorUtils';
 import { PieChart } from '../../components/charts/PieChart';
 import { TeamReviewPieDatum, TeamReviewRelationship, TeamReviewSummary } from '../../utils/TeamReviewUtils';
 import { TeamReviewFilterPanel } from './TeamReviewFilterPanel';
-import { TeamRelationshipGraph } from './TeamRelationshipGraph';
 import { RelationshipMatrixMetric, TeamRelationshipMatrix } from './TeamRelationshipMatrix';
 
 const sizeTierOrder: PullRequestSizeTier[] = ['compact', 'medium', 'large', 'veryLarge'];
-type RelationshipView = 'matrix' | 'network';
 
 export function TeamReviewPage() {
   const client = useClient();
@@ -64,7 +60,6 @@ export function TeamReviewPage() {
 
   const [selectedPullRequest, setSelectedPullRequest] = useState<PullRequest | null>(null);
   const [selectedRelationshipId, setSelectedRelationshipId] = useState<string | null>(null);
-  const [relationshipView, setRelationshipView] = useState<RelationshipView>('matrix');
   const [relationshipMatrixMetric, setRelationshipMatrixMetric] = useState<RelationshipMatrixMetric>('reviewedPullRequestsCount');
 
   const selectedRelationship = useMemo(() => {
@@ -147,36 +142,13 @@ export function TeamReviewPage() {
                     <Stack spacing={2}>
                       <SectionTitle icon={<AccountTreeOutlinedIcon color="primary" />} title="Review relationships" />
                       {teamReviewModel.relationships.length > 0 ? (
-                        <>
-                          <Tabs
-                            value={relationshipView}
-                            onChange={(_, value: RelationshipView) => setRelationshipView(value)}
-                            aria-label="Review relationship view"
-                          >
-                            <Tab label="Matrix" value="matrix" />
-                            <Tab label="Network" value="network" />
-                          </Tabs>
-
-                          {relationshipView === 'matrix' ? (
-                            <Box role="tabpanel" aria-label="Relationship matrix">
-                              <TeamRelationshipMatrix
-                                model={teamReviewModel}
-                                metric={relationshipMatrixMetric}
-                                selectedRelationshipId={selectedRelationshipId}
-                                onMetricChange={setRelationshipMatrixMetric}
-                                onRelationshipSelect={setSelectedRelationshipId}
-                              />
-                            </Box>
-                          ) : (
-                            <Box role="tabpanel" aria-label="Relationship network">
-                              <TeamRelationshipGraph
-                                model={teamReviewModel}
-                                selectedRelationshipId={selectedRelationshipId}
-                                onRelationshipSelect={setSelectedRelationshipId}
-                              />
-                            </Box>
-                          )}
-                        </>
+                        <TeamRelationshipMatrix
+                          model={teamReviewModel}
+                          metric={relationshipMatrixMetric}
+                          selectedRelationshipId={selectedRelationshipId}
+                          onMetricChange={setRelationshipMatrixMetric}
+                          onRelationshipSelect={setSelectedRelationshipId}
+                        />
                       ) : (
                         <EmptyStatePanel description="No captured review relationships were found for the selected team in this period." />
                       )}
@@ -286,7 +258,7 @@ function RelationshipDetails({ relationship }: { relationship: TeamReviewRelatio
 
           {!relationship ? (
             <Typography variant="body2" color="text.secondary">
-              Select an edge label in the graph to inspect the relationship.
+              Select a relationship cell to inspect the relationship.
             </Typography>
           ) : (
             <>

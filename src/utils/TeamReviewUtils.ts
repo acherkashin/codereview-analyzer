@@ -2,15 +2,6 @@ import { Comment, PullRequest, User } from '../services/types';
 import { PieChartDatum } from './PieChartUtils';
 import { PullRequestSizeTier, getPullRequestSizeTier } from './PullRequestMetrics';
 
-export interface TeamReviewNode {
-  id: string;
-  user: User;
-  isSelectedTeamMember: boolean;
-  authoredPullRequestsCount: number;
-  reviewedPullRequestsCount: number;
-  incomingReviewedPullRequestsCount: number;
-}
-
 export interface TeamReviewRelationship {
   id: string;
   reviewer: User;
@@ -40,7 +31,6 @@ export interface TeamReviewPieDatum extends PieChartDatum {
 export interface TeamReviewModel {
   selectedTeamMembers: User[];
   authoredPullRequests: PullRequest[];
-  nodes: TeamReviewNode[];
   relationships: TeamReviewRelationship[];
   summary: TeamReviewSummary;
   approvalShare: TeamReviewPieDatum[];
@@ -61,14 +51,6 @@ interface MutableRelationship {
   commentIds: Set<string>;
 }
 
-interface MutableNodeStats {
-  user: User;
-  isSelectedTeamMember: boolean;
-  authoredPullRequestIds: Set<string>;
-  reviewedPullRequestIds: Set<string>;
-  incomingReviewedPullRequestIds: Set<string>;
-}
-
 const emptySizeTierCounts: Record<PullRequestSizeTier, number> = {
   compact: 0,
   medium: 0,
@@ -84,19 +66,10 @@ export function buildTeamReviewModel(
   const includeOutsideTeamMembers = options.includeOutsideTeamMembers ?? true;
   const selectedTeamMembersById = new Map(uniqueUsersById(selectedTeamMembers).map((user) => [user.id, user]));
   const selectedTeamMemberIds = new Set(selectedTeamMembersById.keys());
-  const nodeStats = new Map<string, MutableNodeStats>();
   const relationships = new Map<string, MutableRelationship>();
   const authoredPullRequests = pullRequests
     .filter((pullRequest) => selectedTeamMemberIds.has(pullRequest.author.id))
     .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
-
-  selectedTeamMembersById.forEach((user) => {
-    nodeStats.set(user.id, createNodeStats(user, true));
-  });
-
-  authoredPullRequests.forEach((pullRequest) => {
-    nodeStats.get(pullRequest.author.id)?.authoredPullRequestIds.add(pullRequest.id);
-  });
 
   pullRequests.forEach((pullRequest) => {
     const isAuthorSelectedTeamMember = selectedTeamMemberIds.has(pullRequest.author.id);
@@ -129,9 +102,6 @@ export function buildTeamReviewModel(
       activity.discussionIds.forEach((discussionId) => relationship.discussionIds.add(discussionId));
       activity.commentIds.forEach((commentId) => relationship.commentIds.add(commentId));
       relationships.set(key, relationship);
-
-      getOrCreateNodeStats(nodeStats, reviewer, true).reviewedPullRequestIds.add(pullRequest.id);
-      getOrCreateNodeStats(nodeStats, pullRequest.author, isAuthorSelectedTeamMember).incomingReviewedPullRequestIds.add(pullRequest.id);
     });
   });
 
@@ -157,7 +127,6 @@ export function buildTeamReviewModel(
   return {
     selectedTeamMembers: selectedTeamMembersList,
     authoredPullRequests,
-    nodes: [...nodeStats.values()].map(toTeamReviewNode).sort(sortNodes),
     relationships: relationshipRows,
     summary,
     approvalShare: buildShareData(selectedTeamMembersList, relationshipRows, 'approvalsCount'),
@@ -215,40 +184,6 @@ function createRelationship(reviewer: User, author: User, isAuthorSelectedTeamMe
     approvalPullRequestIds: new Set(),
     discussionIds: new Set(),
     commentIds: new Set(),
-  };
-}
-
-function createNodeStats(user: User, isSelectedTeamMember: boolean): MutableNodeStats {
-  return {
-    user,
-    isSelectedTeamMember,
-    authoredPullRequestIds: new Set(),
-    reviewedPullRequestIds: new Set(),
-    incomingReviewedPullRequestIds: new Set(),
-  };
-}
-
-function getOrCreateNodeStats(nodeStats: Map<string, MutableNodeStats>, user: User, isSelectedTeamMember: boolean) {
-  const existing = nodeStats.get(user.id);
-
-  if (existing) {
-    existing.isSelectedTeamMember = existing.isSelectedTeamMember || isSelectedTeamMember;
-    return existing;
-  }
-
-  const created = createNodeStats(user, isSelectedTeamMember);
-  nodeStats.set(user.id, created);
-  return created;
-}
-
-function toTeamReviewNode(stats: MutableNodeStats): TeamReviewNode {
-  return {
-    id: stats.user.id,
-    user: stats.user,
-    isSelectedTeamMember: stats.isSelectedTeamMember,
-    authoredPullRequestsCount: stats.authoredPullRequestIds.size,
-    reviewedPullRequestsCount: stats.reviewedPullRequestIds.size,
-    incomingReviewedPullRequestsCount: stats.incomingReviewedPullRequestIds.size,
   };
 }
 
@@ -314,14 +249,6 @@ function sortRelationships(left: TeamReviewRelationship, right: TeamReviewRelati
   }
 
   return `${left.reviewer.displayName}-${left.author.displayName}`.localeCompare(`${right.reviewer.displayName}-${right.author.displayName}`);
-}
-
-function sortNodes(left: TeamReviewNode, right: TeamReviewNode) {
-  if (left.isSelectedTeamMember !== right.isSelectedTeamMember) {
-    return left.isSelectedTeamMember ? -1 : 1;
-  }
-
-  return left.user.displayName.localeCompare(right.user.displayName);
 }
 
 function uniqueUsersById(users: User[]) {
