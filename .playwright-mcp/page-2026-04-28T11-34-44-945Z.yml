@@ -1,0 +1,36 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img "Code review icon" [ref=e6]
+    - heading "Code Review Analyzer" [level=1] [ref=e7]
+  - generic [ref=e8]:
+    - button "Gitlab" [ref=e9] [cursor=pointer]:
+      - listitem [ref=e10]:
+        - img [ref=e12]
+        - generic [ref=e21]: Gitlab
+    - textbox: Gitlab
+    - img
+    - group
+  - generic [ref=e22]:
+    - generic:
+      - text: Host
+      - generic: "*"
+    - generic [ref=e23]:
+      - textbox "Host" [ref=e24]:
+        - /placeholder: https://gitlab.com
+      - group:
+        - generic: Host *
+  - generic [ref=e25]:
+    - generic:
+      - text: Token
+      - generic: "*"
+    - generic [ref=e26]:
+      - textbox "Token" [ref=e27]
+      - img [ref=e28]
+      - group:
+        - generic: Token *
+  - button "Login" [ref=e30] [cursor=pointer]:
+    - img [ref=e32]
+    - text: Login
+  - button "Login As Guest" [ref=e34] [cursor=pointer]:
+    - img [ref=e36]
+    - text: Login As Guest

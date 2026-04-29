@@ -66,6 +66,7 @@ export function AppHeader() {
             {[
               { label: 'Charts', href: '/charts' },
               { label: '1:1 Review', href: '/one-on-one' },
+              { label: 'Team Review', href: '/team-review' },
             ].map((item) => (
               <Button
                 key={item.href}
