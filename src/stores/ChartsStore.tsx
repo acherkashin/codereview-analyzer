@@ -2,7 +2,7 @@ import { createContext, useContext, useRef } from 'react';
 import classNames from 'classnames';
 import { AnalyzeParams, Comment, PullRequest, User, UserDiscussion } from '../services/types';
 import { arrange, desc, distinct, groupBy, n, summarize, tidy } from '@tidyjs/tidy';
-import { GitService } from '../services/GitService';
+import { GitService, PullRequestFetchProgress } from '../services/GitService';
 import { convert } from '../services/GitConverter';
 import { getEndDate, getFilteredComments, getFilteredDiscussions, getStartDate } from '../utils/GitUtils';
 import dayjs, { Dayjs } from 'dayjs';
@@ -16,6 +16,7 @@ import { TeamReviewModel, buildTeamReviewModel } from '../utils/TeamReviewUtils'
 
 const initialState = {
   isAnalyzing: false as boolean,
+  analysisProgress: null as PullRequestFetchProgress | null,
 
   pullRequests: null as PullRequest[] | null,
   users: null as User[] | null,
@@ -79,13 +80,15 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
     analyze: async (client: GitService, params: AnalyzeParams) => {
       if (get().isAnalyzing) return;
 
-      set({ isAnalyzing: true });
+      set({ isAnalyzing: true, analysisProgress: null }, false, 'start analysis');
 
       try {
-        const exportData = await client.fetch(params);
+        const exportData = await client.fetch(params, {
+          onProgress: (analysisProgress) => set({ analysisProgress }, false, 'analysis progress'),
+        });
         initStore(set, exportData);
       } finally {
-        set({ isAnalyzing: false });
+        set({ isAnalyzing: false, analysisProgress: null }, false, 'finish analysis');
       }
     },
     getExportData: () => {
@@ -264,6 +267,7 @@ function initStore(set: NamedSet<ChartsStore>, exportData: ExportData) {
       users,
       pullRequests,
       exportData,
+      analysisProgress: null,
       startDate: dayjs(getStartDate(pullRequests)),
       endDate: dayjs(getEndDate(pullRequests)),
     },

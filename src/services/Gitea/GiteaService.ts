@@ -10,7 +10,7 @@ import {
   ChangedFile,
 } from 'gitea-js';
 import { User, Project, AnalyzeParams, PullRequest, PullRequestStatus, RawData } from '../types';
-import { GitService } from '../GitService';
+import { FetchOptions, GitService, PullRequestFetchProgress } from '../GitService';
 import { convertToProject, convertToPullRequest, convertToUser } from './GiteaConverter';
 import { requestAllChunked, successRetry } from '../../utils/PromiseUtils';
 import { ExportData } from '../../utils/ExportDataUtils';
@@ -64,9 +64,24 @@ export class GiteaService implements GitService {
     return (data.data ?? []).map((user) => convertToUser(this.host, user));
   }
 
-  async fetch(params: AnalyzeParams): Promise<ExportData> {
+  async fetch(params: AnalyzeParams, options?: FetchOptions): Promise<ExportData> {
+    emitProgress(options, {
+      stage: 'users',
+      stageLabel: 'Fetching users',
+      currentDataType: 'users',
+    });
+
     const rawUsers = await this._getAllUsers();
-    const rawPullRequests = await this.requestRawData(params);
+
+    emitProgress(options, {
+      stage: 'users',
+      stageLabel: 'Fetched users',
+      fetched: rawUsers.length,
+      total: rawUsers.length,
+      currentDataType: 'users',
+    });
+
+    const rawPullRequests = await this.requestRawData(params, options);
 
     return {
       hostType: 'Gitea',
@@ -78,51 +93,72 @@ export class GiteaService implements GitService {
     };
   }
 
-  async requestRawData({ project, pullRequestCount, state }: AnalyzeParams): Promise<GiteaRawDatum[]> {
+  async requestRawData({ project, pullRequestCount, state }: AnalyzeParams, options?: FetchOptions): Promise<GiteaRawDatum[]> {
     if (project == null || project.owner == null) {
       throw new Error('project is required');
     }
 
     const { owner, name } = project;
 
-    const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state);
+    const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state, options);
+    const pullRequestsToFetch = giteaPrs.filter((item) => item.merged || item.state === 'open');
+    let completedPullRequests = 0;
 
-    const rawDataPromises = giteaPrs
-      .filter((item) => item.merged || item.state === 'open')
-      .map<() => Promise<GiteaRawDatum>>((pullRequest) => async () => {
-        // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
-        // So, we need:
-        // 1. Get all pull requests
-        // 2. Get reviews for each pull request
-        // 3. Get comments for each review
-
-        const reviews = await successRetry(() => this.getAllReviews(owner, name, pullRequest.number!), 3, 1000, []);
-        const timeline = await successRetry(() => this.getAllComments(owner, name, pullRequest.number!), 3, 1000, []);
-        const files = await successRetry(() => this.getAllFiles(owner, name, pullRequest.number!), 3, 1000, []);
-
-        const commentsFns = reviews!
-          .filter((review) => (review.comments_count ?? 0) > 0)
-          .map(
-            (review) => () =>
-              successRetry(
-                () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!),
-                3,
-                1000,
-                {} as any
-              )
-          );
-
-        const commentsResp = await requestAllChunked(commentsFns);
-        const prComments = commentsResp.flatMap((item) => item!.data);
-        return {
-          projectName: project.name,
-          pullRequest,
-          comments: prComments!,
-          reviews: reviews!,
-          timeline: timeline!,
-          files: files!,
-        };
+    const emitDetailProgress = (pullRequest: GiteaPullRequest, currentDataType: string) => {
+      emitProgress(options, {
+        stage: 'pull-request-details',
+        stageLabel: 'Fetching pull request details',
+        fetched: completedPullRequests,
+        total: pullRequestsToFetch.length,
+        currentDataType,
+        currentPullRequestTitle: pullRequest.title,
       });
+    };
+
+    const rawDataPromises = pullRequestsToFetch.map<() => Promise<GiteaRawDatum>>((pullRequest) => async () => {
+      // In Gitea, a pull request can have multiple reviews, and each review can have multiple comments
+      // So, we need:
+      // 1. Get all pull requests
+      // 2. Get reviews for each pull request
+      // 3. Get comments for each review
+
+      emitDetailProgress(pullRequest, 'reviews');
+      const reviews = await successRetry(() => this.getAllReviews(owner, name, pullRequest.number!), 3, 1000, []);
+      emitDetailProgress(pullRequest, 'timeline');
+      const timeline = await successRetry(() => this.getAllComments(owner, name, pullRequest.number!), 3, 1000, []);
+      emitDetailProgress(pullRequest, 'files');
+      const files = await successRetry(() => this.getAllFiles(owner, name, pullRequest.number!), 3, 1000, []);
+
+      const commentsFns = (reviews ?? [])
+        .filter((review) => (review.comments_count ?? 0) > 0)
+        .map(
+          (review) => () =>
+            successRetry(
+              () => this.api.repos.repoGetPullReviewComments(owner, name, pullRequest.number!, review.id!),
+              3,
+              1000,
+              {} as any
+            )
+        );
+
+      emitDetailProgress(pullRequest, 'review comments');
+      const commentsResp = await requestAllChunked(commentsFns);
+      const prComments = commentsResp.flatMap((item) => item?.data ?? []);
+      completedPullRequests++;
+
+      const datum = {
+        projectName: project.name,
+        pullRequest,
+        comments: prComments,
+        reviews: reviews ?? [],
+        timeline: timeline ?? [],
+        files: files ?? [],
+      };
+
+      emitDetailProgress(pullRequest, 'completed details');
+
+      return datum;
+    });
 
     const rawData = await requestAllChunked(rawDataPromises);
 
@@ -198,28 +234,50 @@ async function getAllPullRequests(
   client: GiteaApi<any>,
   project: Project,
   prCount: number,
-  state?: PullRequestStatus
+  state?: PullRequestStatus,
+  options?: FetchOptions
 ): Promise<GiteaPullRequest[]> {
-  const pages = Math.ceil(prCount / pageSize);
+  const requestedTotal = Number.isSafeInteger(prCount) ? prCount : undefined;
+  const pages = requestedTotal == null ? Number.MAX_SAFE_INTEGER : Math.ceil(prCount / pageSize);
 
   const pullRequests: GiteaPullRequest[] = [];
 
+  emitProgress(options, {
+    stage: 'pull-request-list',
+    stageLabel: 'Fetching pull request list',
+    fetched: 0,
+    total: requestedTotal,
+    currentDataType: 'pull requests',
+  });
+
   for (let pageIndex = 1; pageIndex <= pages; pageIndex++) {
+    const remainingLimit = requestedTotal == null ? pageSize : Math.min(pageSize, prCount - (pageIndex - 1) * pageSize);
     const result = await client.repos.repoListPullRequests(project.owner!, project.name, {
       state,
       // sort: 'recentupdate',
       page: pageIndex,
-      limit: prCount - (pageIndex - 1) * pageSize,
+      limit: remainingLimit,
     });
 
     if ((result.data ?? []).length > 0) {
       pullRequests.push(...result.data);
+      emitProgress(options, {
+        stage: 'pull-request-list',
+        stageLabel: 'Fetching pull request list',
+        fetched: pullRequests.length,
+        total: requestedTotal,
+        currentDataType: 'pull requests',
+      });
     } else {
       break;
     }
   }
 
   return pullRequests;
+}
+
+function emitProgress(options: FetchOptions | undefined, progress: PullRequestFetchProgress) {
+  options?.onProgress?.(progress);
 }
 
 async function getAllPages<T>(func: (page: number) => Promise<T[]>, pageSize: number): Promise<T[]> {

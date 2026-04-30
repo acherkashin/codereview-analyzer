@@ -25,7 +25,7 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
   const client = useClient();
   const isGuest = useIsGuest();
 
-  const { user, allPrs, users, title, filteredComments, filteredDiscussions } = useChartsStore(
+  const { user, allPrs, users, title, filteredComments, filteredDiscussions, isAnalyzing } = useChartsStore(
     useShallow((state) => ({
       user: state.user,
       allPrs: state.pullRequests,
@@ -33,6 +33,7 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
       title: state.dialogTitle,
       filteredComments: state.filteredComments,
       filteredDiscussions: state.filteredDiscussions,
+      isAnalyzing: state.isAnalyzing,
     }))
   );
 
@@ -55,19 +56,21 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
   if (allPrs == null || users == null) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-        <Stack spacing={2} position="sticky" style={{ width: 300 }}>
+        <Stack data-testid="analysis-start-panel" spacing={2} position="sticky" style={{ width: 'min(560px, calc(100vw - 32px))' }}>
           {!isGuest && <FilterPanel onAnalyze={handleAnalyze} />}
-          <ImportTextButton
-            label="Import as JSON"
-            onTextSelected={(json) => {
-              try {
-                importData(json);
-              } catch (ex) {
-                //TODO: need to show error in UI
-                console.error(ex);
-              }
-            }}
-          />
+          {!isAnalyzing && (
+            <ImportTextButton
+              label="Import as JSON"
+              onTextSelected={(json) => {
+                try {
+                  importData(json);
+                } catch (ex) {
+                  //TODO: need to show error in UI
+                  console.error(ex);
+                }
+              }}
+            />
+          )}
         </Stack>
       </div>
     );
