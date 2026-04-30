@@ -9,6 +9,7 @@ import { getHostType, useAuthStore } from '../../stores/AuthStore';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { useChartsStore } from '../../stores/ChartsStore';
+import { AnalysisProgressPanel } from '../AnalysisProgressPanel';
 
 export interface FilterPanelProps {
   onAnalyze: (state: AnalyzeParams) => Promise<any>;
@@ -24,6 +25,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
 
   const hostType = useAuthStore(getHostType);
   const isAnalyzing = useChartsStore((state) => state.isAnalyzing);
+  const analysisProgress = useChartsStore((state) => state.analysisProgress);
 
   const handleAnalyze = useCallback(() => {
     if (!project || !createdAfter || !createdBefore) {
@@ -75,6 +77,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
       <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isAnalyzing} onClick={handleAnalyze}>
         Analyze
       </LoadingButton>
+      {isAnalyzing && analysisProgress && <AnalysisProgressPanel progress={analysisProgress} />}
     </Stack>
   );
 }

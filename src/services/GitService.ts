@@ -9,7 +9,7 @@ export function getGitService({ hostType, host, token }: Credentials): GitServic
 }
 
 export interface GitService {
-  fetch(params: AnalyzeParams): Promise<ExportData>;
+  fetch(params: AnalyzeParams, options?: FetchOptions): Promise<ExportData>;
 
   getCurrentUser(): Promise<User>;
   searchUsers(searchText: string): Promise<User[]>;
@@ -17,4 +17,21 @@ export interface GitService {
   searchProjects(searchText: string): Promise<Project[]>;
   getAllProjects(): Promise<Project[]>;
   getErrorMessage(e: any): string;
+}
+
+export interface FetchOptions {
+  onProgress?: (progress: PullRequestFetchProgress) => void;
+}
+
+export type PullRequestFetchStage = 'users' | 'pull-request-list' | 'pull-request-details';
+
+export interface PullRequestFetchProgress {
+  stage: PullRequestFetchStage;
+  stageLabel: string;
+  fetched?: number;
+  total?: number;
+  currentDataType?: string;
+  currentPullRequestTitle?: string;
+  createdAfter?: string;
+  createdBefore?: string;
 }
