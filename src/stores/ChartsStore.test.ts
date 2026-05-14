@@ -272,14 +272,14 @@ describe('1:1 selectors', () => {
       uniqueReviewedAuthorsCount: 2,
       medianPrSize: 675,
       averagePrSize: 675,
-      largePullRequestsCount: 2,
+      largePullRequestsCount: 1,
       medianOpenDays: 8,
       averageOpenDays: 7.5,
       discussionsStartedCount: 1,
     });
 
     expect(getOneOnOneHighlights(state)).toEqual([
-      '2 authored PRs were large or very large',
+      '1 authored PR was large or very large',
       'PRs are staying open longer than expected (7.5d average open time)',
       'Work was reviewed by 2 teammates',
       'Changes are attracting a lot of review discussion (7.5 conversations per PR on average)',
@@ -390,8 +390,8 @@ describe('team review selectors', () => {
       commentsCount: 3,
       sizeTierCounts: {
         compact: 1,
-        medium: 0,
-        large: 1,
+        medium: 1,
+        large: 0,
         veryLarge: 0,
       },
     });
@@ -427,8 +427,8 @@ describe('team review selectors', () => {
       commentsCount: 1,
       sizeTierCounts: {
         compact: 1,
-        medium: 0,
-        large: 1,
+        medium: 1,
+        large: 0,
         veryLarge: 0,
       },
     });

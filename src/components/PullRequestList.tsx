@@ -38,10 +38,13 @@ import {
   getPullRequestSize,
   getPullRequestSizeTier,
   getPullRequestSizeTierLabel,
+  getPullRequestSizeTierRangeLabel,
 } from '../utils/PullRequestMetrics';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
+
+const sizeTierOrder: PullRequestSizeTier[] = ['compact', 'medium', 'large', 'veryLarge'];
 
 type PullRequestListVariant = 'default' | 'oneOnOne';
 type SortField = 'date' | 'discussionLoad' | 'files' | 'duration' | 'size';
@@ -138,6 +141,8 @@ export function PullRequestList({
         </Box>
       </Toolbar>
 
+      {variant === 'oneOnOne' && <PullRequestSizeLegend />}
+
       {sortedPullRequests.map((pullRequest) => {
         const isSelected = selectedPullRequestId != null && selectedPullRequestId === pullRequest.id;
 
@@ -174,6 +179,34 @@ export function PullRequestList({
         );
       })}
     </div>
+  );
+}
+
+function PullRequestSizeLegend() {
+  return (
+    <Box
+      aria-label="PR size legend"
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        flexWrap: 'wrap',
+        mb: 1.5,
+      }}
+    >
+      <Typography variant="caption" color="text.secondary">
+        PR size:
+      </Typography>
+      {sizeTierOrder.map((sizeTier) => (
+        <Chip
+          key={sizeTier}
+          label={`${getPullRequestSizeTierLabel(sizeTier)}: ${getPullRequestSizeTierRangeLabel(sizeTier)}`}
+          size="small"
+          color={getSizeTierColor(sizeTier)}
+          variant={sizeTier === 'medium' ? 'outlined' : 'filled'}
+        />
+      ))}
+    </Box>
   );
 }
 

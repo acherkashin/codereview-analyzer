@@ -3,6 +3,13 @@ import { PullRequest } from '../services/types';
 
 export type PullRequestSizeTier = 'compact' | 'medium' | 'large' | 'veryLarge';
 
+const pullRequestSizeTierRanges: Record<PullRequestSizeTier, { min: number; max?: number }> = {
+  compact: { min: 0, max: 150 },
+  medium: { min: 151, max: 499 },
+  large: { min: 500, max: 999 },
+  veryLarge: { min: 1000 },
+};
+
 export function getPullRequestSize(pullRequest: PullRequest) {
   return pullRequest.linesAdded + pullRequest.linesRemoved;
 }
@@ -13,15 +20,15 @@ export function getPullRequestOpenDays(pullRequest: PullRequest) {
 }
 
 export function getPullRequestSizeTierForLines(linesChanged: number): PullRequestSizeTier {
-  if (linesChanged <= 120) {
+  if (linesChanged <= pullRequestSizeTierRanges.compact.max) {
     return 'compact';
   }
 
-  if (linesChanged <= 399) {
+  if (linesChanged <= pullRequestSizeTierRanges.medium.max) {
     return 'medium';
   }
 
-  if (linesChanged <= 799) {
+  if (linesChanged <= pullRequestSizeTierRanges.large.max) {
     return 'large';
   }
 
@@ -48,4 +55,14 @@ export function getPullRequestSizeTierLabel(sizeTier: PullRequestSizeTier) {
     case 'veryLarge':
       return 'Very large';
   }
+}
+
+export function getPullRequestSizeTierRangeLabel(sizeTier: PullRequestSizeTier) {
+  const range = pullRequestSizeTierRanges[sizeTier];
+
+  if (range.max == null) {
+    return `${range.min}+ lines`;
+  }
+
+  return `${range.min}-${range.max} lines`;
 }

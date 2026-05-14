@@ -34,7 +34,11 @@ import {
   useChartsStore,
 } from '../../stores/ChartsStore';
 import { useIsGuest } from '../../hooks/useIsGuest';
-import { getPullRequestSizeTierLabel, PullRequestSizeTier } from '../../utils/PullRequestMetrics';
+import {
+  getPullRequestSizeTierLabel,
+  getPullRequestSizeTierRangeLabel,
+  PullRequestSizeTier,
+} from '../../utils/PullRequestMetrics';
 import { chartColor } from '../../utils/ColorUtils';
 import { PieChart } from '../../components/charts/PieChart';
 import { TeamReviewPieDatum, TeamReviewRelationship, TeamReviewSummary } from '../../utils/TeamReviewUtils';
@@ -319,7 +323,12 @@ function PullRequestSizeSummary({ summary }: { summary: TeamReviewSummary }) {
           <SectionTitle icon={<DonutSmallOutlinedIcon color="primary" />} title="PR sizes" />
           <Stack spacing={1}>
             {sizeTierOrder.map((sizeTier) => (
-              <MetricRow key={sizeTier} label={getPullRequestSizeTierLabel(sizeTier)} value={summary.sizeTierCounts[sizeTier]} />
+              <MetricRow
+                key={sizeTier}
+                label={getPullRequestSizeTierLabel(sizeTier)}
+                helperText={getPullRequestSizeTierRangeLabel(sizeTier)}
+                value={summary.sizeTierCounts[sizeTier]}
+              />
             ))}
           </Stack>
         </Stack>
@@ -381,12 +390,19 @@ function PersonBadge({ user, label }: { user: TeamReviewRelationship['reviewer']
   );
 }
 
-function MetricRow({ label, value }: { label: string; value: number }) {
+function MetricRow({ label, value, helperText }: { label: string; value: number; helperText?: string }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-      <Typography variant="body2" color="text.secondary">
-        {label}
-      </Typography>
+      <Box>
+        <Typography variant="body2" color="text.secondary">
+          {label}
+        </Typography>
+        {helperText && (
+          <Typography variant="caption" color="text.secondary">
+            {helperText}
+          </Typography>
+        )}
+      </Box>
       <Typography variant="body2" fontWeight={700}>
         {value}
       </Typography>
