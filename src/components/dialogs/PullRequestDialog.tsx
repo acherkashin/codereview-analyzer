@@ -14,7 +14,7 @@ export function PullRequestDialog({ open, title, pullRequests, onClose }: PullRe
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-        <Typography variant="h6" sx={{ flex: 1 }}>
+        <Typography component="span" variant="h6" sx={{ flex: 1 }}>
           {title}
         </Typography>
         <IconButton aria-label="close" onClick={onClose}>

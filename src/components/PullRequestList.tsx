@@ -217,6 +217,7 @@ function DefaultPullRequestSummary({ pullRequest }: { pullRequest: PullRequest }
         <Avatar src={pullRequest.author.avatarUrl} />
       </ListItemAvatar>
       <ListItemText
+        disableTypography
         primary={
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <Link underline="none" variant="subtitle2" href={pullRequest.url} target="_blank" rel="noreferrer">

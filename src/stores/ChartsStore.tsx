@@ -615,6 +615,8 @@ export const getOneOnOneActionItems = memoize((state: ChartState) => {
 export const getTeamReviewModel = memoize((state: ChartState): TeamReviewModel => {
   return buildTeamReviewModel(getFilteredPullRequests(state), state.teamUsers, {
     includeOutsideTeamMembers: state.showOutsideTeamMembers,
+    periodStart: state.startDate?.format('YYYY-MM-DD'),
+    periodEnd: state.endDate?.format('YYYY-MM-DD'),
   });
 });
 

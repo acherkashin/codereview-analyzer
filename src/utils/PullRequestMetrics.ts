@@ -20,15 +20,15 @@ export function getPullRequestOpenDays(pullRequest: PullRequest) {
 }
 
 export function getPullRequestSizeTierForLines(linesChanged: number): PullRequestSizeTier {
-  if (linesChanged <= pullRequestSizeTierRanges.compact.max) {
+  if (linesChanged <= pullRequestSizeTierRanges.compact.max!) {
     return 'compact';
   }
 
-  if (linesChanged <= pullRequestSizeTierRanges.medium.max) {
+  if (linesChanged <= pullRequestSizeTierRanges.medium.max!) {
     return 'medium';
   }
 
-  if (linesChanged <= pullRequestSizeTierRanges.large.max) {
+  if (linesChanged <= pullRequestSizeTierRanges.large.max!) {
     return 'large';
   }
 
