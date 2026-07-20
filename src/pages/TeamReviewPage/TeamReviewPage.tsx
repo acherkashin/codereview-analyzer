@@ -17,7 +17,6 @@ import {
 import { styled } from '@mui/material/styles';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
-import DonutSmallOutlinedIcon from '@mui/icons-material/DonutSmallOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
 import dayjs from 'dayjs';
@@ -34,18 +33,12 @@ import {
   useChartsStore,
 } from '../../stores/ChartsStore';
 import { useIsGuest } from '../../hooks/useIsGuest';
-import {
-  getPullRequestSizeTierLabel,
-  getPullRequestSizeTierRangeLabel,
-  PullRequestSizeTier,
-} from '../../utils/PullRequestMetrics';
 import { chartColor } from '../../utils/ColorUtils';
 import { PieChart } from '../../components/charts/PieChart';
 import { TeamReviewPieDatum, TeamReviewRelationship, TeamReviewSummary } from '../../utils/TeamReviewUtils';
 import { TeamReviewFilterPanel } from './TeamReviewFilterPanel';
 import { RelationshipMatrixMetric, TeamRelationshipMatrix } from './TeamRelationshipMatrix';
-
-const sizeTierOrder: PullRequestSizeTier[] = ['compact', 'medium', 'large', 'veryLarge'];
+import { PullRequestSizeTrendChart } from './PullRequestSizeTrendChart';
 
 export function TeamReviewPage() {
   const client = useClient();
@@ -163,15 +156,20 @@ export function TeamReviewPage() {
                 <RelationshipDetails relationship={selectedRelationship} />
               </Box>
 
+              <PullRequestSizeTrendChart
+                summary={teamReviewModel.summary}
+                monthlySizeBuckets={teamReviewModel.monthlySizeBuckets}
+                authoredPullRequests={authoredPullRequests}
+              />
+
               <Box
                 sx={{
                   display: 'grid',
                   gap: 2,
-                  gridTemplateColumns: { xs: '1fr', xl: 'minmax(280px, 0.8fr) repeat(2, minmax(0, 1fr))' },
+                  gridTemplateColumns: { xs: '1fr', xl: 'repeat(2, minmax(0, 1fr))' },
                   alignItems: 'stretch',
                 }}
               >
-                <PullRequestSizeSummary summary={teamReviewModel.summary} />
                 <ReviewShareChart
                   title="Approvals"
                   description="Share of approvals given by selected team members."
@@ -309,28 +307,6 @@ function RelationshipDetails({ relationship }: { relationship: TeamReviewRelatio
               </Box>
             </>
           )}
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
-
-function PullRequestSizeSummary({ summary }: { summary: TeamReviewSummary }) {
-  return (
-    <Card variant="outlined">
-      <CardContent>
-        <Stack spacing={2}>
-          <SectionTitle icon={<DonutSmallOutlinedIcon color="primary" />} title="PR sizes" />
-          <Stack spacing={1}>
-            {sizeTierOrder.map((sizeTier) => (
-              <MetricRow
-                key={sizeTier}
-                label={getPullRequestSizeTierLabel(sizeTier)}
-                helperText={getPullRequestSizeTierRangeLabel(sizeTier)}
-                value={summary.sizeTierCounts[sizeTier]}
-              />
-            ))}
-          </Stack>
         </Stack>
       </CardContent>
     </Card>

@@ -194,6 +194,7 @@ function createModel({ includeOutside = true }: { includeOutside?: boolean } = {
         veryLarge: 0,
       },
     },
+    monthlySizeBuckets: [],
     approvalShare: [],
     discussionShare: [],
   };

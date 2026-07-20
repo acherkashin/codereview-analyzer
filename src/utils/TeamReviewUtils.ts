@@ -1,6 +1,7 @@
 import { Comment, PullRequest, User } from '../services/types';
 import { PieChartDatum } from './PieChartUtils';
 import { PullRequestSizeTier, getPullRequestSizeTier } from './PullRequestMetrics';
+import dayjs from 'dayjs';
 
 export interface TeamReviewRelationship {
   id: string;
@@ -28,17 +29,27 @@ export interface TeamReviewPieDatum extends PieChartDatum {
   userId: string;
 }
 
+export interface TeamReviewMonthlySizeBucket {
+  month: string;
+  isPartial: boolean;
+  counts: Record<PullRequestSizeTier, number>;
+  pullRequestIdsByTier: Record<PullRequestSizeTier, string[]>;
+}
+
 export interface TeamReviewModel {
   selectedTeamMembers: User[];
   authoredPullRequests: PullRequest[];
   relationships: TeamReviewRelationship[];
   summary: TeamReviewSummary;
+  monthlySizeBuckets: TeamReviewMonthlySizeBucket[];
   approvalShare: TeamReviewPieDatum[];
   discussionShare: TeamReviewPieDatum[];
 }
 
 export interface TeamReviewModelOptions {
   includeOutsideTeamMembers?: boolean;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 interface MutableRelationship {
@@ -129,6 +140,7 @@ export function buildTeamReviewModel(
     authoredPullRequests,
     relationships: relationshipRows,
     summary,
+    monthlySizeBuckets: buildMonthlySizeBuckets(authoredPullRequests, options.periodStart, options.periodEnd),
     approvalShare: buildShareData(selectedTeamMembersList, relationshipRows, 'approvalsCount'),
     discussionShare: buildShareData(selectedTeamMembersList, relationshipRows, 'discussionsStartedCount'),
   };
@@ -213,6 +225,60 @@ function buildTeamReviewSummary(
     discussionsStartedCount: relationships.reduce((total, relationship) => total + relationship.discussionsStartedCount, 0),
     commentsCount: relationships.reduce((total, relationship) => total + relationship.commentsCount, 0),
     sizeTierCounts,
+  };
+}
+
+function buildMonthlySizeBuckets(
+  authoredPullRequests: PullRequest[],
+  requestedPeriodStart?: string,
+  requestedPeriodEnd?: string
+): TeamReviewMonthlySizeBucket[] {
+  const authoredDates = authoredPullRequests.map((pullRequest) => pullRequest.createdAt);
+  const periodStart = dayjs(requestedPeriodStart ?? authoredDates.at(-1));
+  const periodEnd = dayjs(requestedPeriodEnd ?? authoredDates.at(0));
+
+  if (!periodStart.isValid() || !periodEnd.isValid() || periodEnd.isBefore(periodStart, 'day')) {
+    return [];
+  }
+
+  const firstMonth = periodStart.startOf('month');
+  const lastMonth = periodEnd.startOf('month');
+  const buckets: TeamReviewMonthlySizeBucket[] = [];
+
+  for (let month = firstMonth; !month.isAfter(lastMonth, 'month'); month = month.add(1, 'month')) {
+    buckets.push({
+      month: month.format('YYYY-MM'),
+      isPartial:
+        (month.isSame(firstMonth, 'month') && !periodStart.isSame(periodStart.startOf('month'), 'day')) ||
+        (month.isSame(lastMonth, 'month') && !periodEnd.isSame(periodEnd.endOf('month'), 'day')),
+      counts: { ...emptySizeTierCounts },
+      pullRequestIdsByTier: createEmptyPullRequestIdsByTier(),
+    });
+  }
+
+  const bucketsByMonth = new Map(buckets.map((bucket) => [bucket.month, bucket]));
+
+  authoredPullRequests.forEach((pullRequest) => {
+    const bucket = bucketsByMonth.get(dayjs(pullRequest.createdAt).format('YYYY-MM'));
+
+    if (!bucket) {
+      return;
+    }
+
+    const sizeTier = getPullRequestSizeTier(pullRequest);
+    bucket.counts[sizeTier] += 1;
+    bucket.pullRequestIdsByTier[sizeTier].push(pullRequest.id);
+  });
+
+  return buckets;
+}
+
+function createEmptyPullRequestIdsByTier(): Record<PullRequestSizeTier, string[]> {
+  return {
+    compact: [],
+    medium: [],
+    large: [],
+    veryLarge: [],
   };
 }
 

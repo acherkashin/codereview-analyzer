@@ -6,12 +6,20 @@ import { TooltipPrompt } from './TooltipPrompt';
 export interface ChartContainerProps {
   title: string;
   description?: React.ReactNode;
+  descriptionTooltipMaxWidth?: number;
   style?: React.CSSProperties | undefined;
   height?: number;
   children: React.ReactNode;
 }
 
-export function ChartContainer({ children, title, description, style, height = 500 }: ChartContainerProps) {
+export function ChartContainer({
+  children,
+  title,
+  description,
+  descriptionTooltipMaxWidth,
+  style,
+  height = 500,
+}: ChartContainerProps) {
   const [isMaximized, setIsMaximized] = useState(false);
 
   const maximizeStyles: CSSProperties = isMaximized
@@ -29,24 +37,29 @@ export function ChartContainer({ children, title, description, style, height = 5
     : { margin: 10 };
   return (
     <Paper variant="outlined" component="section" style={{ ...style, ...maximizeStyles }}>
-      <ChartHeader title={title} description={description} onMaximizeClick={() => setIsMaximized(!isMaximized)} />
+      <ChartHeader
+        title={title}
+        description={description}
+        descriptionTooltipMaxWidth={descriptionTooltipMaxWidth}
+        onMaximizeClick={() => setIsMaximized(!isMaximized)}
+      />
       <Box style={{ height: isMaximized ? 'calc(100% - 40px)' : height }}>{children}</Box>
     </Paper>
   );
 }
 
-export interface ChartHeaderProps extends Pick<ChartContainerProps, 'description' | 'title'> {
+export interface ChartHeaderProps extends Pick<ChartContainerProps, 'description' | 'descriptionTooltipMaxWidth' | 'title'> {
   onMaximizeClick?: () => void;
 }
 
-function ChartHeader({ title, description, onMaximizeClick }: ChartHeaderProps) {
+function ChartHeader({ title, description, descriptionTooltipMaxWidth, onMaximizeClick }: ChartHeaderProps) {
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center">
       <Typography variant="subtitle1" color="text.secondary" style={{ marginLeft: 16, marginRight: 16, flex: 1 }}>
         {title}
       </Typography>
       <Stack direction="row" alignItems="center">
-        {description && <TooltipPrompt>{description}</TooltipPrompt>}
+        {description && <TooltipPrompt maxWidth={descriptionTooltipMaxWidth}>{description}</TooltipPrompt>}
         <IconButton onClick={onMaximizeClick}>
           <Fullscreen />
         </IconButton>
