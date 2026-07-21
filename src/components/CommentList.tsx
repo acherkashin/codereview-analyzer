@@ -31,6 +31,7 @@ export function CommentItem({ avatarUrl, title, commentUrl, noteText, authorName
         <Avatar src={avatarUrl} alt={authorName} />
       </ListItemAvatar>
       <ListItemText
+        disableTypography
         primary={
           <Link underline="none" variant="subtitle2" href={commentUrl} target="_blank" rel="noreferrer">
             {title}

@@ -1,44 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  Link,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Card, CardContent, Chip, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
-import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import SpeakerNotesOutlinedIcon from '@mui/icons-material/SpeakerNotesOutlined';
-import dayjs from 'dayjs';
 import { useShallow } from 'zustand/react/shallow';
 import { AnalyzeParams, PullRequest } from '../../services/types';
 import { FilterPanel } from '../../components/FilterPanel/FilterPanel';
 import { ChartContainer, ImportTextButton, PullRequestList } from '../../components';
 import { PageContainer } from '../shared/PageContainer';
 import { useClient } from '../../stores/AuthStore';
-import {
-  getAnalyze,
-  getTeamReviewAuthoredPullRequests,
-  getTeamReviewModel,
-  useChartsStore,
-} from '../../stores/ChartsStore';
+import { getAnalyze, getTeamReviewAuthoredPullRequests, getTeamReviewModel, useChartsStore } from '../../stores/ChartsStore';
 import { useIsGuest } from '../../hooks/useIsGuest';
 import { chartColor } from '../../utils/ColorUtils';
 import { PieChart } from '../../components/charts/PieChart';
-import { TeamReviewPieDatum, TeamReviewRelationship, TeamReviewSummary } from '../../utils/TeamReviewUtils';
+import { TeamReviewPieDatum, TeamReviewSummary } from '../../utils/TeamReviewUtils';
 import { TeamReviewFilterPanel } from './TeamReviewFilterPanel';
 import { RelationshipMatrixMetric, TeamRelationshipMatrix } from './TeamRelationshipMatrix';
 import { PullRequestSizeTrendChart } from './PullRequestSizeTrendChart';
+import { RelationshipDetails } from './RelationshipDetails';
 
 export function TeamReviewPage() {
   const client = useClient();
@@ -64,7 +44,10 @@ export function TeamReviewPage() {
   }, [selectedRelationshipId, teamReviewModel.relationships]);
 
   useEffect(() => {
-    if (selectedRelationshipId && !teamReviewModel.relationships.some((relationship) => relationship.id === selectedRelationshipId)) {
+    if (
+      selectedRelationshipId &&
+      !teamReviewModel.relationships.some((relationship) => relationship.id === selectedRelationshipId)
+    ) {
       setSelectedRelationshipId(null);
     }
   }, [selectedRelationshipId, teamReviewModel.relationships]);
@@ -153,7 +136,7 @@ export function TeamReviewPage() {
                   </CardContent>
                 </Card>
 
-                <RelationshipDetails relationship={selectedRelationship} />
+                <RelationshipDetails relationship={selectedRelationship} metric={relationshipMatrixMetric} />
               </Box>
 
               <PullRequestSizeTrendChart
@@ -238,7 +221,10 @@ function TeamInsightsSection({ summary }: { summary: TeamReviewSummary }) {
       >
         {insightCards.map((item) => (
           <InsightCard key={item.label}>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', letterSpacing: 0.6 }}
+            >
               {item.label}
             </Typography>
             <Typography variant="h5" sx={{ color: 'common.white' }}>
@@ -248,68 +234,6 @@ function TeamInsightsSection({ summary }: { summary: TeamReviewSummary }) {
         ))}
       </Box>
     </Box>
-  );
-}
-
-function RelationshipDetails({ relationship }: { relationship: TeamReviewRelationship | null }) {
-  return (
-    <Card variant="outlined">
-      <CardContent>
-        <Stack spacing={2}>
-          <SectionTitle icon={<GroupOutlinedIcon color="primary" />} title="Relationship details" />
-
-          {!relationship ? (
-            <Typography variant="body2" color="text.secondary">
-              Select a relationship cell to inspect the relationship.
-            </Typography>
-          ) : (
-            <>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-                <PersonBadge user={relationship.reviewer} label="Reviewer" />
-                <Typography variant="h6" color="text.secondary">
-                  -
-                </Typography>
-                <PersonBadge user={relationship.author} label={relationship.isAuthorSelectedTeamMember ? 'Team author' : 'Outside author'} />
-              </Box>
-
-              <Divider />
-
-              <Stack spacing={1}>
-                <MetricRow label="Reviewed PRs" value={relationship.reviewedPullRequestsCount} />
-                <MetricRow label="Approvals" value={relationship.approvalsCount} />
-                <MetricRow label="Discussions started" value={relationship.discussionsStartedCount} />
-                <MetricRow label="Comments left" value={relationship.commentsCount} />
-              </Stack>
-
-              <Divider />
-
-              <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Pull requests
-                </Typography>
-                <List dense disablePadding>
-                  {relationship.pullRequests.map((pullRequest) => (
-                    <ListItem key={pullRequest.id} disableGutters sx={{ py: 0.75 }}>
-                      <ListItemAvatar>
-                        <Avatar src={pullRequest.author.avatarUrl} />
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Link href={pullRequest.url} target="_blank" rel="noreferrer" underline="hover">
-                            {pullRequest.title}
-                          </Link>
-                        }
-                        secondary={`${pullRequest.repositoryName} · ${dayjs(pullRequest.createdAt).format('DD MMM YYYY')}`}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-            </>
-          )}
-        </Stack>
-      </CardContent>
-    </Card>
   );
 }
 
@@ -346,42 +270,6 @@ function SectionTitle({ icon, title }: { icon: React.ReactNode; title: string })
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       {icon}
       <Typography variant="h6">{title}</Typography>
-    </Box>
-  );
-}
-
-function PersonBadge({ user, label }: { user: TeamReviewRelationship['reviewer']; label: string }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-      <Avatar src={user.avatarUrl} />
-      <Box sx={{ minWidth: 0 }}>
-        <Typography variant="body2" fontWeight={700} noWrap>
-          {user.displayName}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          {label}
-        </Typography>
-      </Box>
-    </Box>
-  );
-}
-
-function MetricRow({ label, value, helperText }: { label: string; value: number; helperText?: string }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-      <Box>
-        <Typography variant="body2" color="text.secondary">
-          {label}
-        </Typography>
-        {helperText && (
-          <Typography variant="caption" color="text.secondary">
-            {helperText}
-          </Typography>
-        )}
-      </Box>
-      <Typography variant="body2" fontWeight={700}>
-        {value}
-      </Typography>
     </Box>
   );
 }
