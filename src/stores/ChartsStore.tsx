@@ -13,6 +13,7 @@ import { useStore } from 'zustand';
 import { memoize } from 'proxy-memoize';
 import { getPullRequestOpenDays, getPullRequestSize, isLargePullRequest } from '../utils/PullRequestMetrics';
 import { TeamReviewModel, buildTeamReviewModel } from '../utils/TeamReviewUtils';
+import { toast } from 'react-toastify';
 
 const initialState = {
   isAnalyzing: false as boolean,
@@ -86,6 +87,12 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
         const exportData = await client.fetch(params, {
           onProgress: (analysisProgress) => set({ analysisProgress }, false, 'analysis progress'),
         });
+
+        const minimumWarning = getGiteaMinimumWarning(exportData, params);
+        if (minimumWarning) {
+          toast(minimumWarning, { type: 'warning' });
+        }
+
         initStore(set, exportData);
       } finally {
         set({ isAnalyzing: false, analysisProgress: null }, false, 'finish analysis');
@@ -221,6 +228,17 @@ function createChartsActions(set: NamedSet<ChartsStore>, get: () => ChartsStore)
       );
     },
   };
+}
+
+export function getGiteaMinimumWarning(exportData: ExportData, params: AnalyzeParams): string | null {
+  const available = exportData.data.pullRequests.length;
+  const requested = params.pullRequestCount;
+
+  if (exportData.hostType !== 'Gitea' || !Number.isSafeInteger(requested) || requested <= 0 || available >= requested) {
+    return null;
+  }
+
+  return `Only ${available} unique open or merged PRs are available; the requested minimum was ${requested}.`;
 }
 
 export interface FilterCommentsProps {

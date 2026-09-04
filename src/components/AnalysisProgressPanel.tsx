@@ -97,6 +97,10 @@ export function getProgressSummary(progress: PullRequestFetchProgress): string |
 
   const unit = progress.stage === 'users' ? 'users' : 'pull requests';
 
+  if (progress.minimumTarget && progress.total != null) {
+    return `${progress.fetched} analyzable ${unit} found (minimum ${progress.total})`;
+  }
+
   if (progress.total == null) {
     return `${progress.fetched} ${unit} fetched`;
   }
@@ -124,6 +128,20 @@ export function getProgressDateRange(progress: PullRequestFetchProgress): string
 }
 
 export function getProgressDetail(progress: PullRequestFetchProgress): string | null {
+  if (progress.examined != null) {
+    const details = [`${progress.examined} candidates examined`];
+
+    if ((progress.ineligible ?? 0) > 0) {
+      details.push(`${progress.ineligible} closed/unmerged ${progress.ineligible === 1 ? 'PR' : 'PRs'} skipped`);
+    }
+
+    if ((progress.duplicates ?? 0) > 0) {
+      details.push(`${progress.duplicates} ${progress.duplicates === 1 ? 'duplicate' : 'duplicates'} skipped`);
+    }
+
+    return details.join(' · ');
+  }
+
   if (progress.currentDataType == null) {
     return null;
   }

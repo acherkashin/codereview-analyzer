@@ -30,6 +30,10 @@ export interface PullRequestFetchProgress {
   stageLabel: string;
   fetched?: number;
   total?: number;
+  minimumTarget?: boolean;
+  examined?: number;
+  ineligible?: number;
+  duplicates?: number;
   currentDataType?: string;
   currentPullRequestTitle?: string;
   createdAfter?: string;

@@ -100,8 +100,7 @@ export class GiteaService implements GitService {
 
     const { owner, name } = project;
 
-    const giteaPrs = await getAllPullRequests(this.api, project, pullRequestCount, state, options);
-    const pullRequestsToFetch = giteaPrs.filter((item) => item.merged || item.state === 'open');
+    const pullRequestsToFetch = await getAllPullRequests(this.api, project, pullRequestCount, state, options);
     let completedPullRequests = 0;
 
     const emitDetailProgress = (pullRequest: GiteaPullRequest, currentDataType: string) => {
@@ -237,43 +236,88 @@ async function getAllPullRequests(
   state?: PullRequestStatus,
   options?: FetchOptions
 ): Promise<GiteaPullRequest[]> {
-  const requestedTotal = Number.isSafeInteger(prCount) ? prCount : undefined;
-  const pages = requestedTotal == null ? Number.MAX_SAFE_INTEGER : Math.ceil(prCount / pageSize);
-
+  const requestedMinimum = Number.isSafeInteger(prCount) ? prCount : undefined;
   const pullRequests: GiteaPullRequest[] = [];
+  const seenPullRequests = new Set<string>();
+  let examined = 0;
+  let ineligible = 0;
+  let duplicates = 0;
+  let pageIndex = 1;
 
   emitProgress(options, {
     stage: 'pull-request-list',
-    stageLabel: 'Fetching pull request list',
+    stageLabel: 'Finding analyzable pull requests',
     fetched: 0,
-    total: requestedTotal,
-    currentDataType: 'pull requests',
+    total: requestedMinimum,
+    minimumTarget: requestedMinimum != null,
+    examined,
+    ineligible,
+    duplicates,
   });
 
-  for (let pageIndex = 1; pageIndex <= pages; pageIndex++) {
-    const remainingLimit = requestedTotal == null ? pageSize : Math.min(pageSize, prCount - (pageIndex - 1) * pageSize);
+  while (requestedMinimum == null || pullRequests.length < requestedMinimum) {
     const result = await client.repos.repoListPullRequests(project.owner!, project.name, {
       state,
       // sort: 'recentupdate',
       page: pageIndex,
-      limit: remainingLimit,
+      limit: pageSize,
     });
+    const page = result.data ?? [];
 
-    if ((result.data ?? []).length > 0) {
-      pullRequests.push(...result.data);
-      emitProgress(options, {
-        stage: 'pull-request-list',
-        stageLabel: 'Fetching pull request list',
-        fetched: pullRequests.length,
-        total: requestedTotal,
-        currentDataType: 'pull requests',
-      });
-    } else {
+    if (page.length === 0) {
       break;
     }
+
+    examined += page.length;
+
+    for (const pullRequest of page) {
+      const key = getPullRequestKey(pullRequest);
+      if (seenPullRequests.has(key)) {
+        duplicates++;
+        continue;
+      }
+
+      seenPullRequests.add(key);
+
+      if (!pullRequest.merged && pullRequest.state !== 'open') {
+        ineligible++;
+        continue;
+      }
+
+      pullRequests.push(pullRequest);
+    }
+
+    emitProgress(options, {
+      stage: 'pull-request-list',
+      stageLabel: 'Finding analyzable pull requests',
+      fetched: pullRequests.length,
+      total: requestedMinimum,
+      minimumTarget: requestedMinimum != null,
+      examined,
+      ineligible,
+      duplicates,
+    });
+
+    if (page.length < pageSize) {
+      break;
+    }
+
+    pageIndex++;
   }
 
   return pullRequests;
+}
+
+function getPullRequestKey(pullRequest: GiteaPullRequest): string {
+  if (pullRequest.id != null) {
+    return `id:${pullRequest.id}`;
+  }
+
+  if (pullRequest.number != null) {
+    return `number:${pullRequest.number}`;
+  }
+
+  return `url:${pullRequest.url}`;
 }
 
 function emitProgress(options: FetchOptions | undefined, progress: PullRequestFetchProgress) {

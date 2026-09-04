@@ -7,6 +7,7 @@ import {
   getOneOnOneReviewsFor,
   getTeamReviewAuthoredPullRequests,
   getTeamReviewModel,
+  getGiteaMinimumWarning,
 } from './ChartsStore';
 import { Comment, PullRequest, User, UserDiscussion } from '../services/types';
 
@@ -105,6 +106,32 @@ function createState(pullRequests: PullRequest[]) {
     filteredComments: null,
   } as any;
 }
+
+describe('Gitea analysis warnings', () => {
+  const params = {
+    project: { id: 'repo', name: 'repo', owner: 'owner' },
+    pullRequestCount: 1000,
+    state: 'all' as const,
+  };
+
+  it('reports when the repository is exhausted below the requested minimum', () => {
+    const warning = getGiteaMinimumWarning(
+      { hostType: 'Gitea', hostUrl: 'https://gitea.example.com', data: { pullRequests: new Array(927), users: [] } },
+      params
+    );
+
+    expect(warning).toBe('Only 927 unique open or merged PRs are available; the requested minimum was 1000.');
+  });
+
+  it('does not report a warning when the minimum is reached', () => {
+    const warning = getGiteaMinimumWarning(
+      { hostType: 'Gitea', hostUrl: 'https://gitea.example.com', data: { pullRequests: new Array(1032), users: [] } },
+      params
+    );
+
+    expect(warning).toBeNull();
+  });
+});
 
 describe('1:1 selectors', () => {
   it('aggregates review relationships and manager-facing metrics', () => {

@@ -43,6 +43,29 @@ describe('AnalysisProgressPanel', () => {
     expect(screen.getByLabelText('Pull request fetch progress')).not.toHaveAttribute('aria-valuenow');
   });
 
+  it('distinguishes analyzable results from examined and skipped candidates', () => {
+    render(
+      <AnalysisProgressPanel
+        progress={{
+          stage: 'pull-request-list',
+          stageLabel: 'Finding analyzable pull requests',
+          fetched: 1032,
+          total: 1000,
+          minimumTarget: true,
+          examined: 1100,
+          ineligible: 67,
+          duplicates: 1,
+        }}
+      />
+    );
+
+    expect(screen.getByText('1032 analyzable pull requests found (minimum 1000)')).toBeInTheDocument();
+    expect(
+      screen.getByText('1100 candidates examined · 67 closed/unmerged PRs skipped · 1 duplicate skipped')
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Pull request fetch progress')).toHaveAttribute('aria-valuenow', '100');
+  });
+
   it('keeps variable progress text in single-line clamped rows', () => {
     const longTitle = 'A very long pull request title that should never make the progress panel grow vertically';
 

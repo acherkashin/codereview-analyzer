@@ -26,10 +26,16 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   const hostType = useAuthStore(getHostType);
   const isAnalyzing = useChartsStore((state) => state.isAnalyzing);
   const analysisProgress = useChartsStore((state) => state.analysisProgress);
+  const hasValidPrCount = Number.isSafeInteger(prCount) && prCount > 0;
 
   const handleAnalyze = useCallback(() => {
     if (!project || !createdAfter || !createdBefore) {
       alert('Please select project and time frame');
+      return;
+    }
+
+    if (hostType === 'Gitea' && !hasValidPrCount) {
+      alert('Minimum analyzable PRs must be a positive whole number');
       return;
     }
 
@@ -40,7 +46,7 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
       pullRequestCount: prCount,
       state: 'all',
     });
-  }, [createdAfter, createdBefore, onAnalyze, prCount, project]);
+  }, [createdAfter, createdBefore, hasValidPrCount, hostType, onAnalyze, prCount, project]);
 
   return (
     <Stack spacing={2} position="sticky" top={0} style={style}>
@@ -48,9 +54,12 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
       {hostType === 'Gitea' && (
         <TextField
           type="number"
-          label="Pull Requests Count"
+          label="Minimum analyzable PRs"
           value={prCount}
-          onChange={(e) => setPrCount(parseInt(e.target.value))}
+          onChange={(e) => setPrCount(Number(e.target.value))}
+          error={!hasValidPrCount}
+          helperText="Counts unique open or merged PRs. Closed-unmerged and duplicate results are skipped; the final page may make the total slightly higher."
+          inputProps={{ min: 1, step: 1 }}
         />
       )}
       {hostType === 'Gitlab' && (
@@ -74,7 +83,12 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
         </>
       )}
       {children}
-      <LoadingButton disabled={project == null} startIcon={<AnalyticsIcon />} loading={isAnalyzing} onClick={handleAnalyze}>
+      <LoadingButton
+        disabled={project == null || (hostType === 'Gitea' && !hasValidPrCount)}
+        startIcon={<AnalyticsIcon />}
+        loading={isAnalyzing}
+        onClick={handleAnalyze}
+      >
         Analyze
       </LoadingButton>
       {isAnalyzing && analysisProgress && <AnalysisProgressPanel progress={analysisProgress} />}
