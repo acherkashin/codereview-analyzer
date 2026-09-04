@@ -3,7 +3,13 @@ import { PropsWithChildren } from 'react';
 
 export function ChartsTitle({ children }: PropsWithChildren<{}>) {
   return (
-    <Typography variant="h3" component="h2" ml={3}>
+    <Typography
+      variant="h3"
+      component="h2"
+      sx={{
+        ml: 3,
+      }}
+    >
       {children}
     </Typography>
   );

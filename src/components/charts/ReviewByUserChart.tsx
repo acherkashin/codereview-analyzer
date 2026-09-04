@@ -169,12 +169,28 @@ function ReviewByUserTooltip({
 
   return (
     <BaseChartTooltip>
-      <Stack direction="column" alignItems="center">
-        <Stack direction="row" alignItems="center" gap={1}>
+      <Stack
+        direction="column"
+        sx={{
+          alignItems: 'center',
+        }}
+      >
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
           <Avatar src={userAvatarUrl} alt={`${userName}'s avatar`} />
           <strong>{userName}</strong>
         </Stack>
-        <Stack direction="row" alignItems="center">
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           <ul>
             <li>Pull Requests assigned - {assignedCount}</li>
             <li>

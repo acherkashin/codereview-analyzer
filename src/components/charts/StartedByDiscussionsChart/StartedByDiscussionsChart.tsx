@@ -69,7 +69,11 @@ function StartedByDiscussionsForAll({ discussions, onClick }: StartedByDiscussio
 
 function StartedDiscussionsDescription() {
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       <div>Shows how discussions are distributed among reviewers and who they start discussions with.</div>
       <div>Click on the bar segment to see the list of pull requests where user started discussions.</div>
     </Stack>

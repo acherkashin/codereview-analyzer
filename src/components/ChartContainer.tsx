@@ -54,11 +54,28 @@ export interface ChartHeaderProps extends Pick<ChartContainerProps, 'description
 
 function ChartHeader({ title, description, descriptionTooltipMaxWidth, onMaximizeClick }: ChartHeaderProps) {
   return (
-    <Stack direction="row" justifyContent="space-between" alignItems="center">
-      <Typography variant="subtitle1" color="text.secondary" style={{ marginLeft: 16, marginRight: 16, flex: 1 }}>
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
+    >
+      <Typography
+        variant="subtitle1"
+        style={{ marginLeft: 16, marginRight: 16, flex: 1 }}
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {title}
       </Typography>
-      <Stack direction="row" alignItems="center">
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         {description && <TooltipPrompt maxWidth={descriptionTooltipMaxWidth}>{description}</TooltipPrompt>}
         <IconButton onClick={onMaximizeClick}>
           <Fullscreen />

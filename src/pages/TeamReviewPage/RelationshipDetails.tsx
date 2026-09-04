@@ -73,14 +73,24 @@ export function RelationshipDetails({
             </Box>
 
             {!relationship ? (
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Select a relationship cell to inspect the relationship.
               </Typography>
             ) : (
               <>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
                   <PersonBadge user={relationship.reviewer} label="Reviewer" />
-                  <Typography variant="h6" color="text.secondary">
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     -
                   </Typography>
                   <PersonBadge
@@ -122,7 +132,12 @@ export function RelationshipDetails({
                       })}
                     </List>
                   ) : (
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       {getPullRequestsEmptyText(metric, relationship.reviewer.displayName)}
                     </Typography>
                   )}
@@ -181,7 +196,14 @@ function RelationshipPullRequestItem({
             {getViewDiscussionsLabel(discussionsCount)}
           </Button>
         ) : (
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+              mt: 1,
+            }}
+          >
             No discussions
           </Typography>
         )}
@@ -195,10 +217,21 @@ function PersonBadge({ user, label }: { user: TeamReviewRelationship['reviewer']
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
       <Avatar src={user.avatarUrl} alt={user.displayName} />
       <Box sx={{ minWidth: 0 }}>
-        <Typography variant="body2" fontWeight={700} noWrap>
+        <Typography
+          variant="body2"
+          noWrap
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           {user.displayName}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {label}
         </Typography>
       </Box>
@@ -209,10 +242,20 @@ function PersonBadge({ user, label }: { user: TeamReviewRelationship['reviewer']
 function MetricRow({ label, value }: { label: string; value: number }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {label}
       </Typography>
-      <Typography variant="body2" fontWeight={700}>
+      <Typography
+        variant="body2"
+        sx={{
+          fontWeight: 700,
+        }}
+      >
         {value}
       </Typography>
     </Box>

@@ -28,7 +28,12 @@ export function PullRequestDialog({ open, title, pullRequests, onClose }: PullRe
           </Box>
         ) : (
           <Box sx={{ py: 4, textAlign: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               No pull requests found for this selection.
             </Typography>
           </Box>

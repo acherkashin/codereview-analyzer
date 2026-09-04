@@ -70,7 +70,11 @@ function CommentsLeftChartForUser({ user, comments, onClick }: CommentsLeftBarCh
 
 function CommentsLeftsDescription() {
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       <div>Shows how comments are distributed among reviewers.</div>
       <div>Click on the bar segment to see the list of pull requests where user left comments.</div>
     </Stack>

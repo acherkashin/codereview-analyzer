@@ -8,4 +8,4 @@ script = ""
 [[actions]]
 name = "Run"
 icon = "run"
-command = "npm run start:mac"
+command = "./scripts/start-mac.sh"

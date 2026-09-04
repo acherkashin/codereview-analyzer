@@ -56,7 +56,14 @@ export function CodeReviewChartsPage(_: CodeReviewChartsProps) {
   if (allPrs == null || users == null) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-        <Stack data-testid="analysis-start-panel" spacing={2} position="sticky" style={{ width: 'min(560px, calc(100vw - 32px))' }}>
+        <Stack
+          data-testid="analysis-start-panel"
+          spacing={2}
+          style={{ width: 'min(560px, calc(100vw - 32px))' }}
+          sx={{
+            position: 'sticky',
+          }}
+        >
           {!isGuest && <FilterPanel onAnalyze={handleAnalyze} />}
           {!isAnalyzing && (
             <ImportTextButton

@@ -20,7 +20,11 @@ export function DiscussionsStartedByPerMonthChart({ discussions, user, onClick }
     <ChartContainer
       title="Discussions started by person per month"
       description={
-        <Stack gap={1}>
+        <Stack
+          sx={{
+            gap: 1,
+          }}
+        >
           <div>Enables the analysis of how frequently each user initiates discussions on a monthly basis.</div>
           <div>
             It also provides the capability to filter results by individual users to view the quantity of discussions started by

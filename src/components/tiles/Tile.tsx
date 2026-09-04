@@ -69,8 +69,8 @@ const Icon = styled('i')(({ theme }) => ({
 export function Tile({ title, count, details, icon, description }: TileProps) {
   return (
     <TileRoot>
-      <Header title={title} direction="row" justifyContent="space-between">
-        <Title>{title}</Title>
+      <Header direction="row" sx={{ justifyContent: 'space-between' }}>
+        <Title title={title}>{title}</Title>
         {description && <TooltipPrompt>{description}</TooltipPrompt>}
       </Header>
       <Details title={typeof details === 'string' ? details : undefined}>{details}</Details>

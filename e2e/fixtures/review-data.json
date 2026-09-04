@@ -1,0 +1,221 @@
+{
+  "hostType": "Gitea",
+  "hostUrl": "https://gitea.example.com",
+  "data": {
+    "users": [
+      {
+        "id": 1,
+        "login": "alice",
+        "full_name": "Alice Reviewer",
+        "avatar_url": "",
+        "active": true
+      },
+      {
+        "id": 2,
+        "login": "bob",
+        "full_name": "Bob Builder",
+        "avatar_url": "",
+        "active": true
+      },
+      {
+        "id": 3,
+        "login": "carol",
+        "full_name": "Carol Coder",
+        "avatar_url": "",
+        "active": true
+      }
+    ],
+    "pullRequests": [
+      {
+        "projectName": "analytics-web",
+        "pullRequest": {
+          "id": 101,
+          "title": "Improve dashboard filters",
+          "state": "closed",
+          "merged": true,
+          "html_url": "https://gitea.example.com/analytics-web/pulls/101",
+          "created_at": "2026-04-01T09:00:00.000Z",
+          "updated_at": "2026-04-05T15:00:00.000Z",
+          "merged_at": "2026-04-05T15:00:00.000Z",
+          "base": { "label": "main" },
+          "head": { "label": "feature/dashboard-filters" },
+          "user": { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true },
+          "requested_reviewers": [
+            { "id": 2, "login": "bob", "full_name": "Bob Builder", "avatar_url": "", "active": true }
+          ]
+        },
+        "reviews": [
+          {
+            "id": 1001,
+            "state": "APPROVED",
+            "body": "Looks good after the accessibility fixes.",
+            "submitted_at": "2026-04-04T12:00:00.000Z",
+            "html_url": "https://gitea.example.com/analytics-web/pulls/101#review-1001",
+            "user": { "id": 2, "login": "bob", "full_name": "Bob Builder", "avatar_url": "", "active": true }
+          }
+        ],
+        "comments": [
+          {
+            "id": 2001,
+            "body": "Can we keep the selected dates visible on mobile?",
+            "created_at": "2026-04-03T10:00:00.000Z",
+            "html_url": "https://gitea.example.com/analytics-web/pulls/101#comment-2001",
+            "path": "src/filters.tsx",
+            "position": 18,
+            "pull_request_review_id": 1001,
+            "user": { "id": 2, "login": "bob", "full_name": "Bob Builder", "avatar_url": "", "active": true }
+          }
+        ],
+        "timeline": [],
+        "files": [
+          { "filename": "src/filters.tsx", "additions": 180, "deletions": 40 },
+          { "filename": "src/theme.ts", "additions": 24, "deletions": 8 }
+        ]
+      },
+      {
+        "projectName": "analytics-api",
+        "pullRequest": {
+          "id": 102,
+          "title": "Add review relationship endpoint",
+          "state": "closed",
+          "merged": true,
+          "html_url": "https://gitea.example.com/analytics-api/pulls/102",
+          "created_at": "2026-04-08T09:00:00.000Z",
+          "updated_at": "2026-04-12T15:00:00.000Z",
+          "merged_at": "2026-04-12T15:00:00.000Z",
+          "base": { "label": "main" },
+          "head": { "label": "feature/review-relationships" },
+          "user": { "id": 2, "login": "bob", "full_name": "Bob Builder", "avatar_url": "", "active": true },
+          "requested_reviewers": [
+            { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true }
+          ]
+        },
+        "reviews": [
+          {
+            "id": 1002,
+            "state": "REQUEST_CHANGES",
+            "body": "Please add pagination before merging.",
+            "submitted_at": "2026-04-10T12:00:00.000Z",
+            "html_url": "https://gitea.example.com/analytics-api/pulls/102#review-1002",
+            "user": { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true }
+          },
+          {
+            "id": 1003,
+            "state": "APPROVED",
+            "body": "Pagination looks solid now.",
+            "submitted_at": "2026-04-12T11:00:00.000Z",
+            "html_url": "https://gitea.example.com/analytics-api/pulls/102#review-1003",
+            "user": { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true }
+          }
+        ],
+        "comments": [
+          {
+            "id": 2002,
+            "body": "This query needs a stable sort order.",
+            "created_at": "2026-04-10T10:00:00.000Z",
+            "html_url": "https://gitea.example.com/analytics-api/pulls/102#comment-2002",
+            "path": "src/relationships.ts",
+            "position": 42,
+            "pull_request_review_id": 1002,
+            "user": { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true }
+          }
+        ],
+        "timeline": [],
+        "files": [
+          { "filename": "src/relationships.ts", "additions": 420, "deletions": 90 },
+          { "filename": "src/routes.ts", "additions": 62, "deletions": 14 }
+        ]
+      },
+      {
+        "projectName": "developer-portal",
+        "pullRequest": {
+          "id": 103,
+          "title": "Document import workflow",
+          "state": "closed",
+          "merged": true,
+          "html_url": "https://gitea.example.com/developer-portal/pulls/103",
+          "created_at": "2026-04-15T09:00:00.000Z",
+          "updated_at": "2026-04-18T15:00:00.000Z",
+          "merged_at": "2026-04-18T15:00:00.000Z",
+          "base": { "label": "main" },
+          "head": { "label": "docs/import-workflow" },
+          "user": { "id": 3, "login": "carol", "full_name": "Carol Coder", "avatar_url": "", "active": true },
+          "requested_reviewers": [
+            { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true }
+          ]
+        },
+        "reviews": [
+          {
+            "id": 1004,
+            "state": "APPROVED",
+            "body": "Clear and easy to follow.",
+            "submitted_at": "2026-04-17T12:00:00.000Z",
+            "html_url": "https://gitea.example.com/developer-portal/pulls/103#review-1004",
+            "user": { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true }
+          }
+        ],
+        "comments": [
+          {
+            "id": 2003,
+            "body": "Please include a recovery step for malformed files.",
+            "created_at": "2026-04-16T10:00:00.000Z",
+            "html_url": "https://gitea.example.com/developer-portal/pulls/103#comment-2003",
+            "path": "docs/import.md",
+            "position": 12,
+            "pull_request_review_id": 1004,
+            "user": { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true }
+          }
+        ],
+        "timeline": [],
+        "files": [
+          { "filename": "docs/import.md", "additions": 70, "deletions": 12 }
+        ]
+      },
+      {
+        "projectName": "analytics-web",
+        "pullRequest": {
+          "id": 104,
+          "title": "Add team review summary cards",
+          "state": "open",
+          "merged": false,
+          "html_url": "https://gitea.example.com/analytics-web/pulls/104",
+          "created_at": "2026-04-20T09:00:00.000Z",
+          "updated_at": "2026-04-23T15:00:00.000Z",
+          "base": { "label": "main" },
+          "head": { "label": "feature/team-summary" },
+          "user": { "id": 1, "login": "alice", "full_name": "Alice Reviewer", "avatar_url": "", "active": true },
+          "requested_reviewers": [
+            { "id": 3, "login": "carol", "full_name": "Carol Coder", "avatar_url": "", "active": true }
+          ]
+        },
+        "reviews": [
+          {
+            "id": 1005,
+            "state": "COMMENT",
+            "body": "The summary is useful; consider a compact mobile layout.",
+            "submitted_at": "2026-04-22T12:00:00.000Z",
+            "html_url": "https://gitea.example.com/analytics-web/pulls/104#review-1005",
+            "user": { "id": 3, "login": "carol", "full_name": "Carol Coder", "avatar_url": "", "active": true }
+          }
+        ],
+        "comments": [
+          {
+            "id": 2004,
+            "body": "This card wraps at tablet width.",
+            "created_at": "2026-04-22T10:00:00.000Z",
+            "html_url": "https://gitea.example.com/analytics-web/pulls/104#comment-2004",
+            "path": "src/team-review.tsx",
+            "position": 32,
+            "pull_request_review_id": 1005,
+            "user": { "id": 3, "login": "carol", "full_name": "Carol Coder", "avatar_url": "", "active": true }
+          }
+        ],
+        "timeline": [],
+        "files": [
+          { "filename": "src/team-review.tsx", "additions": 820, "deletions": 230 },
+          { "filename": "src/team-review.test.tsx", "additions": 160, "deletions": 0 }
+        ]
+      }
+    ]
+  }
+}

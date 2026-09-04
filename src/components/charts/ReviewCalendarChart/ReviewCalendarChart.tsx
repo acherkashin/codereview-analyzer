@@ -38,7 +38,11 @@ export function ReviewCalendarChart({ pullRequests, user }: ReviewCalendarChartP
       title={title}
       height={chartsCount * 250}
       description={
-        <Stack gap={1}>
+        <Stack
+          sx={{
+            gap: 1,
+          }}
+        >
           <div>Enables the analysis of how frequently each user reviews on a daily basis.</div>
           <div>
             A user is considered to have made a review if he or she either approved a pull request or left a comment on the pull.

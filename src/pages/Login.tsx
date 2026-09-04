@@ -1,6 +1,5 @@
 import {
   Button,
-  ListItem,
   ListItemIcon,
   ListItemText,
   MenuItem,
@@ -17,7 +16,6 @@ import GiteaIcon from './../components/gitea.svg?react';
 import { TooltipPrompt } from '../components';
 import { getSignIn, getSignInGuest, useAuthStore } from '../stores/AuthStore';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LoadingButton } from '@mui/lab';
 import { Logo } from '../components/Logo';
 import { useAuthGuard } from '../hooks/useAuthGuard';
 import { HostingType } from '../services/types';
@@ -75,9 +73,22 @@ export function Login(_: LoginProps) {
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="100%">
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <Stack style={{ width: 500 }} spacing={2}>
-        <Stack alignItems={'center'} spacing={2}>
+        <Stack
+          spacing={2}
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           <Logo />
           <Typography variant="h5" component="h1">
             Code Review Analyzer
@@ -85,20 +96,16 @@ export function Login(_: LoginProps) {
         </Stack>
         <Select required value={hostType} onChange={handleChange} style={{ height: 56 }}>
           <MenuItem value="Gitlab">
-            <ListItem>
-              <ListItemIcon>
-                <GitLabIcon style={{ width: 24 }} />
-              </ListItemIcon>
-              <ListItemText>Gitlab</ListItemText>
-            </ListItem>
+            <ListItemIcon>
+              <GitLabIcon style={{ width: 24 }} />
+            </ListItemIcon>
+            <ListItemText>Gitlab</ListItemText>
           </MenuItem>
           <MenuItem value="Gitea">
-            <ListItem>
-              <ListItemIcon>
-                <GiteaIcon style={{ width: 24 }} />
-              </ListItemIcon>
-              <ListItemText>Gitea</ListItemText>
-            </ListItem>
+            <ListItemIcon>
+              <GiteaIcon style={{ width: 24 }} />
+            </ListItemIcon>
+            <ListItemText>Gitea</ListItemText>
           </MenuItem>
         </Select>
         <TextField
@@ -120,20 +127,22 @@ export function Login(_: LoginProps) {
           error={!!signInError}
           helperText={signInError}
           onChange={(e) => setToken(e.target.value)}
-          InputProps={{
-            endAdornment:
-              tokenHelp[hostType] != null ? (
-                <TooltipPrompt>
-                  <a href={tokenHelp[hostType]} target="_blank" rel="noreferrer">
-                    Personal Access Token
-                  </a>
-                </TooltipPrompt>
-              ) : null,
+          slotProps={{
+            input: {
+              endAdornment:
+                tokenHelp[hostType] != null ? (
+                  <TooltipPrompt>
+                    <a href={tokenHelp[hostType]} target="_blank" rel="noreferrer">
+                      Personal Access Token
+                    </a>
+                  </TooltipPrompt>
+                ) : null,
+            },
           }}
         />
-        <LoadingButton loading={isSigningIn} startIcon={<LoginIcon />} onClick={handleLoggedIn}>
+        <Button loading={isSigningIn} startIcon={<LoginIcon />} onClick={handleLoggedIn}>
           Login
-        </LoadingButton>
+        </Button>
         {isSigningIn && <Button onClick={cancelSignIn}>Cancel</Button>}
         <Button onClick={handleLoginAsGuest} startIcon={<PersonIcon />}>
           Login As Guest

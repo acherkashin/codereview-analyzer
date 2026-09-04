@@ -68,7 +68,7 @@ export function TeamReviewFilterPanel() {
   );
 
   return (
-    <Root direction="row" spacing={2}>
+    <Root data-testid="analysis-filter-panel" direction={{ xs: 'column', sm: 'row' }} spacing={2}>
       <DatePicker
         label="Created After"
         format="DD/MM/YYYY"
@@ -76,6 +76,7 @@ export function TeamReviewFilterPanel() {
         minDate={minDate}
         maxDate={maxDate}
         onChange={setStartDate}
+        slotProps={{ textField: { sx: { width: { xs: '100%', sm: 'auto' } } } }}
       />
       <DatePicker
         label="Created Before"
@@ -84,9 +85,10 @@ export function TeamReviewFilterPanel() {
         minDate={startDate || undefined}
         maxDate={maxDate}
         onChange={setEndDate}
+        slotProps={{ textField: { sx: { width: { xs: '100%', sm: 'auto' } } } }}
       />
 
-      <Divider aria-hidden="true" orientation="vertical" variant="middle" />
+      <Divider aria-hidden="true" orientation="vertical" variant="middle" sx={{ display: { xs: 'none', sm: 'block' } }} />
 
       <Autocomplete
         multiple
@@ -97,10 +99,10 @@ export function TeamReviewFilterPanel() {
         isOptionEqualToValue={(option, value) => option.id === value.id}
         getOptionLabel={(option) => option.displayName}
         onChange={(_, value) => setTeamUsers(value)}
-        renderTags={(value, getTagProps) =>
+        renderValue={(value, getItemProps) =>
           value.map((option, index) => (
             <Chip
-              {...getTagProps({ index })}
+              {...getItemProps({ index })}
               key={option.id}
               avatar={<Avatar src={option.avatarUrl} alt={option.displayName} />}
               label={option.displayName}
@@ -108,7 +110,9 @@ export function TeamReviewFilterPanel() {
             />
           ))
         }
-        renderOption={(props, user, { selected }) => <UserListItem key={user.id} user={user} selected={selected} {...props} />}
+        renderOption={({ key, ...props }, user, { selected }) => (
+          <UserListItem key={key} user={user} selected={selected} {...props} />
+        )}
         renderInput={(params) => <TextField {...params} label="Team members" placeholder="Select members" />}
         sx={{ minWidth: { xs: '100%', sm: 420 }, flexGrow: 1 }}
       />
@@ -118,7 +122,9 @@ export function TeamReviewFilterPanel() {
           <Switch
             checked={showOutsideTeamMembers}
             onChange={(_, checked) => setShowOutsideTeamMembers(checked)}
-            inputProps={{ 'aria-label': 'Show outside team' }}
+            slotProps={{
+              input: { 'aria-label': 'Show outside team' },
+            }}
           />
         }
         label="Show outside team"
@@ -173,4 +179,8 @@ const Root = styled(Stack)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   zIndex: 1,
   flexWrap: 'wrap',
+  [theme.breakpoints.down('sm')]: {
+    position: 'static',
+    flexWrap: 'nowrap',
+  },
 }));

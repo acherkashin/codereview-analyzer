@@ -120,7 +120,13 @@ export function TeamRelationshipMatrix({
           <TableHead>
             <TableRow>
               <StickyHeaderCell sx={{ width: 220 }}>
-                <Typography variant="caption" color="text.secondary" fontWeight={700}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                    fontWeight: 700,
+                  }}
+                >
                   Reviewer / author
                 </Typography>
               </StickyHeaderCell>
@@ -171,9 +177,26 @@ export function TeamRelationshipMatrix({
 
 function PersonColumnHeader({ user, isSelectedTeamMember }: { user: User; isSelectedTeamMember: boolean }) {
   return (
-    <Stack spacing={0.75} alignItems="center" sx={{ minWidth: 0 }}>
-      <Avatar src={user.avatarUrl} alt={user.displayName} sx={{ width: 30, height: 30, filter: isSelectedTeamMember ? 'none' : 'grayscale(1)' }} />
-      <Typography variant="caption" fontWeight={700} noWrap sx={{ maxWidth: '100%' }}>
+    <Stack
+      spacing={0.75}
+      sx={{
+        alignItems: 'center',
+        minWidth: 0,
+      }}
+    >
+      <Avatar
+        src={user.avatarUrl}
+        alt={user.displayName}
+        sx={{ width: 30, height: 30, filter: isSelectedTeamMember ? 'none' : 'grayscale(1)' }}
+      />
+      <Typography
+        variant="caption"
+        noWrap
+        sx={{
+          fontWeight: 700,
+          maxWidth: '100%',
+        }}
+      >
         {user.displayName}
       </Typography>
       {!isSelectedTeamMember && <Chip label="Outside" size="small" variant="outlined" sx={{ height: 20, fontSize: 11 }} />}
@@ -186,10 +209,22 @@ function PersonRowHeader({ user }: { user: User }) {
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
       <Avatar src={user.avatarUrl} alt={user.displayName} sx={{ width: 30, height: 30 }} />
       <Box sx={{ minWidth: 0 }}>
-        <Typography variant="body2" fontWeight={700} noWrap>
+        <Typography
+          variant="body2"
+          noWrap
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           {user.displayName}
         </Typography>
-        <Typography variant="caption" color="text.secondary" noWrap>
+        <Typography
+          variant="caption"
+          noWrap
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {user.userName}
         </Typography>
       </Box>
@@ -223,7 +258,12 @@ function RelationshipCell({
         data-testid={`relationship-matrix-cell-${reviewer.id}-${author.id}`}
         sx={{ backgroundColor: '#F8FAFC', color: 'text.disabled' }}
       >
-        <Typography variant="caption" fontWeight={700}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           Self
         </Typography>
       </TableCell>
@@ -237,7 +277,10 @@ function RelationshipCell({
         data-testid={`relationship-matrix-cell-${reviewer.id}-${author.id}`}
         sx={{ backgroundColor: '#FCFCFD', color: 'text.disabled' }}
       >
-        <Typography variant="body2" aria-label={`${reviewer.displayName} has no captured relationship with ${author.displayName}`}>
+        <Typography
+          variant="body2"
+          aria-label={`${reviewer.displayName} has no captured relationship with ${author.displayName}`}
+        >
           -
         </Typography>
       </TableCell>
@@ -280,7 +323,12 @@ function RelationshipCell({
           },
         }}
       >
-        <Typography variant="body2" fontWeight={800}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 800,
+          }}
+        >
           {value}
         </Typography>
       </Box>
@@ -291,10 +339,21 @@ function RelationshipCell({
 function HeatmapLegend({ label }: { label: string }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-      <Typography variant="caption" color="text.secondary" fontWeight={700}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+          fontWeight: 700,
+        }}
+      >
         {label}
       </Typography>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         Low
       </Typography>
       {[0.18, 0.38, 0.58, 0.78].map((intensity) => (
@@ -309,7 +368,12 @@ function HeatmapLegend({ label }: { label: string }) {
           }}
         />
       ))}
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         High
       </Typography>
     </Box>

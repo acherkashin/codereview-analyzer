@@ -39,7 +39,7 @@ export function OneOnOneFilterPanel() {
   const [open, setOpen] = useState(false);
 
   return (
-    <Root direction="row" spacing={2}>
+    <Root data-testid="analysis-filter-panel" direction={{ xs: 'column', sm: 'row' }} spacing={2}>
       <DatePicker
         label="Created After"
         format="DD/MM/YYYY"
@@ -47,6 +47,7 @@ export function OneOnOneFilterPanel() {
         minDate={minDate}
         maxDate={maxDate}
         onChange={setStartDate}
+        slotProps={{ textField: { sx: { width: { xs: '100%', sm: 'auto' } } } }}
       />
       <DatePicker
         label="Created Before"
@@ -55,9 +56,10 @@ export function OneOnOneFilterPanel() {
         minDate={startDate || undefined}
         maxDate={maxDate}
         onChange={setEndDate}
+        slotProps={{ textField: { sx: { width: { xs: '100%', sm: 'auto' } } } }}
       />
 
-      <Divider aria-hidden="true" orientation="vertical" variant="middle" />
+      <Divider aria-hidden="true" orientation="vertical" variant="middle" sx={{ display: { xs: 'none', sm: 'block' } }} />
 
       <UsersList label="Team member" user={user} users={users} onSelected={setUser} />
 
@@ -109,4 +111,8 @@ const Root = styled(Stack)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   zIndex: 1,
   flexWrap: 'wrap',
+  [theme.breakpoints.down('sm')]: {
+    position: 'static',
+    flexWrap: 'nowrap',
+  },
 }));

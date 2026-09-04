@@ -33,7 +33,12 @@ export function SideBar(_: SideBarProps) {
         }}
       >
         <div>
-          <Box sx={{ paddingTop: 3 }} textAlign="center">
+          <Box
+            sx={{
+              textAlign: 'center',
+              paddingTop: 3,
+            }}
+          >
             <RouterLink to="/">
               <Logo />
             </RouterLink>
@@ -53,10 +58,10 @@ export function SideBar(_: SideBarProps) {
               }}
             >
               <div>
-                <Typography color="inherit" variant="subtitle1">
+                <Typography variant="subtitle1" sx={{ color: 'inherit' }}>
                   Acme Inc
                 </Typography>
-                <Typography color="neutral.400" variant="body2">
+                <Typography variant="body2" sx={{ color: 'neutral.400' }}>
                   Your tier : Premium
                 </Typography>
               </div>
@@ -77,15 +82,25 @@ export function SideBar(_: SideBarProps) {
         <Divider sx={{ borderColor: '#2D3748' }} />
         <Box
           sx={{
+            textAlign: 'center',
             px: 2,
             py: 3,
           }}
-          textAlign="center"
         >
-          <Typography color="neutral.100" variant="subtitle2">
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: 'neutral.100',
+            }}
+          >
             Need more features or found a bug?
           </Typography>
-          <Typography color="neutral.500" variant="body2">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'neutral.500',
+            }}
+          >
             Create an issue on GitHub
           </Typography>
           <Button
@@ -124,11 +139,13 @@ export function SideBar(_: SideBarProps) {
   //       <Drawer
   //         anchor="left"
   //         open
-  //         PaperProps={{
-  //           sx: {
-  //             backgroundColor: 'neutral.900',
-  //             color: '#FFFFFF',
-  //             width: 280,
+  //         slotProps={{
+  //           paper: {
+  //             sx: {
+  //               backgroundColor: 'neutral.900',
+  //               color: '#FFFFFF',
+  //               width: 280,
+  //             },
   //           },
   //         }}
   //         variant="permanent"
@@ -143,11 +160,13 @@ export function SideBar(_: SideBarProps) {
   //       anchor="left"
   //       onClose={() => {}}
   //       open={false}
-  //       PaperProps={{
-  //         sx: {
-  //           backgroundColor: 'neutral.900',
-  //           color: '#FFFFFF',
-  //           width: 280,
+  //       slotProps={{
+  //         paper: {
+  //           sx: {
+  //             backgroundColor: 'neutral.900',
+  //             color: '#FFFFFF',
+  //             width: 280,
+  //           },
   //         },
   //       }}
   //       sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}

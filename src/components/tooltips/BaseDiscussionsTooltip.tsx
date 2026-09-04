@@ -11,7 +11,11 @@ export interface BaseDiscussionsTooltipProps extends BaseChartTooltipProps {
 export function BaseDiscussionsTooltip({ reviewer, author, count, total, ...props }: BaseDiscussionsTooltipProps) {
   return (
     <BaseChartTooltip {...props}>
-      <Stack gap={1}>
+      <Stack
+        sx={{
+          gap: 1,
+        }}
+      >
         <div>
           <strong>{reviewer}</strong> started <strong>{count}</strong> discussions with <strong>{author}</strong>
         </div>

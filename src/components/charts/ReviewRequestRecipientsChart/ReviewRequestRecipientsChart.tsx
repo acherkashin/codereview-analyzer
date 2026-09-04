@@ -77,7 +77,11 @@ function ReviewRequestForUser({ user, pullRequests }: ReviewRequestRecipientsPro
 
 function ReviewRequestDescription() {
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       <div>Shows whom users frequently request reviews from and displays the individuals who ask to review their changes.</div>
       <div>Filter by a particular user to easily identify whom users ask for review.</div>
     </Stack>

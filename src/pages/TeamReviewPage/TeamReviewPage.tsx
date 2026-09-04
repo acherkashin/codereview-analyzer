@@ -68,7 +68,13 @@ export function TeamReviewPage() {
   if (allPullRequests == null || users == null) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-        <Stack spacing={2} position="sticky" style={{ width: 300 }}>
+        <Stack
+          spacing={2}
+          style={{ width: 300 }}
+          sx={{
+            position: 'sticky',
+          }}
+        >
           {!isGuest && <FilterPanel onAnalyze={handleAnalyze} />}
           <ImportTextButton
             label="Import as JSON"
@@ -95,7 +101,12 @@ export function TeamReviewPage() {
             <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
               Team Review
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Review team collaboration, review coverage, and authored pull request shape for the selected period.
             </Typography>
           </Box>
@@ -171,7 +182,12 @@ export function TeamReviewPage() {
                 <CardContent>
                   <Stack spacing={2}>
                     <SectionTitle icon={<AssignmentOutlinedIcon color="primary" />} title="Pull requests" />
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Authored pull requests created by selected team members in the selected period.
                     </Typography>
 
@@ -209,7 +225,13 @@ function TeamInsightsSection({ summary }: { summary: TeamReviewSummary }) {
   return (
     <Box>
       <Typography variant="h6">Insights</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mb: 1.5,
+        }}
+      >
         Snapshot of authored work and directional review activity for the selected team.
       </Typography>
       <Box
@@ -256,7 +278,12 @@ function ReviewShareChart({
         <PieChart data={visibleData} colors={chartColor} />
       ) : (
         <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', px: 3, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {emptyText}
           </Typography>
         </Box>
@@ -280,7 +307,12 @@ function EmptyStateCard({ title, description }: { title: string; description: st
       <CardContent>
         <Stack spacing={1}>
           <SectionTitle icon={<SpeakerNotesOutlinedIcon color="primary" />} title={title} />
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {description}
           </Typography>
         </Stack>
@@ -292,7 +324,12 @@ function EmptyStateCard({ title, description }: { title: string; description: st
 function EmptyStatePanel({ description }: { description: string }) {
   return (
     <Box sx={{ p: 2, borderRadius: 1, border: '1px solid', borderColor: 'divider', backgroundColor: 'background.default' }}>
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {description}
       </Typography>
     </Box>

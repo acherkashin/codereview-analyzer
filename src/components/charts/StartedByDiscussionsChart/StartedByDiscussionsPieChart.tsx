@@ -17,7 +17,11 @@ export function StartedByDiscussionsPieChart({ discussions, onClick }: StartedBy
     <ChartContainer
       title="Discussions started by person"
       description={
-        <Stack gap={1}>
+        <Stack
+          sx={{
+            gap: 1,
+          }}
+        >
           <div>
             Allows you to see the ratio of the total number of discussions, who starts more discussions and who starts more.
             discussions.

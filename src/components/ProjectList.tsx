@@ -43,8 +43,8 @@ export function ProjectList({ project, onSelected }: ProjectListProps) {
       onInputChange={(_, newInputValue) => setValue(newInputValue)}
       // reset client side filtering
       filterOptions={(x) => x}
-      renderOption={(props, item) => (
-        <ListItem key={item.id} alignItems="flex-start" {...props}>
+      renderOption={({ key, ...props }, item) => (
+        <ListItem key={key} alignItems="flex-start" {...props}>
           <ListItemButton selected={project?.id === item.id}>
             <ListItemAvatar>
               <Avatar alt={item.name} src={item.avatarUrl} />
@@ -59,14 +59,18 @@ export function ProjectList({ project, onSelected }: ProjectListProps) {
           label="Projects"
           error={!project}
           helperText={!project ? 'Please select a project' : undefined}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <React.Fragment>
-                {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                {params.InputProps.endAdornment}
-              </React.Fragment>
-            ),
+          slotProps={{
+            ...params.slotProps,
+
+            input: {
+              ...params.slotProps.input,
+              endAdornment: (
+                <React.Fragment>
+                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.slotProps.input.endAdornment}
+                </React.Fragment>
+              ),
+            },
           }}
         />
       )}

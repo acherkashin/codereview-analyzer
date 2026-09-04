@@ -56,13 +56,25 @@ export function AppHeader() {
 
   return (
     <DashboardNavbarRoot position="relative">
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 3 } }}>
         <Toolbar disableGutters>
-          <Logo />
-          <Typography color="text.primary" variant="h6" noWrap component="div" sx={{ ml: 2, display: 'flex', flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', flexShrink: 0, '& img': { width: { xs: 40, sm: 50 } } }}>
+            <Logo />
+          </Box>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              color: 'text.primary',
+              ml: 2,
+              display: { xs: 'none', md: 'flex' },
+              flexGrow: 1,
+            }}
+          >
             Analyzer
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.25, sm: 1 }, ml: 'auto', mr: { xs: 1, sm: 2 } }}>
             {[
               { label: 'Charts', href: '/charts' },
               { label: '1:1 Review', href: '/one-on-one' },
@@ -73,6 +85,9 @@ export function AppHeader() {
                 color={location.pathname === item.href ? 'primary' : 'inherit'}
                 variant={location.pathname === item.href ? 'contained' : 'text'}
                 sx={{
+                  minWidth: { xs: 0, sm: 64 },
+                  px: { xs: 1, sm: 2 },
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
                   color: location.pathname === item.href ? undefined : 'text.primary',
                   backgroundColor: location.pathname === item.href ? undefined : 'transparent',
                   '&:hover': {

@@ -29,7 +29,11 @@ export function CommentsReceivedPieChart({ comments, onClick }: CommentsReceived
 
 function CommentsRecievedDescription() {
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       <div>Shows how comments are distributed among authors of pull requests</div>
       <div>Click on the slice to see the list of pull requests where user left comments.</div>
     </Stack>

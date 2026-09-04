@@ -26,8 +26,19 @@ export function AnalysisProgressPanel({ progress }: AnalysisProgressPanelProps) 
         overflow: 'hidden',
       }}
     >
-      <Stack spacing={1} height="100%" justifyContent="space-between">
-        <Stack spacing={0.25} minWidth={0}>
+      <Stack
+        spacing={1}
+        sx={{
+          height: '100%',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Stack
+          spacing={0.25}
+          sx={{
+            minWidth: 0,
+          }}
+        >
           <NoWrapTypography variant="subtitle2">{progress.stageLabel}</NoWrapTypography>
           {summary && (
             <NoWrapTypography variant="body2" color="text.secondary">

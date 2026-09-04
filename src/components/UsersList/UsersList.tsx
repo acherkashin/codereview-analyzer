@@ -63,19 +63,24 @@ export function UsersList({
       onChange={(_, newValue) => onSelected(newValue ?? undefined)}
       onInputChange={(_, newInputValue) => setValue(newInputValue)}
       filterOptions={filter}
-      renderOption={(props, item) => <UserListItem key={item.id} user={item} selected={item.id === user?.id} {...props} />}
+      renderOption={({ key, ...props }, item) => (
+        <UserListItem key={key} user={item} selected={item.id === user?.id} {...props} />
+      )}
       renderInput={(params) => (
         <TextField
           {...params}
           label={label}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
+          slotProps={{
+            ...params.slotProps,
+            input: {
+              ...params.slotProps.input,
+              endAdornment: (
+                <>
+                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.slotProps.input.endAdornment}
+                </>
+              ),
+            },
           }}
         />
       )}
@@ -95,6 +100,10 @@ function filterOptions(isApiSearchMode: boolean, users: User[]) {
   }
 }
 
-const UsersListAutocomplete = styled(Autocomplete)({
+const UsersListAutocomplete = styled(Autocomplete)(({ theme }) => ({
   minWidth: 300,
-}) as any as typeof Autocomplete;
+  [theme.breakpoints.down('sm')]: {
+    minWidth: 0,
+    width: '100%',
+  },
+})) as any as typeof Autocomplete;

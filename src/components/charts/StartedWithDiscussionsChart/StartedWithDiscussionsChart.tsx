@@ -70,7 +70,11 @@ export function DiscussionsChartForUser({ user, discussions, onClick }: StartedW
 
 function StartedDiscussionsDescription() {
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       <div>Shows how discussions are distributed among authors of pull requests and who starts those discussions.</div>
       <div>Click on any segment to dive into the conversations happening around that author.</div>
     </Stack>

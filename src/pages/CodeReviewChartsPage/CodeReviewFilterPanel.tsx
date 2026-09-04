@@ -57,7 +57,7 @@ export function CodeReviewFilterPanel() {
   };
 
   return (
-    <Root direction="row" spacing={2}>
+    <Root data-testid="analysis-filter-panel" direction={{ xs: 'column', sm: 'row' }} spacing={2}>
       <DatePicker
         label="Created After"
         format="DD/MM/YYYY"
@@ -65,6 +65,7 @@ export function CodeReviewFilterPanel() {
         minDate={minDate}
         maxDate={maxDate}
         onChange={setStartDate}
+        slotProps={{ textField: { sx: { width: { xs: '100%', sm: 'auto' } } } }}
       />
       <DatePicker
         label="Created Before"
@@ -73,9 +74,10 @@ export function CodeReviewFilterPanel() {
         minDate={startDate || undefined}
         maxDate={maxDate}
         onChange={setEndDate}
+        slotProps={{ textField: { sx: { width: { xs: '100%', sm: 'auto' } } } }}
       />
 
-      <Divider aria-hidden="true" orientation="vertical" variant="middle" />
+      <Divider aria-hidden="true" orientation="vertical" variant="middle" sx={{ display: { xs: 'none', sm: 'block' } }} />
 
       <UsersList label="Users" user={user} users={users} onSelected={setUser} />
 
@@ -124,4 +126,7 @@ const Root = styled(Stack)(({ theme }) => ({
   top: 0,
   backgroundColor: theme.palette.background.default,
   zIndex: 1,
+  [theme.breakpoints.down('sm')]: {
+    position: 'static',
+  },
 }));

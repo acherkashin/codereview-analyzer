@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material';
+import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
   breakpoints: {
@@ -18,6 +18,11 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
+          variants: [
+            { props: { variant: 'text', size: 'small' }, style: { padding: '7px 12px' } },
+            { props: { variant: 'text', size: 'medium' }, style: { padding: '9px 16px' } },
+            { props: { variant: 'text', size: 'large' }, style: { padding: '12px 16px' } },
+          ],
         },
         sizeSmall: {
           padding: '6px 16px',
@@ -27,15 +32,6 @@ export const theme = createTheme({
         },
         sizeLarge: {
           padding: '11px 24px',
-        },
-        textSizeSmall: {
-          padding: '7px 12px',
-        },
-        textSizeMedium: {
-          padding: '9px 16px',
-        },
-        textSizeLarge: {
-          padding: '12px 16px',
         },
       },
     },
@@ -56,11 +52,14 @@ export const theme = createTheme({
     },
     MuiCardHeader: {
       defaultProps: {
-        titleTypographyProps: {
-          variant: 'h6',
-        },
-        subheaderTypographyProps: {
-          variant: 'body2',
+        slotProps: {
+          title: {
+            variant: 'h6',
+          },
+
+          subheader: {
+            variant: 'body2',
+          },
         },
       },
       styleOverrides: {

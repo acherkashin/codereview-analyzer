@@ -82,7 +82,11 @@ function ApprovalDistributionForUser({ pullRequests, user }: ApprovalDistributio
 
 function ApprovedByDescription() {
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       <div>Displays whose pool requests each user approves.</div>
       <div>Filter by a particular user to easily identify whose pull requests the user approves.</div>
     </Stack>

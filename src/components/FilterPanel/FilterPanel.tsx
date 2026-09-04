@@ -1,5 +1,4 @@
-import { LoadingButton } from '@mui/lab';
-import { Stack, TextField } from '@mui/material';
+import { Button, Stack, TextField } from '@mui/material';
 import { ProjectList } from '../ProjectList';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { useCallback, useState } from 'react';
@@ -49,7 +48,14 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
   }, [createdAfter, createdBefore, hasValidPrCount, hostType, onAnalyze, prCount, project]);
 
   return (
-    <Stack spacing={2} position="sticky" top={0} style={style}>
+    <Stack
+      spacing={2}
+      style={style}
+      sx={{
+        position: 'sticky',
+        top: 0,
+      }}
+    >
       <ProjectList project={project} onSelected={setProject} />
       {hostType === 'Gitea' && (
         <TextField
@@ -59,7 +65,9 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
           onChange={(e) => setPrCount(Number(e.target.value))}
           error={!hasValidPrCount}
           helperText="Counts unique open or merged PRs. Closed-unmerged and duplicate results are skipped; the final page may make the total slightly higher."
-          inputProps={{ min: 1, step: 1 }}
+          slotProps={{
+            htmlInput: { min: 1, step: 1 },
+          }}
         />
       )}
       {hostType === 'Gitlab' && (
@@ -83,14 +91,14 @@ export function FilterPanel({ onAnalyze, children, style }: FilterPanelProps) {
         </>
       )}
       {children}
-      <LoadingButton
+      <Button
         disabled={project == null || (hostType === 'Gitea' && !hasValidPrCount)}
         startIcon={<AnalyticsIcon />}
         loading={isAnalyzing}
         onClick={handleAnalyze}
       >
         Analyze
-      </LoadingButton>
+      </Button>
       {isAnalyzing && analysisProgress && <AnalysisProgressPanel progress={analysisProgress} />}
     </Stack>
   );

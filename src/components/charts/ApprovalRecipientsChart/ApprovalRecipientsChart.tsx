@@ -76,7 +76,11 @@ function ApprovalRecipientsForUser({ user, pullRequests }: ApprovalRecipientsCha
 
 function ApprovedByDescription() {
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       <div>Displays who approves pull request of each user.</div>
       <div>Filter by a particular user to easily identify who approves pull requests of the user.</div>
     </Stack>

@@ -265,7 +265,12 @@ export function PullRequestSizeTrendChart({ summary, monthlySizeBuckets, authore
                 )}
               </Popper>
 
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Select a colored segment to view its pull requests.
                 {hasPartialMonths && ' * indicates a partial month within the selected date range.'}
               </Typography>
@@ -285,7 +290,12 @@ export function PullRequestSizeTrendChart({ summary, monthlySizeBuckets, authore
                 backgroundColor: 'background.default',
               }}
             >
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Selected team members did not create pull requests in this period.
               </Typography>
             </Box>
@@ -323,10 +333,20 @@ function SizeTierTotal({ sizeTier, color, value }: { sizeTier: PullRequestSizeTi
     >
       <Box aria-hidden="true" sx={{ width: 12, height: 32, flexShrink: 0, borderRadius: 0.5, backgroundColor: color }} />
       <Box sx={{ minWidth: 0, flex: 1 }}>
-        <Typography variant="body2" fontWeight={700}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           {getPullRequestSizeTierLabel(sizeTier)}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {getPullRequestSizeTierRangeLabel(sizeTier)}
         </Typography>
       </Box>
@@ -388,14 +408,25 @@ function SizeTierTooltip({
           </Typography>
         </Box>
         {bucket.isPartial && (
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             Partial month in the selected period
           </Typography>
         )}
         <TooltipMetric label="PRs" value={formatCount(count)} />
         <TooltipMetric label="Monthly share" value={`${formatPercentage(share)}%`} />
         <TooltipMetric label="All PRs this month" value={formatCount(total)} />
-        <Typography variant="caption" color="text.secondary" sx={{ pt: 0.5 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+            pt: 0.5,
+          }}
+        >
           {formatMonthOverMonthChange(count, previousCount)}
         </Typography>
       </Stack>
@@ -406,10 +437,21 @@ function SizeTierTooltip({
 function TooltipMetric({ label, value }: { label: string; value: string }) {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {label}
       </Typography>
-      <Typography variant="body2" fontWeight={700} sx={{ fontVariantNumeric: 'tabular-nums' }}>
+      <Typography
+        variant="body2"
+        sx={{
+          fontWeight: 700,
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
         {value}
       </Typography>
     </Box>

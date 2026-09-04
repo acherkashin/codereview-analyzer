@@ -100,7 +100,12 @@ export function PullRequestList({
   return (
     <div>
       <Toolbar sx={{ px: 0, minHeight: '48px !important', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {sortedPullRequests.length} pull request{sortedPullRequests.length !== 1 ? 's' : ''}
         </Typography>
 
@@ -134,7 +139,12 @@ export function PullRequestList({
                 transition: 'transform 0.2s',
               }}
             />
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {sortOption.direction === 'asc' ? 'Ascending' : 'Descending'}
             </Typography>
           </Box>
@@ -152,18 +162,31 @@ export function PullRequestList({
             expanded={expandedPullRequestId === pullRequest.id}
             onChange={(_, expanded) => handlePullRequestToggle(pullRequest, expanded)}
             sx={{
+              position: 'relative',
               border: isSelected ? '1px solid' : undefined,
               borderColor: isSelected ? 'primary.main' : undefined,
               backgroundColor: isSelected ? 'action.selected' : undefined,
             }}
           >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={variant === 'oneOnOne' ? { pr: 12 } : undefined}>
               {variant === 'oneOnOne' ? (
-                <OneOnOnePullRequestSummary pullRequest={pullRequest} onSelect={onPullRequestSelect} />
+                <OneOnOnePullRequestSummary pullRequest={pullRequest} />
               ) : (
                 <DefaultPullRequestSummary pullRequest={pullRequest} />
               )}
             </AccordionSummary>
+            {variant === 'oneOnOne' && (
+              <IconButton
+                aria-label="Open pull request"
+                sx={{ position: 'absolute', top: 6, right: 48, width: 44, height: 44, zIndex: 1 }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  window.open(pullRequest.url, '_blank', 'noopener,noreferrer');
+                }}
+              >
+                <OpenInNewIcon />
+              </IconButton>
+            )}
             <AccordionDetails>
               {variant === 'oneOnOne' ? (
                 <OneOnOnePullRequestDetails
@@ -194,7 +217,12 @@ function PullRequestSizeLegend() {
         mb: 1.5,
       }}
     >
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         PR size:
       </Typography>
       {sizeTierOrder.map((sizeTier) => (
@@ -250,17 +278,37 @@ function DefaultPullRequestSummary({ pullRequest }: { pullRequest: PullRequest }
         }
         secondary={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               by {pullRequest.author.displayName}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               • {dayjs(pullRequest.createdAt).fromNow()}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               • {pullRequest.branchName} → {pullRequest.targetBranch}
             </Typography>
             {pullRequest.mergedAt && (
-              <Typography variant="caption" color="success.main">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'success.main',
+                }}
+              >
                 • Merged {dayjs(pullRequest.mergedAt).fromNow()}
               </Typography>
             )}
@@ -281,31 +329,11 @@ function DefaultPullRequestDetails({ pullRequest }: { pullRequest: PullRequest }
   );
 }
 
-function OneOnOnePullRequestSummary({
-  pullRequest,
-  onSelect,
-}: {
-  pullRequest: PullRequest;
-  onSelect?: (pullRequest: PullRequest) => void;
-}) {
+function OneOnOnePullRequestSummary({ pullRequest }: { pullRequest: PullRequest }) {
   const sizeTier = getPullRequestSizeTier(pullRequest);
 
   return (
-    <ListItem
-      sx={{ width: '100%', px: 0 }}
-      secondaryAction={
-        <IconButton
-          edge="end"
-          aria-label="Open pull request"
-          onClick={(event) => {
-            event.stopPropagation();
-            window.open(pullRequest.url, '_blank', 'noopener,noreferrer');
-          }}
-        >
-          <OpenInNewIcon />
-        </IconButton>
-      }
-    >
+    <ListItem sx={{ width: '100%', px: 0 }}>
       <ListItemAvatar>
         <Avatar src={pullRequest.author.avatarUrl} />
       </ListItemAvatar>
@@ -332,17 +360,19 @@ function OneOnOnePullRequestSummary({
                 variant="outlined"
               />
               <Chip icon={<ForumIcon />} label={`${pullRequest.discussionCount} threads`} size="small" variant="outlined" />
-              <Chip
-                icon={<ReviewsIcon />}
-                label={`${pullRequest.reviewCommentCount} comments`}
-                size="small"
-                variant="outlined"
-              />
+              <Chip icon={<ReviewsIcon />} label={`${pullRequest.reviewCommentCount} comments`} size="small" variant="outlined" />
             </Box>
           </Box>
         }
         secondary={
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+              mt: 1,
+            }}
+          >
             {pullRequest.branchName} → {pullRequest.targetBranch}
           </Typography>
         }
@@ -386,7 +416,12 @@ function OneOnOnePullRequestDetails({
             </Button>
           </Box>
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             No discussion threads were captured for this pull request.
           </Typography>
         )}
@@ -405,10 +440,20 @@ function DiscussionPreview({ discussion }: { discussion: UserDiscussion }) {
     <Box sx={{ p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider', backgroundColor: 'background.default' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
         <Avatar src={discussion.reviewerAvatarUrl} sx={{ width: 28, height: 28 }} />
-        <Typography variant="body2" fontWeight={600}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           {discussion.reviewerName}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {discussion.comments.length} comment{discussion.comments.length !== 1 ? 's' : ''}
         </Typography>
         {discussion.isResolved != null && (
@@ -420,11 +465,22 @@ function DiscussionPreview({ discussion }: { discussion: UserDiscussion }) {
           />
         )}
       </Box>
-      <Typography variant="body2" color="text.primary" sx={{ mb: 0.75 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.primary',
+          mb: 0.75,
+        }}
+      >
         {trimText(firstComment?.body ?? '', 180)}
       </Typography>
       {lastComment && lastComment.id !== firstComment?.id && (
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Last update {dayjs(lastComment.createdAt).fromNow()}
         </Typography>
       )}
@@ -432,20 +488,19 @@ function DiscussionPreview({ discussion }: { discussion: UserDiscussion }) {
   );
 }
 
-function PeopleGroup({
-  label,
-  users,
-  emptyText = 'None',
-}: {
-  label: string;
-  users: User[];
-  emptyText?: string;
-}) {
+function PeopleGroup({ label, users, emptyText = 'None' }: { label: string; users: User[]; emptyText?: string }) {
   const uniqueUsers = uniqueUsersById(users);
 
   return (
     <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+          display: 'block',
+          mb: 0.75,
+        }}
+      >
         {label}
       </Typography>
       {uniqueUsers.length > 0 ? (
@@ -469,7 +524,12 @@ function PeopleGroup({
           ))}
         </Box>
       ) : (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {emptyText}
         </Typography>
       )}

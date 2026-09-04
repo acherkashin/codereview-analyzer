@@ -78,7 +78,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
     <div className="cr-code-review-charts">
       <ChartsTitle>Discussions</ChartsTitle>
       <ChartsContainer container>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <DiscussionsStartedByPerMonthChart
             user={user}
             discussions={discussions}
@@ -90,7 +90,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
             }}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <DiscussionsStartedWithPerMonthChart
             user={user}
             discussions={discussions}
@@ -102,11 +102,23 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
             }}
           />
         </Grid>
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <TopLongestDiscussionsChart user={user} pullRequests={pullRequests} count={10} onClick={onDiscussionClick} />
         </Grid>
         {user == null && (
-          <Grid item lg={4} md={6} xs={12}>
+          <Grid
+            size={{
+              lg: 4,
+              md: 6,
+              xs: 12,
+            }}
+          >
             <StartedWithDiscussionsPieChart
               discussions={discussions}
               onClick={(authorName) =>
@@ -118,14 +130,26 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
           </Grid>
         )}
         {user == null && (
-          <Grid item lg={4} md={6} xs={12}>
+          <Grid
+            size={{
+              lg: 4,
+              md: 6,
+              xs: 12,
+            }}
+          >
             <StartedByDiscussionsPieChart
               discussions={discussions}
               onClick={(reviewerName) => onShowDiscussions({ reviewerId: reviewerName })}
             />
           </Grid>
         )}
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <StartedWithDiscussionsChart
             user={user}
             discussions={discussions}
@@ -137,7 +161,13 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
             }}
           />
         </Grid>
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <StartedByDiscussionsChart
             user={user}
             discussions={discussions}
@@ -150,41 +180,83 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
           />
         </Grid>
         {user == null && (
-          <Grid item lg={4} md={6} xs={12}>
+          <Grid
+            size={{
+              lg: 4,
+              md: 6,
+              xs: 12,
+            }}
+          >
             <ChangesToDiscussionsCorrelationChart pullRequests={pullRequests} />
           </Grid>
         )}
       </ChartsContainer>
       <ChartsTitle>Comments</ChartsTitle>
       <ChartsContainer container>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <CommentsPerMonthChart user={user} comments={comments} />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <WordsCloud comments={user ? userComments : comments} onClick={onWordClick} />
         </Grid>
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <TopCommentedPullRequestsChart user={user} pullRequests={pullRequests} count={10} />
         </Grid>
         {user == null && (
-          <Grid item lg={4} md={6} xs={12}>
+          <Grid
+            size={{
+              lg: 4,
+              md: 6,
+              xs: 12,
+            }}
+          >
             <CommentsLeftPieChart comments={comments} onClick={(id) => onShowComments(id, null)} />
           </Grid>
         )}
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <CommentsLeftBarChart user={user} comments={comments} onClick={onShowComments} />
         </Grid>
 
         {user == null && (
-          <Grid item lg={4} md={6} xs={12}>
+          <Grid
+            size={{
+              lg: 4,
+              md: 6,
+              xs: 12,
+            }}
+          >
             <CommentsReceivedPieChart comments={comments} onClick={(id) => onShowComments(null, id)} />
           </Grid>
         )}
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <CommentsReceivedBarChart user={user} comments={comments} onClick={onShowComments} />
         </Grid>
         {hostType === 'Gitea' && (
-          <Grid item lg={4} md={6} xs={12}>
+          <Grid
+            size={{
+              lg: 4,
+              md: 6,
+              xs: 12,
+            }}
+          >
             <CommentedFilesChart user={user} comments={comments} />
           </Grid>
         )}
@@ -194,10 +266,22 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
       <ChartsTitle>Approvals</ChartsTitle>
 
       <ChartsContainer container>
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <ApprovalDistributionChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <ApprovalRecipientsChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
       </ChartsContainer>
@@ -205,21 +289,45 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
       <ChartsTitle>Review Requests</ChartsTitle>
 
       <ChartsContainer container>
-        <Grid item lg={user != null ? 4 : 12} md={user != null ? 4 : 12} xs={12}>
+        <Grid
+          size={{
+            lg: user != null ? 4 : 12,
+            md: user != null ? 4 : 12,
+            xs: 12,
+          }}
+        >
           <ReviewByUserChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <ReviewRequestRecipientsChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
-        <Grid item lg={4} md={6} xs={12}>
+        <Grid
+          size={{
+            lg: 4,
+            md: 6,
+            xs: 12,
+          }}
+        >
           <ReviewRequestDistributionChart user={user} pullRequests={pullRequests} users={users} />
         </Grid>
         {user == null && (
-          <Grid item lg={4} md={6} xs={12}>
+          <Grid
+            size={{
+              lg: 4,
+              md: 6,
+              xs: 12,
+            }}
+          >
             <ReviewRationChart users={users} pullRequests={pullRequests} />
           </Grid>
         )}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <ReviewCalendarChart user={user} pullRequests={pullRequests} />
         </Grid>
       </ChartsContainer>
@@ -227,14 +335,20 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
       <ChartsTitle>Other</ChartsTitle>
 
       <ChartsContainer container>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <PullRequestsCreatedPerMonthChart user={user} pullRequests={pullRequests} />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <PullRequestsCalendarChart user={user} pullRequests={pullRequests} />
         </Grid>
         {user == null && (
-          <Grid item lg={4} md={6} xs={12}>
+          <Grid
+            size={{
+              lg: 4,
+              md: 6,
+              xs: 12,
+            }}
+          >
             <PullRequestsCreatedChart pullRequests={pullRequests} />
           </Grid>
         )}

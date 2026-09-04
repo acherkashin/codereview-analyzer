@@ -18,7 +18,11 @@ export function StartedWithDiscussionsPieChart({ discussions, onClick }: Started
     <ChartContainer
       title="Discussions started with person"
       description={
-        <Stack gap={1}>
+        <Stack
+          sx={{
+            gap: 1,
+          }}
+        >
           <div>Shows how discussions are distributed among authors of merge requests.</div>
           <div>Click on any segment to dive into the conversations happening around that author</div>
         </Stack>

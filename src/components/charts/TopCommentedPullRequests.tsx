@@ -37,7 +37,15 @@ export function TopCommentedPullRequestsChart({ user, pullRequests, count }: Top
   return (
     <ChartContainer
       title={title}
-      description={<Stack gap={1}>Highlights pull requests with the highest volume of comments</Stack>}
+      description={
+        <Stack
+          sx={{
+            gap: 1,
+          }}
+        >
+          Highlights pull requests with the highest volume of comments
+        </Stack>
+      }
     >
       <BarChart
         data={data}

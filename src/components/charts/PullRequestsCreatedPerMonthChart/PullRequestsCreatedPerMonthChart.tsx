@@ -46,7 +46,11 @@ export function PullRequestsCreatedPerMonthChart({ pullRequests, user }: PullReq
       <ChartContainer
         title="Pull requests created per month"
         description={
-          <Stack gap={1}>
+          <Stack
+            sx={{
+              gap: 1,
+            }}
+          >
             <div>Shows the number of pull requests created by each user on a monthly basis.</div>
             <div>Filter by individual users to view the quantity of pull requests created by them over time.</div>
             <div>Click on a data point to see the detailed list of pull requests for that month.</div>

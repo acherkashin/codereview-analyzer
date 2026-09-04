@@ -3,7 +3,6 @@ import { useRequest } from '../hooks';
 import { useClient } from '../stores/AuthStore';
 import { useExportsStore } from '../stores/ExportStore';
 import { PageContainer } from './shared/PageContainer';
-import { LoadingButton } from '@mui/lab';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { downloadFile } from '../utils/FileUtils';
 import { CheckBoxProjectList } from '../components/CheckBoxProjectList';
@@ -36,9 +35,9 @@ export function ExportPage() {
         </div>
       </section>
       <div>
-        <LoadingButton loading={isExporting} onClick={() => makeRequest(client)}>
+        <Button loading={isExporting} onClick={() => makeRequest(client)}>
           Export
-        </LoadingButton>
+        </Button>
         <Button
           disabled={exportData == null}
           startIcon={<FileDownloadIcon />}

@@ -106,7 +106,9 @@ export function OneOnOneReviewPage() {
       { label: 'Reviewers involved', value: `${getActualReviewers(selectedPullRequest).length}` },
       {
         label: 'Most active thread',
-        value: mostActiveDiscussion ? `${mostActiveDiscussion.comments.length} comments by ${mostActiveDiscussion.reviewerName}` : 'No active thread',
+        value: mostActiveDiscussion
+          ? `${mostActiveDiscussion.comments.length} comments by ${mostActiveDiscussion.reviewerName}`
+          : 'No active thread',
       },
     ];
   }, [selectedPullRequest]);
@@ -114,7 +116,13 @@ export function OneOnOneReviewPage() {
   if (allPullRequests == null || users == null) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-        <Stack spacing={2} position="sticky" style={{ width: 300 }}>
+        <Stack
+          spacing={2}
+          style={{ width: 300 }}
+          sx={{
+            position: 'sticky',
+          }}
+        >
           {!isGuest && <FilterPanel onAnalyze={handleAnalyze} />}
           <ImportTextButton
             label="Import as JSON"
@@ -141,7 +149,12 @@ export function OneOnOneReviewPage() {
             <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
               1:1 Review
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Review authored pull requests, collaboration coverage, and conversation patterns for your upcoming 1:1.
             </Typography>
           </Box>
@@ -181,7 +194,12 @@ export function OneOnOneReviewPage() {
                       <Stack spacing={2}>
                         <Box>
                           <Typography variant="h6">Pull requests</Typography>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: 'text.secondary',
+                            }}
+                          >
                             Authored pull requests for {user.displayName} in the selected period.
                           </Typography>
                         </Box>
@@ -239,7 +257,13 @@ function InsightsSection({ insights }: { insights: ReturnType<typeof getOneOnOne
   return (
     <Box>
       <Typography variant="h6">Insights</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mb: 1.5,
+        }}
+      >
         Snapshot of authored work, review reach, and pull request cadence for the selected period.
       </Typography>
       <Box
@@ -251,7 +275,10 @@ function InsightsSection({ insights }: { insights: ReturnType<typeof getOneOnOne
       >
         {insightCards.map((item) => (
           <InsightCard key={item.label}>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', letterSpacing: 0.6 }}
+            >
               {item.label}
             </Typography>
             <Typography variant="h5" sx={{ color: 'common.white' }}>
@@ -282,7 +309,12 @@ function CollaborationSection({
             <Typography variant="h6">Review relationships</Typography>
           </Box>
 
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             See who is actively reviewing {userName}&apos;s work and whose pull requests {userName} reviewed in this period.
           </Typography>
 
@@ -340,7 +372,12 @@ function RelationshipList({
           ))}
         </List>
       ) : (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {emptyText}
         </Typography>
       )}
@@ -367,7 +404,12 @@ function ReviewedPullRequestsSection({
         <Stack spacing={2}>
           <Box>
             <Typography variant="h6">Reviewed pull requests</Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Pull requests where this person participated as a reviewer, grouped by the PR they reviewed.
             </Typography>
           </Box>
@@ -413,12 +455,22 @@ function HighlightsSection({ highlights }: { highlights: string[] }) {
             <List dense disablePadding>
               {highlights.map((highlight) => (
                 <ListItem key={highlight} disableGutters sx={{ py: 0.5 }}>
-                  <ListItemText primary={highlight} primaryTypographyProps={{ variant: 'body2' }} />
+                  <ListItemText
+                    primary={highlight}
+                    slotProps={{
+                      primary: { variant: 'body2' },
+                    }}
+                  />
                 </ListItem>
               ))}
             </List>
           ) : (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Select a team member to generate meeting highlights.
             </Typography>
           )}
@@ -440,7 +492,12 @@ function ActionItemsSection({ actionItems }: { actionItems: string[] }) {
           <List dense disablePadding>
             {actionItems.map((item) => (
               <ListItem key={item} disableGutters sx={{ py: 0.5 }}>
-                <ListItemText primary={item} primaryTypographyProps={{ variant: 'body2' }} />
+                <ListItemText
+                  primary={item}
+                  slotProps={{
+                    primary: { variant: 'body2' },
+                  }}
+                />
               </ListItem>
             ))}
           </List>
@@ -468,14 +525,24 @@ function SidePanel({
             </Box>
 
             {!pullRequest ? (
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Select or expand a pull request to inspect discussion threads and review signals.
               </Typography>
             ) : (
               <>
                 <Box>
                   <Typography variant="subtitle2">{pullRequest.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {pullRequest.repositoryName}
                   </Typography>
                 </Box>
@@ -489,10 +556,21 @@ function SidePanel({
                   <Stack spacing={1}>
                     {summaryItems.map((item) => (
                       <Box key={item.label} sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           {item.label}
                         </Typography>
-                        <Typography variant="body2" fontWeight={600} textAlign="right">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 600,
+                            textAlign: 'right',
+                          }}
+                        >
                           {item.value}
                         </Typography>
                       </Box>
@@ -516,7 +594,12 @@ function SidePanel({
                         ))}
                     </Stack>
                   ) : (
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       No discussion threads were captured for this pull request.
                     </Typography>
                   )}
@@ -530,11 +613,7 @@ function SidePanel({
   );
 }
 
-function ReviewerContributionDetails({
-  activity,
-}: {
-  activity: OneOnOneReviewedPullRequestActivity;
-}) {
+function ReviewerContributionDetails({ activity }: { activity: OneOnOneReviewedPullRequestActivity }) {
   const { commentsBySelectedReviewer, discussionsStartedBySelectedReviewer, reviewActivitiesBySelectedReviewer } = activity;
   const reviewSummary = summarizeReviewActivities(reviewActivitiesBySelectedReviewer);
   const hasCapturedText = discussionsStartedBySelectedReviewer.length > 0 || commentsBySelectedReviewer.length > 0;
@@ -545,15 +624,25 @@ function ReviewerContributionDetails({
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Reviewer contribution summary
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {`${discussionsStartedBySelectedReviewer.length} discussions started, ${commentsBySelectedReviewer.length} comments left${
-            reviewSummary.length > 0 ? `, ${reviewSummary.join(', ')}` : ''
-          }`}
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {`${discussionsStartedBySelectedReviewer.length} discussions started, ${
+            commentsBySelectedReviewer.length
+          } comments left${reviewSummary.length > 0 ? `, ${reviewSummary.join(', ')}` : ''}`}
         </Typography>
       </Box>
 
       {!hasCapturedText && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Reviewed without captured comment text.
         </Typography>
       )}
@@ -598,17 +687,32 @@ function DiscussionThreadCard({ discussion }: { discussion: UserDiscussion }) {
     <Box sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', p: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
         <Avatar src={discussion.reviewerAvatarUrl} sx={{ width: 28, height: 28 }} />
-        <Typography variant="body2" fontWeight={600}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           {discussion.reviewerName}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {discussion.comments.length} comment{discussion.comments.length !== 1 ? 's' : ''}
         </Typography>
       </Box>
       <Stack spacing={1}>
         {discussion.comments.map((comment) => (
           <Box key={comment.id} sx={{ backgroundColor: 'background.default', p: 1, borderRadius: 1.5 }}>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {comment.reviewerName} • {dayjs(comment.createdAt).format('DD MMM YYYY')}
             </Typography>
             <MarkdownControl markdown={comment.body} />
@@ -626,17 +730,32 @@ function ReviewerDiscussionContributionCard({ discussion }: { discussion: UserDi
     <Box sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', p: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
         <Avatar src={discussion.reviewerAvatarUrl} sx={{ width: 28, height: 28 }} />
-        <Typography variant="body2" fontWeight={600}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
           {discussion.reviewerName}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Started discussion • {reviewerComments.length} comment{reviewerComments.length !== 1 ? 's' : ''}
         </Typography>
       </Box>
       <Stack spacing={1}>
         {reviewerComments.map((comment) => (
           <Box key={comment.id} sx={{ backgroundColor: 'background.default', p: 1, borderRadius: 1.5 }}>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {dayjs(comment.createdAt).format('DD MMM YYYY')}
             </Typography>
             <MarkdownControl markdown={comment.body} />
@@ -650,7 +769,12 @@ function ReviewerDiscussionContributionCard({ discussion }: { discussion: UserDi
 function CommentContributionCard({ comment }: { comment: Comment }) {
   return (
     <Box sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider', p: 1.5 }}>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {comment.reviewerName} • {dayjs(comment.createdAt).format('DD MMM YYYY')}
       </Typography>
       <MarkdownControl markdown={comment.body} />
@@ -667,7 +791,12 @@ function EmptyStateCard({ title, description }: { title: string; description: st
             <SpeakerNotesOutlinedIcon color="primary" />
             <Typography variant="h6">{title}</Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {description}
           </Typography>
         </Stack>
@@ -724,13 +853,10 @@ const InsightCard = styled(Card)(({ theme }) => ({
 }));
 
 function summarizeReviewActivities(reviewActivities: OneOnOneReviewedPullRequestActivity['reviewActivitiesBySelectedReviewer']) {
-  const activityCounts = reviewActivities.reduce(
-    (total, item) => {
-      total[item.activityType] = (total[item.activityType] ?? 0) + 1;
-      return total;
-    },
-    {} as Record<string, number>
-  );
+  const activityCounts = reviewActivities.reduce((total, item) => {
+    total[item.activityType] = (total[item.activityType] ?? 0) + 1;
+    return total;
+  }, {} as Record<string, number>);
 
   return Object.entries(activityCounts).map(([activityType, count]) => `${count} ${activityType}`);
 }
