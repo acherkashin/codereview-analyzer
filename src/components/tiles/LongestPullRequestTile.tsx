@@ -1,4 +1,4 @@
-import { Avatar } from '@mui/material';
+import { Avatar, Link } from '@mui/material';
 import { PullRequest } from '../../services/types';
 import { timeSince, timeSinceString } from '../../utils/TimeSpanUtils';
 import { Tile } from './Tile';
@@ -13,9 +13,9 @@ export function LongestPullRequestTile({ pullRequest }: LongestPullRequestTilePr
       count={timeSinceString(timeSince(new Date(pullRequest.createdAt), new Date(pullRequest.mergedAt!)))}
       title="Longest pull request"
       details={
-        <a href={pullRequest.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+        <Link href={pullRequest.url} target="_blank" rel="noopener noreferrer" underline="hover">
           {pullRequest.title}
-        </a>
+        </Link>
       }
       icon={
         <Avatar

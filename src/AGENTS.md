@@ -22,3 +22,4 @@
 - `src/pages/TeamReviewPage/` contains the multi-member Team Review screen and its relationship matrix.
 - `src/utils/TeamReviewUtils.ts` contains Team Review relationship aggregation and summary logic; keep non-trivial team metrics there instead of embedding them in React components.
 - `e2e/` contains Playwright browser smoke tests, representative import fixtures, and desktop/mobile visual regression snapshots.
+- `src/theme/` contains the semantic MUI theme factory and the persisted system/light/dark color-mode provider.

@@ -243,13 +243,10 @@ function TeamInsightsSection({ summary }: { summary: TeamReviewSummary }) {
       >
         {insightCards.map((item) => (
           <InsightCard key={item.label}>
-            <Typography
-              variant="caption"
-              sx={{ color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', letterSpacing: 0.6 }}
-            >
+            <Typography variant="caption" sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.6 }}>
               {item.label}
             </Typography>
-            <Typography variant="h5" sx={{ color: 'common.white' }}>
+            <Typography variant="h5" sx={{ color: 'text.primary', fontVariantNumeric: 'tabular-nums' }}>
               {item.value}
             </Typography>
           </InsightCard>
@@ -337,6 +334,7 @@ function EmptyStatePanel({ description }: { description: string }) {
 }
 
 const InsightCard = styled(Card)(({ theme }) => ({
-  backgroundColor: '#293164',
+  backgroundColor: theme.palette.background.paper,
   padding: theme.spacing(2),
+  borderTop: `3px solid ${theme.palette.primary.main}`,
 }));

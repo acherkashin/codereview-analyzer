@@ -49,7 +49,6 @@ export function TopCommentedPullRequestsChart({ user, pullRequests, count }: Top
     >
       <BarChart
         data={data}
-        margin={{ left: 300 }}
         borderRadius={4}
         tooltip={(props) => {
           const comment = props.data as typeof data[0];

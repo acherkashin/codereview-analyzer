@@ -8,6 +8,8 @@ import {
   Stack,
   TextField,
   Typography,
+  Paper,
+  Divider,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { useCallback, useState } from 'react';
@@ -22,6 +24,7 @@ import { HostingType } from '../services/types';
 import PersonIcon from '@mui/icons-material/Person';
 import LoginIcon from '@mui/icons-material/Login';
 import { isValidHttpUrl } from '../utils/UrlUtils';
+import { ColorModeToggle } from '../components/ColorModeToggle';
 
 const tokenHelp: Record<HostingType, `https://${string}`> = {
   Gitlab: 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token',
@@ -80,74 +83,88 @@ export function Login(_: LoginProps) {
         alignItems: 'center',
         width: '100%',
         height: '100%',
+        p: 2,
       }}
     >
-      <Stack style={{ width: 500 }} spacing={2}>
-        <Stack
-          spacing={2}
-          sx={{
-            alignItems: 'center',
-          }}
-        >
-          <Logo />
-          <Typography variant="h5" component="h1">
-            Code Review Analyzer
-          </Typography>
+      <Box sx={{ position: 'fixed', top: 16, right: 16 }}>
+        <ColorModeToggle />
+      </Box>
+      <Paper
+        component="main"
+        elevation={0}
+        sx={{ width: 'min(100%, 480px)', p: { xs: 3, sm: 5 }, border: '1px solid', borderColor: 'divider' }}
+      >
+        <Stack spacing={2.5}>
+          <Stack
+            spacing={1.5}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
+            <Logo size={52} />
+            <Typography variant="h4" component="h1">
+              Code Review Analyzer
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+              Turn pull request activity into clear, actionable review insights.
+            </Typography>
+          </Stack>
+          <Divider />
+          <Select required value={hostType} onChange={handleChange} style={{ height: 56 }}>
+            <MenuItem value="Gitlab">
+              <ListItemIcon>
+                <GitLabIcon style={{ width: 24 }} />
+              </ListItemIcon>
+              <ListItemText>Gitlab</ListItemText>
+            </MenuItem>
+            <MenuItem value="Gitea">
+              <ListItemIcon>
+                <GiteaIcon style={{ width: 24 }} />
+              </ListItemIcon>
+              <ListItemText>Gitea</ListItemText>
+            </MenuItem>
+          </Select>
+          <TextField
+            required
+            error={!isHostValid}
+            helperText={isHostValid ? null : 'Incorrect url provided'}
+            label="Host"
+            name="host"
+            placeholder="https://gitlab.com"
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
+          />
+          <TextField
+            required
+            label="Token"
+            name="token"
+            value={token}
+            type="password"
+            error={!!signInError}
+            helperText={signInError}
+            onChange={(e) => setToken(e.target.value)}
+            slotProps={{
+              input: {
+                endAdornment:
+                  tokenHelp[hostType] != null ? (
+                    <TooltipPrompt>
+                      <a href={tokenHelp[hostType]} target="_blank" rel="noreferrer">
+                        Personal Access Token
+                      </a>
+                    </TooltipPrompt>
+                  ) : null,
+              },
+            }}
+          />
+          <Button variant="contained" loading={isSigningIn} startIcon={<LoginIcon />} onClick={handleLoggedIn}>
+            Login
+          </Button>
+          {isSigningIn && <Button onClick={cancelSignIn}>Cancel</Button>}
+          <Button variant="outlined" onClick={handleLoginAsGuest} startIcon={<PersonIcon />}>
+            Login As Guest
+          </Button>
         </Stack>
-        <Select required value={hostType} onChange={handleChange} style={{ height: 56 }}>
-          <MenuItem value="Gitlab">
-            <ListItemIcon>
-              <GitLabIcon style={{ width: 24 }} />
-            </ListItemIcon>
-            <ListItemText>Gitlab</ListItemText>
-          </MenuItem>
-          <MenuItem value="Gitea">
-            <ListItemIcon>
-              <GiteaIcon style={{ width: 24 }} />
-            </ListItemIcon>
-            <ListItemText>Gitea</ListItemText>
-          </MenuItem>
-        </Select>
-        <TextField
-          required
-          error={!isHostValid}
-          helperText={isHostValid ? null : 'Incorrect url provided'}
-          label="Host"
-          name="host"
-          placeholder="https://gitlab.com"
-          value={host}
-          onChange={(e) => setHost(e.target.value)}
-        />
-        <TextField
-          required
-          label="Token"
-          name="token"
-          value={token}
-          type="password"
-          error={!!signInError}
-          helperText={signInError}
-          onChange={(e) => setToken(e.target.value)}
-          slotProps={{
-            input: {
-              endAdornment:
-                tokenHelp[hostType] != null ? (
-                  <TooltipPrompt>
-                    <a href={tokenHelp[hostType]} target="_blank" rel="noreferrer">
-                      Personal Access Token
-                    </a>
-                  </TooltipPrompt>
-                ) : null,
-            },
-          }}
-        />
-        <Button loading={isSigningIn} startIcon={<LoginIcon />} onClick={handleLoggedIn}>
-          Login
-        </Button>
-        {isSigningIn && <Button onClick={cancelSignIn}>Cancel</Button>}
-        <Button onClick={handleLoginAsGuest} startIcon={<PersonIcon />}>
-          Login As Guest
-        </Button>
-      </Stack>
+      </Paper>
     </Box>
   );
 }

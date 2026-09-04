@@ -4,12 +4,14 @@ import { PullRequest } from '../../../services/types';
 import { useMemo } from 'react';
 import { BaseChartTooltip } from '../../tooltips';
 import { Stack } from '@mui/material';
+import { useNivoTheme } from '../useNivoTheme';
 
 export interface ChangesToDiscussionsCorrelationChartProps {
   pullRequests: PullRequest[];
 }
 
 export function ChangesToDiscussionsCorrelationChart({ pullRequests }: ChangesToDiscussionsCorrelationChartProps) {
+  const nivoTheme = useNivoTheme();
   const data = useMemo(() => {
     const points: ScatterPlotDatum[] = pullRequests.map((item) => ({
       x: item.changedFilesCount,
@@ -45,6 +47,7 @@ export function ChangesToDiscussionsCorrelationChart({ pullRequests }: ChangesTo
     >
       <ResponsiveScatterPlotCanvas
         data={data}
+        theme={nivoTheme}
         margin={{ top: 60, right: 30, bottom: 70, left: 70 }}
         xScale={{ type: 'linear', min: 0, max: 'auto' }}
         xFormat=">-.2f"
@@ -78,7 +81,7 @@ const Tooltip: ScatterPlotTooltip<ScatterPlotDatum> = (props) => {
   const prName = (props.node.data as any).prName;
 
   return (
-    <BaseChartTooltip style={{ width: 400 }}>
+    <BaseChartTooltip style={{ width: 360 }}>
       <Stack>
         <strong style={{ whiteSpace: 'break-spaces' }}>{prName}</strong>
         <div>Files Changed: {props.node.data.x.toString()}</div>

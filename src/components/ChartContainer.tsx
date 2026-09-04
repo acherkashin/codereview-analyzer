@@ -1,6 +1,6 @@
-import { Fullscreen } from '@mui/icons-material';
-import { IconButton, Paper, Box, Typography, Stack } from '@mui/material';
-import React, { CSSProperties, useState } from 'react';
+import { Fullscreen, FullscreenExit } from '@mui/icons-material';
+import { IconButton, Paper, Box, Typography, Stack, Tooltip } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { TooltipPrompt } from './TooltipPrompt';
 
 export interface ChartContainerProps {
@@ -18,54 +18,79 @@ export function ChartContainer({
   description,
   descriptionTooltipMaxWidth,
   style,
-  height = 500,
+  height = 440,
 }: ChartContainerProps) {
   const [isMaximized, setIsMaximized] = useState(false);
 
-  const maximizeStyles: CSSProperties = isMaximized
-    ? {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        zIndex: 999,
-        width: undefined,
-        height: undefined,
-        overflow: 'hidden',
-      }
-    : { margin: 10 };
+  useEffect(() => {
+    if (!isMaximized) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMaximized(false);
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [isMaximized]);
+
   return (
-    <Paper variant="outlined" component="section" style={{ ...style, ...maximizeStyles }}>
+    <Paper
+      variant="outlined"
+      component="section"
+      role={isMaximized ? 'dialog' : undefined}
+      aria-modal={isMaximized || undefined}
+      aria-label={`${title} chart`}
+      style={style}
+      sx={{
+        m: 0,
+        overflow: 'hidden',
+        ...(isMaximized && {
+          position: 'fixed',
+          inset: { xs: 1, sm: 2 },
+          zIndex: (theme) => theme.zIndex.modal + 1,
+          width: 'auto !important',
+          height: 'auto !important',
+          backgroundColor: 'background.paper',
+          boxShadow: 24,
+        }),
+      }}
+    >
       <ChartHeader
         title={title}
         description={description}
         descriptionTooltipMaxWidth={descriptionTooltipMaxWidth}
+        isMaximized={isMaximized}
         onMaximizeClick={() => setIsMaximized(!isMaximized)}
       />
-      <Box style={{ height: isMaximized ? 'calc(100% - 40px)' : height }}>{children}</Box>
+      <Box sx={{ height: isMaximized ? 'calc(100% - 52px)' : height, minWidth: 0 }}>{children}</Box>
     </Paper>
   );
 }
 
 export interface ChartHeaderProps extends Pick<ChartContainerProps, 'description' | 'descriptionTooltipMaxWidth' | 'title'> {
   onMaximizeClick?: () => void;
+  isMaximized?: boolean;
 }
 
-function ChartHeader({ title, description, descriptionTooltipMaxWidth, onMaximizeClick }: ChartHeaderProps) {
+function ChartHeader({ title, description, descriptionTooltipMaxWidth, onMaximizeClick, isMaximized }: ChartHeaderProps) {
   return (
     <Stack
       direction="row"
       sx={{
         justifyContent: 'space-between',
         alignItems: 'center',
+        minHeight: 52,
+        px: 1,
+        borderBottom: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Typography
         variant="subtitle1"
-        style={{ marginLeft: 16, marginRight: 16, flex: 1 }}
+        style={{ marginLeft: 8, marginRight: 16, flex: 1 }}
         sx={{
-          color: 'text.secondary',
+          color: 'text.primary',
+          fontWeight: 650,
         }}
       >
         {title}
@@ -77,9 +102,11 @@ function ChartHeader({ title, description, descriptionTooltipMaxWidth, onMaximiz
         }}
       >
         {description && <TooltipPrompt maxWidth={descriptionTooltipMaxWidth}>{description}</TooltipPrompt>}
-        <IconButton onClick={onMaximizeClick}>
-          <Fullscreen />
-        </IconButton>
+        <Tooltip title={isMaximized ? 'Exit full screen' : 'View full screen'}>
+          <IconButton aria-label={isMaximized ? 'Exit full screen' : 'View full screen'} onClick={onMaximizeClick}>
+            {isMaximized ? <FullscreenExit /> : <Fullscreen />}
+          </IconButton>
+        </Tooltip>
       </Stack>
     </Stack>
   );

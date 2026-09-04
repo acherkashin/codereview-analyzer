@@ -105,11 +105,16 @@ function ConfirmationDialog({ open, onClose }: { open: boolean; onClose: (confir
 }
 
 const Root = styled(Stack)(({ theme }) => ({
-  paddingTop: 6,
+  padding: theme.spacing(1.5),
+  marginBottom: theme.spacing(2),
   position: 'sticky',
-  top: 0,
-  backgroundColor: theme.palette.background.default,
-  zIndex: 1,
+  top: theme.spacing(1),
+  backgroundColor: theme.palette.mode === 'dark' ? 'rgba(21,26,36,.94)' : 'rgba(255,255,255,.94)',
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.palette.mode === 'dark' ? '0 10px 24px rgba(0,0,0,.18)' : '0 8px 22px rgba(32,39,64,.05)',
+  backdropFilter: 'blur(14px)',
+  zIndex: 2,
   flexWrap: 'wrap',
   [theme.breakpoints.down('sm')]: {
     position: 'static',

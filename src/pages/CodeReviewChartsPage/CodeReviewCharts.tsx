@@ -77,7 +77,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
   return (
     <div className="cr-code-review-charts">
       <ChartsTitle>Discussions</ChartsTitle>
-      <ChartsContainer container>
+      <ChartsContainer container spacing={2}>
         <Grid size={12}>
           <DiscussionsStartedByPerMonthChart
             user={user}
@@ -104,7 +104,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         </Grid>
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -114,7 +114,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         {user == null && (
           <Grid
             size={{
-              lg: 4,
+              lg: 6,
               md: 6,
               xs: 12,
             }}
@@ -132,7 +132,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         {user == null && (
           <Grid
             size={{
-              lg: 4,
+              lg: 6,
               md: 6,
               xs: 12,
             }}
@@ -145,7 +145,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         )}
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -163,7 +163,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         </Grid>
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -182,7 +182,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         {user == null && (
           <Grid
             size={{
-              lg: 4,
+              lg: 6,
               md: 6,
               xs: 12,
             }}
@@ -192,7 +192,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         )}
       </ChartsContainer>
       <ChartsTitle>Comments</ChartsTitle>
-      <ChartsContainer container>
+      <ChartsContainer container spacing={2}>
         <Grid size={12}>
           <CommentsPerMonthChart user={user} comments={comments} />
         </Grid>
@@ -201,7 +201,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         </Grid>
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -211,7 +211,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         {user == null && (
           <Grid
             size={{
-              lg: 4,
+              lg: 6,
               md: 6,
               xs: 12,
             }}
@@ -221,7 +221,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         )}
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -232,7 +232,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         {user == null && (
           <Grid
             size={{
-              lg: 4,
+              lg: 6,
               md: 6,
               xs: 12,
             }}
@@ -242,7 +242,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         )}
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -252,7 +252,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         {hostType === 'Gitea' && (
           <Grid
             size={{
-              lg: 4,
+              lg: 6,
               md: 6,
               xs: 12,
             }}
@@ -265,10 +265,10 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
 
       <ChartsTitle>Approvals</ChartsTitle>
 
-      <ChartsContainer container>
+      <ChartsContainer container spacing={2}>
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -277,7 +277,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         </Grid>
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -288,11 +288,11 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
 
       <ChartsTitle>Review Requests</ChartsTitle>
 
-      <ChartsContainer container>
+      <ChartsContainer container spacing={2}>
         <Grid
           size={{
-            lg: user != null ? 4 : 12,
-            md: user != null ? 4 : 12,
+            lg: user != null ? 6 : 12,
+            md: user != null ? 6 : 12,
             xs: 12,
           }}
         >
@@ -300,7 +300,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         </Grid>
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -309,7 +309,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         </Grid>
         <Grid
           size={{
-            lg: 4,
+            lg: 6,
             md: 6,
             xs: 12,
           }}
@@ -319,7 +319,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         {user == null && (
           <Grid
             size={{
-              lg: 4,
+              lg: 6,
               md: 6,
               xs: 12,
             }}
@@ -334,7 +334,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
 
       <ChartsTitle>Other</ChartsTitle>
 
-      <ChartsContainer container>
+      <ChartsContainer container spacing={2}>
         <Grid size={12}>
           <PullRequestsCreatedPerMonthChart user={user} pullRequests={pullRequests} />
         </Grid>
@@ -344,7 +344,7 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
         {user == null && (
           <Grid
             size={{
-              lg: 4,
+              lg: 6,
               md: 6,
               xs: 12,
             }}
@@ -357,10 +357,11 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
   );
 }
 
-const ChartsContainer = styled(Grid)(() => ({
+const ChartsContainer = styled(Grid)(({ theme }) => ({
   display: 'flex',
   flexFlow: 'row wrap',
-  padding: '10px',
+  marginBottom: theme.spacing(4),
+  '& > .MuiGrid-root': { minWidth: 0 },
 }));
 
 export const CodeReviewCharts = React.memo(_CodeReviewCharts);

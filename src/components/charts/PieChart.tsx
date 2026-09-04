@@ -1,18 +1,39 @@
 import { PieSvgProps, ResponsivePie } from '@nivo/pie';
 import { PieChartDatum } from '../../utils/PieChartUtils';
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { useNivoTheme } from './useNivoTheme';
 
 export interface PieChartProps extends Pick<PieSvgProps<PieChartDatum>, 'onClick' | 'tooltip' | 'data' | 'colors'> {}
 
 export function PieChart(props: PieChartProps) {
-  return <ResponsivePie {...pieChartSettings} {...props} />;
+  const muiTheme = useTheme();
+  const compact = useMediaQuery(muiTheme.breakpoints.down('sm'));
+  const nivoTheme = useNivoTheme();
+  const crowded = props.data.length > 10;
+
+  return (
+    <ResponsivePie
+      {...pieChartSettings}
+      theme={nivoTheme}
+      margin={compact ? { top: 24, right: 20, bottom: 32, left: 20 } : { top: 36, right: 72, bottom: 52, left: 72 }}
+      enableArcLinkLabels={!compact}
+      arcLinkLabelsSkipAngle={crowded ? 14 : 10}
+      arcLinkLabelsTextColor={muiTheme.palette.text.secondary}
+      arcLabelsTextColor={({ color }) => muiTheme.palette.getContrastText(color)}
+      arcLinkLabel={(datum) => {
+        const label = String(datum.id);
+        return label.length > 20 ? `${label.slice(0, 18)}…` : label;
+      }}
+      {...props}
+    />
+  );
 }
 
 export const pieChartSettings = {
   padding: 0.2,
-  labelTextColor: 'inherit:darker(1.4)',
   labelSkipWidth: 16,
   labelSkipHeight: 16,
-  margin: { top: 40, right: 80, bottom: 80, left: 80 },
   innerRadius: 0.5,
   padAngle: 0.7,
   cornerRadius: 3,
@@ -24,7 +45,6 @@ export const pieChartSettings = {
     modifiers: [['darker', 0.2]],
   },
   arcLinkLabelsSkipAngle: 10,
-  arcLinkLabelsTextColor: '#333333',
   arcLinkLabelsThickness: 2,
   arcLabelsSkipAngle: 10,
   defs: [

@@ -120,13 +120,19 @@ function ConfirmationDialog({ open, onClose }: ConfirmationDialogProps) {
 }
 
 const Root = styled(Stack)(({ theme }) => ({
-  // inputs labels are cut on the top, so we need to add some padding
-  paddingTop: 6,
+  padding: theme.spacing(1.5),
+  marginBottom: theme.spacing(1.5),
   position: 'sticky',
-  top: 0,
-  backgroundColor: theme.palette.background.default,
-  zIndex: 1,
+  top: theme.spacing(1),
+  backgroundColor: theme.palette.mode === 'dark' ? 'rgba(21,26,36,.94)' : 'rgba(255,255,255,.94)',
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.palette.mode === 'dark' ? '0 10px 24px rgba(0,0,0,.18)' : '0 8px 22px rgba(32,39,64,.05)',
+  backdropFilter: 'blur(14px)',
+  zIndex: 2,
+  flexWrap: 'wrap',
   [theme.breakpoints.down('sm')]: {
     position: 'static',
+    flexWrap: 'nowrap',
   },
 }));

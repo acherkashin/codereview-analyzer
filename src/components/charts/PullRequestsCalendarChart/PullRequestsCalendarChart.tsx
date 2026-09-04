@@ -6,8 +6,9 @@ import { groupBy, n, summarize, tidy } from '@tidyjs/tidy';
 import { ChartContainer } from '../../ChartContainer';
 import { ResponsiveCalendar } from '@nivo/calendar';
 import classNames from 'classnames';
-import { Stack } from '@mui/material';
+import { Stack, useTheme } from '@mui/material';
 import { PullRequestDialog } from '../../dialogs/PullRequestDialog';
+import { useNivoTheme } from '../useNivoTheme';
 
 export interface PullRequestsCalendarChartProps {
   user?: User;
@@ -15,6 +16,8 @@ export interface PullRequestsCalendarChartProps {
 }
 
 export function PullRequestsCalendarChart({ user, pullRequests }: PullRequestsCalendarChartProps) {
+  const theme = useTheme();
+  const nivoTheme = useNivoTheme();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPullRequests, setSelectedPullRequests] = useState<PullRequest[]>([]);
   const [dialogTitle, setDialogTitle] = useState('');
@@ -60,15 +63,21 @@ export function PullRequestsCalendarChart({ user, pullRequests }: PullRequestsCa
       >
         <ResponsiveCalendar
           data={data}
+          theme={nivoTheme}
           from={startDate}
           to={endDate}
-          emptyColor="#eeeeee"
-          colors={['#6FCB84', '#4D9759', '#366F3C', '#1F4424']}
+          emptyColor={theme.palette.action.hover}
+          colors={[
+            theme.palette.primary.light,
+            theme.palette.primary.main,
+            theme.palette.primary.dark,
+            theme.palette.secondary.main,
+          ]}
           margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
           yearSpacing={40}
-          monthBorderColor="#ffffff"
+          monthBorderColor={theme.palette.background.paper}
           dayBorderWidth={2}
-          dayBorderColor="#ffffff"
+          dayBorderColor={theme.palette.background.paper}
           legends={[
             {
               anchor: 'bottom-right',

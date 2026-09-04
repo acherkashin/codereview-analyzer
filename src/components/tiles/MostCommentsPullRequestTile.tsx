@@ -1,4 +1,4 @@
-import { Avatar } from '@mui/material';
+import { Avatar, Link } from '@mui/material';
 import { PullRequest } from '../../services/types';
 import { Tile } from './Tile';
 
@@ -12,9 +12,9 @@ export function MostCommentsPullRequestTile({ pullRequest }: MostCommentsPullReq
       count={pullRequest.comments.length}
       title="Most comments for PR"
       details={
-        <a href={pullRequest.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+        <Link href={pullRequest.url} target="_blank" rel="noopener noreferrer" underline="hover">
           {pullRequest.title}
-        </a>
+        </Link>
       }
       icon={
         <Avatar

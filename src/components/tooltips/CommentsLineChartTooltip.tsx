@@ -1,23 +1,45 @@
 import { SquareMarker } from './BaseChartTooltip';
 import { SliceTooltipProps } from '@nivo/line';
+import { Box, Paper, Typography } from '@mui/material';
 
 export function CommentsLineChartTooltip({ slice }: SliceTooltipProps) {
+  const points = slice.points.toSorted((a, b) => Number(b.data.y) - Number(a.data.y));
+
   return (
-    <div
-      style={{
-        background: 'white',
-        padding: '9px 12px',
-        border: '1px solid #ccc',
+    <Paper
+      data-testid="line-chart-tooltip"
+      elevation={8}
+      sx={{
+        width: 'min(340px, calc(100vw - 32px))',
+        maxHeight: 'min(420px, 65vh)',
+        overflowY: 'auto',
+        p: 1.25,
+        color: 'text.primary',
+        border: '1px solid',
+        borderColor: 'divider',
       }}
     >
-      {slice.points
-        .toSorted((a, b) => parseInt(b.data.y.toString()) - parseInt(a.data.y.toString()))
-        .map((point) => (
-          <div key={point.id} style={{ padding: '3px 0' }}>
+      {points[0] && (
+        <Typography variant="caption" sx={{ display: 'block', mb: 0.75, color: 'text.secondary', fontWeight: 700 }}>
+          {String(points[0].data.xFormatted)}
+        </Typography>
+      )}
+      {points.map((point) => (
+        <Box
+          key={point.id}
+          sx={{ display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr) auto', alignItems: 'center', gap: 0.75, py: 0.375 }}
+        >
+          <Box sx={{ display: 'flex' }}>
             <SquareMarker color={point.serieColor} />
-            <span>{point.serieId}</span> <strong style={{ float: 'right', marginLeft: 16 }}>{point.data.y.toString()}</strong>
-          </div>
-        ))}
-    </div>
+          </Box>
+          <Typography variant="caption" noWrap title={String(point.serieId)}>
+            {String(point.serieId)}
+          </Typography>
+          <Typography variant="caption" sx={{ fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+            {point.data.y.toString()}
+          </Typography>
+        </Box>
+      ))}
+    </Paper>
   );
 }

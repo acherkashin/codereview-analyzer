@@ -13,3 +13,4 @@ export { FilterPanel } from './FilterPanel';
 export { FullScreenDialog } from './FullScreenDialog';
 export { ImportTextButton } from './ImportTextButton';
 export { PullRequestList } from './PullRequestList';
+export { ColorModeToggle } from './ColorModeToggle';

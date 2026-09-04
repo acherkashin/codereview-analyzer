@@ -46,7 +46,6 @@ export function TopLongestDiscussionsChart({ pullRequests, count, user, onClick 
     <ChartContainer title={title} description="Shows discussions with the greatest number of comments">
       <BarChart
         data={data}
-        margin={{ left: user ? 250 : 350 }}
         borderRadius={4}
         tooltip={(props) => {
           const discussion = props.data as typeof data[0];

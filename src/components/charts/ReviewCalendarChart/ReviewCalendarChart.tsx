@@ -5,7 +5,8 @@ import dayjs from 'dayjs';
 import { getEndDate, getStartDate } from '../../../utils/GitUtils';
 import { useMemo } from 'react';
 import { groupBy, n, summarize, tidy } from '@tidyjs/tidy';
-import { Stack } from '@mui/material';
+import { Stack, useTheme } from '@mui/material';
+import { useNivoTheme } from '../useNivoTheme';
 
 export interface ReviewCalendarChartProps {
   user?: User;
@@ -13,6 +14,8 @@ export interface ReviewCalendarChartProps {
 }
 
 export function ReviewCalendarChart({ pullRequests, user }: ReviewCalendarChartProps) {
+  const theme = useTheme();
+  const nivoTheme = useNivoTheme();
   const startDate = useMemo(() => dayjs(getStartDate(pullRequests)).format('YYYY-MM-DD'), [pullRequests]);
   const endDate = useMemo(() => dayjs(getEndDate(pullRequests)).format('YYYY-MM-DD'), [pullRequests]);
 
@@ -54,15 +57,21 @@ export function ReviewCalendarChart({ pullRequests, user }: ReviewCalendarChartP
     >
       <ResponsiveCalendar
         data={data}
+        theme={nivoTheme}
         from={startDate}
         to={endDate}
-        emptyColor="#eeeeee"
-        colors={['#6FCB84', '#4D9759', '#366F3C', '#1F4424']}
+        emptyColor={theme.palette.action.hover}
+        colors={[
+          theme.palette.primary.light,
+          theme.palette.primary.main,
+          theme.palette.primary.dark,
+          theme.palette.secondary.main,
+        ]}
         margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
         yearSpacing={40}
-        monthBorderColor="#ffffff"
+        monthBorderColor={theme.palette.background.paper}
         dayBorderWidth={2}
-        dayBorderColor="#ffffff"
+        dayBorderColor={theme.palette.background.paper}
         legends={[
           {
             anchor: 'bottom-right',

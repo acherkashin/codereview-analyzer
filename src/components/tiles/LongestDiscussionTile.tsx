@@ -1,4 +1,4 @@
-import { Avatar } from '@mui/material';
+import { Avatar, Link } from '@mui/material';
 import { UserDiscussion } from '../../services/types';
 import { Tile } from './Tile';
 
@@ -13,9 +13,9 @@ export function LongestDiscussionTile({ discussion }: LongestDiscussionTileProps
       title="Longest Discussion"
       details={
         discussion && (
-          <a href={discussion.url} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+          <Link href={discussion.url} target="_blank" rel="noopener noreferrer" underline="hover">
             {discussion.pullRequestName}
-          </a>
+          </Link>
         )
       }
       icon={

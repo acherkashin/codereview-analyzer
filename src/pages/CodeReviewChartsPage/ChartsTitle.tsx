@@ -4,10 +4,11 @@ import { PropsWithChildren } from 'react';
 export function ChartsTitle({ children }: PropsWithChildren<{}>) {
   return (
     <Typography
-      variant="h3"
+      variant="h4"
       component="h2"
       sx={{
-        ml: 3,
+        mt: 2,
+        mb: 1,
       }}
     >
       {children}

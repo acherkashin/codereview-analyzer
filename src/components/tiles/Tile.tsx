@@ -11,26 +11,26 @@ export interface TileProps {
 }
 
 const TileRoot = styled(Card)(({ theme }) => ({
-  height: 150,
+  height: 144,
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
   margin: theme.spacing(1),
-  padding: theme.spacing(1.5),
-  backgroundColor: '#293164' /* Pastel color for the tile background */,
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
   position: 'relative',
   overflow: 'hidden',
 }));
 
 const Header = styled(Stack)(({ theme }) => ({
-  color: theme.palette.common.white,
+  color: theme.palette.text.secondary,
   flexShrink: 0,
   marginBottom: theme.spacing(1),
 }));
 
 const Title = styled('div')(({ theme }) => ({
   fontSize: 16,
-  fontWeight: 'bold',
+  fontWeight: 650,
   overflow: 'hidden',
   display: '-webkit-box',
   WebkitLineClamp: '2',
@@ -39,8 +39,7 @@ const Title = styled('div')(({ theme }) => ({
 
 const Details = styled('div')(({ theme }) => ({
   fontSize: 14,
-  color: theme.palette.common.white,
-  opacity: 0.7,
+  color: theme.palette.text.secondary,
   marginBottom: 10,
   flexShrink: 0,
   whiteSpace: 'nowrap',
@@ -49,9 +48,12 @@ const Details = styled('div')(({ theme }) => ({
 }));
 
 const Number = styled('div')(({ theme }) => ({
-  fontSize: 32,
-  fontWeight: 'bold',
-  color: theme.palette.common.white,
+  fontSize: 34,
+  lineHeight: 1.05,
+  letterSpacing: '-0.035em',
+  fontVariantNumeric: 'tabular-nums',
+  fontWeight: 750,
+  color: theme.palette.text.primary,
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
@@ -63,7 +65,14 @@ const Icon = styled('i')(({ theme }) => ({
   bottom: theme.spacing(1),
   right: theme.spacing(1),
   fontSize: 24,
-  color: '#333',
+  display: 'grid',
+  placeItems: 'center',
+  width: 42,
+  height: 42,
+  borderRadius: 12,
+  color: theme.palette.primary.main,
+  backgroundColor: theme.palette.action.selected,
+  '& svg': { color: `${theme.palette.primary.main} !important`, fontSize: 24 },
 }));
 
 export function Tile({ title, count, details, icon, description }: TileProps) {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Property } from 'csstype';
+import { Box } from '@mui/material';
 
 export interface BaseChartTooltipProps {
   color?: string | null;
@@ -8,22 +9,25 @@ export interface BaseChartTooltipProps {
 
 export function BaseChartTooltip({ color, children, style }: React.PropsWithChildren<BaseChartTooltipProps>) {
   return (
-    <div
-      style={{
-        background: 'white',
-        color: 'inherit',
-        fontSize: 'inherit',
-        borderRadius: 2,
-        boxShadow: 'rgb(0 0 0 / 25%) 0px 1px 2px',
-        padding: '5px 9px',
-        ...style,
+    <Box
+      sx={{
+        maxWidth: 'min(400px, calc(100vw - 32px))',
+        p: 1.25,
+        color: 'text.primary',
+        backgroundColor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 1.25,
+        boxShadow: 8,
+        fontSize: '0.75rem',
       }}
+      style={style}
     >
-      <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center' }}>
+      <div style={{ whiteSpace: 'normal', display: 'flex', alignItems: 'center' }}>
         {color && <SquareMarker color={color} />}
         {children}
       </div>
-    </div>
+    </Box>
   );
 }
 

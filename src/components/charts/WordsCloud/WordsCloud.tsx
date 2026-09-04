@@ -4,7 +4,7 @@ import { Comment } from '../../../services/types';
 import { extractWords } from './WordsCloudUtils';
 import { ChartContainer } from '../../ChartContainer';
 import ReactWordcloud from 'react-wordcloud';
-import { Stack } from '@mui/material';
+import { Stack, useTheme } from '@mui/material';
 
 export interface WordsCloudProps {
   comments: Comment[];
@@ -12,6 +12,7 @@ export interface WordsCloudProps {
 }
 
 function _WordsCloud({ comments, onClick }: WordsCloudProps) {
+  const theme = useTheme();
   const data = useMemo(() => {
     const text = comments.map((item) => item.body).join(' ');
     const words = extractWords(text);
@@ -39,19 +40,40 @@ function _WordsCloud({ comments, onClick }: WordsCloudProps) {
       }
     >
       <ResponsiveWrapper>
-        {({ width, height }) => (
-          <ReactWordcloud
-            size={[width, height]}
-            words={data}
-            maxWords={350}
-            options={{ fontSizes: [10, 120] }}
-            callbacks={{
-              onWordClick: (e) => {
-                onClick(e.text);
-              },
-            }}
-          />
-        )}
+        {({ width, height }) => {
+          const compact = width < 480;
+
+          return (
+            <ReactWordcloud
+              size={[width, height]}
+              words={data}
+              maxWords={compact ? 48 : 140}
+              options={{
+                colors: [
+                  theme.palette.primary.main,
+                  theme.palette.secondary.main,
+                  theme.palette.info.main,
+                  theme.palette.success.main,
+                  theme.palette.warning.main,
+                  theme.palette.text.primary,
+                ],
+                deterministic: true,
+                enableOptimizations: data.length > 100,
+                fontFamily: theme.typography.fontFamily,
+                fontSizes: compact ? [12, 40] : [12, 72],
+                padding: compact ? 2 : 3,
+                rotationAngles: [0, 0],
+                rotations: 1,
+                transitionDuration: 0,
+              }}
+              callbacks={{
+                onWordClick: (e) => {
+                  onClick(e.text);
+                },
+              }}
+            />
+          );
+        }}
       </ResponsiveWrapper>
     </ChartContainer>
   );

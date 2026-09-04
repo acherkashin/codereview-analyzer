@@ -11,6 +11,7 @@ import {
   PullRequestSizeTier,
 } from '../../utils/PullRequestMetrics';
 import { TeamReviewMonthlySizeBucket, TeamReviewSummary } from '../../utils/TeamReviewUtils';
+import { useNivoTheme } from '../../components/charts/useNivoTheme';
 
 type ChartMode = 'counts' | 'share';
 
@@ -44,6 +45,7 @@ export interface PullRequestSizeTrendChartProps {
 
 export function PullRequestSizeTrendChart({ summary, monthlySizeBuckets, authoredPullRequests }: PullRequestSizeTrendChartProps) {
   const theme = useTheme();
+  const nivoTheme = useNivoTheme();
   const [mode, setMode] = useState<ChartMode>('counts');
   const [drillDownSelection, setDrillDownSelection] = useState<DrillDownSelection | null>(null);
   const [hoveredBar, setHoveredBar] = useState<HoveredBar | null>(null);
@@ -187,6 +189,7 @@ export function PullRequestSizeTrendChart({ summary, monthlySizeBuckets, authore
                 <Box sx={{ width: chartWidth, minWidth: '100%', height: '100%' }}>
                   <ResponsiveBar<MonthlySizeChartDatum>
                     data={chartData}
+                    theme={nivoTheme}
                     keys={sizeTierOrder}
                     indexBy="month"
                     layout="vertical"

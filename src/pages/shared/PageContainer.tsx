@@ -6,5 +6,7 @@ export const PageContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   overflowY: 'auto',
   overflowX: 'hidden',
-  padding: theme.spacing(2),
+  padding: theme.spacing(3, 3, 5),
+  [theme.breakpoints.up('lg')]: { paddingLeft: theme.spacing(4), paddingRight: theme.spacing(4) },
+  [theme.breakpoints.down('sm')]: { padding: theme.spacing(2, 2, 4) },
 }));

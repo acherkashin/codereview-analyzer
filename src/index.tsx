@@ -3,17 +3,16 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { RouterProvider } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import { theme } from './theme';
+import { ColorModeProvider } from './theme/ColorModeProvider';
 import { router } from './pages/Router';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
+    <ColorModeProvider>
       <RouterProvider router={router} />
-    </ThemeProvider>
+    </ColorModeProvider>
   </React.StrictMode>
 );
 
