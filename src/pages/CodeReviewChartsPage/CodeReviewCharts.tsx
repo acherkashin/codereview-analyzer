@@ -59,6 +59,8 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
   const discussions = useChartsStore(useShallow(getDiscussions));
   const userComments = useChartsStore(useShallow(getUserComments));
   const user = useChartsStore(getUser);
+  const startDate = useChartsStore((state) => state.startDate);
+  const endDate = useChartsStore((state) => state.endDate);
   const users = useChartsStore(getAllUsers)!;
   const hostType = useChartsStore(getHostType);
 
@@ -336,7 +338,12 @@ function _CodeReviewCharts({ onWordClick, onShowComments, onShowDiscussions, onD
 
       <ChartsContainer container spacing={2}>
         <Grid size={12}>
-          <PullRequestsCreatedPerMonthChart user={user} pullRequests={pullRequests} />
+          <PullRequestsCreatedPerMonthChart
+            user={user}
+            pullRequests={pullRequests}
+            startDate={startDate?.toDate()}
+            endDate={endDate?.toDate()}
+          />
         </Grid>
         <Grid size={12}>
           <PullRequestsCalendarChart user={user} pullRequests={pullRequests} />

@@ -7,6 +7,7 @@ export interface ChartContainerProps {
   title: string;
   description?: React.ReactNode;
   descriptionTooltipMaxWidth?: number;
+  headerActions?: React.ReactNode;
   style?: React.CSSProperties | undefined;
   height?: number;
   children: React.ReactNode;
@@ -17,6 +18,7 @@ export function ChartContainer({
   title,
   description,
   descriptionTooltipMaxWidth,
+  headerActions,
   style,
   height = 440,
 }: ChartContainerProps) {
@@ -59,6 +61,7 @@ export function ChartContainer({
         title={title}
         description={description}
         descriptionTooltipMaxWidth={descriptionTooltipMaxWidth}
+        headerActions={headerActions}
         isMaximized={isMaximized}
         onMaximizeClick={() => setIsMaximized(!isMaximized)}
       />
@@ -67,12 +70,20 @@ export function ChartContainer({
   );
 }
 
-export interface ChartHeaderProps extends Pick<ChartContainerProps, 'description' | 'descriptionTooltipMaxWidth' | 'title'> {
+export interface ChartHeaderProps
+  extends Pick<ChartContainerProps, 'description' | 'descriptionTooltipMaxWidth' | 'headerActions' | 'title'> {
   onMaximizeClick?: () => void;
   isMaximized?: boolean;
 }
 
-function ChartHeader({ title, description, descriptionTooltipMaxWidth, onMaximizeClick, isMaximized }: ChartHeaderProps) {
+function ChartHeader({
+  title,
+  description,
+  descriptionTooltipMaxWidth,
+  headerActions,
+  onMaximizeClick,
+  isMaximized,
+}: ChartHeaderProps) {
   return (
     <Stack
       direction="row"
@@ -102,6 +113,7 @@ function ChartHeader({ title, description, descriptionTooltipMaxWidth, onMaximiz
         }}
       >
         {description && <TooltipPrompt maxWidth={descriptionTooltipMaxWidth}>{description}</TooltipPrompt>}
+        {headerActions}
         <Tooltip title={isMaximized ? 'Exit full screen' : 'View full screen'}>
           <IconButton aria-label={isMaximized ? 'Exit full screen' : 'View full screen'} onClick={onMaximizeClick}>
             {isMaximized ? <FullscreenExit /> : <Fullscreen />}
