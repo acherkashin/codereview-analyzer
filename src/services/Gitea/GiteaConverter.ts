@@ -176,13 +176,18 @@ export function convertToDiscussions(pr: GiteaPullRequest, comments: GiteaPullRe
   return result;
 }
 
-function getReadyTime(pullRequest: GiteaPullRequest, timeline: TimelineComment[]): string | undefined {
+function getReadyTime(
+  pullRequest: GiteaPullRequest,
+  timeline: (TimelineComment | null | undefined)[]
+): string | undefined {
   let readyTime: string | undefined = undefined;
 
   if (!pullRequest.title?.trim().startsWith('WIP:')) {
     const markReady = timeline.findLast(
       (item) =>
-        item.type === 'change_title' && item.old_title?.trim().startsWith('WIP:') && !item.new_title?.trim().startsWith('WIP:')
+        item?.type === 'change_title' &&
+        item.old_title?.trim().startsWith('WIP:') &&
+        !item.new_title?.trim().startsWith('WIP:')
     );
     readyTime = markReady?.created_at ?? pullRequest.created_at;
   }

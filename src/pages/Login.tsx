@@ -1,16 +1,4 @@
-import {
-  Button,
-  ListItemIcon,
-  ListItemText,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Stack,
-  TextField,
-  Typography,
-  Paper,
-  Divider,
-} from '@mui/material';
+import { Button, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, Paper, Divider } from '@mui/material';
 import { Box } from '@mui/system';
 import { useCallback, useState } from 'react';
 import GitLabIcon from './../components/gitlab.svg?react';
@@ -31,6 +19,11 @@ const tokenHelp: Record<HostingType, `https://${string}`> = {
   Gitea: 'https://docs.gitea.com/development/api-usage',
 };
 
+const hostingIcons: Record<HostingType, typeof GitLabIcon> = {
+  Gitlab: GitLabIcon,
+  Gitea: GiteaIcon,
+};
+
 export interface LoginProps {}
 
 export function Login(_: LoginProps) {
@@ -45,6 +38,7 @@ export function Login(_: LoginProps) {
   const signIn = useAuthStore(getSignIn);
   const signInGuest = useAuthStore(getSignInGuest);
   const cancelSignIn = useAuthStore((state) => state.actions.cancelSignIn);
+  const clearSignInError = useAuthStore((state) => state.actions.clearSignInError);
   const isSigningIn = useAuthStore((state) => state.isSigningIn);
   const signInError = useAuthStore((state) => state.signInError);
   const redirectTarget = getRedirectTarget(location.state);
@@ -63,9 +57,11 @@ export function Login(_: LoginProps) {
     }
     setIsHostValid(true);
 
-    signIn(host, token, hostType).then(() => {
-      navigate(redirectTarget, { replace: true });
-    });
+    void signIn(host, token, hostType)
+      .then(() => {
+        navigate(redirectTarget, { replace: true });
+      })
+      .catch(() => undefined);
   }, [host, hostType, navigate, redirectTarget, signIn, token]);
 
   // redirects to login if not authenticated
@@ -73,6 +69,7 @@ export function Login(_: LoginProps) {
 
   const handleChange = (event: SelectChangeEvent<string>) => {
     setHostType(event.target.value as HostingType);
+    clearSignInError();
   };
 
   return (
@@ -82,8 +79,9 @@ export function Login(_: LoginProps) {
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        height: '100%',
-        p: 2,
+        minHeight: '100dvh',
+        px: 2,
+        py: { xs: 8, sm: 4 },
       }}
     >
       <Box sx={{ position: 'fixed', top: 16, right: 16 }}>
@@ -110,18 +108,18 @@ export function Login(_: LoginProps) {
             </Typography>
           </Stack>
           <Divider />
-          <Select required value={hostType} onChange={handleChange} style={{ height: 56 }}>
+          <Select
+            required
+            value={hostType}
+            onChange={handleChange}
+            renderValue={(value) => <HostingOption hostType={value as HostingType} testId="selected-hosting-platform" />}
+            sx={{ height: 56 }}
+          >
             <MenuItem value="Gitlab">
-              <ListItemIcon>
-                <GitLabIcon style={{ width: 24 }} />
-              </ListItemIcon>
-              <ListItemText>Gitlab</ListItemText>
+              <HostingOption hostType="Gitlab" />
             </MenuItem>
             <MenuItem value="Gitea">
-              <ListItemIcon>
-                <GiteaIcon style={{ width: 24 }} />
-              </ListItemIcon>
-              <ListItemText>Gitea</ListItemText>
+              <HostingOption hostType="Gitea" />
             </MenuItem>
           </Select>
           <TextField
@@ -132,7 +130,11 @@ export function Login(_: LoginProps) {
             name="host"
             placeholder="https://gitlab.com"
             value={host}
-            onChange={(e) => setHost(e.target.value)}
+            onChange={(e) => {
+              setHost(e.target.value);
+              setIsHostValid(true);
+              clearSignInError();
+            }}
           />
           <TextField
             required
@@ -142,7 +144,10 @@ export function Login(_: LoginProps) {
             type="password"
             error={!!signInError}
             helperText={signInError}
-            onChange={(e) => setToken(e.target.value)}
+            onChange={(e) => {
+              setToken(e.target.value);
+              clearSignInError();
+            }}
             slotProps={{
               input: {
                 endAdornment:
@@ -166,6 +171,19 @@ export function Login(_: LoginProps) {
         </Stack>
       </Paper>
     </Box>
+  );
+}
+
+function HostingOption({ hostType, testId }: { hostType: HostingType; testId?: string }) {
+  const HostingIcon = hostingIcons[hostType];
+
+  return (
+    <Stack data-testid={testId} direction="row" spacing={1.5} sx={{ minWidth: 0, alignItems: 'center' }}>
+      <HostingIcon style={{ width: 24, height: 24, flexShrink: 0 }} aria-hidden="true" />
+      <Typography component="span" variant="body1">
+        {hostType}
+      </Typography>
+    </Stack>
   );
 }
 

@@ -76,11 +76,11 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
   return (
     <Grid container>
       <TileGridItem>
-        <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon fontSize="large" sx={{ color: 'white' }} />} />
+        <Tile count={comments.length} title="Comments" icon={<CommentRoundedIcon />} />
       </TileGridItem>
 
       <TileGridItem>
-        <Tile count={discussions.length} title="Discussions" icon={<ForumIcon fontSize="large" sx={{ color: 'white' }} />} />
+        <Tile count={discussions.length} title="Discussions" icon={<ForumIcon />} />
       </TileGridItem>
 
       <TileGridItem>
@@ -107,11 +107,7 @@ export function CodeReviewTiles({ user }: CodeReviewTilesProps) {
         </TileGridItem>
       )}
       <TileGridItem>
-        <Tile
-          count={commentedFilesCount}
-          title="Commented files"
-          icon={<FileCopyIcon fontSize="large" sx={{ color: 'white' }} />}
-        />
+        <Tile count={commentedFilesCount} title="Commented files" icon={<FileCopyIcon />} />
       </TileGridItem>
       <TileGridItem>
         <LongestDiscussionTile discussion={longestDiscussion} />

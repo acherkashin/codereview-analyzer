@@ -3,6 +3,8 @@ import { createTheme, PaletteMode } from '@mui/material/styles';
 export function createAppTheme(mode: PaletteMode) {
   const dark = mode === 'dark';
   const border = dark ? 'rgba(226,232,240,0.12)' : '#E4E8F0';
+  const backgroundPaper = dark ? '#151A24' : '#FFFFFF';
+  const textPrimary = dark ? '#F3F5FA' : '#161927';
 
   return createTheme({
     breakpoints: { values: { xs: 0, sm: 600, md: 1000, lg: 1200, xl: 1920 } },
@@ -11,7 +13,7 @@ export function createAppTheme(mode: PaletteMode) {
       primary: {
         main: dark ? '#8B80FF' : '#5B4FE9',
         light: '#A79FFF',
-        dark: '#4035C7',
+        dark: dark ? '#776DF2' : '#4035C7',
         contrastText: dark ? '#0D1017' : '#FFFFFF',
       },
       secondary: { main: dark ? '#55D7B2' : '#0F9F7A' },
@@ -19,8 +21,8 @@ export function createAppTheme(mode: PaletteMode) {
       info: { main: dark ? '#62B4FF' : '#287DD1' },
       warning: { main: dark ? '#F7C66A' : '#B7791F' },
       error: { main: dark ? '#FF7B87' : '#D14355' },
-      background: { default: dark ? '#0D1017' : '#F5F7FB', paper: dark ? '#151A24' : '#FFFFFF' },
-      text: { primary: dark ? '#F3F5FA' : '#161927', secondary: dark ? '#AAB2C2' : '#667085' },
+      background: { default: dark ? '#0D1017' : '#F5F7FB', paper: backgroundPaper },
+      text: { primary: textPrimary, secondary: dark ? '#AAB2C2' : '#667085' },
       divider: border,
       action: {
         active: dark ? '#B6BECD' : '#667085',
@@ -90,6 +92,14 @@ export function createAppTheme(mode: PaletteMode) {
       MuiOutlinedInput: {
         styleOverrides: {
           root: { minHeight: 52, borderRadius: 10 },
+          input: {
+            '&:-webkit-autofill': {
+              WebkitBoxShadow: `0 0 0 100px ${backgroundPaper} inset`,
+              WebkitTextFillColor: textPrimary,
+              caretColor: textPrimary,
+              borderRadius: 'inherit',
+            },
+          },
           notchedOutline: { borderColor: dark ? 'rgba(226,232,240,0.18)' : '#DCE1EA' },
         },
       },

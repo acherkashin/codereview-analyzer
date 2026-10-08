@@ -193,7 +193,7 @@ export class GiteaService implements GitService {
     }, limit);
   }
 
-  private async getAllComments(owner: string, repo: string, pullRequestIndex: number): Promise<GiteaPullReviewComment[]> {
+  private async getAllComments(owner: string, repo: string, pullRequestIndex: number): Promise<TimelineComment[]> {
     const limit = 50;
     return getAllPages((page) => {
       return this.api.repos
@@ -201,7 +201,7 @@ export class GiteaService implements GitService {
           page,
           limit,
         })
-        .then(({ data }) => data ?? []);
+        .then(({ data }) => (data ?? []).filter((item): item is TimelineComment => item != null));
     }, limit);
   }
 

@@ -40,6 +40,7 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
         userContext: guestContext,
         user: null,
         genericClient: null,
+        signInError: null,
       });
     },
     signIn: async (host: string, token: string, hostType: HostingType) => {
@@ -47,7 +48,7 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
         return;
       }
 
-      set({ isSigningIn: true });
+      set({ isSigningIn: true, signInError: null });
 
       const client = getGitService({ host, token, hostType });
 
@@ -88,8 +89,12 @@ function getActions(set: StoreApi<AuthStore>['setState'], get: StoreApi<AuthStor
         userContext: null,
         user: null,
         genericClient: null,
+        signInError: null,
       });
       clearUserContext();
+    },
+    clearSignInError() {
+      set({ signInError: null });
     },
     cancelSignIn() {
       if (_cancel != null) {

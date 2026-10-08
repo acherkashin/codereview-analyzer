@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gitea Team Review Report"
+  short_description: "Generate offline Gitea Team Review HTML reports."
+  default_prompt: "Generate a Gitea team review report for a confirmed team and explicit period."

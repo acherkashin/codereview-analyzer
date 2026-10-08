@@ -183,6 +183,17 @@ test('login page keeps its controls usable and aligned', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Code Review Analyzer' })).toBeVisible();
   const hostType = page.getByRole('combobox').first();
   await expect(hostType).toContainText('Gitlab');
+  const selectedPlatform = page.getByTestId('selected-hosting-platform');
+  const [platformIconBox, platformLabelBox] = await Promise.all([
+    selectedPlatform.locator('svg').boundingBox(),
+    selectedPlatform.getByText('Gitlab', { exact: true }).boundingBox(),
+  ]);
+  expect(platformIconBox).not.toBeNull();
+  expect(platformLabelBox).not.toBeNull();
+  expect(
+    Math.abs(platformIconBox!.y + platformIconBox!.height / 2 - (platformLabelBox!.y + platformLabelBox!.height / 2))
+  ).toBeLessThanOrEqual(1);
+  expect(platformIconBox!.x + platformIconBox!.width).toBeLessThan(platformLabelBox!.x);
   await hostType.click();
   await expect(page.getByRole('option', { name: 'Gitlab' })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -196,6 +207,42 @@ test('login page keeps its controls usable and aligned', async ({ page }) => {
   expectNoBrowserErrors();
 });
 
+test('login page remains fully reachable on short screens', async ({ page }) => {
+  await page.setViewportSize({ width: 812, height: 375 });
+  await page.addInitScript(() => localStorage.setItem('color-mode-preference', 'dark'));
+  await page.goto('./login');
+
+  const mainBounds = await page.getByRole('main').boundingBox();
+  const dimensions = await page.evaluate(() => ({
+    viewportHeight: window.innerHeight,
+    scrollHeight: document.documentElement.scrollHeight,
+  }));
+
+  expect(mainBounds).not.toBeNull();
+  expect(mainBounds!.y).toBeGreaterThanOrEqual(0);
+  expect(dimensions.scrollHeight).toBeGreaterThan(dimensions.viewportHeight);
+  await expect(page.getByRole('heading', { name: 'Code Review Analyzer' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Login As Guest' })).toBeVisible();
+  await expectNoPageOverflow(page);
+});
+
+test('switching platforms clears a stale provider error', async ({ page }) => {
+  await page.route('http://127.0.0.1:9/**', (route) => route.abort());
+  await page.goto('./login');
+
+  const hostType = page.getByRole('combobox').first();
+  await hostType.click();
+  await page.getByRole('option', { name: 'Gitea', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Host' }).fill('http://127.0.0.1:9');
+  await page.getByRole('textbox', { name: 'Token' }).fill('dummy-token');
+  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await expect(page.getByText('Gitea error', { exact: true })).toBeVisible();
+
+  await hostType.click();
+  await page.getByRole('option', { name: 'Gitlab', exact: true }).click();
+  await expect(page.getByText('Gitea error', { exact: true })).toHaveCount(0);
+});
+
 test('login page supports dark mode', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('color-mode-preference', 'light'));
   await page.goto('./login');
@@ -205,6 +252,9 @@ test('login page supports dark mode', async ({ page }) => {
   await page.getByRole('heading', { name: 'Code Review Analyzer' }).click();
   await expect(page).toHaveScreenshot('login-dark.png');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('color-mode-preference'))).toBe('dark');
+  const loginButton = page.getByRole('button', { name: 'Login', exact: true });
+  await loginButton.hover();
+  expect(await getContrastRatio(loginButton)).toBeGreaterThanOrEqual(4.5);
 });
 
 test('charts page imports data and keeps MUI controls interactive', async ({ page }) => {
@@ -213,6 +263,16 @@ test('charts page imports data and keeps MUI controls interactive', async ({ pag
   await openGuestPage(page, 'charts');
   await expect(page.getByRole('heading', { name: 'Highlights' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Discussions', exact: true })).toBeVisible();
+  const branchGlyphBounds = await page
+    .getByTestId('branch-icon')
+    .first()
+    .locator('path')
+    .evaluate((path) => {
+      const bounds = (path as SVGGraphicsElement).getBBox();
+      return { width: bounds.width, height: bounds.height };
+    });
+  expect(branchGlyphBounds.width).toBeGreaterThanOrEqual(12);
+  expect(branchGlyphBounds.height).toBeGreaterThanOrEqual(17);
 
   await page
     .getByRole('button', { name: /Choose date, selected date is/ })

@@ -84,7 +84,7 @@ export function Tile({ title, count, details, icon, description }: TileProps) {
       </Header>
       <Details title={typeof details === 'string' ? details : undefined}>{details}</Details>
       <Number title={count.toString()}>{count}</Number>
-      <Icon>{icon}</Icon>
+      <Icon data-testid="highlight-tile-icon">{icon}</Icon>
     </TileRoot>
   );
 }

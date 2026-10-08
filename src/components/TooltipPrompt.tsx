@@ -1,4 +1,4 @@
-import HelpIcon from '@mui/icons-material/Help';
+import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import { styled } from '@mui/material/styles';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 
@@ -16,7 +16,7 @@ export function TooltipPrompt({ children, maxWidth }: TooltipPromptProps) {
         aria-label="More information"
         style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 0 }}
       >
-        <HelpIcon aria-hidden="true" />
+        <HelpOutlineRoundedIcon aria-hidden="true" sx={{ color: 'primary.main', fontSize: 22 }} />
       </span>
     </LightTooltip>
   );
